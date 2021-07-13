@@ -1,0 +1,7 @@
+type Binary = True | False
+
+isTruthy : Binary -> boolean
+isTruthy binary =
+    case binary of
+        True -> true
+        False -> false

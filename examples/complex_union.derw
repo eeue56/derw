@@ -1,0 +1,9 @@
+type Animal
+    = Dog { name: string }
+    | Cat { lives: number }
+
+sayHiToPet : Animal -> string
+sayHiToPet pet =
+    case pet of
+        Dog { name } -> `Good boy ${name}!`
+        Cat { lives } -> "You have " + lives + " lives remaining."
