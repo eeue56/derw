@@ -1,0 +1,28 @@
+{
+    "name": "@eeue56/derw",
+    "version": "0.0.1",
+    "description": "An Elm-inspired language that transpiles to TypeScript",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "format": "npx prettier --write ."
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/eeue56/derw.git"
+    },
+    "keywords": [
+        "typescript",
+        "hiraeth"
+    ],
+    "author": "eeue56",
+    "license": "BSD-3-Clause",
+    "bugs": {
+        "url": "https://github.com/eeue56/derw/issues"
+    },
+    "homepage": "https://github.com/eeue56/derw#readme",
+    "devDependencies": {
+        "prettier": "github:eeue56/prettier#feat/spacing-around-square-brackets",
+        "typescript": "^4.3.5"
+    }
+}
