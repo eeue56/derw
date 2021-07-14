@@ -1,12 +1,8 @@
-import {
-    blockKind,
-    generateTypescript,
-    intoBlocks,
-    Module,
-    parse,
-    Tag,
-    UnionType,
-} from "./derw";
+import { generateTypescript } from "./generator";
+import { blockKind, parse } from "./parser";
+import { Module, Tag, UnionType } from "./types";
+
+import { intoBlocks } from "./blocks";
 import * as assert from "assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 
@@ -87,7 +83,7 @@ type Binary = True | False
     assert.strictEqual(
         generateTypescript(parsed),
         `
-type True {
+type True = {
     kind: "True";
 }
 
@@ -97,7 +93,7 @@ function True(): True {
     }
 }
 
-type False {
+type False = {
     kind: "False";
 }
 
@@ -107,7 +103,7 @@ function False(): False {
     }
 }
 
-type Binary = True | False
+type Binary = True | False;
 `.trim()
     );
 }
@@ -123,7 +119,7 @@ type Binary
     assert.deepStrictEqual(
         generateTypescript(parsed),
         `
-type True {
+type True = {
     kind: "True";
 }
 
@@ -133,7 +129,7 @@ function True(): True {
     }
 }
 
-type False {
+type False = {
     kind: "False";
 }
 
@@ -143,7 +139,7 @@ function False(): False {
     }
 }
 
-type Binary = True | False
+type Binary = True | False;
 `.trim()
     );
 }

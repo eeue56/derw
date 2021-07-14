@@ -5,52 +5,54 @@ import { intoBlocks } from "./blocks";
 import * as assert from "assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 
-export function testIntoBlocksComplexUnion() {
-    const ComplexUnion = `
+export function testIntoBlocks() {
+    const simpleUnion = `
+type Binary = True | False
+`.trim();
+    const complexUnion = `
 type Animal = Dog { name: string } | Cat { lives: number }
 `.trim();
 
-    assert.deepStrictEqual(intoBlocks(ComplexUnion), [ ComplexUnion ]);
+    assert.deepStrictEqual(intoBlocks(simpleUnion + "\n\n" + complexUnion), [
+        simpleUnion,
+        complexUnion,
+    ]);
 }
 
 export function testIntoBlocksMultiLineUnion() {
-    const ComplexUnion = `
-type Animal
-    = Dog { name: string }
-    | Cat { lives: number }
-`.trim();
+    const simpleUnion = `
+type Binary
+    = True
+    | False
+    `.trim();
 
-    assert.deepStrictEqual(intoBlocks(ComplexUnion), [ ComplexUnion ]);
-}
-
-export function testBlockKindComplexUnion() {
-    const complexUnion = `
-type Animal = Dog { name: string } | Cat { lives: number }
-`.trim();
-
-    assert.deepStrictEqual(blockKind(complexUnion), Ok("UnionType"));
-}
-
-export function testBlockKindMultiLineUnion() {
     const complexUnion = `
 type Animal
     = Dog { name: string }
     | Cat { lives: number }
 `.trim();
 
-    assert.deepStrictEqual(blockKind(complexUnion), Ok("UnionType"));
+    assert.deepStrictEqual(intoBlocks(simpleUnion + "\n\n" + complexUnion), [
+        simpleUnion,
+        complexUnion,
+    ]);
 }
 
 export function testParseComplexUnion() {
+    const simpleUnion = `
+type Binary = True | False
+`.trim();
+
     const complexUnion = `
 type Animal = Dog { name: string } | Cat { lives: number }
 `.trim();
 
     assert.deepStrictEqual(
-        parse(complexUnion),
+        parse(simpleUnion + "\n\n" + complexUnion),
         Module(
             "main",
             [
+                UnionType("Binary", [ Tag("True", [ ]), Tag("False", [ ]) ]),
                 UnionType("Animal", [
                     Tag("Dog", [ TagArg("name", "string") ]),
                     Tag("Cat", [ TagArg("lives", "number") ]),
@@ -62,6 +64,12 @@ type Animal = Dog { name: string } | Cat { lives: number }
 }
 
 export function testParseMultiLineUnion() {
+    const simpleUnion = `
+type Binary
+    = True
+    | False
+    `.trim();
+
     const complexUnion = `
 type Animal
     = Dog { name: string }
@@ -69,10 +77,11 @@ type Animal
 `.trim();
 
     assert.deepStrictEqual(
-        parse(complexUnion),
+        parse(simpleUnion + "\n\n" + complexUnion),
         Module(
             "main",
             [
+                UnionType("Binary", [ Tag("True", [ ]), Tag("False", [ ]) ]),
                 UnionType("Animal", [
                     Tag("Dog", [ TagArg("name", "string") ]),
                     Tag("Cat", [ TagArg("lives", "number") ]),
@@ -84,15 +93,41 @@ type Animal
 }
 
 export function testGenerateComplexUnion() {
+    const simpleUnion = `
+type Binary = True | False
+`.trim();
+
     const complexUnion = `
 type Animal = Dog { name: string } | Cat { lives: number }
 `.trim();
 
-    const parsed = parse(complexUnion);
+    const parsed = parse(simpleUnion + "\n\n" + complexUnion);
 
     assert.deepStrictEqual(
         generateTypescript(parsed),
         `
+type True = {
+    kind: "True";
+}
+
+function True(): True {
+    return {
+        kind: "True",
+    }
+}
+
+type False = {
+    kind: "False";
+}
+
+function False(): False {
+    return {
+        kind: "False",
+    }
+}
+
+type Binary = True | False;
+
 type Dog = {
     kind: "Dog";
     name: string;
@@ -122,17 +157,45 @@ type Animal = Dog | Cat;`.trim()
 }
 
 export function testGenerateMultiLineUnion() {
+    const simpleUnion = `
+type Binary
+    = True
+    | False
+    `.trim();
+
     const complexUnion = `
 type Animal
     = Dog { name: string }
     | Cat { lives: number }
 `.trim();
 
-    const parsed = parse(complexUnion);
+    const parsed = parse(simpleUnion + "\n\n" + complexUnion);
 
     assert.deepStrictEqual(
         generateTypescript(parsed),
         `
+type True = {
+    kind: "True";
+}
+
+function True(): True {
+    return {
+        kind: "True",
+    }
+}
+
+type False = {
+    kind: "False";
+}
+
+function False(): False {
+    return {
+        kind: "False",
+    }
+}
+
+type Binary = True | False;
+
 type Dog = {
     kind: "Dog";
     name: string;
