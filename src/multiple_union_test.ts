@@ -1,6 +1,6 @@
 import { generateTypescript } from "./generator";
 import { blockKind, parse } from "./parser";
-import { Module, Tag, TagArg, Type, UnionType } from "./types";
+import { FixedType, Module, Tag, TagArg, Type, UnionType } from "./types";
 import { intoBlocks } from "./blocks";
 import * as assert from "assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
@@ -52,13 +52,13 @@ type Animal = Dog { name: string } | Cat { lives: number }
         Module(
             "main",
             [
-                UnionType(Type("Binary", [ ]), [
+                UnionType(FixedType("Binary", [ ]), [
                     Tag("True", [ ]),
                     Tag("False", [ ]),
                 ]),
-                UnionType(Type("Animal", [ ]), [
-                    Tag("Dog", [ TagArg("name", Type("string", [ ])) ]),
-                    Tag("Cat", [ TagArg("lives", Type("number", [ ])) ]),
+                UnionType(FixedType("Animal", [ ]), [
+                    Tag("Dog", [ TagArg("name", FixedType("string", [ ])) ]),
+                    Tag("Cat", [ TagArg("lives", FixedType("number", [ ])) ]),
                 ]),
             ],
             [ ]
@@ -84,13 +84,13 @@ type Animal
         Module(
             "main",
             [
-                UnionType(Type("Binary", [ ]), [
+                UnionType(FixedType("Binary", [ ]), [
                     Tag("True", [ ]),
                     Tag("False", [ ]),
                 ]),
-                UnionType(Type("Animal", [ ]), [
-                    Tag("Dog", [ TagArg("name", Type("string", [ ])) ]),
-                    Tag("Cat", [ TagArg("lives", Type("number", [ ])) ]),
+                UnionType(FixedType("Animal", [ ]), [
+                    Tag("Dog", [ TagArg("name", FixedType("string", [ ])) ]),
+                    Tag("Cat", [ TagArg("lives", FixedType("number", [ ])) ]),
                 ]),
             ],
             [ ]

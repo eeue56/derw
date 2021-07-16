@@ -1,46 +1,55 @@
 import { generateTypescript } from "./generator";
 import { blockKind, parse } from "./parser";
-import { FixedType, Module, Tag, TagArg, Type, UnionType } from "./types";
+import {
+    FixedType,
+    GenericType,
+    Module,
+    Tag,
+    TagArg,
+    Type,
+    UnionType,
+} from "./types";
 import { intoBlocks } from "./blocks";
 import * as assert from "assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 
 const oneLine = `
-type Animal = Dog { name: string } | Cat { lives: number }
+type Either a b = Left { value: a } | Right { value: b }
 `.trim();
 
 const multiLine = `
-type Animal
-    = Dog { name: string }
-    | Cat { lives: number }
+type Either a b
+    = Left { value: a }
+    | Right { value: b }
 `.trim();
 
 const expectedOutput = `
-type Dog = {
-    kind: "Dog";
-    name: string;
+type Left<a> = {
+    kind: "Left";
+    value: a;
 }
 
-function Dog(name: string): Dog {
+function Left<a>(value: a): Left<a> {
     return {
-        kind: "Dog",
-        name
+        kind: "Left",
+        value
     }
 }
 
-type Cat = {
-    kind: "Cat";
-    lives: number;
+type Right<b> = {
+    kind: "Right";
+    value: b;
 }
 
-function Cat(lives: number): Cat {
+function Right<b>(value: b): Right<b> {
     return {
-        kind: "Cat",
-        lives
+        kind: "Right",
+        value
     }
 }
 
-type Animal = Dog | Cat;`.trim();
+type Either<a, b> = Left<a> | Right<b>;
+`.trim();
 
 export function testIntoBlocksComplexUnion() {
     assert.deepStrictEqual(intoBlocks(oneLine), [ oneLine ]);
@@ -64,10 +73,13 @@ export function testParseComplexUnion() {
         Module(
             "main",
             [
-                UnionType(FixedType("Animal", [ ]), [
-                    Tag("Dog", [ TagArg("name", FixedType("string", [ ])) ]),
-                    Tag("Cat", [ TagArg("lives", FixedType("number", [ ])) ]),
-                ]),
+                UnionType(
+                    FixedType("Either", [ GenericType("a"), GenericType("b") ]),
+                    [
+                        Tag("Left", [ TagArg("value", GenericType("a")) ]),
+                        Tag("Right", [ TagArg("value", GenericType("b")) ]),
+                    ]
+                ),
             ],
             [ ]
         )
@@ -80,10 +92,13 @@ export function testParseMultiLineUnion() {
         Module(
             "main",
             [
-                UnionType(FixedType("Animal", [ ]), [
-                    Tag("Dog", [ TagArg("name", FixedType("string", [ ])) ]),
-                    Tag("Cat", [ TagArg("lives", FixedType("number", [ ])) ]),
-                ]),
+                UnionType(
+                    FixedType("Either", [ GenericType("a"), GenericType("b") ]),
+                    [
+                        Tag("Left", [ TagArg("value", GenericType("a")) ]),
+                        Tag("Right", [ TagArg("value", GenericType("b")) ]),
+                    ]
+                ),
             ],
             [ ]
         )

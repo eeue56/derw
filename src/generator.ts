@@ -1,3 +1,4 @@
+import { type } from "os";
 import {
     UnionType,
     Block,
@@ -7,6 +8,7 @@ import {
     Value,
     IfStatement,
     Type,
+    FixedType,
 } from "./types";
 
 function prefixLines(body: string, indent: number): string {
@@ -20,25 +22,32 @@ function generateUnionType(syntax: UnionType): string {
     const tagCreators = syntax.tags
         .map((tag) => {
             const typeDefArgs = tag.args
-                .map((arg) => arg.name + ": " + arg.type.name + ";")
+                .map((arg) => arg.name + ": " + generateType(arg.type) + ";")
                 .join("\n    ");
 
             const funcDefProps = tag.args
-                .map((arg) => arg.name)
-                .join(",\n         ");
+                .map((arg) => arg.name.trim())
+                .join(",\n        ");
 
             const funcDefArgs = tag.args
                 .map((arg) => arg.name + ": " + generateType(arg.type))
                 .join(", ");
 
+            const generatedType = generateType(
+                FixedType(
+                    tag.name,
+                    tag.args.map((arg) => arg.type)
+                )
+            );
+
             return `
-type ${tag.name} = {
+type ${generatedType} = {
     kind: "${tag.name}";${
                 typeDefArgs.length === 0 ? "" : "\n    " + typeDefArgs
             }
 }
 
-function ${tag.name}(${funcDefArgs}): ${tag.name} {
+function ${generatedType}(${funcDefArgs}): ${generatedType} {
     return {
         kind: "${tag.name}",${
                 funcDefProps.length === 0 ? "" : "\n        " + funcDefProps
@@ -50,14 +59,19 @@ function ${tag.name}(${funcDefArgs}): ${tag.name} {
 
     const tags = syntax.tags
         .map((tag) => {
-            return `${tag.name}`;
+            return generateType(
+                FixedType(
+                    tag.name,
+                    tag.args.map((arg) => arg.type)
+                )
+            );
         })
         .join(" | ");
 
     return `
 ${tagCreators}
 
-type ${syntax.type.name} = ${tags};
+type ${generateType(syntax.type)} = ${tags};
 `.trim();
 }
 
@@ -73,8 +87,22 @@ function generateIfStatement(ifStatement: IfStatement): string {
 }`;
 }
 
-function generateType(type: Type): string {
-    return type.name;
+function generateType(type_: Type): string {
+    switch (type_.kind) {
+        case "GenericType": {
+            return type_.name;
+        }
+        case "FixedType": {
+            const args = type_.args.filter(
+                (type_) => type_.kind === "GenericType"
+            );
+            if (args.length === 0) {
+                return type_.name;
+            }
+
+            return `${type_.name}<${args.map(generateType).join(", ")}>`;
+        }
+    }
 }
 
 function generateExpression(expression: Expression): string {
@@ -86,6 +114,16 @@ function generateExpression(expression: Expression): string {
     }
 }
 
+function collectTypeArguments(type_: Type): string[] {
+    switch (type_.kind) {
+        case "GenericType":
+            return [ type_.name ];
+        case "FixedType":
+            const args: string[][] = type_.args.map(collectTypeArguments);
+            return ([ ] as string[]).concat(...args);
+    }
+}
+
 function generateFunction(function_: Function): string {
     const functionArguments = function_.args
         .map((arg) => arg.name + ": " + generateType(arg.type))
@@ -94,9 +132,18 @@ function generateFunction(function_: Function): string {
     const returnType = generateType(function_.returnType);
     const body = generateExpression(function_.body);
     const prefixedBody = prefixLines(body, 4);
+    const typeArguments = ([ ] as string[])
+        .concat(
+            ...function_.args.map((arg) => collectTypeArguments(arg.type)),
+            collectTypeArguments(function_.returnType)
+        )
+        .filter((value, index, arr) => arr.indexOf(value) === index);
+
+    const typeArgumentsString =
+        typeArguments.length === 0 ? "" : `<${typeArguments.join(", ")}>`;
 
     return `
-function ${function_.name}(${functionArguments}): ${returnType} {
+function ${function_.name}${typeArgumentsString}(${functionArguments}): ${returnType} {
 ${prefixedBody}
 }`.trim();
 }

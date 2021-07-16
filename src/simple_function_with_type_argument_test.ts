@@ -4,6 +4,7 @@ import {
     FixedType,
     Function,
     FunctionArg,
+    GenericType,
     IfStatement,
     Module,
     Tag,
@@ -17,12 +18,12 @@ import * as assert from "assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 
 const oneLine = `
-isTrue: boolean -> boolean
+isTrue: Maybe a -> boolean
 isTrue value = if value then true else false
 `.trim();
 
 const multiLine = `
-isTrue: boolean -> boolean
+isTrue: Maybe a -> boolean
 isTrue value =
     if value then
         true
@@ -31,7 +32,7 @@ isTrue value =
 `.trim();
 
 const expectedOutput = `
-function isTrue(value: boolean): boolean {
+function isTrue<a>(value: Maybe<a>): boolean {
     if (value) {
         return true;
     } else {
@@ -65,7 +66,12 @@ export function testParseSimpleFunction() {
                 Function(
                     "isTrue",
                     FixedType("boolean", [ ]),
-                    [ FunctionArg("value", FixedType("boolean", [ ])) ],
+                    [
+                        FunctionArg(
+                            "value",
+                            FixedType("Maybe", [ GenericType("a") ])
+                        ),
+                    ],
                     IfStatement(Value("value"), Value("true"), Value("false"))
                 ),
             ],
@@ -83,7 +89,12 @@ export function testParseSimpleFunctionOneLine() {
                 Function(
                     "isTrue",
                     FixedType("boolean", [ ]),
-                    [ FunctionArg("value", FixedType("boolean", [ ])) ],
+                    [
+                        FunctionArg(
+                            "value",
+                            FixedType("Maybe", [ GenericType("a") ])
+                        ),
+                    ],
                     IfStatement(Value("value"), Value("true"), Value("false"))
                 ),
             ],

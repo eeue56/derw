@@ -1,5 +1,7 @@
 import { Err, Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
+import { type } from "os";
 import { intoBlocks } from "./blocks";
+import { isBuiltinType } from "./builtins";
 import {
     BlockKinds,
     UnionType,
@@ -13,6 +15,8 @@ import {
     Expression,
     IfStatement,
     FunctionArg,
+    FixedType,
+    GenericType,
 } from "./types";
 
 export function blockKind(block: string): Result<string, BlockKinds> {
@@ -30,14 +34,38 @@ export function blockKind(block: string): Result<string, BlockKinds> {
     return Err("Unknown block type");
 }
 
+function parseType(line: string): Result<string, Type> {
+    const rootTypeName = line.split(" ")[0];
+    const typeArguments = line.split(" ").slice(1);
+
+    if (isBuiltinType(rootTypeName)) {
+        return Ok(FixedType(rootTypeName, [ ]));
+    } else if (rootTypeName.toLowerCase() === rootTypeName) {
+        return Ok(GenericType(rootTypeName));
+    }
+    return Ok(
+        FixedType(
+            rootTypeName,
+            typeArguments
+                .map((name) => parseType(name))
+                .filter((type_) => type_.kind !== "err")
+                .map((type_) => (type_ as Ok<Type>).value)
+        )
+    );
+}
+
 function parseUnionType(block: string): Result<string, UnionType> {
-    // always after "type", one joined token
-    const name = block.split(" ")[1].trim();
+    // get the List a from
+    // type List a = ...
+    const typeParts = block.split("=")[0].slice(4).trim();
+    const parsedType = parseType(typeParts);
+
+    if (parsedType.kind === "err") return parsedType;
 
     // anything after the =, split based on pipes
     const tagParts = block.split("=").slice(1).join("=").split("|");
 
-    const tags = tagParts.map((tag) => {
+    const tags: Result<string, Tag>[] = tagParts.map((tag) => {
         if (tag.startsWith("|")) {
             tag = tag.slice(1);
         }
@@ -60,15 +88,45 @@ function parseUnionType(block: string): Result<string, UnionType> {
                 const typeName = splitTypes[0];
                 const typeArguments = splitTypes
                     .slice(1)
-                    .map((name) => Type(name, [ ]));
+                    .map((name) => parseType(name))
+                    .filter((type_) => type_.kind !== "err")
+                    .map((type_) => (type_ as Ok<Type>).value);
 
-                return TagArg(split[0].trim(), Type(typeName, typeArguments));
+                const type_ = parseType(splitTypes.join(" "));
+
+                if (type_.kind === "err") return type_;
+                return Ok(TagArg(split[0].trim(), type_.value));
             });
 
-        return Tag(tagName, args);
+        if (
+            args.filter((maybeTag) => maybeTag.kind === "ok").length ===
+            args.length
+        ) {
+            return Ok(
+                Tag(
+                    tagName,
+                    args.map((arg) => (arg as Ok<TagArg>).value)
+                )
+            );
+        }
+
+        return Err("Error parsing args");
     });
 
-    return Ok(UnionType(Type(name, [ ]), tags));
+    for (var i = 0; i < tags.length; i++) {
+        const tag = tags[i];
+        if (tag.kind === "err") {
+            return tag;
+        }
+    }
+    return Ok(
+        UnionType(
+            parsedType.value,
+            tags
+                .filter((tag) => tag.kind === "ok")
+                .map((tag) => (tag as Ok<Tag>).value)
+        )
+    );
 }
 
 function parseValue(body: string): Result<string, Value> {
@@ -213,17 +271,21 @@ function parseFunction(block: string): Result<string, Function> {
         .map((s) => s.trim())
         .filter((s) => s.length > 0);
 
-    const combinedArguments = types
+    const combinedArguments: Result<string, FunctionArg>[] = types
         .slice(0, types.length - 1)
         .map((type_, i) => {
-            return FunctionArg(argumentNames[i], Type(type_, [ ]));
+            const name = argumentNames[i];
+            const parsedType = parseType(type_);
+            if (parsedType.kind === "err")
+                return Err(
+                    `Failed to parse ${name} due to ${parsedType.error}`
+                );
+
+            return Ok(FunctionArg(argumentNames[i], parsedType.value));
         });
 
     const returnParts = types[types.length - 1].trim().split(" ");
-    const returnType = Type(
-        returnParts[0],
-        returnParts.slice(1).map((name) => Type(name, [ ]))
-    );
+    const returnType = parseType(returnParts.join(" "));
 
     const body = [ argumentLine.split("=").slice(1).join("=").trim() ].concat(
         block.split("\n").slice(2)
@@ -231,9 +293,20 @@ function parseFunction(block: string): Result<string, Function> {
     const parsedBody = parseExpression(body.join("\n"));
 
     if (parsedBody.kind === "err") return parsedBody;
+    if (returnType.kind === "err") return returnType;
+
+    for (var i = 0; i < combinedArguments.length; i++) {
+        const arg = combinedArguments[i];
+        if (arg.kind === "err") return arg;
+    }
 
     return Ok(
-        Function(functionName, returnType, combinedArguments, parsedBody.value)
+        Function(
+            functionName,
+            returnType.value,
+            combinedArguments.map((arg) => (arg as Ok<FunctionArg>).value),
+            parsedBody.value
+        )
     );
 }
 

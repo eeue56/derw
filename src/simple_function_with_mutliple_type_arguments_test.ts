@@ -4,6 +4,7 @@ import {
     FixedType,
     Function,
     FunctionArg,
+    GenericType,
     IfStatement,
     Module,
     Tag,
@@ -17,25 +18,25 @@ import * as assert from "assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 
 const oneLine = `
-isTrue: boolean -> boolean
-isTrue value = if value then true else false
+isTrue: Maybe a -> Maybe b
+isTrue value = if value then value else value
 `.trim();
 
 const multiLine = `
-isTrue: boolean -> boolean
+isTrue: Maybe a -> Maybe b
 isTrue value =
     if value then
-        true
+        value
     else
-        false
+        value
 `.trim();
 
 const expectedOutput = `
-function isTrue(value: boolean): boolean {
+function isTrue<a, b>(value: Maybe<a>): Maybe<b> {
     if (value) {
-        return true;
+        return value;
     } else {
-        return false;
+        return value;
     }
 }
 `.trim();
@@ -64,9 +65,14 @@ export function testParseSimpleFunction() {
             [
                 Function(
                     "isTrue",
-                    FixedType("boolean", [ ]),
-                    [ FunctionArg("value", FixedType("boolean", [ ])) ],
-                    IfStatement(Value("value"), Value("true"), Value("false"))
+                    FixedType("Maybe", [ GenericType("b") ]),
+                    [
+                        FunctionArg(
+                            "value",
+                            FixedType("Maybe", [ GenericType("a") ])
+                        ),
+                    ],
+                    IfStatement(Value("value"), Value("value"), Value("value"))
                 ),
             ],
             [ ]
@@ -82,9 +88,14 @@ export function testParseSimpleFunctionOneLine() {
             [
                 Function(
                     "isTrue",
-                    FixedType("boolean", [ ]),
-                    [ FunctionArg("value", FixedType("boolean", [ ])) ],
-                    IfStatement(Value("value"), Value("true"), Value("false"))
+                    FixedType("Maybe", [ GenericType("b") ]),
+                    [
+                        FunctionArg(
+                            "value",
+                            FixedType("Maybe", [ GenericType("a") ])
+                        ),
+                    ],
+                    IfStatement(Value("value"), Value("value"), Value("value"))
                 ),
             ],
             [ ]

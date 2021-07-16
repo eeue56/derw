@@ -1,16 +1,30 @@
-export type Type = {
-    kind: "Type";
+export type GenericType = {
+    kind: "GenericType";
+    name: string;
+};
+
+export function GenericType(name: string): GenericType {
+    return {
+        kind: "GenericType",
+        name,
+    };
+}
+
+export type FixedType = {
+    kind: "FixedType";
     name: string;
     args: Type[];
 };
 
-export function Type(name: string, args: Type[]): Type {
+export function FixedType(name: string, args: Type[]): FixedType {
     return {
-        kind: "Type",
+        kind: "FixedType",
         name,
         args,
     };
 }
+
+export type Type = GenericType | FixedType;
 
 export type TagArg = {
     kind: "TagArg";

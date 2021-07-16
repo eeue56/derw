@@ -1,6 +1,6 @@
 import { generateTypescript } from "./generator";
 import { blockKind, parse } from "./parser";
-import { Module, Tag, Type, UnionType } from "./types";
+import { FixedType, Module, Tag, Type, UnionType } from "./types";
 
 import { intoBlocks } from "./blocks";
 import * as assert from "assert";
@@ -52,7 +52,7 @@ type Binary = True | False
         Module(
             "main",
             [
-                UnionType(Type("Binary", [ ]), [
+                UnionType(FixedType("Binary", [ ]), [
                     Tag("True", [ ]),
                     Tag("False", [ ]),
                 ]),
@@ -74,7 +74,7 @@ type Binary
         Module(
             "main",
             [
-                UnionType(Type("Binary", [ ]), [
+                UnionType(FixedType("Binary", [ ]), [
                     Tag("True", [ ]),
                     Tag("False", [ ]),
                 ]),
