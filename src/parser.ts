@@ -1,10 +1,26 @@
 import { Err, Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
 import { intoBlocks } from "./blocks";
-import { SyntaxKinds, UnionType, TagArg, Tag, Syntax, Module } from "./types";
+import {
+    SyntaxKinds,
+    UnionType,
+    TagArg,
+    Tag,
+    Syntax,
+    Module,
+    Function,
+    Type,
+} from "./types";
 
 export function blockKind(block: string): Result<string, SyntaxKinds> {
     if (block.startsWith("type")) {
         return Ok("UnionType");
+    }
+
+    if (
+        block.split(":").length > 1 &&
+        block.split(":")[0].trim().split(" ").length === 1
+    ) {
+        return Ok("Function");
     }
 
     return Err("Unknown block type");
@@ -51,6 +67,20 @@ function parseUnionType(block: string): Result<string, UnionType> {
     return Ok(UnionType(Type(name, [ ]), tags));
 }
 
+function parseFunction(block: string): Result<string, Function> {
+    const typeLine = block.split("\n")[0];
+    const functionName = typeLine.split(":")[0];
+    const types = typeLine.split(":").slice(1).join(":").split("->");
+
+    const returnParts = types[types.length - 1].trim().split(" ");
+    const returnType = Type(
+        returnParts[0],
+        returnParts.slice(1).map((name) => Type(name, [ ]))
+    );
+
+    return Ok(Function(functionName, returnType, [ ], ""));
+}
+
 function parseBlock(block: string): Result<string, Syntax> {
     const kind = blockKind(block);
 
@@ -59,6 +89,9 @@ function parseBlock(block: string): Result<string, Syntax> {
     switch (kind.value) {
         case "UnionType": {
             return parseUnionType(block);
+        }
+        case "Function": {
+            return parseFunction(block);
         }
     }
 

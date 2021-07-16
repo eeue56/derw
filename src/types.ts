@@ -42,20 +42,58 @@ export function Tag(name: string, args: TagArg[]): Tag {
 
 export type UnionType = {
     kind: "UnionType";
-    name: string;
+    type: Type;
     tags: Tag[];
 };
 
-export function UnionType(name: string, tags: Tag[]): UnionType {
+export function UnionType(type: Type, tags: Tag[]): UnionType {
     return {
         kind: "UnionType",
-        name,
+        type,
         tags,
     };
 }
 
-export type SyntaxKinds = "UnionType";
-export type Syntax = UnionType;
+export type FunctionArg = {
+    kind: "FunctionArg";
+    name: string;
+    type: Type;
+};
+
+export function FunctionArg(name: string, type: Type): FunctionArg {
+    return {
+        kind: "FunctionArg",
+        name,
+        type,
+    };
+}
+
+export type Function = {
+    kind: "Function";
+    name: string;
+    returnType: Type;
+    args: FunctionArg[];
+    body: string;
+};
+
+export function Function(
+    name: string,
+    returnType: Type,
+    args: FunctionArg[],
+    body: string
+): Function {
+    return {
+        kind: "Function",
+        name,
+        returnType,
+        args,
+        body,
+    };
+}
+
+export type SyntaxKinds = "UnionType" | "Function";
+
+export type Syntax = UnionType | Function;
 
 export type Module = {
     kind: "Module";

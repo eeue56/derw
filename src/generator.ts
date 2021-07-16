@@ -43,10 +43,16 @@ type ${syntax.type.name} = ${tags};
 `.trim();
 }
 
+export function generateFunction(syntax: Function): string {
+    return "";
+}
+
 export function generateBlock(syntax: Syntax): string {
     switch (syntax.kind) {
         case "UnionType":
             return generateUnionType(syntax);
+        case "Function":
+            return generateFunction(syntax);
     }
 }
 
