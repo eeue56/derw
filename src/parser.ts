@@ -81,13 +81,35 @@ function parseValue(body: string): Result<string, Value> {
     }
 }
 
-function parseIfStatement(body: string): Result<string, IfStatement> {
-    const lines = body.split("\n");
-    const predicateWords = lines[0].trim().split(" ");
-    const predicate = predicateWords.slice(1, predicateWords.length - 1);
-    const parsedPredicate = parseExpression(predicate.join("\n"));
+function parseIfStatementSingleLine(body: string): Result<string, IfStatement> {
+    const predicate = body.split("then")[0].split("if")[1];
+    const ifBody = body.split("then")[1].split("else")[0];
+    const elseBody = body.split("else")[1];
 
-    const indentLevel = lines[0].split("").reduce(
+    const parsedPredicate = parseExpression(predicate);
+    const parsedIfBody = parseExpression(ifBody);
+    const parsedElseBody = parseExpression(elseBody);
+
+    const errors = [ ];
+    if (parsedPredicate.kind === "err") errors.push(parsedPredicate.error);
+    if (parsedIfBody.kind === "err") errors.push(parsedIfBody.error);
+    if (parsedElseBody.kind === "err") errors.push(parsedElseBody.error);
+
+    if (errors.length > 0) {
+        return Err(errors.join("\n"));
+    }
+
+    return Ok(
+        IfStatement(
+            (parsedPredicate as Ok<Expression>).value,
+            (parsedIfBody as Ok<Expression>).value,
+            (parsedElseBody as Ok<Expression>).value
+        )
+    );
+}
+
+function getIndentLevel(line: string): number {
+    return line.split("").reduce(
         (previous, current) => {
             if (previous.seenText) return previous;
 
@@ -104,6 +126,21 @@ function parseIfStatement(body: string): Result<string, IfStatement> {
         },
         { seenText: false, indentLevel: 0 }
     ).indentLevel;
+}
+
+function parseIfStatement(body: string): Result<string, IfStatement> {
+    const isSingleLine = body.trim().split("\n").length === 1;
+
+    if (isSingleLine) {
+        return parseIfStatementSingleLine(body);
+    }
+
+    const lines = body.split("\n").filter((line) => line.trim().length > 0);
+    const predicateWords = lines[0].trim().split(" ");
+    const predicate = predicateWords.slice(1, predicateWords.length - 1);
+    const parsedPredicate = parseExpression(predicate.join("\n"));
+
+    const indentLevel = getIndentLevel(lines[0]);
 
     const elseIndex = lines.reduce(
         (previous, current, index) => {
@@ -188,7 +225,9 @@ function parseFunction(block: string): Result<string, Function> {
         returnParts.slice(1).map((name) => Type(name, [ ]))
     );
 
-    const body = block.split("\n").slice(2);
+    const body = [ argumentLine.split("=").slice(1).join("=").trim() ].concat(
+        block.split("\n").slice(2)
+    );
     const parsedBody = parseExpression(body.join("\n"));
 
     if (parsedBody.kind === "err") return parsedBody;
@@ -211,8 +250,6 @@ function parseBlock(block: string): Result<string, Block> {
             return parseFunction(block);
         }
     }
-
-    return Err("");
 }
 
 export function parse(body: string): Module {

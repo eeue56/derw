@@ -28,6 +28,15 @@ isTrue value =
     assert.deepStrictEqual(intoBlocks(simpleFunction), [ simpleFunction ]);
 }
 
+export function testIntoBlocksSimpleFunctionOneLine() {
+    const simpleFunction = `
+isTrue: boolean -> boolean
+isTrue value = if value then true else false
+`.trim();
+
+    assert.deepStrictEqual(intoBlocks(simpleFunction), [ simpleFunction ]);
+}
+
 export function testBlockKindSimpleFunction() {
     const simpleFunction = `
 isTrue: boolean -> boolean
@@ -36,6 +45,15 @@ isTrue value =
         true
     else
         false
+`.trim();
+
+    assert.deepStrictEqual(blockKind(simpleFunction), Ok("Function"));
+}
+
+export function testBlockKindSimpleFunctionOneLine() {
+    const simpleFunction = `
+isTrue: boolean -> boolean
+isTrue value = if value then true else false
 `.trim();
 
     assert.deepStrictEqual(blockKind(simpleFunction), Ok("Function"));
@@ -68,6 +86,29 @@ isTrue value =
     );
 }
 
+export function testParseSimpleFunctionOneLine() {
+    const simpleFunction = `
+isTrue: boolean -> boolean
+isTrue value = if value then true else false
+`.trim();
+
+    assert.deepStrictEqual(
+        parse(simpleFunction),
+        Module(
+            "main",
+            [
+                Function(
+                    "isTrue",
+                    Type("boolean", [ ]),
+                    [ FunctionArg("value", Type("boolean", [ ])) ],
+                    IfStatement(Value("value"), Value("true"), Value("false"))
+                ),
+            ],
+            [ ]
+        )
+    );
+}
+
 export function testGenerateSimpleFunction() {
     const simpleFunction = `
 isTrue: boolean -> boolean
@@ -76,6 +117,28 @@ isTrue value =
         true
     else
         false
+`.trim();
+
+    const parsed = parse(simpleFunction);
+    const generated = generateTypescript(parsed);
+    assert.strictEqual(
+        generated,
+        `
+function isTrue(value: boolean): boolean {
+    if (value) {
+        return true;
+    } else {
+        return false;
+    }
+}
+`.trim()
+    );
+}
+
+export function testGenerateSimpleFunctionOneLine() {
+    const simpleFunction = `
+isTrue: boolean -> boolean
+isTrue value = if value then true else false
 `.trim();
 
     const parsed = parse(simpleFunction);
