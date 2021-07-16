@@ -1,6 +1,15 @@
 import { generateTypescript } from "./generator";
 import { blockKind, parse } from "./parser";
-import { Function, Module, Tag, Type, UnionType, Value } from "./types";
+import {
+    Function,
+    FunctionArg,
+    IfStatement,
+    Module,
+    Tag,
+    Type,
+    UnionType,
+    Value,
+} from "./types";
 
 import { intoBlocks } from "./blocks";
 import * as assert from "assert";
@@ -46,7 +55,14 @@ isTrue value =
         parse(simpleFunction),
         Module(
             "main",
-            [ Function("isTrue", Type("boolean", [ ]), [ ], Value("")) ],
+            [
+                Function(
+                    "isTrue",
+                    Type("boolean", [ ]),
+                    [ FunctionArg("value", Type("boolean", [ ])) ],
+                    IfStatement(Value("value"), Value("true"), Value("false"))
+                ),
+            ],
             [ ]
         )
     );
@@ -63,8 +79,9 @@ isTrue value =
 `.trim();
 
     const parsed = parse(simpleFunction);
+    const generated = generateTypescript(parsed);
     assert.strictEqual(
-        generateTypescript(parsed),
+        generated,
         `
 function isTrue(value: boolean): boolean {
     if (value) {

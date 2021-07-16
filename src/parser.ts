@@ -10,6 +10,9 @@ import {
     Function,
     Type,
     Value,
+    Expression,
+    IfStatement,
+    FunctionArg,
 } from "./types";
 
 export function blockKind(block: string): Result<string, BlockKinds> {
@@ -68,10 +71,116 @@ function parseUnionType(block: string): Result<string, UnionType> {
     return Ok(UnionType(Type(name, [ ]), tags));
 }
 
+function parseValue(body: string): Result<string, Value> {
+    const trimmed = body.trim();
+
+    if (trimmed.split(" ").length > 1) {
+        return Err(`Too many values: ${trimmed}`);
+    } else {
+        return Ok(Value(trimmed));
+    }
+}
+
+function parseIfStatement(body: string): Result<string, IfStatement> {
+    const lines = body.split("\n");
+    const predicateWords = lines[0].trim().split(" ");
+    const predicate = predicateWords.slice(1, predicateWords.length - 1);
+    const parsedPredicate = parseExpression(predicate.join("\n"));
+
+    const indentLevel = lines[0].split("").reduce(
+        (previous, current) => {
+            if (previous.seenText) return previous;
+
+            if (current === " ") {
+                return {
+                    seenText: previous.seenText,
+                    indentLevel: previous.indentLevel + 1,
+                };
+            }
+            return {
+                seenText: true,
+                indentLevel: previous.indentLevel,
+            };
+        },
+        { seenText: false, indentLevel: 0 }
+    ).indentLevel;
+
+    const elseIndex = lines.reduce(
+        (previous, current, index) => {
+            if (previous.found) return previous;
+
+            if (current === " ".repeat(indentLevel) + "else") {
+                return {
+                    found: true,
+                    index,
+                };
+            } else {
+                return previous;
+            }
+        },
+        { found: false, index: -1 }
+    ).index;
+
+    if (elseIndex === -1) {
+        return Err("Missing else block");
+    }
+
+    const ifBody = lines.slice(1, elseIndex);
+    const elseBody = lines.slice(elseIndex + 1);
+
+    const parsedIfBody = parseExpression(ifBody.join("\n"));
+    const parsedElseBody = parseExpression(elseBody.join("\n"));
+
+    const errors = [ ];
+    if (parsedPredicate.kind === "err") errors.push(parsedPredicate.error);
+    if (parsedIfBody.kind === "err") errors.push(parsedIfBody.error);
+    if (parsedElseBody.kind === "err") errors.push(parsedElseBody.error);
+
+    if (errors.length > 0) {
+        return Err(errors.join("\n"));
+    }
+
+    return Ok(
+        IfStatement(
+            (parsedPredicate as Ok<Expression>).value,
+            (parsedIfBody as Ok<Expression>).value,
+            (parsedElseBody as Ok<Expression>).value
+        )
+    );
+}
+
+function parseExpression(body: string): Result<string, Expression> {
+    if (body.trim().startsWith("if ")) {
+        return parseIfStatement(body);
+    } else if (body.trim().split(" ").length === 1) {
+        return parseValue(body);
+    }
+    return Err("No expression found.");
+}
+
 function parseFunction(block: string): Result<string, Function> {
     const typeLine = block.split("\n")[0];
     const functionName = typeLine.split(":")[0];
-    const types = typeLine.split(":").slice(1).join(":").split("->");
+    const types = typeLine
+        .split(":")
+        .slice(1)
+        .join(":")
+        .split("->")
+        .map((s) => s.trim());
+
+    const argumentLine = block.split("\n")[1];
+    const argumentNames = argumentLine
+        .slice(functionName.length)
+        .split("=")[0]
+        .split(" ")
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
+
+    const combinedArguments = types
+        .slice(0, types.length - 1)
+        .map((type_, i) => {
+            return FunctionArg(argumentNames[i], Type(type_, [ ]));
+        });
 
     const returnParts = types[types.length - 1].trim().split(" ");
     const returnType = Type(
@@ -79,7 +188,14 @@ function parseFunction(block: string): Result<string, Function> {
         returnParts.slice(1).map((name) => Type(name, [ ]))
     );
 
-    return Ok(Function(functionName, returnType, [ ], Value("")));
+    const body = block.split("\n").slice(2);
+    const parsedBody = parseExpression(body.join("\n"));
+
+    if (parsedBody.kind === "err") return parsedBody;
+
+    return Ok(
+        Function(functionName, returnType, combinedArguments, parsedBody.value)
+    );
 }
 
 function parseBlock(block: string): Result<string, Block> {
