@@ -1,10 +1,24 @@
+export type Type = {
+    kind: "Type";
+    name: string;
+    args: Type[];
+};
+
+export function Type(name: string, args: Type[]): Type {
+    return {
+        kind: "Type",
+        name,
+        args,
+    };
+}
+
 export type TagArg = {
     kind: "TagArg";
     name: string;
-    type: string;
+    type: Type;
 };
 
-export function TagArg(name: string, type: string): TagArg {
+export function TagArg(name: string, type: Type): TagArg {
     return {
         kind: "TagArg",
         name,

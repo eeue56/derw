@@ -1,10 +1,10 @@
-import { UnionType, Syntax, Module } from "./types";
+import { UnionType, Syntax, Module, Function } from "./types";
 
 export function generateUnionType(syntax: UnionType): string {
     const tagCreators = syntax.tags
         .map((tag) => {
             const typeDefArgs = tag.args
-                .map((arg) => arg.name + ": " + arg.type + ";")
+                .map((arg) => arg.name + ": " + arg.type.name + ";")
                 .join("\n    ");
 
             const funcDefArgs = tag.args
@@ -39,7 +39,7 @@ function ${tag.name}(${tag.args.map((arg) => arg.name).join(",")}): ${
     return `
 ${tagCreators}
 
-type ${syntax.name} = ${tags};
+type ${syntax.type.name} = ${tags};
 `.trim();
 }
 

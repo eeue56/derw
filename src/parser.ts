@@ -36,13 +36,19 @@ function parseUnionType(block: string): Result<string, UnionType> {
             .map((arg) => {
                 // name: type
                 const split = arg.split(":");
-                return TagArg(split[0].trim(), split[1].trim());
+                const splitTypes = split[1].trim().split(" ");
+                const typeName = splitTypes[0];
+                const typeArguments = splitTypes
+                    .slice(1)
+                    .map((name) => Type(name, [ ]));
+
+                return TagArg(split[0].trim(), Type(typeName, typeArguments));
             });
 
         return Tag(tagName, args);
     });
 
-    return Ok(UnionType(name, tags));
+    return Ok(UnionType(Type(name, [ ]), tags));
 }
 
 function parseBlock(block: string): Result<string, Syntax> {

@@ -1,6 +1,6 @@
 import { generateTypescript } from "./generator";
 import { blockKind, parse } from "./parser";
-import { Module, Tag, TagArg, UnionType } from "./types";
+import { Module, Tag, TagArg, Type, UnionType } from "./types";
 import { intoBlocks } from "./blocks";
 import * as assert from "assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
@@ -51,9 +51,9 @@ type Animal = Dog { name: string } | Cat { lives: number }
         Module(
             "main",
             [
-                UnionType("Animal", [
-                    Tag("Dog", [ TagArg("name", "string") ]),
-                    Tag("Cat", [ TagArg("lives", "number") ]),
+                UnionType(Type("Animal", [ ]), [
+                    Tag("Dog", [ TagArg("name", Type("string", [ ])) ]),
+                    Tag("Cat", [ TagArg("lives", Type("number", [ ])) ]),
                 ]),
             ],
             [ ]
@@ -73,9 +73,9 @@ type Animal
         Module(
             "main",
             [
-                UnionType("Animal", [
-                    Tag("Dog", [ TagArg("name", "string") ]),
-                    Tag("Cat", [ TagArg("lives", "number") ]),
+                UnionType(Type("Animal", [ ]), [
+                    Tag("Dog", [ TagArg("name", Type("string", [ ])) ]),
+                    Tag("Cat", [ TagArg("lives", Type("number", [ ])) ]),
                 ]),
             ],
             [ ]
