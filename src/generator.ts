@@ -23,9 +23,13 @@ function generateUnionType(syntax: UnionType): string {
                 .map((arg) => arg.name + ": " + arg.type.name + ";")
                 .join("\n    ");
 
-            const funcDefArgs = tag.args
+            const funcDefProps = tag.args
                 .map((arg) => arg.name)
                 .join(",\n         ");
+
+            const funcDefArgs = tag.args
+                .map((arg) => arg.name + ": " + generateType(arg.type))
+                .join(", ");
 
             return `
 type ${tag.name} = {
@@ -34,12 +38,10 @@ type ${tag.name} = {
             }
 }
 
-function ${tag.name}(${tag.args.map((arg) => arg.name).join(",")}): ${
-                tag.name
-            } {
+function ${tag.name}(${funcDefArgs}): ${tag.name} {
     return {
         kind: "${tag.name}",${
-                funcDefArgs.length === 0 ? "" : "\n        " + funcDefArgs
+                funcDefProps.length === 0 ? "" : "\n        " + funcDefProps
             }
     }
 }`;

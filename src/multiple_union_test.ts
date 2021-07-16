@@ -139,7 +139,7 @@ type Dog = {
     name: string;
 }
 
-function Dog(name): Dog {
+function Dog(name: string): Dog {
     return {
         kind: "Dog",
         name
@@ -151,7 +151,7 @@ type Cat = {
     lives: number;
 }
 
-function Cat(lives): Cat {
+function Cat(lives: number): Cat {
     return {
         kind: "Cat",
         lives
@@ -207,7 +207,7 @@ type Dog = {
     name: string;
 }
 
-function Dog(name): Dog {
+function Dog(name: string): Dog {
     return {
         kind: "Dog",
         name
@@ -219,7 +219,7 @@ type Cat = {
     lives: number;
 }
 
-function Cat(lives): Cat {
+function Cat(lives: number): Cat {
     return {
         kind: "Cat",
         lives
