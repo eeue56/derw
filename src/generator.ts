@@ -1,4 +1,4 @@
-import { UnionType, Syntax, Module, Function } from "./types";
+import { UnionType, Block, Module, Function } from "./types";
 
 export function generateUnionType(syntax: UnionType): string {
     const tagCreators = syntax.tags
@@ -47,7 +47,7 @@ export function generateFunction(syntax: Function): string {
     return "";
 }
 
-export function generateBlock(syntax: Syntax): string {
+export function generateBlock(syntax: Block): string {
     switch (syntax.kind) {
         case "UnionType":
             return generateUnionType(syntax);

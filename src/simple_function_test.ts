@@ -1,6 +1,6 @@
 import { generateTypescript } from "./generator";
 import { blockKind, parse } from "./parser";
-import { Function, Module, Tag, Type, UnionType } from "./types";
+import { Function, Module, Tag, Type, UnionType, Value } from "./types";
 
 import { intoBlocks } from "./blocks";
 import * as assert from "assert";
@@ -46,7 +46,7 @@ isTrue value =
         parse(simpleFunction),
         Module(
             "main",
-            [ Function("isTrue", Type("boolean", [ ]), [ ], "") ],
+            [ Function("isTrue", Type("boolean", [ ]), [ ], Value("")) ],
             [ ]
         )
     );

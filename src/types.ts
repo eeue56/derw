@@ -68,19 +68,53 @@ export function FunctionArg(name: string, type: Type): FunctionArg {
     };
 }
 
+export type Value = {
+    kind: "Value";
+    body: string;
+};
+
+export function Value(body: string): Value {
+    return {
+        kind: "Value",
+        body,
+    };
+}
+
+export type IfStatement = {
+    kind: "IfStatement";
+    predicate: Expression;
+    ifBody: Expression;
+    elseBody: Expression;
+};
+
+export function IfStatement(
+    predicate: Expression,
+    ifBody: Expression,
+    elseBody: Expression
+): IfStatement {
+    return {
+        kind: "IfStatement",
+        predicate,
+        ifBody,
+        elseBody,
+    };
+}
+
+export type Expression = IfStatement | Value;
+
 export type Function = {
     kind: "Function";
     name: string;
     returnType: Type;
     args: FunctionArg[];
-    body: string;
+    body: Expression;
 };
 
 export function Function(
     name: string,
     returnType: Type,
     args: FunctionArg[],
-    body: string
+    body: Expression
 ): Function {
     return {
         kind: "Function",
@@ -91,18 +125,18 @@ export function Function(
     };
 }
 
-export type SyntaxKinds = "UnionType" | "Function";
+export type BlockKinds = "UnionType" | "Function";
 
-export type Syntax = UnionType | Function;
+export type Block = UnionType | Function;
 
 export type Module = {
     kind: "Module";
     name: string;
-    body: Syntax[];
+    body: Block[];
     errors: string[];
 };
 
-export function Module(name: string, body: Syntax[], errors: string[]): Module {
+export function Module(name: string, body: Block[], errors: string[]): Module {
     return {
         kind: "Module",
         name,

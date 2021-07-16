@@ -1,17 +1,18 @@
 import { Err, Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
 import { intoBlocks } from "./blocks";
 import {
-    SyntaxKinds,
+    BlockKinds,
     UnionType,
     TagArg,
     Tag,
-    Syntax,
+    Block,
     Module,
     Function,
     Type,
+    Value,
 } from "./types";
 
-export function blockKind(block: string): Result<string, SyntaxKinds> {
+export function blockKind(block: string): Result<string, BlockKinds> {
     if (block.startsWith("type")) {
         return Ok("UnionType");
     }
@@ -78,10 +79,10 @@ function parseFunction(block: string): Result<string, Function> {
         returnParts.slice(1).map((name) => Type(name, [ ]))
     );
 
-    return Ok(Function(functionName, returnType, [ ], ""));
+    return Ok(Function(functionName, returnType, [ ], Value("")));
 }
 
-function parseBlock(block: string): Result<string, Syntax> {
+function parseBlock(block: string): Result<string, Block> {
     const kind = blockKind(block);
 
     if (kind.kind === "err") return kind;
