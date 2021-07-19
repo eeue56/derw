@@ -94,6 +94,34 @@ export function Value(body: string): Value {
     };
 }
 
+export type Destructure = {
+    kind: "Destructure";
+    constructor: string;
+    pattern: string;
+};
+
+export function Destructure(constructor: string, pattern: string): Destructure {
+    return {
+        kind: "Destructure",
+        constructor,
+        pattern,
+    };
+}
+
+export type Constructor = {
+    kind: "Constructor";
+    constructor: string;
+    pattern: string;
+};
+
+export function Constructor(constructor: string, pattern: string): Constructor {
+    return {
+        kind: "Constructor",
+        constructor,
+        pattern,
+    };
+}
+
 export type IfStatement = {
     kind: "IfStatement";
     predicate: Expression;
@@ -114,7 +142,38 @@ export function IfStatement(
     };
 }
 
-export type Expression = IfStatement | Value;
+export type Branch = {
+    kind: "Branch";
+    pattern: Destructure;
+    body: Expression;
+};
+
+export function Branch(pattern: Destructure, body: Expression): Branch {
+    return {
+        kind: "Branch",
+        pattern,
+        body,
+    };
+}
+
+export type CaseStatement = {
+    kind: "CaseStatement";
+    predicate: Expression;
+    branches: Branch[];
+};
+
+export function CaseStatement(
+    predicate: Expression,
+    branches: Branch[]
+): CaseStatement {
+    return {
+        kind: "CaseStatement",
+        predicate,
+        branches,
+    };
+}
+
+export type Expression = IfStatement | CaseStatement | Constructor | Value;
 
 export type Function = {
     kind: "Function";

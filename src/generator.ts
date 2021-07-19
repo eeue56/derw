@@ -9,6 +9,9 @@ import {
     IfStatement,
     Type,
     FixedType,
+    CaseStatement,
+    Branch,
+    Constructor,
 } from "./types";
 
 function prefixLines(body: string, indent: number): string {
@@ -87,6 +90,35 @@ function generateIfStatement(ifStatement: IfStatement): string {
 }`;
 }
 
+function generateConstructor(constructor: Constructor): string {
+    // TODO: This should be handled in the parser.
+    const innerArguments = constructor.pattern
+        .split("{")
+        .slice(1)
+        .join("{")
+        .split("}")[0]
+        .trim();
+    return `${constructor.constructor}(${innerArguments})`;
+}
+
+function generateBranch(predicate: string, branch: Branch): string {
+    return `case "${branch.pattern.constructor}": {
+    const ${branch.pattern.pattern} = ${predicate};
+    return ${generateExpression(branch.body)};
+}`;
+}
+
+function generateCaseStatement(caseStatement: CaseStatement): string {
+    const predicate = generateExpression(caseStatement.predicate);
+    const branches = caseStatement.branches.map((branch) =>
+        generateBranch(predicate, branch)
+    );
+
+    return `switch (${predicate}.kind) {
+${prefixLines(branches.join("\n"), 4)}
+}`.trim();
+}
+
 function generateType(type_: Type): string {
     switch (type_.kind) {
         case "GenericType": {
@@ -111,6 +143,10 @@ function generateExpression(expression: Expression): string {
             return generateValue(expression);
         case "IfStatement":
             return generateIfStatement(expression);
+        case "CaseStatement":
+            return generateCaseStatement(expression);
+        case "Constructor":
+            return generateConstructor(expression);
     }
 }
 

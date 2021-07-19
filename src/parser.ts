@@ -17,6 +17,10 @@ import {
     FunctionArg,
     FixedType,
     GenericType,
+    CaseStatement,
+    Branch,
+    Destructure,
+    Constructor,
 } from "./types";
 
 export function blockKind(block: string): Result<string, BlockKinds> {
@@ -139,6 +143,22 @@ function parseValue(body: string): Result<string, Value> {
     }
 }
 
+function parseDestructure(body: string): Result<string, Destructure> {
+    body = body.trim();
+    const constructor = body.split(" ")[0];
+    const pattern = body.split(" ").slice(1).join(" ");
+
+    return Ok(Destructure(constructor, pattern));
+}
+
+function parseConstructure(body: string): Result<string, Constructor> {
+    body = body.trim();
+    const constructor = body.split(" ")[0];
+    const pattern = body.split(" ").slice(1).join(" ");
+
+    return Ok(Constructor(constructor, pattern));
+}
+
 function parseIfStatementSingleLine(body: string): Result<string, IfStatement> {
     const predicate = body.split("then")[0].split("if")[1];
     const ifBody = body.split("then")[1].split("else")[0];
@@ -244,18 +264,126 @@ function parseIfStatement(body: string): Result<string, IfStatement> {
     );
 }
 
+function parseCaseStatement(body: string): Result<string, CaseStatement> {
+    body = body
+        .split("\n")
+        .filter((l) => l.trim().length > 0)
+        .join("\n");
+
+    const rootIndentLevel = getIndentLevel(body.split("\n")[0]);
+    const casePredicate = parseExpression(
+        body.split("case ")[1].split(" of")[0]
+    );
+    const lines = body.split("\n");
+
+    let branches = [ ];
+    let branchPattern = "";
+    let branchLines: string[] = [ ];
+
+    for (var i = 1; i < lines.length; i++) {
+        const line = lines[i];
+        const indent = getIndentLevel(line);
+
+        if (rootIndentLevel + 4 === indent) {
+            if (branchPattern === "") {
+                branchPattern = line.split("->")[0];
+                branchLines.push(line.split("->")[1]);
+            }
+
+            const branchExpression = parseExpression(branchLines.join("\n"));
+
+            const parsedBranchPattern = parseDestructure(branchPattern);
+
+            if (
+                branchExpression.kind === "err" ||
+                parsedBranchPattern.kind === "err"
+            ) {
+                if (branchExpression.kind === "err")
+                    branches.push(branchExpression);
+                if (parsedBranchPattern.kind === "err")
+                    branches.push(parsedBranchPattern);
+            } else {
+                branches.push(
+                    Ok(
+                        Branch(
+                            (parsedBranchPattern as Ok<Destructure>).value,
+                            (branchExpression as Ok<Expression>).value
+                        )
+                    )
+                );
+            }
+
+            branchPattern = "";
+            branchLines = [ ];
+        } else {
+            branchLines.push(line);
+        }
+    }
+
+    if (branchLines.length > 0) {
+        const branchExpression = parseExpression(branchLines.join("\n"));
+
+        const parsedBranchPattern = parseDestructure(branchPattern);
+
+        if (
+            branchExpression.kind === "err" ||
+            parsedBranchPattern.kind === "err"
+        ) {
+            if (branchExpression.kind === "err")
+                branches.push(branchExpression);
+            if (parsedBranchPattern.kind === "err")
+                branches.push(parsedBranchPattern);
+        } else {
+            branches.push(
+                Ok(
+                    Branch(
+                        (parsedBranchPattern as Ok<Destructure>).value,
+                        (branchExpression as Ok<Expression>).value
+                    )
+                )
+            );
+        }
+    }
+
+    const errors = [ ];
+    if (casePredicate.kind === "err") errors.push(casePredicate.error);
+    branches.forEach((branch) => {
+        if (branch.kind === "err") {
+            errors.push(branch.error);
+        }
+    });
+
+    if (errors.length > 0) {
+        return Err(errors.join("\n"));
+    }
+
+    const validBranches = branches.map((value) => (value as Ok<Branch>).value);
+
+    return Ok(
+        CaseStatement((casePredicate as Ok<Expression>).value, validBranches)
+    );
+}
+
 function parseExpression(body: string): Result<string, Expression> {
     if (body.trim().startsWith("if ")) {
         return parseIfStatement(body);
+    } else if (body.trim().startsWith("case ")) {
+        return parseCaseStatement(body);
     } else if (body.trim().split(" ").length === 1) {
         return parseValue(body);
+    } else {
+        const firstChar = body.trim().slice(0, 1);
+        if (firstChar.toUpperCase() === firstChar) {
+            return parseConstructure(body);
+        }
     }
-    return Err("No expression found.");
+
+    return Err(`No expression found: '${body}'`);
 }
 
 function parseFunction(block: string): Result<string, Function> {
     const typeLine = block.split("\n")[0];
-    const functionName = typeLine.split(":")[0];
+    const functionName = typeLine.split(":")[0].trim();
     const types = typeLine
         .split(":")
         .slice(1)
