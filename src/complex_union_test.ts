@@ -42,23 +42,23 @@ function Cat(lives: number): Cat {
 
 type Animal = Dog | Cat;`.trim();
 
-export function testIntoBlocksComplexUnion() {
+export function testIntoBlocks() {
     assert.deepStrictEqual(intoBlocks(oneLine), [ oneLine ]);
 }
 
-export function testIntoBlocksMultiLineUnion() {
+export function testIntoBlocksMultiLine() {
     assert.deepStrictEqual(intoBlocks(multiLine), [ multiLine ]);
 }
 
-export function testBlockKindComplexUnion() {
+export function testBlockKind() {
     assert.deepStrictEqual(blockKind(oneLine), Ok("UnionType"));
 }
 
-export function testBlockKindMultiLineUnion() {
+export function testBlockKindMultiLine() {
     assert.deepStrictEqual(blockKind(multiLine), Ok("UnionType"));
 }
 
-export function testParseComplexUnion() {
+export function testParse() {
     assert.deepStrictEqual(
         parse(oneLine),
         Module(
@@ -74,7 +74,7 @@ export function testParseComplexUnion() {
     );
 }
 
-export function testParseMultiLineUnion() {
+export function testParseMultiLine() {
     assert.deepStrictEqual(
         parse(multiLine),
         Module(
@@ -90,13 +90,13 @@ export function testParseMultiLineUnion() {
     );
 }
 
-export function testGenerateComplexUnion() {
+export function testGenerate() {
     const parsed = parse(oneLine);
 
     assert.deepStrictEqual(generateTypescript(parsed), expectedOutput);
 }
 
-export function testGenerateMultiLineUnion() {
+export function testGenerateMultiLine() {
     const parsed = parse(multiLine);
 
     assert.deepStrictEqual(generateTypescript(parsed), expectedOutput);

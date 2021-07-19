@@ -6,49 +6,35 @@ import { intoBlocks } from "./blocks";
 import * as assert from "assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 
-export function testIntoBlocksSimpleUnion() {
-    const simpleUnion = `
+const oneLine = `
 type Binary = True | False
 `.trim();
 
-    assert.deepStrictEqual(intoBlocks(simpleUnion), [ simpleUnion ]);
-}
-
-export function testIntoBlocksMultiLineUnion() {
-    const simpleUnion = `
+const multiLine = `
 type Binary
     = True
     | False
 `.trim();
 
-    assert.deepStrictEqual(intoBlocks(simpleUnion), [ simpleUnion ]);
+export function testIntoBlocks() {
+    assert.deepStrictEqual(intoBlocks(oneLine), [ oneLine ]);
 }
 
-export function testBlockKindSimpleUnion() {
-    const simpleUnion = `
-type Binary = True | False
-`.trim();
-
-    assert.deepStrictEqual(blockKind(simpleUnion), Ok("UnionType"));
+export function testIntoBlocksMultiLine() {
+    assert.deepStrictEqual(intoBlocks(multiLine), [ multiLine ]);
 }
 
-export function testBlockKindMultiLineUnion() {
-    const simpleUnion = `
-type Binary
-    = True
-    | False
-`.trim();
-
-    assert.deepStrictEqual(blockKind(simpleUnion), Ok("UnionType"));
+export function testBlockKind() {
+    assert.deepStrictEqual(blockKind(oneLine), Ok("UnionType"));
 }
 
-export function testParseSimpleUnion() {
-    const simpleUnion = `
-type Binary = True | False
-`.trim();
+export function testBlockKindMultiLine() {
+    assert.deepStrictEqual(blockKind(multiLine), Ok("UnionType"));
+}
 
+export function testParse() {
     assert.deepStrictEqual(
-        parse(simpleUnion),
+        parse(oneLine),
         Module(
             "main",
             [
@@ -62,15 +48,9 @@ type Binary = True | False
     );
 }
 
-export function testParseMultiLineUnion() {
-    const simpleUnion = `
-type Binary
-    = True
-    | False
-`.trim();
-
+export function testParseMultiLine() {
     assert.deepStrictEqual(
-        parse(simpleUnion),
+        parse(multiLine),
         Module(
             "main",
             [
@@ -84,12 +64,8 @@ type Binary
     );
 }
 
-export function testGenerateSimpleUnion() {
-    const simpleUnion = `
-type Binary = True | False
-`.trim();
-
-    const parsed = parse(simpleUnion);
+export function testGenerate() {
+    const parsed = parse(oneLine);
     assert.strictEqual(
         generateTypescript(parsed),
         `
@@ -118,14 +94,8 @@ type Binary = True | False;
     );
 }
 
-export function testGenerateMultiLineUnion() {
-    const simpleUnion = `
-type Binary
-    = True
-    | False
-`.trim();
-
-    const parsed = parse(simpleUnion);
+export function testGenerateMultiLine() {
+    const parsed = parse(multiLine);
     assert.deepStrictEqual(
         generateTypescript(parsed),
         `

@@ -19,7 +19,7 @@ type Animal = Dog { name: string } | Cat { lives: number }
     ]);
 }
 
-export function testIntoBlocksMultiLineUnion() {
+export function testIntoBlocksMultiLine() {
     const simpleUnion = `
 type Binary
     = True
@@ -38,7 +38,7 @@ type Animal
     ]);
 }
 
-export function testParseComplexUnion() {
+export function testParse() {
     const simpleUnion = `
 type Binary = True | False
 `.trim();
@@ -98,7 +98,7 @@ type Animal
     );
 }
 
-export function testGenerateComplexUnion() {
+export function testGenerate() {
     const simpleUnion = `
 type Binary = True | False
 `.trim();

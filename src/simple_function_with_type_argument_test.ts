@@ -41,46 +41,23 @@ function isTrue<a>(value: Maybe<a>): boolean {
 }
 `.trim();
 
-export function testIntoBlocksSimpleFunction() {
-    assert.deepStrictEqual(intoBlocks(multiLine), [ multiLine ]);
-}
-
-export function testIntoBlocksSimpleFunctionOneLine() {
+export function testIntoBlocks() {
     assert.deepStrictEqual(intoBlocks(oneLine), [ oneLine ]);
 }
 
-export function testBlockKindSimpleFunction() {
-    assert.deepStrictEqual(blockKind(multiLine), Ok("Function"));
+export function testIntoBlocksMultiLine() {
+    assert.deepStrictEqual(intoBlocks(multiLine), [ multiLine ]);
 }
 
-export function testBlockKindSimpleFunctionOneLine() {
+export function testBlockKind() {
     assert.deepStrictEqual(blockKind(oneLine), Ok("Function"));
 }
 
-export function testParseSimpleFunction() {
-    assert.deepStrictEqual(
-        parse(multiLine),
-        Module(
-            "main",
-            [
-                Function(
-                    "isTrue",
-                    FixedType("boolean", [ ]),
-                    [
-                        FunctionArg(
-                            "value",
-                            FixedType("Maybe", [ GenericType("a") ])
-                        ),
-                    ],
-                    IfStatement(Value("value"), Value("true"), Value("false"))
-                ),
-            ],
-            [ ]
-        )
-    );
+export function testBlockKindMultiLine() {
+    assert.deepStrictEqual(blockKind(multiLine), Ok("Function"));
 }
 
-export function testParseSimpleFunctionOneLine() {
+export function testParse() {
     assert.deepStrictEqual(
         parse(oneLine),
         Module(
@@ -103,14 +80,37 @@ export function testParseSimpleFunctionOneLine() {
     );
 }
 
-export function testGenerateSimpleFunction() {
-    const parsed = parse(multiLine);
+export function testParseMultiLine() {
+    assert.deepStrictEqual(
+        parse(multiLine),
+        Module(
+            "main",
+            [
+                Function(
+                    "isTrue",
+                    FixedType("boolean", [ ]),
+                    [
+                        FunctionArg(
+                            "value",
+                            FixedType("Maybe", [ GenericType("a") ])
+                        ),
+                    ],
+                    IfStatement(Value("value"), Value("true"), Value("false"))
+                ),
+            ],
+            [ ]
+        )
+    );
+}
+
+export function testGenerate() {
+    const parsed = parse(oneLine);
     const generated = generateTypescript(parsed);
     assert.strictEqual(generated, expectedOutput);
 }
 
-export function testGenerateSimpleFunctionOneLine() {
-    const parsed = parse(oneLine);
+export function testGenerateMultiLine() {
+    const parsed = parse(multiLine);
     const generated = generateTypescript(parsed);
     assert.strictEqual(generated, expectedOutput);
 }
