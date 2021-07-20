@@ -4,6 +4,7 @@ import { FixedType, Module, Tag, TagArg, Type, UnionType } from "./types";
 import { intoBlocks } from "./blocks";
 import * as assert from "assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
+import { compileTypescript } from "./compile";
 
 const oneLine = `
 type Animal = Dog { name: string } | Cat { lives: number }
@@ -100,4 +101,28 @@ export function testGenerateMultiLine() {
     const parsed = parse(multiLine);
 
     assert.deepStrictEqual(generateTypescript(parsed), expectedOutput);
+}
+
+export function testCompile() {
+    const parsed = parse(oneLine);
+    const generated = generateTypescript(parsed);
+    const compiled = compileTypescript(generated);
+
+    assert.deepStrictEqual(
+        compiled.kind,
+        "ok",
+        (compiled.kind === "err" && compiled.error.toString()) || ""
+    );
+}
+
+export function testCompileMultiLine() {
+    const parsed = parse(multiLine);
+    const generated = generateTypescript(parsed);
+    const compiled = compileTypescript(generated);
+
+    assert.deepStrictEqual(
+        compiled.kind,
+        "ok",
+        (compiled.kind === "err" && compiled.error.toString()) || ""
+    );
 }

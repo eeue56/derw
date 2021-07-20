@@ -4,6 +4,7 @@ import { FixedType, Module, Tag, TagArg, Type, UnionType } from "./types";
 import { intoBlocks } from "./blocks";
 import * as assert from "assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
+import { compileTypescript } from "./compile";
 
 const expectedOutput = `
 type True = {
@@ -179,4 +180,14 @@ type Animal
     const parsed = parse(simpleUnion + "\n\n" + complexUnion);
 
     assert.deepStrictEqual(generateTypescript(parsed), expectedOutput);
+}
+
+export function testCompile() {
+    const compiled = compileTypescript(expectedOutput);
+
+    assert.deepStrictEqual(
+        compiled.kind,
+        "ok",
+        (compiled.kind === "err" && compiled.error.toString()) || ""
+    );
 }

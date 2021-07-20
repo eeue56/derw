@@ -11,7 +11,9 @@ import {
 } from "./types";
 import { intoBlocks } from "./blocks";
 import * as assert from "assert";
-import { Ok } from "@eeue56/ts-core/build/main/lib/result";
+import { Err, Ok } from "@eeue56/ts-core/build/main/lib/result";
+import { compileTypescript } from "./compile";
+import { Diagnostic } from "typescript";
 
 const oneLine = `
 type List a = Leaf { value: a } | Node { value: a, next: List a }
@@ -116,4 +118,28 @@ export function testGenerateMultiLine() {
     const parsed = parse(multiLine);
 
     assert.deepStrictEqual(generateTypescript(parsed), expectedOutput);
+}
+
+export function testCompile() {
+    const parsed = parse(oneLine);
+    const generated = generateTypescript(parsed);
+    const compiled = compileTypescript(generated);
+
+    assert.deepStrictEqual(
+        compiled.kind,
+        "ok",
+        (compiled.kind === "err" && compiled.error.toString()) || ""
+    );
+}
+
+export function testCompileMultiLine() {
+    const parsed = parse(multiLine);
+    const generated = generateTypescript(parsed);
+    const compiled = compileTypescript(generated);
+
+    assert.deepStrictEqual(
+        compiled.kind,
+        "ok",
+        (compiled.kind === "err" && compiled.error.toString()) || ""
+    );
 }
