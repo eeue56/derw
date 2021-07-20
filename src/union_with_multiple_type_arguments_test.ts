@@ -29,10 +29,10 @@ type Left<a> = {
     value: a;
 }
 
-function Left<a>(value: a): Left<a> {
+function Left<a>(args: { value: a }): Left<a> {
     return {
         kind: "Left",
-        value
+        ...args
     }
 }
 
@@ -41,10 +41,10 @@ type Right<b> = {
     value: b;
 }
 
-function Right<b>(value: b): Right<b> {
+function Right<b>(args: { value: b }): Right<b> {
     return {
         kind: "Right",
-        value
+        ...args
     }
 }
 

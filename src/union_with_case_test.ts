@@ -57,10 +57,10 @@ type Err<a> = {
     error: a;
 }
 
-function Err<a>(error: a): Err<a> {
+function Err<a>(args: { error: a }): Err<a> {
     return {
         kind: "Err",
-        error
+        ...args
     }
 }
 
@@ -69,10 +69,10 @@ type Ok<b> = {
     value: b;
 }
 
-function Ok<b>(value: b): Ok<b> {
+function Ok<b>(args: { value: b }): Ok<b> {
     return {
         kind: "Ok",
-        value
+        ...args
     }
 }
 
@@ -82,11 +82,11 @@ function asIs<a, b>(result: Result<a, b>): Result<a, b> {
     switch (result.kind) {
         case "Err": {
             const { error } = result;
-            return Err(error);
+            return Err({ error });
         }
         case "Ok": {
             const { value } = result;
-            return Ok(value);
+            return Ok({ value });
         }
     }
 }

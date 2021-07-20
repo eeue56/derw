@@ -22,7 +22,7 @@
     },
     "homepage": "https://github.com/eeue56/derw#readme",
     "devDependencies": {
-        "@eeue56/bach": "^0.0.3",
+        "@eeue56/bach": "^0.0.4",
         "@types/node": "^16.3.1",
         "prettier": "github:eeue56/prettier#feat/spacing-around-square-brackets",
         "typescript": "^4.3.5"

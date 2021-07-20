@@ -21,10 +21,10 @@ type Dog = {
     name: string;
 }
 
-function Dog(name: string): Dog {
+function Dog(args: { name: string }): Dog {
     return {
         kind: "Dog",
-        name
+        ...args
     }
 }
 
@@ -33,10 +33,10 @@ type Cat = {
     lives: number;
 }
 
-function Cat(lives: number): Cat {
+function Cat(args: { lives: number }): Cat {
     return {
         kind: "Cat",
-        lives
+        ...args
     }
 }
 

@@ -16,6 +16,32 @@ type Binary
     | False
 `.trim();
 
+const expectedOutput = `
+type True = {
+    kind: "True";
+}
+
+function True(args: {  }): True {
+    return {
+        kind: "True",
+        ...args
+    }
+}
+
+type False = {
+    kind: "False";
+}
+
+function False(args: {  }): False {
+    return {
+        kind: "False",
+        ...args
+    }
+}
+
+type Binary = True | False;
+`.trim();
+
 export function testIntoBlocks() {
     assert.deepStrictEqual(intoBlocks(oneLine), [ oneLine ]);
 }
@@ -66,60 +92,10 @@ export function testParseMultiLine() {
 
 export function testGenerate() {
     const parsed = parse(oneLine);
-    assert.strictEqual(
-        generateTypescript(parsed),
-        `
-type True = {
-    kind: "True";
-}
-
-function True(): True {
-    return {
-        kind: "True",
-    }
-}
-
-type False = {
-    kind: "False";
-}
-
-function False(): False {
-    return {
-        kind: "False",
-    }
-}
-
-type Binary = True | False;
-`.trim()
-    );
+    assert.strictEqual(generateTypescript(parsed), expectedOutput);
 }
 
 export function testGenerateMultiLine() {
     const parsed = parse(multiLine);
-    assert.deepStrictEqual(
-        generateTypescript(parsed),
-        `
-type True = {
-    kind: "True";
-}
-
-function True(): True {
-    return {
-        kind: "True",
-    }
-}
-
-type False = {
-    kind: "False";
-}
-
-function False(): False {
-    return {
-        kind: "False",
-    }
-}
-
-type Binary = True | False;
-`.trim()
-    );
+    assert.deepStrictEqual(generateTypescript(parsed), expectedOutput);
 }

@@ -50,11 +50,10 @@ type ${generatedType} = {
             }
 }
 
-function ${generatedType}(${funcDefArgs}): ${generatedType} {
+function ${generatedType}(args: { ${funcDefArgs} }): ${generatedType} {
     return {
-        kind: "${tag.name}",${
-                funcDefProps.length === 0 ? "" : "\n        " + funcDefProps
-            }
+        kind: "${tag.name}",
+        ...args
     }
 }`;
         })
@@ -92,13 +91,8 @@ function generateIfStatement(ifStatement: IfStatement): string {
 
 function generateConstructor(constructor: Constructor): string {
     // TODO: This should be handled in the parser.
-    const innerArguments = constructor.pattern
-        .split("{")
-        .slice(1)
-        .join("{")
-        .split("}")[0]
-        .trim();
-    return `${constructor.constructor}(${innerArguments})`;
+
+    return `${constructor.constructor}(${constructor.pattern})`;
 }
 
 function generateBranch(predicate: string, branch: Branch): string {

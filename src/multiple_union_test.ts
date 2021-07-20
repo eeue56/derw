@@ -5,6 +5,57 @@ import { intoBlocks } from "./blocks";
 import * as assert from "assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 
+const expectedOutput = `
+type True = {
+    kind: "True";
+}
+
+function True(args: {  }): True {
+    return {
+        kind: "True",
+        ...args
+    }
+}
+
+type False = {
+    kind: "False";
+}
+
+function False(args: {  }): False {
+    return {
+        kind: "False",
+        ...args
+    }
+}
+
+type Binary = True | False;
+
+type Dog = {
+    kind: "Dog";
+    name: string;
+}
+
+function Dog(args: { name: string }): Dog {
+    return {
+        kind: "Dog",
+        ...args
+    }
+}
+
+type Cat = {
+    kind: "Cat";
+    lives: number;
+}
+
+function Cat(args: { lives: number }): Cat {
+    return {
+        kind: "Cat",
+        ...args
+    }
+}
+
+type Animal = Dog | Cat;`.trim();
+
 export function testIntoBlocks() {
     const simpleUnion = `
 type Binary = True | False
@@ -109,57 +160,7 @@ type Animal = Dog { name: string } | Cat { lives: number }
 
     const parsed = parse(simpleUnion + "\n\n" + complexUnion);
 
-    assert.deepStrictEqual(
-        generateTypescript(parsed),
-        `
-type True = {
-    kind: "True";
-}
-
-function True(): True {
-    return {
-        kind: "True",
-    }
-}
-
-type False = {
-    kind: "False";
-}
-
-function False(): False {
-    return {
-        kind: "False",
-    }
-}
-
-type Binary = True | False;
-
-type Dog = {
-    kind: "Dog";
-    name: string;
-}
-
-function Dog(name: string): Dog {
-    return {
-        kind: "Dog",
-        name
-    }
-}
-
-type Cat = {
-    kind: "Cat";
-    lives: number;
-}
-
-function Cat(lives: number): Cat {
-    return {
-        kind: "Cat",
-        lives
-    }
-}
-
-type Animal = Dog | Cat;`.trim()
-    );
+    assert.deepStrictEqual(generateTypescript(parsed), expectedOutput);
 }
 
 export function testGenerateMultiLineUnion() {
@@ -177,55 +178,5 @@ type Animal
 
     const parsed = parse(simpleUnion + "\n\n" + complexUnion);
 
-    assert.deepStrictEqual(
-        generateTypescript(parsed),
-        `
-type True = {
-    kind: "True";
-}
-
-function True(): True {
-    return {
-        kind: "True",
-    }
-}
-
-type False = {
-    kind: "False";
-}
-
-function False(): False {
-    return {
-        kind: "False",
-    }
-}
-
-type Binary = True | False;
-
-type Dog = {
-    kind: "Dog";
-    name: string;
-}
-
-function Dog(name: string): Dog {
-    return {
-        kind: "Dog",
-        name
-    }
-}
-
-type Cat = {
-    kind: "Cat";
-    lives: number;
-}
-
-function Cat(lives: number): Cat {
-    return {
-        kind: "Cat",
-        lives
-    }
-}
-
-type Animal = Dog | Cat;`.trim()
-    );
+    assert.deepStrictEqual(generateTypescript(parsed), expectedOutput);
 }

@@ -29,10 +29,10 @@ type Leaf<a> = {
     value: a;
 }
 
-function Leaf<a>(value: a): Leaf<a> {
+function Leaf<a>(args: { value: a }): Leaf<a> {
     return {
         kind: "Leaf",
-        value
+        ...args
     }
 }
 
@@ -42,11 +42,10 @@ type Node<a> = {
     next: List<a>;
 }
 
-function Node<a>(value: a, next: List<a>): Node<a> {
+function Node<a>(args: { value: a, next: List<a> }): Node<a> {
     return {
         kind: "Node",
-        value,
-        next
+        ...args
     }
 }
 
