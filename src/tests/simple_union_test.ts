@@ -1,55 +1,46 @@
-import { generateTypescript } from "./generator";
-import { blockKind, parse } from "./parser";
-import {
-    FixedType,
-    GenericType,
-    Module,
-    Tag,
-    TagArg,
-    Type,
-    UnionType,
-} from "./types";
-import { intoBlocks } from "./blocks";
+import { generateTypescript } from "../generator";
+import { blockKind, parse } from "../parser";
+import { FixedType, Module, Tag, Type, UnionType } from "../types";
+
+import { intoBlocks } from "../blocks";
 import * as assert from "assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
-import { compileTypescript } from "./compile";
+import { compileTypescript } from "../compile";
 
 const oneLine = `
-type Either a b = Left { value: a } | Right { value: b }
+type Binary = True | False
 `.trim();
 
 const multiLine = `
-type Either a b
-    = Left { value: a }
-    | Right { value: b }
+type Binary
+    = True
+    | False
 `.trim();
 
 const expectedOutput = `
-type Left<a> = {
-    kind: "Left";
-    value: a;
+type True = {
+    kind: "True";
 }
 
-function Left<a>(args: { value: a }): Left<a> {
+function True(args: {  }): True {
     return {
-        kind: "Left",
+        kind: "True",
         ...args
     }
 }
 
-type Right<b> = {
-    kind: "Right";
-    value: b;
+type False = {
+    kind: "False";
 }
 
-function Right<b>(args: { value: b }): Right<b> {
+function False(args: {  }): False {
     return {
-        kind: "Right",
+        kind: "False",
         ...args
     }
 }
 
-type Either<a, b> = Left<a> | Right<b>;
+type Binary = True | False;
 `.trim();
 
 export function testIntoBlocks() {
@@ -74,13 +65,10 @@ export function testParse() {
         Module(
             "main",
             [
-                UnionType(
-                    FixedType("Either", [ GenericType("a"), GenericType("b") ]),
-                    [
-                        Tag("Left", [ TagArg("value", GenericType("a")) ]),
-                        Tag("Right", [ TagArg("value", GenericType("b")) ]),
-                    ]
-                ),
+                UnionType(FixedType("Binary", [ ]), [
+                    Tag("True", [ ]),
+                    Tag("False", [ ]),
+                ]),
             ],
             [ ]
         )
@@ -93,13 +81,10 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
-                UnionType(
-                    FixedType("Either", [ GenericType("a"), GenericType("b") ]),
-                    [
-                        Tag("Left", [ TagArg("value", GenericType("a")) ]),
-                        Tag("Right", [ TagArg("value", GenericType("b")) ]),
-                    ]
-                ),
+                UnionType(FixedType("Binary", [ ]), [
+                    Tag("True", [ ]),
+                    Tag("False", [ ]),
+                ]),
             ],
             [ ]
         )
@@ -108,13 +93,11 @@ export function testParseMultiLine() {
 
 export function testGenerate() {
     const parsed = parse(oneLine);
-
-    assert.deepStrictEqual(generateTypescript(parsed), expectedOutput);
+    assert.strictEqual(generateTypescript(parsed), expectedOutput);
 }
 
 export function testGenerateMultiLine() {
     const parsed = parse(multiLine);
-
     assert.deepStrictEqual(generateTypescript(parsed), expectedOutput);
 }
 

@@ -1,5 +1,5 @@
-import { generateTypescript } from "./generator";
-import { blockKind, parse } from "./parser";
+import { generateTypescript } from "../generator";
+import { blockKind, parse } from "../parser";
 import {
     Branch,
     CaseStatement,
@@ -16,11 +16,11 @@ import {
     Type,
     UnionType,
     Value,
-} from "./types";
-import { intoBlocks } from "./blocks";
+} from "../types";
+import { intoBlocks } from "../blocks";
 import * as assert from "assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
-import { compileTypescript } from "./compile";
+import { compileTypescript } from "../compile";
 
 const functionPart = `
 asIs : Result a b -> Result a b

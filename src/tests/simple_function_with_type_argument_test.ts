@@ -1,5 +1,5 @@
-import { generateTypescript } from "./generator";
-import { blockKind, parse } from "./parser";
+import { generateTypescript } from "../generator";
+import { blockKind, parse } from "../parser";
 import {
     FixedType,
     Function,
@@ -11,12 +11,12 @@ import {
     Type,
     UnionType,
     Value,
-} from "./types";
+} from "../types";
 
-import { intoBlocks } from "./blocks";
+import { intoBlocks } from "../blocks";
 import * as assert from "assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
-import { compileTypescript } from "./compile";
+import { compileTypescript } from "../compile";
 
 const oneLine = `
 isTrue: Maybe a -> boolean

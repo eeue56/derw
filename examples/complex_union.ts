@@ -3,10 +3,10 @@ type Dog = {
     name: string;
 };
 
-function Dog(name: string): Dog {
+function Dog(args: { name: string }): Dog {
     return {
         kind: "Dog",
-        name,
+        ...args,
     };
 }
 
@@ -15,10 +15,10 @@ type Cat = {
     lives: number;
 };
 
-function Cat(lives: number): Cat {
+function Cat(args: { lives: number }): Cat {
     return {
         kind: "Cat",
-        lives,
+        ...args,
     };
 }
 
@@ -27,7 +27,7 @@ type Animal = Dog | Cat;
 function sayHiToPet(pet: Animal): string {
     switch (pet.kind) {
         case "Dog": {
-            const { name } = pet;
+            const { kind, ...args } = pet;
             return `Good boy ${name}!`;
         }
         case "Cat": {

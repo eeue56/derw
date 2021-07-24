@@ -1,5 +1,5 @@
-import { generateTypescript } from "./generator";
-import { blockKind, parse } from "./parser";
+import { generateTypescript } from "../generator";
+import { blockKind, parse } from "../parser";
 import {
     FixedType,
     GenericType,
@@ -8,11 +8,11 @@ import {
     TagArg,
     Type,
     UnionType,
-} from "./types";
-import { intoBlocks } from "./blocks";
+} from "../types";
+import { intoBlocks } from "../blocks";
 import * as assert from "assert";
 import { Err, Ok } from "@eeue56/ts-core/build/main/lib/result";
-import { compileTypescript } from "./compile";
+import { compileTypescript } from "../compile";
 import { Diagnostic } from "typescript";
 
 const oneLine = `

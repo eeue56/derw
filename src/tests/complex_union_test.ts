@@ -1,47 +1,47 @@
-import { generateTypescript } from "./generator";
-import { blockKind, parse } from "./parser";
-import { FixedType, Module, Tag, Type, UnionType } from "./types";
-
-import { intoBlocks } from "./blocks";
+import { generateTypescript } from "../generator";
+import { blockKind, parse } from "../parser";
+import { FixedType, Module, Tag, TagArg, Type, UnionType } from "../types";
+import { intoBlocks } from "../blocks";
 import * as assert from "assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
-import { compileTypescript } from "./compile";
+import { compileTypescript } from "../compile";
 
 const oneLine = `
-type Binary = True | False
+type Animal = Dog { name: string } | Cat { lives: number }
 `.trim();
 
 const multiLine = `
-type Binary
-    = True
-    | False
+type Animal
+    = Dog { name: string }
+    | Cat { lives: number }
 `.trim();
 
 const expectedOutput = `
-type True = {
-    kind: "True";
+type Dog = {
+    kind: "Dog";
+    name: string;
 }
 
-function True(args: {  }): True {
+function Dog(args: { name: string }): Dog {
     return {
-        kind: "True",
+        kind: "Dog",
         ...args
     }
 }
 
-type False = {
-    kind: "False";
+type Cat = {
+    kind: "Cat";
+    lives: number;
 }
 
-function False(args: {  }): False {
+function Cat(args: { lives: number }): Cat {
     return {
-        kind: "False",
+        kind: "Cat",
         ...args
     }
 }
 
-type Binary = True | False;
-`.trim();
+type Animal = Dog | Cat;`.trim();
 
 export function testIntoBlocks() {
     assert.deepStrictEqual(intoBlocks(oneLine), [ oneLine ]);
@@ -65,9 +65,9 @@ export function testParse() {
         Module(
             "main",
             [
-                UnionType(FixedType("Binary", [ ]), [
-                    Tag("True", [ ]),
-                    Tag("False", [ ]),
+                UnionType(FixedType("Animal", [ ]), [
+                    Tag("Dog", [ TagArg("name", FixedType("string", [ ])) ]),
+                    Tag("Cat", [ TagArg("lives", FixedType("number", [ ])) ]),
                 ]),
             ],
             [ ]
@@ -81,9 +81,9 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
-                UnionType(FixedType("Binary", [ ]), [
-                    Tag("True", [ ]),
-                    Tag("False", [ ]),
+                UnionType(FixedType("Animal", [ ]), [
+                    Tag("Dog", [ TagArg("name", FixedType("string", [ ])) ]),
+                    Tag("Cat", [ TagArg("lives", FixedType("number", [ ])) ]),
                 ]),
             ],
             [ ]
@@ -93,11 +93,13 @@ export function testParseMultiLine() {
 
 export function testGenerate() {
     const parsed = parse(oneLine);
-    assert.strictEqual(generateTypescript(parsed), expectedOutput);
+
+    assert.deepStrictEqual(generateTypescript(parsed), expectedOutput);
 }
 
 export function testGenerateMultiLine() {
     const parsed = parse(multiLine);
+
     assert.deepStrictEqual(generateTypescript(parsed), expectedOutput);
 }
 
