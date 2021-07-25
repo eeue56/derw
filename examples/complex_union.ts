@@ -27,7 +27,7 @@ type Animal = Dog | Cat;
 function sayHiToPet(pet: Animal): string {
     switch (pet.kind) {
         case "Dog": {
-            const { kind, ...args } = pet;
+            const { name } = pet;
             return `Good boy ${name}!`;
         }
         case "Cat": {

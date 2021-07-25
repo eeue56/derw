@@ -12,6 +12,10 @@ import {
     CaseStatement,
     Branch,
     Constructor,
+    StringValue,
+    Const,
+    FormatStringValue,
+    Addition,
 } from "./types";
 
 function prefixLines(body: string, indent: number): string {
@@ -43,18 +47,21 @@ function generateUnionType(syntax: UnionType): string {
                 )
             );
 
+            const funcDefArgsStr =
+                tag.args.length > 0 ? `{ ${funcDefArgs} }` : "{}";
+
             return `
 type ${generatedType} = {
     kind: "${tag.name}";${
                 typeDefArgs.length === 0 ? "" : "\n    " + typeDefArgs
             }
-}
+};
 
-function ${generatedType}(args: { ${funcDefArgs} }): ${generatedType} {
+function ${generatedType}(args: ${funcDefArgsStr}): ${generatedType} {
     return {
         kind: "${tag.name}",
-        ...args
-    }
+        ...args,
+    };
 }`;
         })
         .join("\n");
@@ -81,6 +88,14 @@ function generateValue(value: Value): string {
     return value.body;
 }
 
+function generateStringValue(string: StringValue): string {
+    return `"${string.body}"`;
+}
+
+function generateFormatString(string: FormatStringValue): string {
+    return `\`${string.body}\``;
+}
+
 function generateIfStatement(ifStatement: IfStatement): string {
     return `if (${generateExpression(ifStatement.predicate)}) {
     return ${generateExpression(ifStatement.ifBody)};
@@ -96,8 +111,11 @@ function generateConstructor(constructor: Constructor): string {
 }
 
 function generateBranch(predicate: string, branch: Branch): string {
-    return `case "${branch.pattern.constructor}": {
-    const ${branch.pattern.pattern} = ${predicate};
+    const pattern =
+        branch.pattern.pattern.trim().length > 0
+            ? `\n    const ${branch.pattern.pattern} = ${predicate};`
+            : "";
+    return `case "${branch.pattern.constructor}": {${pattern}
     return ${generateExpression(branch.body)};
 }`;
 }
@@ -131,14 +149,27 @@ function generateType(type_: Type): string {
     }
 }
 
+function generateAddition(addition: Addition): string {
+    const left = generateExpression(addition.left);
+    const right = generateExpression(addition.right);
+
+    return `${left} + ${right}`;
+}
+
 function generateExpression(expression: Expression): string {
     switch (expression.kind) {
         case "Value":
             return generateValue(expression);
+        case "StringValue":
+            return generateStringValue(expression);
+        case "FormatStringValue":
+            return generateFormatString(expression);
         case "IfStatement":
             return generateIfStatement(expression);
         case "CaseStatement":
             return generateCaseStatement(expression);
+        case "Addition":
+            return generateAddition(expression);
         case "Constructor":
             return generateConstructor(expression);
     }
@@ -178,12 +209,22 @@ ${prefixedBody}
 }`.trim();
 }
 
+function generateConst(constDef: Const): string {
+    const body = generateExpression(constDef.value);
+    const typeDef = generateType(constDef.type);
+    return `
+const ${constDef.name}: ${typeDef} = ${body};
+`.trim();
+}
+
 function generateBlock(syntax: Block): string {
     switch (syntax.kind) {
         case "UnionType":
             return generateUnionType(syntax);
         case "Function":
             return generateFunction(syntax);
+        case "Const":
+            return generateConst(syntax);
     }
 }
 

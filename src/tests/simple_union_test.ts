@@ -20,24 +20,24 @@ type Binary
 const expectedOutput = `
 type True = {
     kind: "True";
-}
+};
 
-function True(args: {  }): True {
+function True(args: {}): True {
     return {
         kind: "True",
-        ...args
-    }
+        ...args,
+    };
 }
 
 type False = {
     kind: "False";
-}
+};
 
-function False(args: {  }): False {
+function False(args: {}): False {
     return {
         kind: "False",
-        ...args
-    }
+        ...args,
+    };
 }
 
 type Binary = True | False;

@@ -28,25 +28,25 @@ const expectedOutput = `
 type Left<a> = {
     kind: "Left";
     value: a;
-}
+};
 
 function Left<a>(args: { value: a }): Left<a> {
     return {
         kind: "Left",
-        ...args
-    }
+        ...args,
+    };
 }
 
 type Right<b> = {
     kind: "Right";
     value: b;
-}
+};
 
 function Right<b>(args: { value: b }): Right<b> {
     return {
         kind: "Right",
-        ...args
-    }
+        ...args,
+    };
 }
 
 type Either<a, b> = Left<a> | Right<b>;

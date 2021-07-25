@@ -21,6 +21,10 @@ import {
     Branch,
     Destructure,
     Constructor,
+    StringValue,
+    Const,
+    FormatStringValue,
+    Addition,
 } from "./types";
 
 export function blockKind(block: string): Result<string, BlockKinds> {
@@ -28,11 +32,15 @@ export function blockKind(block: string): Result<string, BlockKinds> {
         return Ok("UnionType");
     }
 
-    if (
-        block.split(":").length > 1 &&
-        block.split(":")[0].trim().split(" ").length === 1
-    ) {
-        return Ok("Function");
+    const hasTypeLine = block.split(":").length > 1;
+    const isAFunction = block.split("->").length > 1;
+
+    if (hasTypeLine) {
+        if (isAFunction) {
+            return Ok("Function");
+        } else {
+            return Ok("Const");
+        }
     }
 
     return Err("Unknown block type");
@@ -143,6 +151,34 @@ function parseValue(body: string): Result<string, Value> {
     }
 }
 
+function parseStringValue(body: string): Result<string, StringValue> {
+    const trimmed = body.trim();
+    const parts = trimmed.split('"').filter((part) => part.length > 0);
+
+    if (parts.length > 1) {
+        return Err(`Too many values: ${trimmed}`);
+    } else if (parts.length === 0) {
+        return Ok(StringValue(""));
+    } else {
+        return Ok(StringValue(parts[0]));
+    }
+}
+
+function parseFormatStringValue(
+    body: string
+): Result<string, FormatStringValue> {
+    const trimmed = body.trim();
+    const parts = trimmed.split("`").filter((part) => part.length > 0);
+
+    if (parts.length > 1) {
+        return Err(`Too many values: ${trimmed}`);
+    } else if (parts.length === 0) {
+        return Ok(FormatStringValue(""));
+    } else {
+        return Ok(FormatStringValue(parts[0]));
+    }
+}
+
 function parseDestructure(body: string): Result<string, Destructure> {
     body = body.trim();
     const constructor = body.split(" ")[0];
@@ -151,7 +187,7 @@ function parseDestructure(body: string): Result<string, Destructure> {
     return Ok(Destructure(constructor, pattern));
 }
 
-function parseConstructure(body: string): Result<string, Constructor> {
+function parseConstructor(body: string): Result<string, Constructor> {
     body = body.trim();
     const constructor = body.split(" ")[0];
     const pattern = body.split(" ").slice(1).join(" ");
@@ -364,17 +400,38 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
     );
 }
 
+function parseAddition(body: string): Result<string, Addition> {
+    const left = body.split("+")[0];
+    const right = body.split("+").slice(1).join("+");
+
+    const leftParsed = parseExpression(left);
+    const rightParsed = parseExpression(right);
+
+    if (leftParsed.kind === "err") return leftParsed;
+    if (rightParsed.kind === "err") return rightParsed;
+
+    return Ok(Addition(leftParsed.value, rightParsed.value));
+}
+
 function parseExpression(body: string): Result<string, Expression> {
-    if (body.trim().startsWith("if ")) {
+    const trimmedBody = body.trim();
+
+    if (trimmedBody.startsWith("if ")) {
         return parseIfStatement(body);
-    } else if (body.trim().startsWith("case ")) {
+    } else if (trimmedBody.startsWith("case ")) {
         return parseCaseStatement(body);
-    } else if (body.trim().split(" ").length === 1) {
+    } else if (trimmedBody.indexOf("+") > -1) {
+        return parseAddition(body);
+    } else if (trimmedBody.startsWith('"')) {
+        return parseStringValue(body);
+    } else if (trimmedBody.startsWith("`")) {
+        return parseFormatStringValue(body);
+    } else if (trimmedBody.split(" ").length === 1) {
         return parseValue(body);
     } else {
-        const firstChar = body.trim().slice(0, 1);
+        const firstChar = trimmedBody.slice(0, 1);
         if (firstChar.toUpperCase() === firstChar) {
-            return parseConstructure(body);
+            return parseConstructor(body);
         }
     }
 
@@ -438,6 +495,23 @@ function parseFunction(block: string): Result<string, Function> {
     );
 }
 
+function parseConst(block: string): Result<string, Const> {
+    const typeLine = block.split("\n")[0];
+    const constName = typeLine.split(":")[0].trim();
+    const constType = typeLine.split(":").slice(1).join(":").trim();
+    const parsedType = parseType(constType);
+
+    const bodyLines = block.split("\n").slice(1).join("\n");
+    const body = bodyLines.split("=").slice(1).join("=").trim();
+
+    const parsedBody = parseExpression(body);
+
+    if (parsedBody.kind === "err") return parsedBody;
+    if (parsedType.kind === "err") return parsedType;
+
+    return Ok(Const(constName, parsedType.value, parsedBody.value));
+}
+
 function parseBlock(block: string): Result<string, Block> {
     const kind = blockKind(block);
 
@@ -449,6 +523,9 @@ function parseBlock(block: string): Result<string, Block> {
         }
         case "Function": {
             return parseFunction(block);
+        }
+        case "Const": {
+            return parseConst(block);
         }
     }
 }

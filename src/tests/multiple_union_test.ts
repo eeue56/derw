@@ -9,24 +9,24 @@ import { compileTypescript } from "../compile";
 const expectedOutput = `
 type True = {
     kind: "True";
-}
+};
 
-function True(args: {  }): True {
+function True(args: {}): True {
     return {
         kind: "True",
-        ...args
-    }
+        ...args,
+    };
 }
 
 type False = {
     kind: "False";
-}
+};
 
-function False(args: {  }): False {
+function False(args: {}): False {
     return {
         kind: "False",
-        ...args
-    }
+        ...args,
+    };
 }
 
 type Binary = True | False;
@@ -34,25 +34,25 @@ type Binary = True | False;
 type Dog = {
     kind: "Dog";
     name: string;
-}
+};
 
 function Dog(args: { name: string }): Dog {
     return {
         kind: "Dog",
-        ...args
-    }
+        ...args,
+    };
 }
 
 type Cat = {
     kind: "Cat";
     lives: number;
-}
+};
 
 function Cat(args: { lives: number }): Cat {
     return {
         kind: "Cat",
-        ...args
-    }
+        ...args,
+    };
 }
 
 type Animal = Dog | Cat;`.trim();

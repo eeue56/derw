@@ -56,25 +56,25 @@ const expectedOutput = `
 type Err<a> = {
     kind: "Err";
     error: a;
-}
+};
 
 function Err<a>(args: { error: a }): Err<a> {
     return {
         kind: "Err",
-        ...args
-    }
+        ...args,
+    };
 }
 
 type Ok<b> = {
     kind: "Ok";
     value: b;
-}
+};
 
 function Ok<b>(args: { value: b }): Ok<b> {
     return {
         kind: "Ok",
-        ...args
-    }
+        ...args,
+    };
 }
 
 type Result<a, b> = Err<a> | Ok<b>;

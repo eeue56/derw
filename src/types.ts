@@ -94,6 +94,30 @@ export function Value(body: string): Value {
     };
 }
 
+export type StringValue = {
+    kind: "StringValue";
+    body: string;
+};
+
+export function StringValue(body: string): StringValue {
+    return {
+        kind: "StringValue",
+        body,
+    };
+}
+
+export type FormatStringValue = {
+    kind: "FormatStringValue";
+    body: string;
+};
+
+export function FormatStringValue(body: string): FormatStringValue {
+    return {
+        kind: "FormatStringValue",
+        body,
+    };
+}
+
 export type Destructure = {
     kind: "Destructure";
     constructor: string;
@@ -156,6 +180,20 @@ export function Branch(pattern: Destructure, body: Expression): Branch {
     };
 }
 
+export type Addition = {
+    kind: "Addition";
+    left: Expression;
+    right: Expression;
+};
+
+export function Addition(left: Expression, right: Expression): Addition {
+    return {
+        kind: "Addition",
+        left,
+        right,
+    };
+}
+
 export type CaseStatement = {
     kind: "CaseStatement";
     predicate: Expression;
@@ -173,7 +211,14 @@ export function CaseStatement(
     };
 }
 
-export type Expression = IfStatement | CaseStatement | Constructor | Value;
+export type Expression =
+    | IfStatement
+    | CaseStatement
+    | Addition
+    | Constructor
+    | StringValue
+    | FormatStringValue
+    | Value;
 
 export type Function = {
     kind: "Function";
@@ -198,9 +243,25 @@ export function Function(
     };
 }
 
-export type BlockKinds = "UnionType" | "Function";
+export type Const = {
+    kind: "Const";
+    name: string;
+    type: Type;
+    value: Expression;
+};
 
-export type Block = UnionType | Function;
+export function Const(name: string, type: Type, value: Expression): Const {
+    return {
+        kind: "Const",
+        name,
+        type,
+        value,
+    };
+}
+
+export type BlockKinds = "UnionType" | "Function" | "Const";
+
+export type Block = UnionType | Function | Const;
 
 export type Module = {
     kind: "Module";

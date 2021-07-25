@@ -4,9 +4,9 @@ import { parse } from "../parser";
 import { generateTypescript } from "../generator";
 import path from "path/posix";
 
+const emptyLineAtEndOfFile = "\n";
+
 export async function testExamples() {
-    // TODO: renewable once string support is a thing
-    return;
     const files = await readdir("./examples");
 
     const filePairs = files
@@ -24,12 +24,14 @@ export async function testExamples() {
             const tsContents = (await readFile(ts)).toString();
 
             const parsed = parse(derwContents);
-            const generated = generateTypescript(parsed);
-            assert.deepStrictEqual(
-                generated,
-                tsContents,
-                `Failed to correctly generate ${derw}`
-            );
+            const generated = generateTypescript(parsed) + emptyLineAtEndOfFile;
+
+            try {
+                assert.deepStrictEqual(tsContents, generated);
+            } catch (e) {
+                console.log(`Failed to correctly generate ${derw}`);
+                throw e;
+            }
         })
     );
 }

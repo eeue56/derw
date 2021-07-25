@@ -29,26 +29,26 @@ const expectedOutput = `
 type Leaf<a> = {
     kind: "Leaf";
     value: a;
-}
+};
 
 function Leaf<a>(args: { value: a }): Leaf<a> {
     return {
         kind: "Leaf",
-        ...args
-    }
+        ...args,
+    };
 }
 
 type Node<a> = {
     kind: "Node";
     value: a;
     next: List<a>;
-}
+};
 
 function Node<a>(args: { value: a, next: List<a> }): Node<a> {
     return {
         kind: "Node",
-        ...args
-    }
+        ...args,
+    };
 }
 
 type List<a> = Leaf<a> | Node<a>;
