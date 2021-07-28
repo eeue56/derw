@@ -18,6 +18,131 @@ asIs result =
         Ok { value } -> Ok { value }
 ```
 
+# Roadmap
+
+## 0.0.1 alpha
+
+-   [ ] Arrays `[ ]`, `[ 1, 2, 3 ]`
+-   [x] Booleans `true`, `false`
+-   [x] Strings `""`, `"hello world"`
+-   [x] Format strings ` `` `, `` `Hello ${name}` ``
+-   [x] Numbers `-1`, `0`, `1`, `-1.1`, `1.1`
+-   [x] Addition `1 + 2`, `"Hello" + name`
+-   [ ] Subtraction `2 - 1`
+-   [ ] Pipe `[1, 2, 3] |> List.fold add`, `List.fold add <| [1, 2, 3]`
+-   Compose `>>`, `<<`
+-   [x] Constants `hello = "hello world"`
+-   [x] Function definitions
+
+```elm
+add : number -> number -> number
+add x y = x + y
+```
+
+-   [ ] Function calls
+
+```elm
+three = add 1 2
+```
+
+-   [x] Union types
+
+```elm
+type Result a b
+    = Err { error: a }
+    | Ok { value: b }
+```
+
+-   [x] Type variables
+
+```
+type Thing a = Thing a
+```
+
+-   [ ] Type aliases
+
+```elm
+type User =
+    { name: string }
+```
+
+-   [ ] Imports
+
+```elm
+import Result exposing (map)
+```
+
+-   [ ] Exports
+
+```elm
+module Result exposing (map)
+```
+
+-   [ ] Let statements
+
+```elm
+sayHiTo : User -> string
+sayHiTo user =
+    let
+        name = user.name
+    in
+        "Hello " + name
+
+sayHelloTo : User -> string
+sayHelloTo user =
+    let
+        getName: User -> string
+        getName user = user.name
+    in
+        "Hello" + getName user
+```
+
+-   [x] Case..of
+
+```elm
+type Animal = Dog | Cat
+sayHiTo : Animal -> string
+sayHiTo animal =
+    case animal of
+        Dog -> "Hi dog!"
+        Cat -> "Hi cat!"
+```
+
+-   [x] Destructing in case..of
+
+```elm
+type User = User { name: string }
+
+sayHiTo : User -> string
+sayHiTo user =
+    case user of
+        User { name } -> "Hi " + name + !"
+```
+
+-   [x] Constructing union types
+
+```elm
+type User = User { name: string }
+noah = User { name: "Noah" }
+```
+
+-   [x] Typescript output
+-   [ ] Javscript output
+-   [ ] Type checking
+-   [ ] Support for [Coed](https://github.com/eeue56/coed)
+-   [ ] Syntax highlighting for editors
+
+## 1.0.0
+
+-   [ ] An automatic formatter with no options
+-   [ ] Testing support via [Bach](https://github.com/eeue56/bach)
+-   [ ] Benchmarking support via [Mainc](https://github.com/eeue56/mainc)
+
+# Divergence from Elm
+
+-   All top level consts or functions must have type definitions
+-   Format strings ``
+
 # Language support
 
 Currently VSCode syntax highlighting is supported by this extenstion: https://github.com/eeue56/derw-syntax. It is not on the marketplace because Microsoft account creation was down when I tried.
