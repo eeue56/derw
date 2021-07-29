@@ -26,7 +26,8 @@ helloWorld = "Hello world"
 
 const multiLine = `
 helloWorld: string
-helloWorld = "Hello world"
+helloWorld =
+    "Hello world"
 `.trim();
 
 const expectedOutput = `
