@@ -25,6 +25,7 @@ import {
     Const,
     FormatStringValue,
     Addition,
+    ListValue,
 } from "./types";
 
 export function blockKind(block: string): Result<string, BlockKinds> {
@@ -48,18 +49,53 @@ export function blockKind(block: string): Result<string, BlockKinds> {
 
 function parseType(line: string): Result<string, Type> {
     const rootTypeName = line.split(" ")[0];
-    const typeArguments = line.split(" ").slice(1);
 
     if (isBuiltinType(rootTypeName)) {
         return Ok(FixedType(rootTypeName, [ ]));
     } else if (rootTypeName.toLowerCase() === rootTypeName) {
         return Ok(GenericType(rootTypeName));
     }
+
+    const typeArguments = line.split(" ").slice(1);
+    const types = typeArguments.join(" ").trim();
+    const parsedTypes = [ ];
+    let buffer = "";
+    let bracketDepth = 0;
+
+    for (var i = 0; i < types.length; i++) {
+        const char = types[i];
+
+        if (char === "(") {
+            bracketDepth += 1;
+            if (bracketDepth > 1) buffer += char;
+        } else if (char === ")") {
+            bracketDepth -= 1;
+            if (bracketDepth === 0) {
+                parsedTypes.push(parseType(buffer));
+                buffer = "";
+            } else {
+                buffer += char;
+            }
+        } else if (char === " ") {
+            if (bracketDepth == 0) {
+                parsedTypes.push(parseType(buffer));
+                buffer = "";
+            } else {
+                buffer += char;
+            }
+        } else {
+            buffer += char;
+        }
+    }
+
+    if (buffer.length > 0) {
+        parsedTypes.push(parseType(buffer));
+    }
+
     return Ok(
         FixedType(
             rootTypeName,
-            typeArguments
-                .map((name) => parseType(name))
+            parsedTypes
                 .filter((type_) => type_.kind !== "err")
                 .map((type_) => (type_ as Ok<Type>).value)
         )
@@ -161,6 +197,65 @@ function parseStringValue(body: string): Result<string, StringValue> {
         return Ok(StringValue(""));
     } else {
         return Ok(StringValue(parts[0]));
+    }
+}
+
+function parseListValue(body: string): Result<string, ListValue> {
+    const trimmed = body.trim();
+    const innerBody = trimmed.slice(1, trimmed.length - 1).trim();
+    const parsedValues = [ ];
+    let bracketDepth = 0;
+    let buffer = "";
+
+    for (var i = 0; i < innerBody.length; i++) {
+        const char = innerBody[i];
+
+        if (char === "[") {
+            bracketDepth += 1;
+            if (bracketDepth > 0) buffer += char;
+        } else if (char === "]") {
+            bracketDepth -= 1;
+            buffer += char;
+            if (bracketDepth === 0) {
+                parsedValues.push(parseExpression(buffer));
+                buffer = "";
+            }
+        } else if (char === ",") {
+            if (bracketDepth == 0) {
+                if (buffer.trim().length > 0) {
+                    parsedValues.push(parseExpression(buffer));
+                }
+                buffer = "";
+            } else {
+                buffer += char;
+            }
+        } else {
+            buffer += char;
+        }
+    }
+
+    if (buffer.length > 0) {
+        parsedValues.push(parseExpression(buffer));
+    }
+
+    const errors = parsedValues.filter((part) => part.kind === "err");
+    const passedValues = parsedValues.filter((part) => part.kind === "ok");
+
+    if (errors.length > 0)
+        return Err(
+            `Invalid array: ${errors
+                .map((error) => (error as Err<string>).error)
+                .join(",")}`
+        );
+
+    if (passedValues.length === 0) {
+        return Ok(ListValue([ ]));
+    } else {
+        return Ok(
+            ListValue(
+                passedValues.map((value) => (value as Ok<Expression>).value)
+            )
+        );
     }
 }
 
@@ -426,6 +521,8 @@ function parseExpression(body: string): Result<string, Expression> {
         return parseStringValue(body);
     } else if (trimmedBody.startsWith("`")) {
         return parseFormatStringValue(body);
+    } else if (trimmedBody.startsWith("[")) {
+        return parseListValue(body);
     } else if (trimmedBody.split(" ").length === 1) {
         return parseValue(body);
     } else {

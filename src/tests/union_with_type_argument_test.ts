@@ -16,13 +16,13 @@ import { compileTypescript } from "../compile";
 import { Diagnostic } from "typescript";
 
 const oneLine = `
-type List a = Leaf { value: a } | Node { value: a, next: List a }
+type CustomList a = Leaf { value: a } | Node { value: a, next: CustomList a }
 `.trim();
 
 const multiLine = `
-type List a
+type CustomList a
     = Leaf { value: a }
-    | Node { value: a, next: List a }
+    | Node { value: a, next: CustomList a }
 `.trim();
 
 const expectedOutput = `
@@ -41,17 +41,17 @@ function Leaf<a>(args: { value: a }): Leaf<a> {
 type Node<a> = {
     kind: "Node";
     value: a;
-    next: List<a>;
+    next: CustomList<a>;
 };
 
-function Node<a>(args: { value: a, next: List<a> }): Node<a> {
+function Node<a>(args: { value: a, next: CustomList<a> }): Node<a> {
     return {
         kind: "Node",
         ...args,
     };
 }
 
-type List<a> = Leaf<a> | Node<a>;
+type CustomList<a> = Leaf<a> | Node<a>;
 `.trim();
 
 export function testIntoBlocks() {
@@ -76,11 +76,14 @@ export function testParse() {
         Module(
             "main",
             [
-                UnionType(FixedType("List", [ GenericType("a") ]), [
+                UnionType(FixedType("CustomList", [ GenericType("a") ]), [
                     Tag("Leaf", [ TagArg("value", GenericType("a")) ]),
                     Tag("Node", [
                         TagArg("value", GenericType("a")),
-                        TagArg("next", FixedType("List", [ GenericType("a") ])),
+                        TagArg(
+                            "next",
+                            FixedType("CustomList", [ GenericType("a") ])
+                        ),
                     ]),
                 ]),
             ],
@@ -95,11 +98,14 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
-                UnionType(FixedType("List", [ GenericType("a") ]), [
+                UnionType(FixedType("CustomList", [ GenericType("a") ]), [
                     Tag("Leaf", [ TagArg("value", GenericType("a")) ]),
                     Tag("Node", [
                         TagArg("value", GenericType("a")),
-                        TagArg("next", FixedType("List", [ GenericType("a") ])),
+                        TagArg(
+                            "next",
+                            FixedType("CustomList", [ GenericType("a") ])
+                        ),
                     ]),
                 ]),
             ],

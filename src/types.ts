@@ -106,6 +106,18 @@ export function StringValue(body: string): StringValue {
     };
 }
 
+export type ListValue = {
+    kind: "ListValue";
+    items: Expression[];
+};
+
+export function ListValue(items: Expression[]): ListValue {
+    return {
+        kind: "ListValue",
+        items,
+    };
+}
+
 export type FormatStringValue = {
     kind: "FormatStringValue";
     body: string;
@@ -218,6 +230,7 @@ export type Expression =
     | Constructor
     | StringValue
     | FormatStringValue
+    | ListValue
     | Value;
 
 export type Function = {

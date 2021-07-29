@@ -16,6 +16,7 @@ import {
     Const,
     FormatStringValue,
     Addition,
+    ListValue,
 } from "./types";
 
 function prefixLines(body: string, indent: number): string {
@@ -92,8 +93,13 @@ function generateStringValue(string: StringValue): string {
     return `"${string.body}"`;
 }
 
-function generateFormatString(string: FormatStringValue): string {
+function generateFormatStringValue(string: FormatStringValue): string {
     return `\`${string.body}\``;
+}
+
+function generateListValue(list: ListValue): string {
+    if (list.items.length === 0) return `[ ]`;
+    return `[ ${list.items.map(generateExpression).join(", ")} ]`;
 }
 
 function generateIfStatement(ifStatement: IfStatement): string {
@@ -137,6 +143,20 @@ function generateType(type_: Type): string {
             return type_.name;
         }
         case "FixedType": {
+            if (type_.name === "List") {
+                const fixedArgs = type_.args.filter(
+                    (type_) => type_.kind === "FixedType"
+                );
+
+                if (fixedArgs.length === 0) {
+                    return "any[]";
+                } else if (fixedArgs.length === 1) {
+                    return `${generateType(fixedArgs[0])}[]`;
+                }
+
+                return `(${fixedArgs.map(generateType).join(" | ")})[]`;
+            }
+
             const args = type_.args.filter(
                 (type_) => type_.kind === "GenericType"
             );
@@ -163,7 +183,9 @@ function generateExpression(expression: Expression): string {
         case "StringValue":
             return generateStringValue(expression);
         case "FormatStringValue":
-            return generateFormatString(expression);
+            return generateFormatStringValue(expression);
+        case "ListValue":
+            return generateListValue(expression);
         case "IfStatement":
             return generateIfStatement(expression);
         case "CaseStatement":

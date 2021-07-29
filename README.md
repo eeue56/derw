@@ -22,7 +22,7 @@ asIs result =
 
 ## 0.0.1 alpha
 
--   [ ] Arrays `[ ]`, `[ 1, 2, 3 ]`
+-   [x] Arrays `[ ]`, `[ 1, 2, 3 ]`, `[ [ 1, 2, 3 ], [ 3, 2, 1 ] ]`
 -   [x] Booleans `true`, `false`
 -   [x] Strings `""`, `"hello world"`
 -   [x] Format strings ` `` `, `` `Hello ${name}` ``
