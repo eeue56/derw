@@ -97,6 +97,18 @@ sayHelloTo user =
         "Hello" + getName user
 ```
 
+-   [x] If statements
+
+```elm
+type Animal = Animal { age: number }
+sayHiTo : Animal -> string
+sayHiTo animal =
+    if animal.age == 1 of
+        "Hello little one!"
+    else
+        "You're old"
+```
+
 -   [x] Case..of
 
 ```elm
