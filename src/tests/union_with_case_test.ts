@@ -1,5 +1,5 @@
 import { generateTypescript } from "../generator";
-import { blockKind, parse } from "../parser";
+import { parse } from "../parser";
 import {
     Branch,
     CaseStatement,
@@ -15,15 +15,16 @@ import {
     TagArg,
     Type,
     UnionType,
+    UnparsedBlock,
     Value,
 } from "../types";
-import { intoBlocks } from "../blocks";
+import { intoBlocks, blockKind } from "../blocks";
 import * as assert from "assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { compileTypescript } from "../compile";
 
 const functionPart = `
-asIs : Result a b -> Result a b
+asIs: Result a b -> Result a b
 asIs result =
     case result of
         Err { error } -> Err { error }
@@ -94,32 +95,35 @@ function asIs<a, b>(result: Result<a, b>): Result<a, b> {
 `.trim();
 
 export function testIntoBlocks() {
-    assert.deepStrictEqual(intoBlocks(oneLine), [ rawOneLine, functionPart ]);
+    assert.deepStrictEqual(intoBlocks(oneLine), [
+        UnparsedBlock("TypeBlock", 1, rawOneLine.split("\n")),
+        UnparsedBlock("FunctionBlock", 3, functionPart.split("\n")),
+    ]);
 }
 
 export function testIntoBlocksMultiLine() {
     assert.deepStrictEqual(intoBlocks(multiLine), [
-        rawMultiLine,
-        functionPart,
+        UnparsedBlock("TypeBlock", 0, rawMultiLine.split("\n")),
+        UnparsedBlock("FunctionBlock", 4, functionPart.split("\n")),
     ]);
 }
 
 export function testBlockKind() {
     const blocks = intoBlocks(oneLine);
 
-    assert.deepStrictEqual(blocks.map(blockKind), [
-        Ok("UnionType"),
-        Ok("Function"),
-    ]);
+    assert.deepStrictEqual(
+        blocks.map((block) => blockKind(block.lines.join("\n"))),
+        [ Ok("UnionType"), Ok("Function") ]
+    );
 }
 
 export function testBlockKindMultiLine() {
     const blocks = intoBlocks(multiLine);
 
-    assert.deepStrictEqual(blocks.map(blockKind), [
-        Ok("UnionType"),
-        Ok("Function"),
-    ]);
+    assert.deepStrictEqual(
+        blocks.map((block) => blockKind(block.lines.join("\n"))),
+        [ Ok("UnionType"), Ok("Function") ]
+    );
 }
 
 export function testParse() {

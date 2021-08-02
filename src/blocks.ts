@@ -5,105 +5,131 @@ import {
     Nothing,
     withDefault,
 } from "@eeue56/ts-core/build/main/lib/maybe";
+import { Err, Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
+import { BlockKinds, UnparsedBlock } from "./types";
 
-function isFunctionOrConst(line: string): boolean {
-    return !line.startsWith("type ") && !line.startsWith(" ");
-}
+export function blockKind(block: string): Result<string, BlockKinds> {
+    if (block.startsWith("type")) {
+        return Ok("UnionType");
+    }
 
-function isType(line: string): boolean {
-    return line.startsWith("type ");
-}
+    if (block.startsWith(" ")) {
+        return Ok("Indent");
+    }
 
-function getPreviousRootLine(lines: string[]): Maybe<string> {
-    for (var i = lines.length - 1; i >= 0; i--) {
-        const isIndented = lines[i].startsWith(" ");
+    const hasTypeLine = block.split(":").length > 1;
+    const isAFunction = block.split("->").length > 1;
 
-        if (!isIndented) {
-            return Just(lines[i]);
+    if (hasTypeLine) {
+        if (isAFunction) {
+            return Ok("Function");
+        } else {
+            return Ok("Const");
         }
     }
-    return Nothing();
+
+    if (block.split("=").length > 1) {
+        return Ok("Definition");
+    }
+
+    return Err("Unknown block type");
 }
 
-export function intoBlocks(body: string): string[] {
-    const blocks = [ ];
+function createUnparsedBlock(
+    blockKind: BlockKinds,
+    lineStart: number,
+    lines: string[]
+): UnparsedBlock {
+    switch (blockKind) {
+        case "Const": {
+            return UnparsedBlock("ConstBlock", lineStart, lines);
+        }
 
-    let currentBlock: string[] = [ ];
-    let isInBlock = false;
+        case "Function": {
+            return UnparsedBlock("FunctionBlock", lineStart, lines);
+        }
+
+        case "UnionType": {
+            return UnparsedBlock("TypeBlock", lineStart, lines);
+        }
+
+        case "Indent": {
+            return UnparsedBlock("UnknownBlock", lineStart, lines);
+        }
+
+        case "Definition": {
+            return UnparsedBlock("UnknownBlock", lineStart, lines);
+        }
+    }
+}
+
+export function intoBlocks(body: string): UnparsedBlock[] {
+    const blocks: UnparsedBlock[] = [ ];
+
     const lines = body.split("\n");
-    const registeredLines = [ ];
+
+    let currentBlockKind: Result<string, BlockKinds> = Err("Nothing");
+    let currentBlock: string[] = [ ];
+    let lineStart = 0;
 
     for (var i = 0; i < lines.length; i++) {
         const line = lines[i];
-        // empty line
+
         if (line.trim().length === 0) continue;
 
-        // very first line
-        const isFirstLine = registeredLines.length === 0;
-
-        // get the previous line with 0 indentation
-        const previousRootLine: Maybe<string> = isFirstLine
-            ? Nothing()
-            : getPreviousRootLine(registeredLines.map((i) => lines[i]));
-
-        // was the previous root line a type definition?
-        const isPreviousLineATypeDef = withDefault(
-            false,
-            map((line) => isType(line), previousRootLine)
-        );
-
-        // was the previous root line a function definition?
-        const isPreviousLineAFunctionDef = withDefault(
-            false,
-            map((line) => isFunctionOrConst(line), previousRootLine)
-        );
-
-        // is the current line a function or a constant?
-        const inFunctionDef = isFunctionOrConst(line);
-
-        // is the current line a type definition?
-        const isTypeDef = isType(line);
-
-        // is the line indented, i.e not a root line
-        const isIndentedLine = line.startsWith(" ");
-
-        if (isInBlock) {
-            // if we have a new type def being made
-            if (isTypeDef && isPreviousLineATypeDef) {
-                blocks.push(currentBlock.join("\n").trim());
-
-                currentBlock = [ line ];
-                isInBlock = true;
-            } else if (
-                isIndentedLine ||
-                (inFunctionDef &&
-                    isPreviousLineAFunctionDef &&
-                    !isPreviousLineATypeDef)
-            ) {
-                currentBlock.push(line);
-            } else if (isPreviousLineATypeDef) {
-                blocks.push(currentBlock.join("\n").trim());
-
-                currentBlock = [ line ];
-                isInBlock = true;
-            } else {
-                blocks.push(currentBlock.join("\n").trim());
-
-                currentBlock = [ ];
-                isInBlock = false;
-            }
+        if (currentBlock.length === 0) {
+            // when we don't have anything on the current block, we deduce the kind,
+            // then push the line onto the current block
+            currentBlockKind = blockKind(line);
+            lineStart = i;
+            currentBlock.push(line);
         } else {
-            if (!isIndentedLine) {
+            const currentLineBlockKind = blockKind(line);
+
+            const isIndent =
+                currentLineBlockKind.kind === "ok" &&
+                currentLineBlockKind.value === "Indent";
+            const isDefinition =
+                currentLineBlockKind.kind === "ok" &&
+                currentLineBlockKind.value === "Definition";
+
+            if (isIndent || isDefinition) {
+                // an indent, when indented we push the current block
                 currentBlock.push(line);
-                isInBlock = true;
+            } else {
+                switch (currentBlockKind.kind) {
+                    case "ok": {
+                        blocks.push(
+                            createUnparsedBlock(
+                                currentBlockKind.value,
+                                lineStart,
+                                currentBlock
+                            )
+                        );
+                        currentBlockKind = currentLineBlockKind;
+                        currentBlock = [ ];
+                        currentBlock.push(line);
+                        lineStart = i;
+                        break;
+                    }
+                    case "err": {
+                        // when we don't know the current block
+                        currentBlock.push(line);
+                        break;
+                    }
+                }
             }
         }
-
-        registeredLines.push(i);
     }
 
     if (currentBlock.length > 0) {
-        blocks.push(currentBlock.join("\n"));
+        blocks.push(
+            createUnparsedBlock(
+                (currentBlockKind as Ok<BlockKinds>).value,
+                lineStart,
+                currentBlock
+            )
+        );
     }
 
     return blocks;

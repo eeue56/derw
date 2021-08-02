@@ -1,7 +1,15 @@
 import { generateTypescript } from "../generator";
-import { blockKind, parse } from "../parser";
-import { FixedType, Module, Tag, TagArg, Type, UnionType } from "../types";
-import { intoBlocks } from "../blocks";
+import { parse } from "../parser";
+import {
+    FixedType,
+    Module,
+    Tag,
+    TagArg,
+    Type,
+    UnionType,
+    UnparsedBlock,
+} from "../types";
+import { intoBlocks, blockKind } from "../blocks";
 import * as assert from "assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { compileTypescript } from "../compile";
@@ -66,8 +74,8 @@ type Animal = Dog { name: string } | Cat { lives: number }
 `.trim();
 
     assert.deepStrictEqual(intoBlocks(simpleUnion + "\n\n" + complexUnion), [
-        simpleUnion,
-        complexUnion,
+        UnparsedBlock("TypeBlock", 0, simpleUnion.split("\n")),
+        UnparsedBlock("TypeBlock", 2, complexUnion.split("\n")),
     ]);
 }
 
@@ -85,8 +93,8 @@ type Animal
 `.trim();
 
     assert.deepStrictEqual(intoBlocks(simpleUnion + "\n\n" + complexUnion), [
-        simpleUnion,
-        complexUnion,
+        UnparsedBlock("TypeBlock", 0, simpleUnion.split("\n")),
+        UnparsedBlock("TypeBlock", 4, complexUnion.split("\n")),
     ]);
 }
 

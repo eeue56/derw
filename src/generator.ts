@@ -17,6 +17,7 @@ import {
     FormatStringValue,
     Addition,
     ListValue,
+    isSimpleValue,
 } from "./types";
 
 function prefixLines(body: string, indent: number): string {
@@ -111,8 +112,6 @@ function generateIfStatement(ifStatement: IfStatement): string {
 }
 
 function generateConstructor(constructor: Constructor): string {
-    // TODO: This should be handled in the parser.
-
     return `${constructor.constructor}(${constructor.pattern})`;
 }
 
@@ -169,6 +168,8 @@ function generateType(type_: Type): string {
     }
 }
 
+// operators
+
 function generateAddition(addition: Addition): string {
     const left = generateExpression(addition.left);
     const right = generateExpression(addition.right);
@@ -213,7 +214,12 @@ function generateFunction(function_: Function): string {
         .join(", ");
 
     const returnType = generateType(function_.returnType);
-    const body = generateExpression(function_.body);
+    const isSimpleBody = isSimpleValue(function_.body.kind);
+
+    const bodyPrefix = isSimpleBody ? "return " : "";
+    const bodySuffix = isSimpleBody ? ";" : "";
+    const body = bodyPrefix + generateExpression(function_.body) + bodySuffix;
+
     const prefixedBody = prefixLines(body, 4);
     const typeArguments = ([ ] as string[])
         .concat(

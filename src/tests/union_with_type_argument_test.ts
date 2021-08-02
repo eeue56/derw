@@ -1,5 +1,5 @@
 import { generateTypescript } from "../generator";
-import { blockKind, parse } from "../parser";
+import { parse } from "../parser";
 import {
     FixedType,
     GenericType,
@@ -8,8 +8,9 @@ import {
     TagArg,
     Type,
     UnionType,
+    UnparsedBlock,
 } from "../types";
-import { intoBlocks } from "../blocks";
+import { intoBlocks, blockKind } from "../blocks";
 import * as assert from "assert";
 import { Err, Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { compileTypescript } from "../compile";
@@ -55,11 +56,15 @@ type CustomList<a> = Leaf<a> | Node<a>;
 `.trim();
 
 export function testIntoBlocks() {
-    assert.deepStrictEqual(intoBlocks(oneLine), [ oneLine ]);
+    assert.deepStrictEqual(intoBlocks(oneLine), [
+        UnparsedBlock("TypeBlock", 0, oneLine.split("\n")),
+    ]);
 }
 
 export function testIntoBlocksMultiLine() {
-    assert.deepStrictEqual(intoBlocks(multiLine), [ multiLine ]);
+    assert.deepStrictEqual(intoBlocks(multiLine), [
+        UnparsedBlock("TypeBlock", 0, multiLine.split("\n")),
+    ]);
 }
 
 export function testBlockKind() {

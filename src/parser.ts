@@ -1,6 +1,6 @@
 import { Err, Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
 import { type } from "os";
-import { intoBlocks } from "./blocks";
+import { blockKind, intoBlocks } from "./blocks";
 import { isBuiltinType } from "./builtins";
 import {
     BlockKinds,
@@ -26,26 +26,10 @@ import {
     FormatStringValue,
     Addition,
     ListValue,
+    Subtraction,
+    UnparsedBlockTypes,
+    UnparsedBlock,
 } from "./types";
-
-export function blockKind(block: string): Result<string, BlockKinds> {
-    if (block.startsWith("type")) {
-        return Ok("UnionType");
-    }
-
-    const hasTypeLine = block.split(":").length > 1;
-    const isAFunction = block.split("->").length > 1;
-
-    if (hasTypeLine) {
-        if (isAFunction) {
-            return Ok("Function");
-        } else {
-            return Ok("Const");
-        }
-    }
-
-    return Err("Unknown block type");
-}
 
 function parseType(line: string): Result<string, Type> {
     const rootTypeName = line.split(" ")[0];
@@ -609,20 +593,19 @@ function parseConst(block: string): Result<string, Const> {
     return Ok(Const(constName, parsedType.value, parsedBody.value));
 }
 
-function parseBlock(block: string): Result<string, Block> {
-    const kind = blockKind(block);
-
-    if (kind.kind === "err") return kind;
-
-    switch (kind.value) {
-        case "UnionType": {
-            return parseUnionType(block);
+function parseBlock(block: UnparsedBlock): Result<string, Block> {
+    switch (block.kind) {
+        case "TypeBlock": {
+            return parseUnionType(block.lines.join("\n"));
         }
-        case "Function": {
-            return parseFunction(block);
+        case "FunctionBlock": {
+            return parseFunction(block.lines.join("\n"));
         }
-        case "Const": {
-            return parseConst(block);
+        case "ConstBlock": {
+            return parseConst(block.lines.join("\n"));
+        }
+        case "UnknownBlock": {
+            return Err(`Not sure what line ${block.lineStart} is.`);
         }
     }
 }

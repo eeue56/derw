@@ -233,6 +233,27 @@ export type Expression =
     | ListValue
     | Value;
 
+export type SimpleValue =
+    | "StringValue"
+    | "FormatStringValue"
+    | "ListValue"
+    | "Value"
+    | "Addition"
+    | "Subtraction";
+
+export function isSimpleValue(kind: string): kind is SimpleValue {
+    return (
+        [
+            "StringValue",
+            "FormatStringValue",
+            "ListValue",
+            "Value",
+            "Addition",
+            "Subtraction",
+        ].indexOf(kind) > -1
+    );
+}
+
 export type Function = {
     kind: "Function";
     name: string;
@@ -272,7 +293,36 @@ export function Const(name: string, type: Type, value: Expression): Const {
     };
 }
 
-export type BlockKinds = "UnionType" | "Function" | "Const";
+export type UnparsedBlockTypes =
+    | "TypeBlock"
+    | "FunctionBlock"
+    | "ConstBlock"
+    | "UnknownBlock";
+
+export type UnparsedBlock = {
+    kind: UnparsedBlockTypes;
+    lineStart: number;
+    lines: string[];
+};
+
+export function UnparsedBlock(
+    kind: UnparsedBlockTypes,
+    lineStart: number,
+    lines: string[]
+): UnparsedBlock {
+    return {
+        kind,
+        lineStart,
+        lines,
+    };
+}
+
+export type BlockKinds =
+    | "UnionType"
+    | "Function"
+    | "Const"
+    | "Indent"
+    | "Definition";
 
 export type Block = UnionType | Function | Const;
 
