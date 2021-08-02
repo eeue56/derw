@@ -17,7 +17,10 @@ import {
     FormatStringValue,
     Addition,
     ListValue,
+    Subtraction,
     isSimpleValue,
+    Multiplication,
+    Division,
 } from "./types";
 
 function prefixLines(body: string, indent: number): string {
@@ -177,6 +180,27 @@ function generateAddition(addition: Addition): string {
     return `${left} + ${right}`;
 }
 
+function generateSubtraction(subtraction: Subtraction): string {
+    const left = generateExpression(subtraction.left);
+    const right = generateExpression(subtraction.right);
+
+    return `${left} - ${right}`;
+}
+
+function generateMultiplication(multiplication: Multiplication): string {
+    const left = generateExpression(multiplication.left);
+    const right = generateExpression(multiplication.right);
+
+    return `${left} * ${right}`;
+}
+
+function generateDivision(division: Division): string {
+    const left = generateExpression(division.left);
+    const right = generateExpression(division.right);
+
+    return `${left} / ${right}`;
+}
+
 function generateExpression(expression: Expression): string {
     switch (expression.kind) {
         case "Value":
@@ -193,6 +217,12 @@ function generateExpression(expression: Expression): string {
             return generateCaseStatement(expression);
         case "Addition":
             return generateAddition(expression);
+        case "Subtraction":
+            return generateSubtraction(expression);
+        case "Multiplication":
+            return generateMultiplication(expression);
+        case "Division":
+            return generateDivision(expression);
         case "Constructor":
             return generateConstructor(expression);
     }

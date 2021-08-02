@@ -29,6 +29,8 @@ import {
     Subtraction,
     UnparsedBlockTypes,
     UnparsedBlock,
+    Multiplication,
+    Division,
 } from "./types";
 
 function parseType(line: string): Result<string, Type> {
@@ -492,6 +494,45 @@ function parseAddition(body: string): Result<string, Addition> {
     return Ok(Addition(leftParsed.value, rightParsed.value));
 }
 
+function parseSubtraction(body: string): Result<string, Subtraction> {
+    const left = body.split("-")[0];
+    const right = body.split("-").slice(1).join("-");
+
+    const leftParsed = parseExpression(left);
+    const rightParsed = parseExpression(right);
+
+    if (leftParsed.kind === "err") return leftParsed;
+    if (rightParsed.kind === "err") return rightParsed;
+
+    return Ok(Subtraction(leftParsed.value, rightParsed.value));
+}
+
+function parseMultiplcation(body: string): Result<string, Multiplication> {
+    const left = body.split("*")[0];
+    const right = body.split("*").slice(1).join("*");
+
+    const leftParsed = parseExpression(left);
+    const rightParsed = parseExpression(right);
+
+    if (leftParsed.kind === "err") return leftParsed;
+    if (rightParsed.kind === "err") return rightParsed;
+
+    return Ok(Multiplication(leftParsed.value, rightParsed.value));
+}
+
+function parseDivision(body: string): Result<string, Division> {
+    const left = body.split("/")[0];
+    const right = body.split("/").slice(1).join("/");
+
+    const leftParsed = parseExpression(left);
+    const rightParsed = parseExpression(right);
+
+    if (leftParsed.kind === "err") return leftParsed;
+    if (rightParsed.kind === "err") return rightParsed;
+
+    return Ok(Division(leftParsed.value, rightParsed.value));
+}
+
 function parseExpression(body: string): Result<string, Expression> {
     const trimmedBody = body.trim();
 
@@ -501,6 +542,12 @@ function parseExpression(body: string): Result<string, Expression> {
         return parseCaseStatement(body);
     } else if (trimmedBody.indexOf("+") > -1) {
         return parseAddition(body);
+    } else if (trimmedBody.indexOf("-") > -1) {
+        return parseSubtraction(body);
+    } else if (trimmedBody.indexOf("*") > -1) {
+        return parseMultiplcation(body);
+    } else if (trimmedBody.indexOf("/") > -1) {
+        return parseDivision(body);
     } else if (trimmedBody.startsWith('"')) {
         return parseStringValue(body);
     } else if (trimmedBody.startsWith("`")) {

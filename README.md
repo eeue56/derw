@@ -28,9 +28,11 @@ asIs result =
 -   [x] Format strings ` `` `, `` `Hello ${name}` ``
 -   [x] Numbers `-1`, `0`, `1`, `-1.1`, `1.1`
 -   [x] Addition `1 + 2`, `"Hello" + name`
--   [ ] Subtraction `2 - 1`
+-   [x] Subtraction `2 - 1`
+-   [x] Multiplication `2 * 1`
+-   [x] Division `2 / 1`
 -   [ ] Pipe `[1, 2, 3] |> List.fold add`, `List.fold add <| [1, 2, 3]`
--   Compose `>>`, `<<`
+-   [ ] Compose `>>`, `<<`
 -   [x] Constants `hello = "hello world"`
 -   [x] Function definitions
 

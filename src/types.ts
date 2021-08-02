@@ -178,20 +178,6 @@ export function IfStatement(
     };
 }
 
-export type Branch = {
-    kind: "Branch";
-    pattern: Destructure;
-    body: Expression;
-};
-
-export function Branch(pattern: Destructure, body: Expression): Branch {
-    return {
-        kind: "Branch",
-        pattern,
-        body,
-    };
-}
-
 export type Addition = {
     kind: "Addition";
     left: Expression;
@@ -203,6 +189,65 @@ export function Addition(left: Expression, right: Expression): Addition {
         kind: "Addition",
         left,
         right,
+    };
+}
+
+export type Subtraction = {
+    kind: "Subtraction";
+    left: Expression;
+    right: Expression;
+};
+
+export function Subtraction(left: Expression, right: Expression): Subtraction {
+    return {
+        kind: "Subtraction",
+        left,
+        right,
+    };
+}
+
+export type Multiplication = {
+    kind: "Multiplication";
+    left: Expression;
+    right: Expression;
+};
+
+export function Multiplication(
+    left: Expression,
+    right: Expression
+): Multiplication {
+    return {
+        kind: "Multiplication",
+        left,
+        right,
+    };
+}
+
+export type Division = {
+    kind: "Division";
+    left: Expression;
+    right: Expression;
+};
+
+export function Division(left: Expression, right: Expression): Division {
+    return {
+        kind: "Division",
+        left,
+        right,
+    };
+}
+
+export type Branch = {
+    kind: "Branch";
+    pattern: Destructure;
+    body: Expression;
+};
+
+export function Branch(pattern: Destructure, body: Expression): Branch {
+    return {
+        kind: "Branch",
+        pattern,
+        body,
     };
 }
 
@@ -227,6 +272,9 @@ export type Expression =
     | IfStatement
     | CaseStatement
     | Addition
+    | Subtraction
+    | Multiplication
+    | Division
     | Constructor
     | StringValue
     | FormatStringValue
@@ -239,7 +287,9 @@ export type SimpleValue =
     | "ListValue"
     | "Value"
     | "Addition"
-    | "Subtraction";
+    | "Subtraction"
+    | "Multiplication"
+    | "Division";
 
 export function isSimpleValue(kind: string): kind is SimpleValue {
     return (
@@ -250,6 +300,8 @@ export function isSimpleValue(kind: string): kind is SimpleValue {
             "Value",
             "Addition",
             "Subtraction",
+            "Multiplication",
+            "Division",
         ].indexOf(kind) > -1
     );
 }
