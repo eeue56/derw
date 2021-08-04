@@ -21,6 +21,10 @@ import {
     isSimpleValue,
     Multiplication,
     Division,
+    LeftPipe,
+    ModuleReference,
+    FunctionCall,
+    RightPipe,
 } from "./types";
 
 function prefixLines(body: string, indent: number): string {
@@ -201,6 +205,33 @@ function generateDivision(division: Division): string {
     return `${left} / ${right}`;
 }
 
+function generateLeftPipe(leftPipe: LeftPipe): string {
+    const left = generateExpression(leftPipe.left);
+    const right = generateExpression(leftPipe.right);
+
+    return `${right}(${left})`;
+}
+
+function generateRightPipe(rightPipe: RightPipe): string {
+    const left = generateExpression(rightPipe.left);
+    const right = generateExpression(rightPipe.right);
+
+    return `${left}(${right})`;
+}
+
+function generateModuleReference(moduleReference: ModuleReference): string {
+    const left = moduleReference.path.join(".");
+    const right = generateExpression(moduleReference.value);
+
+    return `${left}.${right}`;
+}
+
+function generateFunctionCall(functionCall: FunctionCall): string {
+    const right = functionCall.args.map(generateExpression).join(",");
+
+    return `${functionCall.name}(${right})`;
+}
+
 function generateExpression(expression: Expression): string {
     switch (expression.kind) {
         case "Value":
@@ -223,6 +254,14 @@ function generateExpression(expression: Expression): string {
             return generateMultiplication(expression);
         case "Division":
             return generateDivision(expression);
+        case "LeftPipe":
+            return generateLeftPipe(expression);
+        case "RightPipe":
+            return generateRightPipe(expression);
+        case "ModuleReference":
+            return generateModuleReference(expression);
+        case "FunctionCall":
+            return generateFunctionCall(expression);
         case "Constructor":
             return generateConstructor(expression);
     }

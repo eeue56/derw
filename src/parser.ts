@@ -31,6 +31,10 @@ import {
     UnparsedBlock,
     Multiplication,
     Division,
+    LeftPipe,
+    ModuleReference,
+    FunctionCall,
+    RightPipe,
 } from "./types";
 
 function parseType(line: string): Result<string, Type> {
@@ -533,6 +537,77 @@ function parseDivision(body: string): Result<string, Division> {
     return Ok(Division(leftParsed.value, rightParsed.value));
 }
 
+function parseLeftPipe(body: string): Result<string, LeftPipe> {
+    const left = body.split("|>")[0];
+    const right = body.split("|>").slice(1).join("|>");
+
+    const leftParsed = parseExpression(left);
+    const rightParsed = parseExpression(right);
+
+    if (leftParsed.kind === "err") return leftParsed;
+    if (rightParsed.kind === "err") return rightParsed;
+
+    return Ok(LeftPipe(leftParsed.value, rightParsed.value));
+}
+
+function parseRightPipe(body: string): Result<string, RightPipe> {
+    const left = body.split("<|")[0];
+    const right = body.split("<|").slice(1).join("<|");
+
+    const leftParsed = parseExpression(left);
+    const rightParsed = parseExpression(right);
+
+    if (leftParsed.kind === "err") return leftParsed;
+    if (rightParsed.kind === "err") return rightParsed;
+
+    return Ok(RightPipe(leftParsed.value, rightParsed.value));
+}
+
+function parseModuleReference(body: string): Result<string, ModuleReference> {
+    const trimmedBody = body.trim();
+    const firstPart = trimmedBody.split(" ")[0];
+    const possibleModuleParts = firstPart.split(".");
+
+    const moduleName = possibleModuleParts.slice(
+        0,
+        possibleModuleParts.length - 1
+    );
+
+    const value =
+        possibleModuleParts[possibleModuleParts.length - 1] +
+        " " +
+        trimmedBody.split(" ").slice(1).join(" ");
+
+    const expression = parseExpression(value);
+
+    if (expression.kind === "err") return expression;
+
+    return Ok(ModuleReference(moduleName, expression.value));
+}
+
+function parseFunctionCall(body: string): Result<string, FunctionCall> {
+    const trimmedBody = body.trim();
+    const functionName = trimmedBody.split(" ")[0];
+    const args = trimmedBody.split(" ").slice(1);
+
+    const parsedArgs = args.map(parseExpression);
+
+    const errors = parsedArgs.filter((arg) => arg.kind === "err");
+
+    if (errors.length > 0) {
+        return Err(
+            "Failed to parse function call due to:\n" +
+                errors.map((error) => (error as Err<string>).error).join("\n")
+        );
+    }
+
+    const correctArgs = parsedArgs
+        .filter((arg) => arg.kind === "ok")
+        .map((arg) => (arg as Ok<Expression>).value);
+
+    return Ok(FunctionCall(functionName, correctArgs));
+}
+
 function parseExpression(body: string): Result<string, Expression> {
     const trimmedBody = body.trim();
 
@@ -548,6 +623,10 @@ function parseExpression(body: string): Result<string, Expression> {
         return parseMultiplcation(body);
     } else if (trimmedBody.indexOf("/") > -1) {
         return parseDivision(body);
+    } else if (trimmedBody.indexOf("|>") > -1) {
+        return parseLeftPipe(body);
+    } else if (trimmedBody.indexOf("<|") > -1) {
+        return parseRightPipe(body);
     } else if (trimmedBody.startsWith('"')) {
         return parseStringValue(body);
     } else if (trimmedBody.startsWith("`")) {
@@ -557,9 +636,20 @@ function parseExpression(body: string): Result<string, Expression> {
     } else if (trimmedBody.split(" ").length === 1) {
         return parseValue(body);
     } else {
+        const firstPart = trimmedBody.split(" ")[0];
+        const possibleModuleParts = firstPart.split(".");
+
+        if (possibleModuleParts.length > 1) {
+            return parseModuleReference(body);
+        }
+
         const firstChar = trimmedBody.slice(0, 1);
         if (firstChar.toUpperCase() === firstChar) {
             return parseConstructor(body);
+        }
+
+        if (trimmedBody.split(" ").length > 1) {
+            return parseFunctionCall(body);
         }
     }
 

@@ -31,7 +31,7 @@ asIs result =
 -   [x] Subtraction `2 - 1`
 -   [x] Multiplication `2 * 1`
 -   [x] Division `2 / 1`
--   [ ] Pipe `[1, 2, 3] |> List.fold add`, `List.fold add <| [1, 2, 3]`
+-   [x] Pipe `[1, 2, 3] |> List.fold add`, `List.fold add <| [1, 2, 3]`
 -   [ ] Compose `>>`, `<<`
 -   [x] Constants `hello = "hello world"`
 -   [x] Function definitions
@@ -41,10 +41,16 @@ add : number -> number -> number
 add x y = x + y
 ```
 
--   [ ] Function calls
+-   [x] Function calls
 
 ```elm
 three = add 1 2
+```
+
+-   [x] Module references
+
+```elm
+three = List.map identity [ 1, 2, 3 ]
 ```
 
 -   [x] Union types
@@ -140,6 +146,7 @@ type User = User { name: string }
 noah = User { name: "Noah" }
 ```
 
+-   [ ] lambdas `\x -> x + 1`, `\x y -> x + y`
 -   [x] Typescript output
 -   [ ] Javscript output
 -   [ ] Type checking

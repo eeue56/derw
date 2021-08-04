@@ -237,6 +237,65 @@ export function Division(left: Expression, right: Expression): Division {
     };
 }
 
+export type LeftPipe = {
+    kind: "LeftPipe";
+    left: Expression;
+    right: Expression;
+};
+
+export function LeftPipe(left: Expression, right: Expression): LeftPipe {
+    return {
+        kind: "LeftPipe",
+        left,
+        right,
+    };
+}
+
+export type RightPipe = {
+    kind: "RightPipe";
+    left: Expression;
+    right: Expression;
+};
+
+export function RightPipe(left: Expression, right: Expression): RightPipe {
+    return {
+        kind: "RightPipe",
+        left,
+        right,
+    };
+}
+
+export type ModuleReference = {
+    kind: "ModuleReference";
+    path: string[];
+    value: Expression;
+};
+
+export function ModuleReference(
+    path: string[],
+    value: Expression
+): ModuleReference {
+    return {
+        kind: "ModuleReference",
+        path,
+        value,
+    };
+}
+
+export type FunctionCall = {
+    kind: "FunctionCall";
+    name: string;
+    args: Expression[];
+};
+
+export function FunctionCall(name: string, args: Expression[]): FunctionCall {
+    return {
+        kind: "FunctionCall",
+        name,
+        args,
+    };
+}
+
 export type Branch = {
     kind: "Branch";
     pattern: Destructure;
@@ -275,6 +334,10 @@ export type Expression =
     | Subtraction
     | Multiplication
     | Division
+    | LeftPipe
+    | RightPipe
+    | ModuleReference
+    | FunctionCall
     | Constructor
     | StringValue
     | FormatStringValue
