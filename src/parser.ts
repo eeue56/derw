@@ -35,6 +35,7 @@ import {
     ModuleReference,
     FunctionCall,
     RightPipe,
+    isLeftPipeableExpression,
 } from "./types";
 
 function parseType(line: string): Result<string, Type> {
@@ -546,6 +547,8 @@ function parseLeftPipe(body: string): Result<string, LeftPipe> {
 
     if (leftParsed.kind === "err") return leftParsed;
     if (rightParsed.kind === "err") return rightParsed;
+    if (!isLeftPipeableExpression(rightParsed.value))
+        return Err(`Could not pipe to ${rightParsed.value}`);
 
     return Ok(LeftPipe(leftParsed.value, rightParsed.value));
 }

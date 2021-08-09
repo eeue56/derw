@@ -274,9 +274,8 @@ function flattenLeftPipe(leftPipe: LeftPipe): Expression {
                     break;
                 }
 
-                default: {
-                    console.log("Returning default", right.left);
-                    return right.left;
+                case "LeftPipe": {
+                    return right;
                 }
             }
 
@@ -284,8 +283,6 @@ function flattenLeftPipe(leftPipe: LeftPipe): Expression {
             return flattenLeftPipe(LeftPipe(innerFunction, right.right));
         }
     }
-
-    return leftPipe;
 }
 
 function generateLeftPipe(leftPipe: LeftPipe): string {

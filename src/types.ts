@@ -240,10 +240,13 @@ export function Division(left: Expression, right: Expression): Division {
 export type LeftPipe = {
     kind: "LeftPipe";
     left: Expression;
-    right: Expression;
+    right: LeftPipeableExpression;
 };
 
-export function LeftPipe(left: Expression, right: Expression): LeftPipe {
+export function LeftPipe(
+    left: Expression,
+    right: LeftPipeableExpression
+): LeftPipe {
     return {
         kind: "LeftPipe",
         left,
@@ -366,6 +369,22 @@ export function isSimpleValue(kind: string): kind is SimpleValue {
             "Multiplication",
             "Division",
         ].indexOf(kind) > -1
+    );
+}
+
+export type LeftPipeableExpression =
+    | LeftPipe
+    | ModuleReference
+    | FunctionCall
+    | Value;
+
+export function isLeftPipeableExpression(
+    expression: Expression
+): expression is LeftPipeableExpression {
+    return (
+        [ "LeftPipe", "ModuleReference", "FunctionCall", "Value" ].indexOf(
+            expression.kind
+        ) > -1
     );
 }
 
