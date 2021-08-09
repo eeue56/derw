@@ -1,4 +1,3 @@
-import { type } from "os";
 import {
     UnionType,
     Block,
@@ -205,11 +204,92 @@ function generateDivision(division: Division): string {
     return `${left} / ${right}`;
 }
 
-function generateLeftPipe(leftPipe: LeftPipe): string {
-    const left = generateExpression(leftPipe.left);
-    const right = generateExpression(leftPipe.right);
+function addArgsToModuleReference(
+    moduleReference: ModuleReference,
+    newArgs: Expression[]
+): ModuleReference {
+    switch (moduleReference.value.kind) {
+        case "FunctionCall": {
+            const args = [ ...moduleReference.value.args, ...newArgs ];
+            const innerFunction = FunctionCall(
+                moduleReference.value.name,
+                args
+            );
 
-    return `${right}(${left})`;
+            return ModuleReference(moduleReference.path, innerFunction);
+        }
+
+        case "Value": {
+            const args = [ ...newArgs ];
+            const innerFunction = FunctionCall(
+                moduleReference.value.body,
+                args
+            );
+
+            return ModuleReference(moduleReference.path, innerFunction);
+        }
+    }
+
+    return moduleReference;
+}
+
+function flattenLeftPipe(leftPipe: LeftPipe): Expression {
+    const left = leftPipe.left;
+    const right = leftPipe.right;
+
+    switch (right.kind) {
+        case "FunctionCall": {
+            const args = [ ...right.args, left ];
+            return FunctionCall(right.name, args);
+        }
+
+        case "Value": {
+            const args = [ left ];
+            return FunctionCall(right.body, args);
+        }
+
+        case "ModuleReference": {
+            return addArgsToModuleReference(right, [ left ]);
+        }
+
+        case "LeftPipe": {
+            let innerFunction = null;
+            switch (right.left.kind) {
+                case "FunctionCall": {
+                    const args = [ ...right.left.args, left ];
+                    innerFunction = FunctionCall(right.left.name, args);
+                    break;
+                }
+
+                case "Value": {
+                    const args = [ left ];
+                    innerFunction = FunctionCall(right.left.body, args);
+                    break;
+                }
+
+                case "ModuleReference": {
+                    innerFunction = addArgsToModuleReference(right.left, [
+                        left,
+                    ]);
+                    break;
+                }
+
+                default: {
+                    console.log("Returning default", right.left);
+                    return right.left;
+                }
+            }
+
+            if (innerFunction === null) return right.left;
+            return flattenLeftPipe(LeftPipe(innerFunction, right.right));
+        }
+    }
+
+    return leftPipe;
+}
+
+function generateLeftPipe(leftPipe: LeftPipe): string {
+    return generateExpression(flattenLeftPipe(leftPipe));
 }
 
 function generateRightPipe(rightPipe: RightPipe): string {
@@ -227,7 +307,7 @@ function generateModuleReference(moduleReference: ModuleReference): string {
 }
 
 function generateFunctionCall(functionCall: FunctionCall): string {
-    const right = functionCall.args.map(generateExpression).join(",");
+    const right = functionCall.args.map(generateExpression).join(", ");
 
     return `${functionCall.name}(${right})`;
 }

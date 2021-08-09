@@ -27,7 +27,7 @@ import { compileTypescript } from "../compile";
 
 const oneLine = `
 helloWorld: List number
-helloWorld = [ 1, 2, 3] |> List.foldl add |> add 10
+helloWorld = [ 1, 2, 3] |> List.foldl add |> add 10 |> mult 4 |> sum
 `.trim();
 
 const multiLine = `
@@ -36,10 +36,12 @@ helloWorld =
     [ 1, 2, 3]
         |> List.foldl add
         |> add 10
+        |> mult 4
+        |> sum
 `.trim();
 
 const expectedOutput = `
-const helloWorld: number[] = add(10)(List.foldl(add))([ 1, 2, 3 ]);
+const helloWorld: number[] = sum(mult(4, add(10, List.foldl(add, [ 1, 2, 3 ]))));
 `.trim();
 
 export function testIntoBlocks() {
@@ -78,7 +80,13 @@ export function testParse() {
                                 [ "List" ],
                                 FunctionCall("foldl", [ Value("add") ])
                             ),
-                            FunctionCall("add", [ Value("10") ])
+                            LeftPipe(
+                                FunctionCall("add", [ Value("10") ]),
+                                LeftPipe(
+                                    FunctionCall("mult", [ Value("4") ]),
+                                    Value("sum")
+                                )
+                            )
                         )
                     )
                 ),
@@ -104,7 +112,13 @@ export function testParseMultiLine() {
                                 [ "List" ],
                                 FunctionCall("foldl", [ Value("add") ])
                             ),
-                            FunctionCall("add", [ Value("10") ])
+                            LeftPipe(
+                                FunctionCall("add", [ Value("10") ]),
+                                LeftPipe(
+                                    FunctionCall("mult", [ Value("4") ]),
+                                    Value("sum")
+                                )
+                            )
                         )
                     )
                 ),

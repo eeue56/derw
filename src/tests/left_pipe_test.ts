@@ -38,7 +38,7 @@ helloWorld =
 `.trim();
 
 const expectedOutput = `
-const helloWorld: number[] = List.foldl(add)([ 1, 2, 3 ]);
+const helloWorld: number[] = List.foldl(add, [ 1, 2, 3 ]);
 `.trim();
 
 export function testIntoBlocks() {
