@@ -15,6 +15,7 @@ import * as assert from "assert";
 import { Err, Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { compileTypescript } from "../compile";
 import { Diagnostic } from "typescript";
+import { generateJavascript } from "../js_generator";
 
 const oneLine = `
 type CustomList a = Leaf { value: a } | Node { value: a, next: CustomList a }
@@ -53,6 +54,22 @@ function Node<a>(args: { value: a, next: CustomList<a> }): Node<a> {
 }
 
 type CustomList<a> = Leaf<a> | Node<a>;
+`.trim();
+
+const expectedOutputJS = `
+function Leaf(args) {
+    return {
+        kind: "Leaf",
+        ...args,
+    };
+}
+
+function Node(args) {
+    return {
+        kind: "Node",
+        ...args,
+    };
+}
 `.trim();
 
 export function testIntoBlocks() {
@@ -153,4 +170,16 @@ export function testCompileMultiLine() {
         "ok",
         (compiled.kind === "err" && compiled.error.toString()) || ""
     );
+}
+
+export function testGenerateJS() {
+    const parsed = parse(multiLine);
+    const generated = generateJavascript(parsed);
+    assert.strictEqual(generated, expectedOutputJS);
+}
+
+export function testGenerateOneLineJS() {
+    const parsed = parse(oneLine);
+    const generated = generateJavascript(parsed);
+    assert.strictEqual(generated, expectedOutputJS);
 }

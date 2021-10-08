@@ -13,6 +13,7 @@ import { intoBlocks, blockKind } from "../blocks";
 import * as assert from "assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { compileTypescript } from "../compile";
+import { generateJavascript } from "../js_generator";
 
 const expectedOutput = `
 type True = {
@@ -64,6 +65,36 @@ function Cat(args: { lives: number }): Cat {
 }
 
 type Animal = Dog | Cat;`.trim();
+
+const expectedOutputJS = `
+function True(args) {
+    return {
+        kind: "True",
+        ...args,
+    };
+}
+
+function False(args) {
+    return {
+        kind: "False",
+        ...args,
+    };
+}
+
+function Dog(args) {
+    return {
+        kind: "Dog",
+        ...args,
+    };
+}
+
+function Cat(args) {
+    return {
+        kind: "Cat",
+        ...args,
+    };
+}
+`.trim();
 
 export function testIntoBlocks() {
     const simpleUnion = `
@@ -198,4 +229,35 @@ export function testCompile() {
         "ok",
         (compiled.kind === "err" && compiled.error.toString()) || ""
     );
+}
+
+export function testGenerateOneLineJS() {
+    const simpleUnion = `
+type Binary = True | False
+    `.trim();
+
+    const complexUnion = `
+type Animal = Dog { name: string } | Cat { lives: number }
+    `.trim();
+
+    const parsed = parse(simpleUnion + "\n\n" + complexUnion);
+    const generated = generateJavascript(parsed);
+    assert.strictEqual(generated, expectedOutputJS);
+}
+
+export function testGenerateJS() {
+    const simpleUnion = `
+type Binary
+    = True
+    | False
+    `.trim();
+
+    const complexUnion = `
+type Animal
+    = Dog { name: string }
+    | Cat { lives: number }
+`.trim();
+    const parsed = parse(simpleUnion + "\n\n" + complexUnion);
+    const generated = generateJavascript(parsed);
+    assert.strictEqual(generated, expectedOutputJS);
 }

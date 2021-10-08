@@ -13,6 +13,7 @@ import { intoBlocks, blockKind } from "../blocks";
 import * as assert from "assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { compileTypescript } from "../compile";
+import { generateJavascript } from "../js_generator";
 
 const oneLine = `
 type Animal = Dog { name: string } | Cat { lives: number }
@@ -50,6 +51,22 @@ function Cat(args: { lives: number }): Cat {
 }
 
 type Animal = Dog | Cat;`.trim();
+
+const expectedOutputJS = `
+
+function Dog(args) {
+    return {
+        kind: "Dog",
+        ...args,
+    };
+}
+
+function Cat(args) {
+    return {
+        kind: "Cat",
+        ...args,
+    };
+}`.trim();
 
 export function testIntoBlocks() {
     assert.deepStrictEqual(intoBlocks(oneLine), [
@@ -137,4 +154,16 @@ export function testCompileMultiLine() {
         "ok",
         (compiled.kind === "err" && compiled.error.toString()) || ""
     );
+}
+
+export function testGenerateJS() {
+    const parsed = parse(multiLine);
+    const generated = generateJavascript(parsed);
+    assert.strictEqual(generated, expectedOutputJS);
+}
+
+export function testGenerateOneLineJS() {
+    const parsed = parse(oneLine);
+    const generated = generateJavascript(parsed);
+    assert.strictEqual(generated, expectedOutputJS);
 }

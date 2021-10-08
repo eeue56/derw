@@ -22,6 +22,7 @@ import { intoBlocks, blockKind } from "../blocks";
 import * as assert from "assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { compileTypescript } from "../compile";
+import { generateJavascript } from "../js_generator";
 
 const functionPart = `
 asIs: Result a b -> Result a b
@@ -81,6 +82,35 @@ function Ok<b>(args: { value: b }): Ok<b> {
 type Result<a, b> = Err<a> | Ok<b>;
 
 function asIs<a, b>(result: Result<a, b>): Result<a, b> {
+    switch (result.kind) {
+        case "Err": {
+            const { error } = result;
+            return Err({ error });
+        }
+        case "Ok": {
+            const { value } = result;
+            return Ok({ value });
+        }
+    }
+}
+`.trim();
+
+const expectedOutputJS = `
+function Err(args) {
+    return {
+        kind: "Err",
+        ...args,
+    };
+}
+
+function Ok(args) {
+    return {
+        kind: "Ok",
+        ...args,
+    };
+}
+
+function asIs(result) {
     switch (result.kind) {
         case "Err": {
             const { error } = result;
@@ -232,4 +262,16 @@ export function testCompileMultiLine() {
         "ok",
         (compiled.kind === "err" && compiled.error.toString()) || ""
     );
+}
+
+export function testGenerateJS() {
+    const parsed = parse(multiLine);
+    const generated = generateJavascript(parsed);
+    assert.strictEqual(generated, expectedOutputJS);
+}
+
+export function testGenerateOneLineJS() {
+    const parsed = parse(oneLine);
+    const generated = generateJavascript(parsed);
+    assert.strictEqual(generated, expectedOutputJS);
 }

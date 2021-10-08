@@ -24,6 +24,7 @@ import { intoBlocks, blockKind } from "../blocks";
 import * as assert from "assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { compileTypescript } from "../compile";
+import { generateJavascript } from "../js_generator";
 
 const multiLine = `
 sayHiToPet : Animal -> string
@@ -35,6 +36,21 @@ sayHiToPet pet =
 
 const expectedOutput = `
 function sayHiToPet(pet: Animal): string {
+    switch (pet.kind) {
+        case "Dog": {
+            const { name } = pet;
+            return \`Good boy \${name}!\`;
+        }
+        case "Cat": {
+            const { lives } = pet;
+            return "You have " + lives + " lives remaining.";
+        }
+    }
+}
+`.trim();
+
+const expectedOutputJS = `
+function sayHiToPet(pet) {
     switch (pet.kind) {
         case "Dog": {
             const { name } = pet;
@@ -107,4 +123,10 @@ export function testCompileMultiLine() {
         "ok",
         (compiled.kind === "err" && compiled.error.toString()) || ""
     );
+}
+
+export function testGenerateJS() {
+    const parsed = parse(multiLine);
+    const generated = generateJavascript(parsed);
+    assert.strictEqual(generated, expectedOutputJS);
 }

@@ -17,6 +17,7 @@ import { intoBlocks, blockKind } from "../blocks";
 import * as assert from "assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { compileTypescript } from "../compile";
+import { generateJavascript } from "../js_generator";
 
 const oneLine = `
 isTrue: boolean -> boolean
@@ -34,6 +35,16 @@ isTrue value =
 
 const expectedOutput = `
 function isTrue(value: boolean): boolean {
+    if (value) {
+        return true;
+    } else {
+        return false;
+    }
+}
+`.trim();
+
+const expectedOutputJS = `
+function isTrue(value) {
     if (value) {
         return true;
     } else {
@@ -132,4 +143,16 @@ export function testCompileMultiLine() {
         "ok",
         (compiled.kind === "err" && compiled.error.toString()) || ""
     );
+}
+
+export function testGenerateJS() {
+    const parsed = parse(multiLine);
+    const generated = generateJavascript(parsed);
+    assert.strictEqual(generated, expectedOutputJS);
+}
+
+export function testGenerateOneLineJS() {
+    const parsed = parse(oneLine);
+    const generated = generateJavascript(parsed);
+    assert.strictEqual(generated, expectedOutputJS);
 }

@@ -14,6 +14,7 @@ import { intoBlocks, blockKind } from "../blocks";
 import * as assert from "assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { compileTypescript } from "../compile";
+import { generateJavascript } from "../js_generator";
 
 const oneLine = `
 type Either a b = Left { value: a } | Right { value: b }
@@ -51,6 +52,22 @@ function Right<b>(args: { value: b }): Right<b> {
 }
 
 type Either<a, b> = Left<a> | Right<b>;
+`.trim();
+
+const expectedOutputJS = `
+function Left(args) {
+    return {
+        kind: "Left",
+        ...args,
+    };
+}
+
+function Right(args) {
+    return {
+        kind: "Right",
+        ...args,
+    };
+}
 `.trim();
 
 export function testIntoBlocks() {
@@ -145,4 +162,16 @@ export function testCompileMultiLine() {
         "ok",
         (compiled.kind === "err" && compiled.error.toString()) || ""
     );
+}
+
+export function testGenerateJS() {
+    const parsed = parse(multiLine);
+    const generated = generateJavascript(parsed);
+    assert.strictEqual(generated, expectedOutputJS);
+}
+
+export function testGenerateOneLineJS() {
+    const parsed = parse(oneLine);
+    const generated = generateJavascript(parsed);
+    assert.strictEqual(generated, expectedOutputJS);
 }

@@ -23,6 +23,7 @@ import { intoBlocks, blockKind } from "../blocks";
 import * as assert from "assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { compileTypescript } from "../compile";
+import { generateJavascript } from "../js_generator";
 
 const oneLine = `
 add: number -> number -> number
@@ -38,6 +39,14 @@ add =
 const expectedOutput = `
 function add(_0: number, _1: number): number {
     return function(x: any, y: any) {
+        return x + y;
+    };
+}
+`.trim();
+
+const expectedOutputJS = `
+function add(_0, _1) {
+    return function(x, y) {
         return x + y;
     };
 }
@@ -139,4 +148,16 @@ export function testCompileMultiLine() {
         "ok",
         (compiled.kind === "err" && compiled.error.toString()) || ""
     );
+}
+
+export function testGenerateJS() {
+    const parsed = parse(multiLine);
+    const generated = generateJavascript(parsed);
+    assert.strictEqual(generated, expectedOutputJS);
+}
+
+export function testGenerateOneLineJS() {
+    const parsed = parse(oneLine);
+    const generated = generateJavascript(parsed);
+    assert.strictEqual(generated, expectedOutputJS);
 }

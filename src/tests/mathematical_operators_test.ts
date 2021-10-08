@@ -25,6 +25,7 @@ import { intoBlocks, blockKind } from "../blocks";
 import * as assert from "assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { compileTypescript } from "../compile";
+import { generateJavascript } from "../js_generator";
 
 const oneLine = `
 add: number -> number -> number
@@ -72,6 +73,24 @@ function addThree(x: number, y: number, z: number): number {
 }
 
 function mixOperators(x: number, y: number, z: number): number {
+    return x + y - z * x / y;
+}
+`.trim();
+
+const expectedOutputJS = `
+function add(x, y) {
+    return x + y;
+}
+
+function sub(x, y) {
+    return x - y;
+}
+
+function addThree(x, y, z) {
+    return x + y + z;
+}
+
+function mixOperators(x, y, z) {
     return x + y - z * x / y;
 }
 `.trim();
@@ -256,4 +275,16 @@ export function testCompileMultiLine() {
         "ok",
         (compiled.kind === "err" && compiled.error.toString()) || ""
     );
+}
+
+export function testGenerateJS() {
+    const parsed = parse(multiLine);
+    const generated = generateJavascript(parsed);
+    assert.strictEqual(generated, expectedOutputJS);
+}
+
+export function testGenerateOneLineJS() {
+    const parsed = parse(oneLine);
+    const generated = generateJavascript(parsed);
+    assert.strictEqual(generated, expectedOutputJS);
 }
