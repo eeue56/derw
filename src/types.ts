@@ -257,10 +257,13 @@ export function LeftPipe(
 export type RightPipe = {
     kind: "RightPipe";
     left: Expression;
-    right: Expression;
+    right: RightPipeableExpression;
 };
 
-export function RightPipe(left: Expression, right: Expression): RightPipe {
+export function RightPipe(
+    left: Expression,
+    right: RightPipeableExpression
+): RightPipe {
     return {
         kind: "RightPipe",
         left,
@@ -383,6 +386,23 @@ export function isLeftPipeableExpression(
 ): expression is LeftPipeableExpression {
     return (
         [ "LeftPipe", "ModuleReference", "FunctionCall", "Value" ].indexOf(
+            expression.kind
+        ) > -1
+    );
+}
+
+export type RightPipeableExpression =
+    | RightPipe
+    | ModuleReference
+    | FunctionCall
+    | Value
+    | ListValue;
+
+export function isRightPipeableExpression(
+    expression: Expression
+): expression is RightPipeableExpression {
+    return (
+        [ "RightPipe", "ModuleReference", "FunctionCall", "Value" ].indexOf(
             expression.kind
         ) > -1
     );

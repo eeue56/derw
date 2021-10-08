@@ -27,17 +27,17 @@ import { compileTypescript } from "../compile";
 
 const oneLine = `
 helloWorld: List number
-helloWorld = [ 1, 2, 3] |> List.foldl add |> add 10 |> mult 4 |> sum
+helloWorld = sum <| mult 4 <| add 10 <| List.foldl add <| [ 1, 2, 3]
 `.trim();
 
 const multiLine = `
 helloWorld: List number
 helloWorld =
-    [ 1, 2, 3]
-        |> List.foldl add
-        |> add 10
-        |> mult 4
-        |> sum
+    sum
+        <| mult 4
+        <| add 10
+        <| List.foldl add
+        <| [ 1, 2, 3]
 `.trim();
 
 const expectedOutput = `
@@ -130,6 +130,7 @@ export function testParseMultiLine() {
 
 export function testGenerate() {
     const parsed = parse(multiLine);
+    console.log("Parsed", parsed);
     const generated = generateTypescript(parsed);
     assert.strictEqual(generated, expectedOutput);
 }
