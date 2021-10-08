@@ -36,6 +36,9 @@ import {
     FunctionCall,
     RightPipe,
     isLeftPipeableExpression,
+    Lambda,
+    AnonFunctionArg,
+    FunctionArgsUnion,
 } from "./types";
 
 function parseType(line: string): Result<string, Type> {
@@ -611,6 +614,26 @@ function parseFunctionCall(body: string): Result<string, FunctionCall> {
     return Ok(FunctionCall(functionName, correctArgs));
 }
 
+function parseLambda(body: string): Result<string, Lambda> {
+    // Looks like \x y -> x + y
+    const trimmedBody = body.trim();
+
+    // Looks like [x, y]
+    const args = trimmedBody.split("->")[0].split("\\")[1].trim().split(" ");
+
+    // Looks like x + y
+    const lambdaBody = trimmedBody.split("->")[1].trim();
+    const parsedBody = parseExpression(lambdaBody);
+
+    if (parsedBody.kind === "err") {
+        return Err(
+            "Failed to parse lambda definiton due to:\n" + parsedBody.error
+        );
+    }
+
+    return Ok(Lambda(args, parsedBody.value));
+}
+
 function parseExpression(body: string): Result<string, Expression> {
     const trimmedBody = body.trim();
 
@@ -618,6 +641,8 @@ function parseExpression(body: string): Result<string, Expression> {
         return parseIfStatement(body);
     } else if (trimmedBody.startsWith("case ")) {
         return parseCaseStatement(body);
+    } else if (trimmedBody.startsWith("\\")) {
+        return parseLambda(body);
     } else if (trimmedBody.indexOf("+") > -1) {
         return parseAddition(body);
     } else if (trimmedBody.indexOf("-") > -1) {
@@ -677,17 +702,27 @@ function parseFunction(block: string): Result<string, Function> {
         .map((s) => s.trim())
         .filter((s) => s.length > 0);
 
-    const combinedArguments: Result<string, FunctionArg>[] = types
+    const combinedArguments: Result<string, FunctionArgsUnion>[] = types
         .slice(0, types.length - 1)
         .map((type_, i) => {
-            const name = argumentNames[i];
-            const parsedType = parseType(type_);
-            if (parsedType.kind === "err")
-                return Err(
-                    `Failed to parse ${name} due to ${parsedType.error}`
-                );
+            if (argumentNames.length <= i) {
+                const parsedType = parseType(type_);
+                if (parsedType.kind === "err")
+                    return Err(
+                        `Failed to parse argument ${i} due to ${parsedType.error}`
+                    );
 
-            return Ok(FunctionArg(argumentNames[i], parsedType.value));
+                return Ok(AnonFunctionArg(i, parsedType.value));
+            } else {
+                const name = argumentNames[i];
+                const parsedType = parseType(type_);
+                if (parsedType.kind === "err")
+                    return Err(
+                        `Failed to parse ${name} due to ${parsedType.error}`
+                    );
+
+                return Ok(FunctionArg(name, parsedType.value));
+            }
         });
 
     const returnParts = types[types.length - 1].trim().split(" ");
@@ -696,6 +731,7 @@ function parseFunction(block: string): Result<string, Function> {
     const body = [ argumentLine.split("=").slice(1).join("=").trim() ].concat(
         block.split("\n").slice(2)
     );
+
     const parsedBody = parseExpression(body.join("\n"));
 
     if (parsedBody.kind === "err") return parsedBody;

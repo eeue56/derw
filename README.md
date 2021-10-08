@@ -146,7 +146,7 @@ type User = User { name: string }
 noah = User { name: "Noah" }
 ```
 
--   [ ] lambdas `\x -> x + 1`, `\x y -> x + y`
+-   [x] lambdas `\x -> x + 1`, `\x y -> x + y`
 -   [x] Typescript output
 -   [ ] Javscript output
 -   [ ] Type checking

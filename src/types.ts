@@ -82,6 +82,22 @@ export function FunctionArg(name: string, type: Type): FunctionArg {
     };
 }
 
+export type AnonFunctionArg = {
+    kind: "AnonFunctionArg";
+    index: number;
+    type: Type;
+};
+
+export function AnonFunctionArg(index: number, type: Type): AnonFunctionArg {
+    return {
+        kind: "AnonFunctionArg",
+        index,
+        type,
+    };
+}
+
+export type FunctionArgsUnion = FunctionArg | AnonFunctionArg;
+
 export type Value = {
     kind: "Value";
     body: string;
@@ -299,6 +315,20 @@ export function FunctionCall(name: string, args: Expression[]): FunctionCall {
     };
 }
 
+export type Lambda = {
+    kind: "Lambda";
+    args: string[];
+    body: Expression;
+};
+
+export function Lambda(args: string[], body: Expression): Lambda {
+    return {
+        kind: "Lambda",
+        args,
+        body,
+    };
+}
+
 export type Branch = {
     kind: "Branch";
     pattern: Destructure;
@@ -341,6 +371,7 @@ export type Expression =
     | RightPipe
     | ModuleReference
     | FunctionCall
+    | Lambda
     | Constructor
     | StringValue
     | FormatStringValue
@@ -355,7 +386,8 @@ export type SimpleValue =
     | "Addition"
     | "Subtraction"
     | "Multiplication"
-    | "Division";
+    | "Division"
+    | "Lambda";
 
 export function isSimpleValue(kind: string): kind is SimpleValue {
     return (
@@ -368,6 +400,7 @@ export function isSimpleValue(kind: string): kind is SimpleValue {
             "Subtraction",
             "Multiplication",
             "Division",
+            "Lambda",
         ].indexOf(kind) > -1
     );
 }
@@ -392,14 +425,14 @@ export type Function = {
     kind: "Function";
     name: string;
     returnType: Type;
-    args: FunctionArg[];
+    args: FunctionArgsUnion[];
     body: Expression;
 };
 
 export function Function(
     name: string,
     returnType: Type,
-    args: FunctionArg[],
+    args: FunctionArgsUnion[],
     body: Expression
 ): Function {
     return {

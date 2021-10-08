@@ -24,6 +24,7 @@ import {
     ModuleReference,
     FunctionCall,
     RightPipe,
+    Lambda,
 } from "./types";
 
 function prefixLines(body: string, indent: number): string {
@@ -309,6 +310,16 @@ function generateFunctionCall(functionCall: FunctionCall): string {
     return `${functionCall.name}(${right})`;
 }
 
+function generateLambda(lambda: Lambda): string {
+    const args = lambda.args.map((arg: any) => `${arg}: any`).join(", ");
+    const body = generateExpression(lambda.body);
+    return `
+function(${args}) {
+    return ${body};
+}
+`.trim();
+}
+
 function generateExpression(expression: Expression): string {
     switch (expression.kind) {
         case "Value":
@@ -339,6 +350,8 @@ function generateExpression(expression: Expression): string {
             return generateModuleReference(expression);
         case "FunctionCall":
             return generateFunctionCall(expression);
+        case "Lambda":
+            return generateLambda(expression);
         case "Constructor":
             return generateConstructor(expression);
     }
@@ -356,7 +369,14 @@ function collectTypeArguments(type_: Type): string[] {
 
 function generateFunction(function_: Function): string {
     const functionArguments = function_.args
-        .map((arg) => arg.name + ": " + generateType(arg.type))
+        .map((arg) => {
+            switch (arg.kind) {
+                case "FunctionArg":
+                    return arg.name + ": " + generateType(arg.type);
+                case "AnonFunctionArg":
+                    return "_" + arg.index + ": " + generateType(arg.type);
+            }
+        })
         .join(", ");
 
     const returnType = generateType(function_.returnType);
