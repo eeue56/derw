@@ -149,6 +149,7 @@ noah = User { name: "Noah" }
 -   [x] lambdas `\x -> x + 1`, `\x y -> x + y`
 -   [x] Typescript output
 -   [x] Javscript output
+-   [ ] CLI
 -   [ ] Type checking
 -   [ ] Support for [Coed](https://github.com/eeue56/coed)
 -   [ ] Syntax highlighting for editors

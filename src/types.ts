@@ -489,7 +489,8 @@ export type BlockKinds =
     | "Function"
     | "Const"
     | "Indent"
-    | "Definition";
+    | "Definition"
+    | "Unknown";
 
 export type Block = UnionType | Function | Const;
 

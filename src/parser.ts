@@ -43,6 +43,9 @@ import {
 
 function parseType(line: string): Result<string, Type> {
     const rootTypeName = line.split(" ")[0];
+    if (rootTypeName.length === 0) {
+        return Err("Missing type definition.");
+    }
 
     if (isBuiltinType(rootTypeName)) {
         return Ok(FixedType(rootTypeName, [ ]));
@@ -114,6 +117,12 @@ function parseUnionType(block: string): Result<string, UnionType> {
         tag = tag.trim();
 
         const tagName = tag.split(" ")[0];
+        if (tagName.length === 0) {
+            return Err(
+                `Missing expected tag name for union type \`${typeParts}\``
+            );
+        }
+
         let argsAsJson = tag.split(" ").slice(1).join(" ");
         const args = argsAsJson
             .split(" ")
@@ -154,6 +163,10 @@ function parseUnionType(block: string): Result<string, UnionType> {
 
         return Err("Error parsing args");
     });
+
+    if (tags.length === 0) {
+        return Err("Not enough tags given.");
+    }
 
     for (var i = 0; i < tags.length; i++) {
         const tag = tags[i];
@@ -781,7 +794,14 @@ function parseBlock(block: UnparsedBlock): Result<string, Block> {
             return parseConst(block.lines.join("\n"));
         }
         case "UnknownBlock": {
-            return Err(`Not sure what line ${block.lineStart} is.`);
+            return Err(
+                `Not sure what line ${
+                    block.lineStart
+                } is. There's something wrong with these lines:
+\`\`\`
+${block.lines.slice(0, 5).join("\n")}
+\`\`\``
+            );
         }
     }
 }

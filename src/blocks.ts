@@ -1,10 +1,3 @@
-import {
-    Just,
-    map,
-    Maybe,
-    Nothing,
-    withDefault,
-} from "@eeue56/ts-core/build/main/lib/maybe";
 import { Err, Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
 import { BlockKinds, UnparsedBlock } from "./types";
 
@@ -58,6 +51,10 @@ function createUnparsedBlock(
         }
 
         case "Definition": {
+            return UnparsedBlock("UnknownBlock", lineStart, lines);
+        }
+
+        case "Unknown": {
             return UnparsedBlock("UnknownBlock", lineStart, lines);
         }
     }
@@ -123,13 +120,24 @@ export function intoBlocks(body: string): UnparsedBlock[] {
     }
 
     if (currentBlock.length > 0) {
-        blocks.push(
-            createUnparsedBlock(
-                (currentBlockKind as Ok<BlockKinds>).value,
-                lineStart,
-                currentBlock
-            )
-        );
+        switch (currentBlockKind.kind) {
+            case "ok": {
+                blocks.push(
+                    createUnparsedBlock(
+                        currentBlockKind.value,
+                        lineStart,
+                        currentBlock
+                    )
+                );
+                break;
+            }
+            case "err": {
+                blocks.push(
+                    createUnparsedBlock("Unknown", lineStart, currentBlock)
+                );
+                break;
+            }
+        }
     }
 
     return blocks;
