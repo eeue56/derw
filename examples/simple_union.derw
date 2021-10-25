@@ -5,5 +5,3 @@ isTruthy binary =
     case binary of
         True -> true
         False -> false
-
-hello :

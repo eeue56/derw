@@ -1,4 +1,9 @@
-import { Err, Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
+import {
+    Err,
+    mapError,
+    Ok,
+    Result,
+} from "@eeue56/ts-core/build/main/lib/result";
 import { type } from "os";
 import { blockKind, intoBlocks } from "./blocks";
 import { isBuiltinType } from "./builtins";
@@ -783,23 +788,34 @@ function parseConst(block: string): Result<string, Const> {
 }
 
 function parseBlock(block: UnparsedBlock): Result<string, Block> {
+    const wrapError = (res: Result<string, Block>) => {
+        return mapError((err) => {
+            return `Line ${block.lineStart}: ${err}
+\`\`\`
+${block.lines.join("\n")}
+\`\`\``;
+        }, res);
+    };
+
     switch (block.kind) {
         case "TypeBlock": {
-            return parseUnionType(block.lines.join("\n"));
+            return wrapError(parseUnionType(block.lines.join("\n")));
         }
         case "FunctionBlock": {
-            return parseFunction(block.lines.join("\n"));
+            return wrapError(parseFunction(block.lines.join("\n")));
         }
         case "ConstBlock": {
-            return parseConst(block.lines.join("\n"));
+            return wrapError(parseConst(block.lines.join("\n")));
         }
         case "UnknownBlock": {
             return Err(
-                `Not sure what line ${
+                `Not sure what the block starting on line ${
                     block.lineStart
-                } is. There's something wrong with these lines:
+                } is. There's something wrong with the lines ${
+                    block.lineStart
+                } - ${block.lineStart + block.lines.length}:
 \`\`\`
-${block.lines.slice(0, 5).join("\n")}
+${block.lines.join("\n")}
 \`\`\``
             );
         }
