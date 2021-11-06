@@ -1,19 +1,11 @@
-import { generateTypescript } from "../generator";
-import { parse } from "../parser";
-import {
-    FixedType,
-    Module,
-    Tag,
-    Type,
-    UnionType,
-    UnparsedBlock,
-} from "../types";
-
-import { intoBlocks, blockKind } from "../blocks";
 import * as assert from "@eeue56/ts-assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
+import { blockKind, intoBlocks } from "../blocks";
 import { compileTypescript } from "../compile";
+import { generateTypescript } from "../generator";
 import { generateJavascript } from "../js_generator";
+import { parse } from "../parser";
+import { FixedType, Module, Tag, UnionType, UnparsedBlock } from "../types";
 
 const oneLine = `
 type Binary = True | False

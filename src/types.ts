@@ -498,7 +498,7 @@ export function UnparsedBlock(
 }
 
 export type BlockKinds =
-    | "Import"  
+    | "Import"
     | "UnionType"
     | "Function"
     | "Const"

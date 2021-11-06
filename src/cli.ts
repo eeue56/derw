@@ -1,25 +1,23 @@
 import {
-    empty,
-    longFlag,
+    allErrors,
     bothFlag,
-    number,
+    empty,
+    help,
+    longFlag,
+    oneOf,
     parse,
     parser,
     string,
-    help,
     variableList,
-    boolean,
-    oneOf,
-    allErrors,
 } from "@eeue56/baner";
-import * as derwParser from "./parser";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { promises } from "fs";
-import { generateTypescript } from "./generator";
-import { generateJavascript } from "./js_generator";
 import { writeFile } from "fs/promises";
 import path from "path";
 import { compileTypescript } from "./compile";
+import { generateTypescript } from "./generator";
+import { generateJavascript } from "./js_generator";
+import * as derwParser from "./parser";
 
 async function ensureDirectoryExists(directory: string): Promise<void> {
     try {

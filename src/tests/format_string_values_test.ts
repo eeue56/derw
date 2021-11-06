@@ -1,26 +1,17 @@
+import * as assert from "@eeue56/ts-assert";
+import { Ok } from "@eeue56/ts-core/build/main/lib/result";
+import { blockKind, intoBlocks } from "../blocks";
+import { compileTypescript } from "../compile";
 import { generateTypescript } from "../generator";
+import { generateJavascript } from "../js_generator";
 import { parse } from "../parser";
 import {
     Const,
     FixedType,
     FormatStringValue,
-    Function,
-    FunctionArg,
-    IfStatement,
     Module,
-    StringValue,
-    Tag,
-    Type,
-    UnionType,
     UnparsedBlock,
-    Value,
 } from "../types";
-
-import { intoBlocks, blockKind } from "../blocks";
-import * as assert from "@eeue56/ts-assert";
-import { Ok } from "@eeue56/ts-core/build/main/lib/result";
-import { compileTypescript } from "../compile";
-import { generateJavascript } from "../js_generator";
 
 const oneLine = `
 helloWorld: string

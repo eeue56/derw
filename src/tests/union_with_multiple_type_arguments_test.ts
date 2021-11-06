@@ -1,4 +1,9 @@
+import * as assert from "@eeue56/ts-assert";
+import { Ok } from "@eeue56/ts-core/build/main/lib/result";
+import { blockKind, intoBlocks } from "../blocks";
+import { compileTypescript } from "../compile";
 import { generateTypescript } from "../generator";
+import { generateJavascript } from "../js_generator";
 import { parse } from "../parser";
 import {
     FixedType,
@@ -6,15 +11,9 @@ import {
     Module,
     Tag,
     TagArg,
-    Type,
     UnionType,
     UnparsedBlock,
 } from "../types";
-import { intoBlocks, blockKind } from "../blocks";
-import * as assert from "@eeue56/ts-assert";
-import { Ok } from "@eeue56/ts-core/build/main/lib/result";
-import { compileTypescript } from "../compile";
-import { generateJavascript } from "../js_generator";
 
 const oneLine = `
 type Either a b = Left { value: a } | Right { value: b }

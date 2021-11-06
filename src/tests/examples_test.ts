@@ -1,8 +1,8 @@
-import { readFile, readdir } from "fs/promises";
 import * as assert from "@eeue56/ts-assert";
-import { parse } from "../parser";
-import { generateTypescript } from "../generator";
+import { readdir, readFile } from "fs/promises";
 import path from "path";
+import { generateTypescript } from "../generator";
+import { parse } from "../parser";
 
 const emptyLineAtEndOfFile = "\n";
 
