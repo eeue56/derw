@@ -25,6 +25,7 @@ import {
     FunctionCall,
     RightPipe,
     Lambda,
+    Import,
 } from "./types";
 
 function prefixLines(body: string, indent: number): string {
@@ -411,8 +412,18 @@ const ${constDef.name}: ${typeDef} = ${body};
 `.trim();
 }
 
+function generateImportBlock(imports: Import): string {
+    return imports.moduleNames
+        .map((moduleName) => {
+            return `import ${moduleName} from "${moduleName}";`;
+        })
+        .join("\n");
+}
+
 function generateBlock(syntax: Block): string {
     switch (syntax.kind) {
+        case "Import":
+            return generateImportBlock(syntax);
         case "UnionType":
             return generateUnionType(syntax);
         case "Function":

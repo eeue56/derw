@@ -460,7 +460,20 @@ export function Const(name: string, type: Type, value: Expression): Const {
     };
 }
 
+export type Import = {
+    kind: "Import";
+    moduleNames: string[];
+};
+
+export function Import(moduleNames: string[]): Import {
+    return {
+        kind: "Import",
+        moduleNames,
+    };
+}
+
 export type UnparsedBlockTypes =
+    | "ImportBlock"
     | "TypeBlock"
     | "FunctionBlock"
     | "ConstBlock"
@@ -485,6 +498,7 @@ export function UnparsedBlock(
 }
 
 export type BlockKinds =
+    | "Import"  
     | "UnionType"
     | "Function"
     | "Const"
@@ -492,7 +506,7 @@ export type BlockKinds =
     | "Definition"
     | "Unknown";
 
-export type Block = UnionType | Function | Const;
+export type Block = UnionType | Function | Const | Import;
 
 export type Module = {
     kind: "Module";

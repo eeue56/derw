@@ -44,6 +44,7 @@ import {
     Lambda,
     AnonFunctionArg,
     FunctionArgsUnion,
+    Import,
 } from "./types";
 
 function parseType(line: string): Result<string, Type> {
@@ -787,6 +788,14 @@ function parseConst(block: string): Result<string, Const> {
     return Ok(Const(constName, parsedType.value, parsedBody.value));
 }
 
+function parseImport(block: string): Result<string, Import> {
+    const moduleNames = block
+        .split("\n")
+        .map((importLine) => importLine.split("import")[1].trim());
+
+    return Ok(Import(moduleNames));
+}
+
 function parseBlock(block: UnparsedBlock): Result<string, Block> {
     const wrapError = (res: Result<string, Block>) => {
         return mapError((err) => {
@@ -798,6 +807,9 @@ ${block.lines.join("\n")}
     };
 
     switch (block.kind) {
+        case "ImportBlock": {
+            return wrapError(parseImport(block.lines.join("\n")));
+        }
         case "TypeBlock": {
             return wrapError(parseUnionType(block.lines.join("\n")));
         }

@@ -2,7 +2,7 @@ import { readFile, readdir } from "fs/promises";
 import * as assert from "assert";
 import { parse } from "../parser";
 import { generateTypescript } from "../generator";
-import path from "path/posix";
+import path from "path";
 
 const emptyLineAtEndOfFile = "\n";
 

@@ -10,6 +10,10 @@ export function blockKind(block: string): Result<string, BlockKinds> {
         return Ok("Indent");
     }
 
+    if (block.startsWith("import")) {
+        return Ok("Import");
+    }
+
     const hasTypeLine = block.split(":").length > 1;
     const isAFunction = block.split("->").length > 1;
 
@@ -34,6 +38,9 @@ function createUnparsedBlock(
     lines: string[]
 ): UnparsedBlock {
     switch (blockKind) {
+        case "Import": {
+            return UnparsedBlock("ImportBlock", lineStart, lines);
+        }
         case "Const": {
             return UnparsedBlock("ConstBlock", lineStart, lines);
         }
