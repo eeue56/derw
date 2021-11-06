@@ -1,5 +1,5 @@
 import { readFile, readdir } from "fs/promises";
-import * as assert from "assert";
+import * as assert from "@eeue56/ts-assert";
 import { parse } from "../parser";
 import { generateTypescript } from "../generator";
 import path from "path";

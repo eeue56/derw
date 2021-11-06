@@ -11,7 +11,7 @@ import {
     UnparsedBlock,
 } from "../types";
 import { intoBlocks, blockKind } from "../blocks";
-import * as assert from "assert";
+import * as assert from "@eeue56/ts-assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { compileTypescript } from "../compile";
 import { generateJavascript } from "../js_generator";
