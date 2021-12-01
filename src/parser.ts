@@ -363,15 +363,14 @@ function parseIfStatement(body: string): Result<string, IfStatement> {
     const lines = body.split("\n").filter((line) => line.trim().length > 0);
     const predicateWords = lines[0].trim().split(" ");
     const predicate = predicateWords.slice(1, predicateWords.length - 1);
-    const parsedPredicate = parseExpression(predicate.join("\n"));
+    const parsedPredicate = parseExpression(predicate.join(" "));
 
     const indentLevel = getIndentLevel(lines[0]);
-
     const elseIndex = lines.reduce(
         (previous, current, index) => {
             if (previous.found) return previous;
 
-            if (current === " ".repeat(indentLevel) + "else") {
+            if (current.trimEnd() === " ".repeat(indentLevel) + "else") {
                 return {
                     found: true,
                     index,
