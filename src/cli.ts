@@ -14,6 +14,7 @@ import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { promises } from "fs";
 import { writeFile } from "fs/promises";
 import path from "path";
+import * as util from "util";
 import { compileTypescript } from "./compile";
 import { generateTypescript } from "./generator";
 import { generateJavascript } from "./js_generator";
@@ -39,6 +40,7 @@ const programParser = parser([
         "Run typescript compiler on generated files to ensure valid output",
         empty()
     ),
+    longFlag("debug", "Show a parsed object tree", empty()),
     bothFlag("h", "help", "This help text", empty()),
 ]);
 
@@ -55,6 +57,8 @@ async function main(): Promise<void> {
         showHelp();
         return;
     }
+
+    const debugMode = program.flags["debug"].isPresent;
 
     const errors = allErrors(program);
     if (errors.length > 0) {
@@ -110,6 +114,11 @@ async function main(): Promise<void> {
                 return;
             }
 
+            if (debugMode) {
+                console.log(util.inspect(parsed, true, null, true));
+                return;
+            }
+
             let generated;
 
             switch (target) {
@@ -141,7 +150,9 @@ async function main(): Promise<void> {
                 await ensureDirectoryExists(path.join(outputDir, dirName));
             }
 
-            await writeFile(path.join(outputDir, fileName), generated);
+            const outputName = dotParts.slice(0, -1).join(".") + "." + target;
+
+            await writeFile(path.join(outputDir, outputName), generated);
         })
     );
 }
