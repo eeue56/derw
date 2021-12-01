@@ -495,7 +495,13 @@ export type SimpleValue =
     | "Subtraction"
     | "Multiplication"
     | "Division"
-    | "Lambda";
+    | "Lambda"
+    | "Equality"
+    | "InEquality"
+    | "LessThan"
+    | "LessThanOrEqual"
+    | "GreaterThan"
+    | "GreaterThanOrEqual";
 
 export function isSimpleValue(kind: string): kind is SimpleValue {
     return (
@@ -509,6 +515,12 @@ export function isSimpleValue(kind: string): kind is SimpleValue {
             "Multiplication",
             "Division",
             "Lambda",
+            "Equality",
+            "InEquality",
+            "LessThan",
+            "LessThanOrEqual",
+            "GreaterThan",
+            "GreaterThanOrEqual",
         ].indexOf(kind) > -1
     );
 }

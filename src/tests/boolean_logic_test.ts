@@ -1,6 +1,5 @@
 import * as assert from "@eeue56/ts-assert";
-import { Ok } from "@eeue56/ts-core/build/main/lib/result";
-import { blockKind, intoBlocks } from "../blocks";
+import { intoBlocks } from "../blocks";
 import { compileTypescript } from "../compile";
 import { generateTypescript } from "../generator";
 import { generateJavascript } from "../js_generator";
@@ -9,6 +8,8 @@ import {
     Const,
     Equality,
     FixedType,
+    Function,
+    FunctionArg,
     GreaterThan,
     GreaterThanOrEqual,
     InEquality,
@@ -37,6 +38,9 @@ isGreaterThan = 1 > 2
 
 isGreaterThanOrEqual: boolean
 isGreaterThanOrEqual = 1 >= 2
+
+equalityFunction: number -> number -> boolean
+equalityFunction x y = x == y
 `.trim();
 
 const multiLine = `
@@ -63,6 +67,10 @@ isGreaterThan =
 isGreaterThanOrEqual: boolean
 isGreaterThanOrEqual = 
     1 >= 2
+
+equalityFunction: number -> number -> boolean
+equalityFunction x y = 
+    x == y
 `.trim();
 
 const expectedOutput = `
@@ -77,6 +85,10 @@ const isLessThanOrEqual: boolean = 1 <= 2;
 const isGreaterThan: boolean = 1 > 2;
 
 const isGreaterThanOrEqual: boolean = 1 >= 2;
+
+function equalityFunction(x: number, y: number): boolean {
+    return x === y;
+}
 `.trim();
 
 const expectedOutputJS = `
@@ -91,6 +103,10 @@ const isLessThanOrEqual = 1 <= 2;
 const isGreaterThan = 1 > 2;
 
 const isGreaterThanOrEqual = 1 >= 2;
+
+function equalityFunction(x, y) {
+    return x === y;
+}
 `.trim();
 
 export function testIntoBlocks() {
@@ -103,6 +119,7 @@ export function testIntoBlocks() {
         UnparsedBlock("ConstBlock", 9, [ lines[9], lines[10] ]),
         UnparsedBlock("ConstBlock", 12, [ lines[12], lines[13] ]),
         UnparsedBlock("ConstBlock", 15, [ lines[15], lines[16] ]),
+        UnparsedBlock("FunctionBlock", 18, [ lines[18], lines[19] ]),
     ]);
 }
 
@@ -116,15 +133,8 @@ export function testIntoBlocksMultiLine() {
         UnparsedBlock("ConstBlock", 12, lines.slice(12, 15)),
         UnparsedBlock("ConstBlock", 16, lines.slice(16, 19)),
         UnparsedBlock("ConstBlock", 20, lines.slice(20, 23)),
+        UnparsedBlock("FunctionBlock", 24, lines.slice(24, 27)),
     ]);
-}
-
-export function testBlockKind() {
-    assert.deepStrictEqual(blockKind(oneLine), Ok("Const"));
-}
-
-export function testBlockKindMultiLine() {
-    assert.deepStrictEqual(blockKind(multiLine), Ok("Const"));
 }
 
 export function testParse() {
@@ -167,6 +177,16 @@ export function testParse() {
                     "isGreaterThanOrEqual",
                     FixedType("boolean", [ ]),
                     GreaterThanOrEqual(Value("1"), Value("2"))
+                ),
+
+                Function(
+                    "equalityFunction",
+                    FixedType("boolean", [ ]),
+                    [
+                        FunctionArg("x", FixedType("number", [ ])),
+                        FunctionArg("y", FixedType("number", [ ])),
+                    ],
+                    Equality(Value("x"), Value("y"))
                 ),
             ],
             [ ]
@@ -214,6 +234,16 @@ export function testParseMultiLine() {
                     "isGreaterThanOrEqual",
                     FixedType("boolean", [ ]),
                     GreaterThanOrEqual(Value("1"), Value("2"))
+                ),
+
+                Function(
+                    "equalityFunction",
+                    FixedType("boolean", [ ]),
+                    [
+                        FunctionArg("x", FixedType("number", [ ])),
+                        FunctionArg("y", FixedType("number", [ ])),
+                    ],
+                    Equality(Value("x"), Value("y"))
                 ),
             ],
             [ ]
