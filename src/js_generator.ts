@@ -6,15 +6,21 @@ import {
     Const,
     Constructor,
     Division,
+    Equality,
     Expression,
     FormatStringValue,
     Function,
     FunctionCall,
+    GreaterThan,
+    GreaterThanOrEqual,
     IfStatement,
     Import,
+    InEquality,
     isSimpleValue,
     Lambda,
     LeftPipe,
+    LessThan,
+    LessThanOrEqual,
     ListValue,
     Module,
     ModuleReference,
@@ -22,7 +28,6 @@ import {
     RightPipe,
     StringValue,
     Subtraction,
-    Type,
     UnionType,
     Value,
 } from "./types";
@@ -248,6 +253,44 @@ function(${args}) {
 `.trim();
 }
 
+function generateEquality(equality: Equality): string {
+    const left = generateExpression(equality.leftHand);
+    const right = generateExpression(equality.rightHand);
+    return `${left} === ${right}`;
+}
+
+function generateInEquality(inEquality: InEquality): string {
+    const left = generateExpression(inEquality.leftHand);
+    const right = generateExpression(inEquality.rightHand);
+    return `${left} !== ${right}`;
+}
+
+function generateLessThan(lessThan: LessThan): string {
+    const left = generateExpression(lessThan.leftHand);
+    const right = generateExpression(lessThan.rightHand);
+    return `${left} < ${right}`;
+}
+
+function generateLessThanOrEqual(lessThanOrEqual: LessThanOrEqual): string {
+    const left = generateExpression(lessThanOrEqual.leftHand);
+    const right = generateExpression(lessThanOrEqual.rightHand);
+    return `${left} <= ${right}`;
+}
+
+function generateGreaterThan(greaterThan: GreaterThan): string {
+    const left = generateExpression(greaterThan.leftHand);
+    const right = generateExpression(greaterThan.rightHand);
+    return `${left} > ${right}`;
+}
+
+function generateGreaterThanOrEqual(
+    greaterThanOrEqual: GreaterThanOrEqual
+): string {
+    const left = generateExpression(greaterThanOrEqual.leftHand);
+    const right = generateExpression(greaterThanOrEqual.rightHand);
+    return `${left} >= ${right}`;
+}
+
 function generateExpression(expression: Expression): string {
     switch (expression.kind) {
         case "Value":
@@ -282,16 +325,18 @@ function generateExpression(expression: Expression): string {
             return generateLambda(expression);
         case "Constructor":
             return generateConstructor(expression);
-    }
-}
-
-function collectTypeArguments(type_: Type): string[] {
-    switch (type_.kind) {
-        case "GenericType":
-            return [ type_.name ];
-        case "FixedType":
-            const args: string[][] = type_.args.map(collectTypeArguments);
-            return ([ ] as string[]).concat(...args);
+        case "Equality":
+            return generateEquality(expression);
+        case "InEquality":
+            return generateInEquality(expression);
+        case "LessThan":
+            return generateLessThan(expression);
+        case "LessThanOrEqual":
+            return generateLessThanOrEqual(expression);
+        case "GreaterThan":
+            return generateGreaterThan(expression);
+        case "GreaterThanOrEqual":
+            return generateGreaterThanOrEqual(expression);
     }
 }
 

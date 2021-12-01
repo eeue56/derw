@@ -360,6 +360,108 @@ export function CaseStatement(
     };
 }
 
+export type Equality = {
+    kind: "Equality";
+    leftHand: Expression;
+    rightHand: Expression;
+};
+
+export function Equality(
+    leftHand: Expression,
+    rightHand: Expression
+): Equality {
+    return {
+        kind: "Equality",
+        leftHand,
+        rightHand,
+    };
+}
+
+export type InEquality = {
+    kind: "InEquality";
+    leftHand: Expression;
+    rightHand: Expression;
+};
+
+export function InEquality(
+    leftHand: Expression,
+    rightHand: Expression
+): InEquality {
+    return {
+        kind: "InEquality",
+        leftHand,
+        rightHand,
+    };
+}
+
+export type LessThan = {
+    kind: "LessThan";
+    leftHand: Expression;
+    rightHand: Expression;
+};
+
+export function LessThan(
+    leftHand: Expression,
+    rightHand: Expression
+): LessThan {
+    return {
+        kind: "LessThan",
+        leftHand,
+        rightHand,
+    };
+}
+
+export type LessThanOrEqual = {
+    kind: "LessThanOrEqual";
+    leftHand: Expression;
+    rightHand: Expression;
+};
+
+export function LessThanOrEqual(
+    leftHand: Expression,
+    rightHand: Expression
+): LessThanOrEqual {
+    return {
+        kind: "LessThanOrEqual",
+        leftHand,
+        rightHand,
+    };
+}
+
+export type GreaterThan = {
+    kind: "GreaterThan";
+    leftHand: Expression;
+    rightHand: Expression;
+};
+
+export function GreaterThan(
+    leftHand: Expression,
+    rightHand: Expression
+): GreaterThan {
+    return {
+        kind: "GreaterThan",
+        leftHand,
+        rightHand,
+    };
+}
+
+export type GreaterThanOrEqual = {
+    kind: "GreaterThanOrEqual";
+    leftHand: Expression;
+    rightHand: Expression;
+};
+
+export function GreaterThanOrEqual(
+    leftHand: Expression,
+    rightHand: Expression
+): GreaterThanOrEqual {
+    return {
+        kind: "GreaterThanOrEqual",
+        leftHand,
+        rightHand,
+    };
+}
+
 export type Expression =
     | IfStatement
     | CaseStatement
@@ -376,6 +478,12 @@ export type Expression =
     | StringValue
     | FormatStringValue
     | ListValue
+    | Equality
+    | InEquality
+    | LessThan
+    | LessThanOrEqual
+    | GreaterThan
+    | GreaterThanOrEqual
     | Value;
 
 export type SimpleValue =

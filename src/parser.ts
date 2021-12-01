@@ -16,6 +16,7 @@ import {
     Constructor,
     Destructure,
     Division,
+    Equality,
     Expression,
     FixedType,
     FormatStringValue,
@@ -24,11 +25,16 @@ import {
     FunctionArgsUnion,
     FunctionCall,
     GenericType,
+    GreaterThan,
+    GreaterThanOrEqual,
     IfStatement,
     Import,
+    InEquality,
     isLeftPipeableExpression,
     Lambda,
     LeftPipe,
+    LessThan,
+    LessThanOrEqual,
     ListValue,
     Module,
     ModuleReference,
@@ -650,6 +656,68 @@ function parseLambda(body: string): Result<string, Lambda> {
     return Ok(Lambda(args, parsedBody.value));
 }
 
+function parseEquality(body: string): Result<string, Equality> {
+    const left = parseExpression(body.split(" == ")[0]);
+    const right = parseExpression(body.split(" == ")[1]);
+
+    if (left.kind === "err") return left;
+    if (right.kind === "err") return right;
+
+    return Ok(Equality(left.value, right.value));
+}
+
+function parseInEquality(body: string): Result<string, InEquality> {
+    const left = parseExpression(body.split(" != ")[0]);
+    const right = parseExpression(body.split(" != ")[1]);
+
+    if (left.kind === "err") return left;
+    if (right.kind === "err") return right;
+
+    return Ok(InEquality(left.value, right.value));
+}
+
+function parseLessThan(body: string): Result<string, LessThan> {
+    const left = parseExpression(body.split(" < ")[0]);
+    const right = parseExpression(body.split(" < ")[1]);
+
+    if (left.kind === "err") return left;
+    if (right.kind === "err") return right;
+
+    return Ok(LessThan(left.value, right.value));
+}
+
+function parseLessThanOrEqual(body: string): Result<string, LessThanOrEqual> {
+    const left = parseExpression(body.split(" <= ")[0]);
+    const right = parseExpression(body.split(" <= ")[1]);
+
+    if (left.kind === "err") return left;
+    if (right.kind === "err") return right;
+
+    return Ok(LessThanOrEqual(left.value, right.value));
+}
+
+function parseGreaterThan(body: string): Result<string, GreaterThan> {
+    const left = parseExpression(body.split(" > ")[0]);
+    const right = parseExpression(body.split(" > ")[1]);
+
+    if (left.kind === "err") return left;
+    if (right.kind === "err") return right;
+
+    return Ok(GreaterThan(left.value, right.value));
+}
+
+function parseGreaterThanOrEqual(
+    body: string
+): Result<string, GreaterThanOrEqual> {
+    const left = parseExpression(body.split(" >= ")[0]);
+    const right = parseExpression(body.split(" >= ")[1]);
+
+    if (left.kind === "err") return left;
+    if (right.kind === "err") return right;
+
+    return Ok(GreaterThanOrEqual(left.value, right.value));
+}
+
 function parseExpression(body: string): Result<string, Expression> {
     const trimmedBody = body.trim();
 
@@ -659,6 +727,18 @@ function parseExpression(body: string): Result<string, Expression> {
         return parseCaseStatement(body);
     } else if (trimmedBody.startsWith("\\")) {
         return parseLambda(body);
+    } else if (trimmedBody.indexOf(" == ") > -1) {
+        return parseEquality(body);
+    } else if (trimmedBody.indexOf(" != ") > -1) {
+        return parseInEquality(body);
+    } else if (trimmedBody.indexOf(" < ") > -1) {
+        return parseLessThan(body);
+    } else if (trimmedBody.indexOf(" <= ") > -1) {
+        return parseLessThanOrEqual(body);
+    } else if (trimmedBody.indexOf(" > ") > -1) {
+        return parseGreaterThan(body);
+    } else if (trimmedBody.indexOf(" >= ") > -1) {
+        return parseGreaterThanOrEqual(body);
     } else if (trimmedBody.indexOf("+") > -1) {
         return parseAddition(body);
     } else if (trimmedBody.indexOf("-") > -1) {
