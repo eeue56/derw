@@ -7,29 +7,37 @@ import { generateJavascript } from "../js_generator";
 import { parse } from "../parser";
 import { BlockKinds, Import, Module, UnparsedBlock } from "../types";
 
-const oneLine = `import path`.trim();
+const oneLine = `import path
+import fs`.trim();
 
 const multiLine = `
 import path
+import fs
 `.trim();
 
 const expectedOutput = `
 import path from "path";
+
+import fs from "fs";
 `.trim();
 
 const expectedOutputJS = `
 import path from "path";
+
+import fs from "fs";
 `.trim();
 
 export function testIntoBlocks() {
     assert.deepStrictEqual(intoBlocks(oneLine), [
-        UnparsedBlock("ImportBlock", 0, oneLine.split("\n")),
+        UnparsedBlock("ImportBlock", 0, [ oneLine.split("\n")[0] ]),
+        UnparsedBlock("ImportBlock", 1, [ oneLine.split("\n")[1] ]),
     ]);
 }
 
 export function testIntoBlocksMultiLine() {
     assert.deepStrictEqual(intoBlocks(multiLine), [
-        UnparsedBlock("ImportBlock", 0, multiLine.split("\n")),
+        UnparsedBlock("ImportBlock", 0, [ multiLine.split("\n")[0] ]),
+        UnparsedBlock("ImportBlock", 1, [ multiLine.split("\n")[1] ]),
     ]);
 }
 
@@ -50,14 +58,14 @@ export function testBlockKindMultiLine() {
 export function testParse() {
     assert.deepStrictEqual(
         parse(oneLine),
-        Module("main", [ Import([ "path" ]) ], [ ])
+        Module("main", [ Import([ "path" ]), Import([ "fs" ]) ], [ ])
     );
 }
 
 export function testParseMultiLine() {
     assert.deepStrictEqual(
         parse(multiLine),
-        Module("main", [ Import([ "path" ]) ], [ ])
+        Module("main", [ Import([ "path" ]), Import([ "fs" ]) ], [ ])
     );
 }
 
