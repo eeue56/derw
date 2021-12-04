@@ -6,85 +6,70 @@ import { generateTypescript } from "../generator";
 import { generateJavascript } from "../js_generator";
 import { parse } from "../parser";
 import {
+    BlockKinds,
     FixedType,
     Module,
-    Tag,
-    TagArg,
-    UnionType,
+    Property,
+    TypeAlias,
     UnparsedBlock,
 } from "../types";
 
 const oneLine = `
-type Animal = Dog { name: string } | Cat { lives: number }
+type alias Person = { name: string, age: number }
 `.trim();
 
 const multiLine = `
-type Animal
-    = Dog { name: string }
-    | Cat { lives: number }
+type alias Person = { 
+    name: string, 
+    age: number 
+}
 `.trim();
 
 const expectedOutput = `
-type Dog = {
-    kind: "Dog";
+type Person = {
     name: string;
-};
+    age: number;
+}
 
-function Dog(args: { name: string }): Dog {
+function Person(args: { name: string, age: number }): Person {
     return {
-        kind: "Dog",
         ...args,
     };
 }
-
-type Cat = {
-    kind: "Cat";
-    lives: number;
-};
-
-function Cat(args: { lives: number }): Cat {
-    return {
-        kind: "Cat",
-        ...args,
-    };
-}
-
-type Animal = Dog | Cat;`.trim();
+`.trim();
 
 const expectedOutputJS = `
-
-function Dog(args) {
+function Person(args) {
     return {
-        kind: "Dog",
         ...args,
     };
 }
-
-function Cat(args) {
-    return {
-        kind: "Cat",
-        ...args,
-    };
-}`.trim();
+`.trim();
 
 export function testIntoBlocks() {
     assert.deepStrictEqual(intoBlocks(oneLine), [
-        UnparsedBlock("UnionTypeBlock", 0, oneLine.split("\n")),
+        UnparsedBlock("TypeAliasBlock", 0, oneLine.split("\n")),
     ]);
 }
 
 export function testIntoBlocksMultiLine() {
     assert.deepStrictEqual(intoBlocks(multiLine), [
-        UnparsedBlock("UnionTypeBlock", 0, multiLine.split("\n")),
+        UnparsedBlock("TypeAliasBlock", 0, multiLine.split("\n")),
     ]);
 }
 
 export function testBlockKind() {
-    assert.deepStrictEqual(blockKind(oneLine), Ok("UnionType"));
+    assert.deepStrictEqual(
+        blockKind(oneLine),
+        Ok<string, BlockKinds>("TypeAlias")
+    );
 }
 
 export function testBlockKindMultiLine() {
-    assert.deepStrictEqual(blockKind(multiLine), Ok("UnionType"));
+    assert.deepStrictEqual(
+        blockKind(multiLine),
+        Ok<string, BlockKinds>("TypeAlias")
+    );
 }
 
 export function testParse() {
@@ -93,9 +78,9 @@ export function testParse() {
         Module(
             "main",
             [
-                UnionType(FixedType("Animal", [ ]), [
-                    Tag("Dog", [ TagArg("name", FixedType("string", [ ])) ]),
-                    Tag("Cat", [ TagArg("lives", FixedType("number", [ ])) ]),
+                TypeAlias(FixedType("Person", [ ]), [
+                    Property("name", FixedType("string", [ ])),
+                    Property("age", FixedType("number", [ ])),
                 ]),
             ],
             [ ]
@@ -109,9 +94,9 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
-                UnionType(FixedType("Animal", [ ]), [
-                    Tag("Dog", [ TagArg("name", FixedType("string", [ ])) ]),
-                    Tag("Cat", [ TagArg("lives", FixedType("number", [ ])) ]),
+                TypeAlias(FixedType("Person", [ ]), [
+                    Property("name", FixedType("string", [ ])),
+                    Property("age", FixedType("number", [ ])),
                 ]),
             ],
             [ ]
@@ -121,13 +106,11 @@ export function testParseMultiLine() {
 
 export function testGenerate() {
     const parsed = parse(oneLine);
-
-    assert.deepStrictEqual(generateTypescript(parsed), expectedOutput);
+    assert.strictEqual(generateTypescript(parsed), expectedOutput);
 }
 
 export function testGenerateMultiLine() {
     const parsed = parse(multiLine);
-
     assert.deepStrictEqual(generateTypescript(parsed), expectedOutput);
 }
 

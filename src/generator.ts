@@ -26,10 +26,12 @@ import {
     Module,
     ModuleReference,
     Multiplication,
+    Property,
     RightPipe,
     StringValue,
     Subtraction,
     Type,
+    TypeAlias,
     UnionType,
     Value,
 } from "./types";
@@ -47,10 +49,6 @@ function generateUnionType(syntax: UnionType): string {
             const typeDefArgs = tag.args
                 .map((arg) => arg.name + ": " + generateType(arg.type) + ";")
                 .join("\n    ");
-
-            const funcDefProps = tag.args
-                .map((arg) => arg.name.trim())
-                .join(",\n        ");
 
             const funcDefArgs = tag.args
                 .map((arg) => arg.name + ": " + generateType(arg.type))
@@ -97,6 +95,29 @@ function ${generatedType}(args: ${funcDefArgsStr}): ${generatedType} {
 ${tagCreators}
 
 type ${generateType(syntax.type)} = ${tags};
+`.trim();
+}
+
+function generateProperty(syntax: Property): string {
+    return `${syntax.name}: ${generateType(syntax.type)}`;
+}
+
+function generateTypeAlias(syntax: TypeAlias): string {
+    const generatedProperties = syntax.properties.map(generateProperty);
+    const properties = generatedProperties.join(";\n    ") + ";";
+    const type = generateType(syntax.type);
+    const args = generatedProperties.join(", ");
+
+    return `
+type ${type} = {
+    ${properties}
+}
+
+function ${type}(args: { ${args} }): ${type} {
+    return {
+        ...args,
+    };
+}
 `.trim();
 }
 
@@ -482,6 +503,8 @@ function generateBlock(syntax: Block): string {
             return generateImportBlock(syntax);
         case "UnionType":
             return generateUnionType(syntax);
+        case "TypeAlias":
+            return generateTypeAlias(syntax);
         case "Function":
             return generateFunction(syntax);
         case "Const":

@@ -28,6 +28,7 @@ import {
     RightPipe,
     StringValue,
     Subtraction,
+    TypeAlias,
     UnionType,
     Value,
 } from "./types";
@@ -381,12 +382,25 @@ function generateImportBlock(imports: Import): string {
         .join("\n");
 }
 
+function generateTypeAlias(syntax: TypeAlias): string {
+    const type = syntax.type.name;
+    return `
+function ${type}(args) {
+    return {
+        ...args,
+    };
+}
+    `.trim();
+}
+
 function generateBlock(syntax: Block): string {
     switch (syntax.kind) {
         case "Import":
             return generateImportBlock(syntax);
         case "UnionType":
             return generateUnionType(syntax);
+        case "TypeAlias":
+            return generateTypeAlias(syntax);
         case "Function":
             return generateFunction(syntax);
         case "Const":

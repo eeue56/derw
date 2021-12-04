@@ -68,6 +68,34 @@ export function UnionType(type: Type, tags: Tag[]): UnionType {
     };
 }
 
+export type Property = {
+    kind: "Property";
+    name: string;
+    type: Type;
+};
+
+export function Property(name: string, type: Type): Property {
+    return {
+        kind: "Property",
+        name,
+        type,
+    };
+}
+
+export type TypeAlias = {
+    kind: "TypeAlias";
+    type: Type;
+    properties: Property[];
+};
+
+export function TypeAlias(type: Type, properties: Property[]): TypeAlias {
+    return {
+        kind: "TypeAlias",
+        type,
+        properties,
+    };
+}
+
 export type FunctionArg = {
     kind: "FunctionArg";
     name: string;
@@ -594,7 +622,8 @@ export function Import(moduleNames: string[]): Import {
 
 export type UnparsedBlockTypes =
     | "ImportBlock"
-    | "TypeBlock"
+    | "UnionTypeBlock"
+    | "TypeAliasBlock"
     | "FunctionBlock"
     | "ConstBlock"
     | "UnknownBlock";
@@ -620,13 +649,14 @@ export function UnparsedBlock(
 export type BlockKinds =
     | "Import"
     | "UnionType"
+    | "TypeAlias"
     | "Function"
     | "Const"
     | "Indent"
     | "Definition"
     | "Unknown";
 
-export type Block = UnionType | Function | Const | Import;
+export type Block = UnionType | TypeAlias | Function | Const | Import;
 
 export type Module = {
     kind: "Module";

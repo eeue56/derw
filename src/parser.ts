@@ -39,12 +39,14 @@ import {
     Module,
     ModuleReference,
     Multiplication,
+    Property,
     RightPipe,
     StringValue,
     Subtraction,
     Tag,
     TagArg,
     Type,
+    TypeAlias,
     UnionType,
     UnparsedBlock,
     Value,
@@ -53,7 +55,7 @@ import {
 function parseType(line: string): Result<string, Type> {
     const rootTypeName = line.split(" ")[0];
     if (rootTypeName.length === 0) {
-        return Err("Missing type definition.");
+        return Err(`Missing type definition. Got: \`${line}\``);
     }
 
     if (isBuiltinType(rootTypeName)) {
@@ -189,6 +191,122 @@ function parseUnionType(block: string): Result<string, UnionType> {
             tags
                 .filter((tag) => tag.kind === "ok")
                 .map((tag) => (tag as Ok<Tag>).value)
+        )
+    );
+}
+
+function parseProperty(block: string): Result<string, Property> {
+    const name = block.split(":")[0].trim();
+
+    const bitsAfterName = block.split(":").slice(1).join(":");
+
+    const bitsBeforeFinalComma =
+        bitsAfterName.indexOf(",") > -1
+            ? bitsAfterName.split(",").slice(0, -1).join(",").trim()
+            : bitsAfterName.trim();
+
+    const type = parseType(bitsBeforeFinalComma);
+
+    if (type.kind === "err") return type;
+    return Ok(Property(name, type.value));
+}
+
+function isRootProperty(line: string): boolean {
+    if (line.match(/    .+/)) {
+        return true;
+    }
+    return false;
+}
+
+function parseTypeAlias(block: string): Result<string, TypeAlias> {
+    const parsedAliasName = parseType(
+        block.split("=")[0].slice("type alias".length).trim()
+    );
+
+    if (parsedAliasName.kind === "err") {
+        return parsedAliasName;
+    }
+
+    const aliasName = parsedAliasName.value;
+
+    const recordDefinition = block.split("=").slice(1).join("=");
+
+    let lines: string[] = [ ];
+    recordDefinition.split("\n").forEach((line: string) => {
+        const hasComma = line.indexOf(",") > -1;
+
+        if (hasComma) {
+            const hasTextAfterComma = line.split(",")[1].trim().length > 0;
+            if (hasTextAfterComma) {
+                lines = lines.concat(
+                    ...line.split(",").map((piece) => "    " + piece)
+                );
+                return;
+            }
+        }
+        lines.push(line);
+    });
+
+    let currentBuffer: string[] = [ ];
+    const properties: string[] = [ ];
+
+    lines.forEach((line, i) => {
+        const isOpeningBrace = line.trim() === "{" && i === 0;
+        const isClosingBrace = line.trim() === "}" && i === lines.length - 1;
+
+        if (isOpeningBrace || isClosingBrace) {
+            return;
+        }
+
+        const hasInlineOpeningBrace = line.trim().startsWith("{") && i === 0;
+
+        if (hasInlineOpeningBrace) {
+            line = line.trim().slice(1);
+        }
+
+        const hasInlineClosingBrace =
+            line.trim().endsWith("}") && i === line.length - 1;
+
+        if (hasInlineClosingBrace) {
+            line = line.trim().slice(0, -1);
+        }
+
+        if (isRootProperty(line)) {
+            if (currentBuffer.length > 0) {
+                properties.push(currentBuffer.join("\n"));
+                currentBuffer = [ line ];
+            } else {
+                currentBuffer.push(line);
+            }
+        } else {
+            currentBuffer.push(line);
+        }
+    });
+
+    if (currentBuffer.length > 0) {
+        properties.push(currentBuffer.join("\n"));
+    }
+
+    const parsedProperties = properties.map(parseProperty);
+    const errors = parsedProperties.filter(
+        (property: Result<string, Property>) => property.kind === "err"
+    );
+
+    if (errors.length > 0) {
+        return Err(
+            errors
+                .map(
+                    (err: Result<string, Property>) =>
+                        (err as Err<string>).error
+                )
+                .join("\n")
+        );
+    }
+
+    return Ok(
+        TypeAlias(
+            aliasName,
+            parsedProperties.map((property) => (property as Ok<Property>).value)
         )
     );
 }
@@ -886,8 +1004,11 @@ ${block.lines.join("\n")}
         case "ImportBlock": {
             return wrapError(parseImport(block.lines.join("\n")));
         }
-        case "TypeBlock": {
+        case "UnionTypeBlock": {
             return wrapError(parseUnionType(block.lines.join("\n")));
+        }
+        case "TypeAliasBlock": {
+            return wrapError(parseTypeAlias(block.lines.join("\n")));
         }
         case "FunctionBlock": {
             return wrapError(parseFunction(block.lines.join("\n")));

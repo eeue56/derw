@@ -71,13 +71,13 @@ function Right(args) {
 
 export function testIntoBlocks() {
     assert.deepStrictEqual(intoBlocks(oneLine), [
-        UnparsedBlock("TypeBlock", 0, oneLine.split("\n")),
+        UnparsedBlock("UnionTypeBlock", 0, oneLine.split("\n")),
     ]);
 }
 
 export function testIntoBlocksMultiLine() {
     assert.deepStrictEqual(intoBlocks(multiLine), [
-        UnparsedBlock("TypeBlock", 0, multiLine.split("\n")),
+        UnparsedBlock("UnionTypeBlock", 0, multiLine.split("\n")),
     ]);
 }
 

@@ -2,11 +2,15 @@ import { Err, Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
 import { BlockKinds, UnparsedBlock } from "./types";
 
 export function blockKind(block: string): Result<string, BlockKinds> {
+    if (block.startsWith("type alias")) {
+        return Ok("TypeAlias");
+    }
+
     if (block.startsWith("type")) {
         return Ok("UnionType");
     }
 
-    if (block.startsWith(" ")) {
+    if (block.startsWith(" ") || block.startsWith("}")) {
         return Ok("Indent");
     }
 
@@ -50,7 +54,11 @@ function createUnparsedBlock(
         }
 
         case "UnionType": {
-            return UnparsedBlock("TypeBlock", lineStart, lines);
+            return UnparsedBlock("UnionTypeBlock", lineStart, lines);
+        }
+
+        case "TypeAlias": {
+            return UnparsedBlock("TypeAliasBlock", lineStart, lines);
         }
 
         case "Indent": {

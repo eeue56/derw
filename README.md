@@ -69,7 +69,7 @@ type Result a b
 type Thing a = Thing a
 ```
 
--   [ ] Type aliases
+-   [x] Type aliases
 
 ```elm
 type User =

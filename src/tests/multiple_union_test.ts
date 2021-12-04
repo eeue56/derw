@@ -103,8 +103,8 @@ type Animal = Dog { name: string } | Cat { lives: number }
 `.trim();
 
     assert.deepStrictEqual(intoBlocks(simpleUnion + "\n\n" + complexUnion), [
-        UnparsedBlock("TypeBlock", 0, simpleUnion.split("\n")),
-        UnparsedBlock("TypeBlock", 2, complexUnion.split("\n")),
+        UnparsedBlock("UnionTypeBlock", 0, simpleUnion.split("\n")),
+        UnparsedBlock("UnionTypeBlock", 2, complexUnion.split("\n")),
     ]);
 }
 
@@ -122,8 +122,8 @@ type Animal
 `.trim();
 
     assert.deepStrictEqual(intoBlocks(simpleUnion + "\n\n" + complexUnion), [
-        UnparsedBlock("TypeBlock", 0, simpleUnion.split("\n")),
-        UnparsedBlock("TypeBlock", 4, complexUnion.split("\n")),
+        UnparsedBlock("UnionTypeBlock", 0, simpleUnion.split("\n")),
+        UnparsedBlock("UnionTypeBlock", 4, complexUnion.split("\n")),
     ]);
 }
 

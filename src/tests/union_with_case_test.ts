@@ -124,14 +124,14 @@ function asIs(result) {
 
 export function testIntoBlocks() {
     assert.deepStrictEqual(intoBlocks(oneLine), [
-        UnparsedBlock("TypeBlock", 1, rawOneLine.split("\n")),
+        UnparsedBlock("UnionTypeBlock", 1, rawOneLine.split("\n")),
         UnparsedBlock("FunctionBlock", 3, functionPart.split("\n")),
     ]);
 }
 
 export function testIntoBlocksMultiLine() {
     assert.deepStrictEqual(intoBlocks(multiLine), [
-        UnparsedBlock("TypeBlock", 0, rawMultiLine.split("\n")),
+        UnparsedBlock("UnionTypeBlock", 0, rawMultiLine.split("\n")),
         UnparsedBlock("FunctionBlock", 4, functionPart.split("\n")),
     ]);
 }
