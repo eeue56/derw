@@ -788,7 +788,31 @@ function parseModuleReference(body: string): Result<string, ModuleReference> {
 function parseFunctionCall(body: string): Result<string, FunctionCall> {
     const trimmedBody = body.trim();
     const functionName = trimmedBody.split(" ")[0];
-    const args = trimmedBody.split(" ").slice(1);
+    const args: string[] = [ ];
+    let buffer = "";
+    let isInList = false;
+
+    const withoutFunctionCall = trimmedBody.split(" ").slice(1).join(" ");
+
+    for (var i = 0; i < withoutFunctionCall.length; i++) {
+        const currentChar = withoutFunctionCall[i];
+
+        if (currentChar === "[") {
+            isInList = true;
+            buffer += currentChar;
+        } else if (currentChar === "]") {
+            isInList = false;
+            buffer += currentChar;
+            args.push(buffer);
+            buffer = "";
+        } else {
+            buffer += currentChar;
+        }
+    }
+
+    if (buffer.length > 0) {
+        args.push(buffer);
+    }
 
     const parsedArgs = args.map(parseExpression);
 

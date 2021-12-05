@@ -8,40 +8,32 @@ import { parse } from "../parser";
 import {
     BlockKinds,
     Const,
-    Field,
     FixedType,
+    FunctionCall,
+    ListValue,
     Module,
-    ObjectLiteral,
-    StringValue,
+    ModuleReference,
     UnparsedBlock,
     Value,
 } from "../types";
 
 const oneLine = `
-person: Person
-person = { name: "hello", age: 28 }
+sum: number
+sum = Math.sum [1, 2, 3]
 `.trim();
 
 const multiLine = `
-person: Person
-person = { 
-    name: "hello", 
-    age: 28 
-}
+sum: number
+sum = 
+    Math.sum [1, 2, 3]
 `.trim();
 
 const expectedOutput = `
-const person: Person = { 
-    name: "hello",
-    age: 28 
-};
+const sum: number = Math.sum([ 1, 2, 3 ]);
 `.trim();
 
 const expectedOutputJS = `
-const person = { 
-    name: "hello",
-    age: 28 
-};
+const sum = Math.sum([ 1, 2, 3 ]);
 `.trim();
 
 export function testIntoBlocks() {
@@ -74,12 +66,14 @@ export function testParse() {
             "main",
             [
                 Const(
-                    "person",
-                    FixedType("Person", [ ]),
-                    ObjectLiteral([
-                        Field("name", StringValue("hello")),
-                        Field("age", Value("28")),
-                    ])
+                    "sum",
+                    FixedType("number", [ ]),
+                    ModuleReference(
+                        [ "Math" ],
+                        FunctionCall("sum", [
+                            ListValue([ Value("1"), Value("2"), Value("3") ]),
+                        ])
+                    )
                 ),
             ],
             [ ]
@@ -94,12 +88,14 @@ export function testParseMultiLine() {
             "main",
             [
                 Const(
-                    "person",
-                    FixedType("Person", [ ]),
-                    ObjectLiteral([
-                        Field("name", StringValue("hello")),
-                        Field("age", Value("28")),
-                    ])
+                    "sum",
+                    FixedType("number", [ ]),
+                    ModuleReference(
+                        [ "Math" ],
+                        FunctionCall("sum", [
+                            ListValue([ Value("1"), Value("2"), Value("3") ]),
+                        ])
+                    )
                 ),
             ],
             [ ]
