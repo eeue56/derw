@@ -11,6 +11,7 @@ import {
     variableList,
 } from "@eeue56/baner";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
+import { spawnSync } from "child_process";
 import { promises } from "fs";
 import { writeFile } from "fs/promises";
 import path from "path";
@@ -76,6 +77,7 @@ const programParser = parser([
     ),
     longFlag("debug", "Show a parsed object tree", empty()),
     longFlag("only", "Only show a particular object", string()),
+    longFlag("run", "Should be run via ts-node/node", empty()),
     bothFlag("h", "help", "This help text", empty()),
 ]);
 
@@ -120,6 +122,8 @@ async function main(): Promise<void> {
     const target = program.flags.target.isPresent
         ? (program.flags.target.arguments as Ok<"ts" | "js">).value
         : "ts";
+
+    const shouldRun = program.flags.run.isPresent;
 
     const emptyLineAtEndOfFile = "\n";
 
@@ -173,6 +177,7 @@ async function main(): Promise<void> {
                 case "js": {
                     generated =
                         generateJavascript(parsed) + emptyLineAtEndOfFile;
+                    break;
                 }
                 case "ts": {
                     generated =
@@ -190,6 +195,7 @@ async function main(): Promise<void> {
                             console.log(`Successfully compiled ${fileName}`);
                         }
                     }
+                    break;
                 }
             }
 
@@ -199,8 +205,28 @@ async function main(): Promise<void> {
             }
 
             const outputName = dotParts.slice(0, -1).join(".") + "." + target;
+            const fullName = path.join(outputDir, outputName);
+            await writeFile(fullName, generated);
 
-            await writeFile(path.join(outputDir, outputName), generated);
+            if (shouldRun) {
+                let child;
+                switch (target) {
+                    case "js": {
+                        child = spawnSync(`npx`, [ `node`, `${fullName}` ], {
+                            stdio: "inherit",
+                            encoding: "utf-8",
+                        });
+                        break;
+                    }
+                    case "ts": {
+                        child = spawnSync(`npx`, [ `ts-node`, `${fullName}` ], {
+                            stdio: "inherit",
+                            encoding: "utf-8",
+                        });
+                        break;
+                    }
+                }
+            }
         })
     );
 }

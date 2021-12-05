@@ -36,3 +36,5 @@ function sayHiToPet(pet: Animal): string {
         }
     }
 }
+
+const main: void = console.log(sayHiToPet(Dog({ name: "roof" })));
