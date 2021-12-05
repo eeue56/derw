@@ -21,7 +21,7 @@ export function blockKind(block: string): Result<string, BlockKinds> {
     const hasTypeLine =
         block.split(":").length > 1 &&
         block.split(":")[0].trim().split(" ").length === 1;
-    const isAFunction = block.split("->").length > 1;
+    const isAFunction = block.split("\n")[0].split("->").length > 1;
 
     if (hasTypeLine) {
         if (isAFunction) {

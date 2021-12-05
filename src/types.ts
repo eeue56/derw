@@ -397,6 +397,20 @@ export function Lambda(args: string[], body: Expression): Lambda {
     };
 }
 
+export type LambdaCall = {
+    kind: "LambdaCall";
+    args: Expression[];
+    lambda: Lambda;
+};
+
+export function LambdaCall(lambda: Lambda, args: Expression[]): LambdaCall {
+    return {
+        kind: "LambdaCall",
+        lambda,
+        args,
+    };
+}
+
 export type Branch = {
     kind: "Branch";
     pattern: Destructure;
@@ -542,6 +556,7 @@ export type Expression =
     | ModuleReference
     | FunctionCall
     | Lambda
+    | LambdaCall
     | Constructor
     | StringValue
     | FormatStringValue
@@ -609,15 +624,20 @@ export type LeftPipeableExpression =
     | LeftPipe
     | ModuleReference
     | FunctionCall
+    | Lambda
     | Value;
 
 export function isLeftPipeableExpression(
     expression: Expression
 ): expression is LeftPipeableExpression {
     return (
-        [ "LeftPipe", "ModuleReference", "FunctionCall", "Value" ].indexOf(
-            expression.kind
-        ) > -1
+        [
+            "LeftPipe",
+            "ModuleReference",
+            "FunctionCall",
+            "Lambda",
+            "Value",
+        ].indexOf(expression.kind) > -1
     );
 }
 

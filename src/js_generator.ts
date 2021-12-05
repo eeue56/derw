@@ -19,6 +19,7 @@ import {
     InEquality,
     isSimpleValue,
     Lambda,
+    LambdaCall,
     LeftPipe,
     LessThan,
     LessThanOrEqual,
@@ -213,6 +214,10 @@ function flattenLeftPipe(leftPipe: LeftPipe): Expression {
             return addArgsToModuleReference(right, [ left ]);
         }
 
+        case "Lambda": {
+            return LambdaCall(right, [ left ]);
+        }
+
         case "LeftPipe": {
             let innerFunction = null;
             switch (right.left.kind) {
@@ -277,6 +282,17 @@ function generateLambda(lambda: Lambda): string {
 function(${args}) {
     return ${body};
 }
+`.trim();
+}
+
+function generateLambdaCall(lambdaCall: LambdaCall): string {
+    const args = lambdaCall.lambda.args.join(", ");
+    const argsValues = lambdaCall.args.map(generateExpression).join(", ");
+    const body = generateExpression(lambdaCall.lambda.body);
+    return `
+(function(${args}) {
+    return ${body};
+})(${argsValues})
 `.trim();
 }
 
@@ -354,6 +370,8 @@ function generateExpression(expression: Expression): string {
             return generateFunctionCall(expression);
         case "Lambda":
             return generateLambda(expression);
+        case "LambdaCall":
+            return generateLambdaCall(expression);
         case "Constructor":
             return generateConstructor(expression);
         case "Equality":

@@ -967,6 +967,10 @@ function parseExpression(body: string): Result<string, Expression> {
         return parseObjectLiteral(body);
     } else if (trimmedBody.startsWith("\\")) {
         return parseLambda(body);
+    } else if (trimmedBody.indexOf("|>") > -1) {
+        return parseLeftPipe(body);
+    } else if (trimmedBody.indexOf("<|") > -1) {
+        return parseRightPipe(body);
     } else if (trimmedBody.indexOf(" == ") > -1) {
         return parseEquality(body);
     } else if (trimmedBody.indexOf(" != ") > -1) {
@@ -987,10 +991,6 @@ function parseExpression(body: string): Result<string, Expression> {
         return parseMultiplcation(body);
     } else if (trimmedBody.indexOf("/") > -1) {
         return parseDivision(body);
-    } else if (trimmedBody.indexOf("|>") > -1) {
-        return parseLeftPipe(body);
-    } else if (trimmedBody.indexOf("<|") > -1) {
-        return parseRightPipe(body);
     } else if (trimmedBody.startsWith('"')) {
         return parseStringValue(body);
     } else if (trimmedBody.startsWith("`")) {
