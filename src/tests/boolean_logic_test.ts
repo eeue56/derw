@@ -186,6 +186,7 @@ export function testParse() {
                         FunctionArg("x", FixedType("number", [ ])),
                         FunctionArg("y", FixedType("number", [ ])),
                     ],
+                    [ ],
                     Equality(Value("x"), Value("y"))
                 ),
             ],
@@ -243,6 +244,7 @@ export function testParseMultiLine() {
                         FunctionArg("x", FixedType("number", [ ])),
                         FunctionArg("y", FixedType("number", [ ])),
                     ],
+                    [ ],
                     Equality(Value("x"), Value("y"))
                 ),
             ],

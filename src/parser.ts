@@ -1003,7 +1003,28 @@ function parseFunction(block: string): Result<string, Function> {
         .split("->")
         .map((s) => s.trim());
 
-    const argumentLine = block.split("\n")[1];
+    const lines = block.split("\n");
+
+    const letStart = lines.findIndex((line) => line.startsWith("    let"));
+    const letEnd = lines.findIndex((line) => line.startsWith("    in"));
+
+    let letBlock: Const[] = [ ];
+
+    if (letStart > -1 && letEnd > -1) {
+        const letLines = lines
+            .slice(letStart + 1, letEnd)
+            .map((line) => line.slice(8));
+        const letBlocks = intoBlocks(letLines.join("\n"));
+
+        letBlock = letBlocks
+            .map(parseBlock)
+            .filter(
+                (block) => block.kind === "ok" && block.value.kind === "Const"
+            )
+            .map((block) => (block as Ok<Const>).value);
+    }
+
+    const argumentLine = lines[1];
     const argumentNames = argumentLine
         .slice(functionName.length)
         .split("=")[0]
@@ -1038,7 +1059,7 @@ function parseFunction(block: string): Result<string, Function> {
     const returnType = parseType(returnParts.join(" "));
 
     const body = [ argumentLine.split("=").slice(1).join("=").trim() ].concat(
-        block.split("\n").slice(2)
+        block.split("\n").slice(letEnd > -1 ? letEnd + 1 : 2)
     );
 
     const parsedBody = parseExpression(body.join("\n"));
@@ -1056,6 +1077,7 @@ function parseFunction(block: string): Result<string, Function> {
             functionName,
             returnType.value,
             combinedArguments.map((arg) => (arg as Ok<FunctionArg>).value),
+            letBlock,
             parsedBody.value
         )
     );

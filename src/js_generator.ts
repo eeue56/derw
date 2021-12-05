@@ -369,6 +369,11 @@ function generateFunction(function_: Function): string {
         .join(", ");
 
     const isSimpleBody = isSimpleValue(function_.body.kind);
+    const maybeLetBody =
+        function_.letBody.length > 0
+            ? "\n" +
+              prefixLines(function_.letBody.map(generateConst).join("\n"), 4)
+            : "";
 
     const bodyPrefix = isSimpleBody ? "return " : "";
     const bodySuffix = isSimpleBody ? ";" : "";
@@ -377,7 +382,7 @@ function generateFunction(function_: Function): string {
     const prefixedBody = prefixLines(body, 4);
 
     return `
-function ${function_.name}(${functionArguments}) {
+function ${function_.name}(${functionArguments}) {${maybeLetBody}
 ${prefixedBody}
 }`.trim();
 }

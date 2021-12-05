@@ -95,7 +95,7 @@ import Result exposing (map)
 module Result exposing (map)
 ```
 
--   [ ] Let statements
+-   [x] Let statements
 
 ```elm
 sayHiTo : User -> string

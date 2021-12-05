@@ -607,6 +607,7 @@ export type Function = {
     name: string;
     returnType: Type;
     args: FunctionArgsUnion[];
+    letBody: Const[];
     body: Expression;
 };
 
@@ -614,6 +615,7 @@ export function Function(
     name: string,
     returnType: Type,
     args: FunctionArgsUnion[],
+    letBody: Const[],
     body: Expression
 ): Function {
     return {
@@ -621,6 +623,7 @@ export function Function(
         name,
         returnType,
         args,
+        letBody,
         body,
     };
 }

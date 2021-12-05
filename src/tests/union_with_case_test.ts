@@ -173,6 +173,7 @@ export function testParse() {
                     "asIs",
                     returnType,
                     [ FunctionArg("result", returnType) ],
+                    [ ],
                     CaseStatement(Value("result"), [
                         Branch(
                             Destructure("Err", "{ error }"),
@@ -209,6 +210,7 @@ export function testParseMultiLine() {
                     "asIs",
                     returnType,
                     [ FunctionArg("result", returnType) ],
+                    [ ],
                     CaseStatement(Value("result"), [
                         Branch(
                             Destructure("Err", "{ error }"),

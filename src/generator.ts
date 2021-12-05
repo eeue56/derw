@@ -472,6 +472,12 @@ function generateFunction(function_: Function): string {
         })
         .join(", ");
 
+    const maybeLetBody =
+        function_.letBody.length > 0
+            ? "\n" +
+              prefixLines(function_.letBody.map(generateConst).join("\n"), 4)
+            : "";
+
     const returnType = generateType(function_.returnType);
     const isSimpleBody = isSimpleValue(function_.body.kind);
 
@@ -491,7 +497,7 @@ function generateFunction(function_: Function): string {
         typeArguments.length === 0 ? "" : `<${typeArguments.join(", ")}>`;
 
     return `
-function ${function_.name}${typeArgumentsString}(${functionArguments}): ${returnType} {
+function ${function_.name}${typeArgumentsString}(${functionArguments}): ${returnType} {${maybeLetBody}
 ${prefixedBody}
 }`.trim();
 }

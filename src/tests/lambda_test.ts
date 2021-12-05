@@ -76,6 +76,7 @@ export function testParse() {
                         AnonFunctionArg(0, FixedType("number", [ ])),
                         AnonFunctionArg(1, FixedType("number", [ ])),
                     ],
+                    [ ],
                     Lambda([ "x", "y" ], Addition(Value("x"), Value("y")))
                 ),
             ],
@@ -97,6 +98,7 @@ export function testParseMultiLine() {
                         AnonFunctionArg(0, FixedType("number", [ ])),
                         AnonFunctionArg(1, FixedType("number", [ ])),
                     ],
+                    [ ],
                     Lambda([ "x", "y" ], Addition(Value("x"), Value("y")))
                 ),
             ],

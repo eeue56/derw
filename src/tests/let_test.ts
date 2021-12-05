@@ -6,47 +6,55 @@ import { generateTypescript } from "../generator";
 import { generateJavascript } from "../js_generator";
 import { parse } from "../parser";
 import {
+    Addition,
+    BlockKinds,
+    Const,
     FixedType,
     Function,
     FunctionArg,
-    GenericType,
-    IfStatement,
     Module,
+    StringValue,
     UnparsedBlock,
     Value,
 } from "../types";
 
 const oneLine = `
-isTrue: Maybe a -> Maybe b
-isTrue value = if value then value else value
+isIncrease : number -> number
+isIncrease x =
+    let
+        y: number
+        y = x + x
+        z: string
+        z = "hello"
+    in
+        x + y
 `.trim();
 
 const multiLine = `
-isTrue: Maybe a -> Maybe b
-isTrue value =
-    if value then
-        value
-    else
-        value
+isIncrease : number -> number
+isIncrease x =
+    let
+        y: number
+        y = x + x
+        z: string
+        z = "hello"
+    in
+        x + y
 `.trim();
 
 const expectedOutput = `
-function isTrue<a, b>(value: Maybe<a>): Maybe<b> {
-    if (value) {
-        return value;
-    } else {
-        return value;
-    }
+function isIncrease(x: number): number {
+    const y: number = x + x;
+    const z: string = "hello";
+    return x + y;
 }
 `.trim();
 
 const expectedOutputJS = `
-function isTrue(value) {
-    if (value) {
-        return value;
-    } else {
-        return value;
-    }
+function isIncrease(x) {
+    const y = x + x;
+    const z = "hello";
+    return x + y;
 }
 `.trim();
 
@@ -63,11 +71,17 @@ export function testIntoBlocksMultiLine() {
 }
 
 export function testBlockKind() {
-    assert.deepStrictEqual(blockKind(oneLine), Ok("Function"));
+    assert.deepStrictEqual(
+        blockKind(oneLine),
+        Ok<string, BlockKinds>("Function")
+    );
 }
 
 export function testBlockKindMultiLine() {
-    assert.deepStrictEqual(blockKind(multiLine), Ok("Function"));
+    assert.deepStrictEqual(
+        blockKind(multiLine),
+        Ok<string, BlockKinds>("Function")
+    );
 }
 
 export function testParse() {
@@ -77,16 +91,22 @@ export function testParse() {
             "main",
             [
                 Function(
-                    "isTrue",
-                    FixedType("Maybe", [ GenericType("b") ]),
+                    "isIncrease",
+                    FixedType("number", [ ]),
+                    [ FunctionArg("x", FixedType("number", [ ])) ],
                     [
-                        FunctionArg(
-                            "value",
-                            FixedType("Maybe", [ GenericType("a") ])
+                        Const(
+                            "y",
+                            FixedType("number", [ ]),
+                            Addition(Value("x"), Value("x"))
+                        ),
+                        Const(
+                            "z",
+                            FixedType("string", [ ]),
+                            StringValue("hello")
                         ),
                     ],
-                    [ ],
-                    IfStatement(Value("value"), Value("value"), Value("value"))
+                    Addition(Value("x"), Value("y"))
                 ),
             ],
             [ ]
@@ -101,16 +121,22 @@ export function testParseMultiLine() {
             "main",
             [
                 Function(
-                    "isTrue",
-                    FixedType("Maybe", [ GenericType("b") ]),
+                    "isIncrease",
+                    FixedType("number", [ ]),
+                    [ FunctionArg("x", FixedType("number", [ ])) ],
                     [
-                        FunctionArg(
-                            "value",
-                            FixedType("Maybe", [ GenericType("a") ])
+                        Const(
+                            "y",
+                            FixedType("number", [ ]),
+                            Addition(Value("x"), Value("x"))
+                        ),
+                        Const(
+                            "z",
+                            FixedType("string", [ ]),
+                            StringValue("hello")
                         ),
                     ],
-                    [ ],
-                    IfStatement(Value("value"), Value("value"), Value("value"))
+                    Addition(Value("x"), Value("y"))
                 ),
             ],
             [ ]
@@ -120,14 +146,12 @@ export function testParseMultiLine() {
 
 export function testGenerate() {
     const parsed = parse(oneLine);
-    const generated = generateTypescript(parsed);
-    assert.strictEqual(generated, expectedOutput);
+    assert.strictEqual(generateTypescript(parsed), expectedOutput);
 }
 
 export function testGenerateMultiLine() {
     const parsed = parse(multiLine);
-    const generated = generateTypescript(parsed);
-    assert.strictEqual(generated, expectedOutput);
+    assert.deepStrictEqual(generateTypescript(parsed), expectedOutput);
 }
 
 export function testCompile() {

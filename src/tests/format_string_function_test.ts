@@ -78,6 +78,7 @@ export function testParseMultiLine() {
                     "sayHiToPet",
                     FixedType("string", [ ]),
                     [ FunctionArg("pet", FixedType("Animal", [ ])) ],
+                    [ ],
                     CaseStatement(Value("pet"), [
                         Branch(
                             Destructure("Dog", "{ name }"),

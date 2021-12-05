@@ -88,6 +88,7 @@ function mixOperators(x, y, z) {
 
 export function testIntoBlocks() {
     const split = oneLine.split("\n");
+    console.log(intoBlocks(oneLine));
     assert.deepStrictEqual(intoBlocks(oneLine), [
         UnparsedBlock("FunctionBlock", 0, split.slice(0, 2)),
         UnparsedBlock("FunctionBlock", 3, split.slice(3, 5)),
@@ -127,6 +128,7 @@ export function testParse() {
                         FunctionArg("x", FixedType("number", [ ])),
                         FunctionArg("y", FixedType("number", [ ])),
                     ],
+                    [ ],
                     Addition(Value("x"), Value("y"))
                 ),
                 Function(
@@ -136,6 +138,7 @@ export function testParse() {
                         FunctionArg("x", FixedType("number", [ ])),
                         FunctionArg("y", FixedType("number", [ ])),
                     ],
+                    [ ],
                     Subtraction(Value("x"), Value("y"))
                 ),
                 Function(
@@ -146,6 +149,7 @@ export function testParse() {
                         FunctionArg("y", FixedType("number", [ ])),
                         FunctionArg("z", FixedType("number", [ ])),
                     ],
+                    [ ],
                     Addition(Value("x"), Addition(Value("y"), Value("z")))
                 ),
                 Function(
@@ -156,6 +160,7 @@ export function testParse() {
                         FunctionArg("y", FixedType("number", [ ])),
                         FunctionArg("z", FixedType("number", [ ])),
                     ],
+                    [ ],
                     Addition(
                         Value("x"),
                         Subtraction(
@@ -186,6 +191,7 @@ export function testParseMultiLine() {
                         FunctionArg("x", FixedType("number", [ ])),
                         FunctionArg("y", FixedType("number", [ ])),
                     ],
+                    [ ],
                     Addition(Value("x"), Value("y"))
                 ),
                 Function(
@@ -195,6 +201,7 @@ export function testParseMultiLine() {
                         FunctionArg("x", FixedType("number", [ ])),
                         FunctionArg("y", FixedType("number", [ ])),
                     ],
+                    [ ],
                     Subtraction(Value("x"), Value("y"))
                 ),
                 Function(
@@ -205,6 +212,7 @@ export function testParseMultiLine() {
                         FunctionArg("y", FixedType("number", [ ])),
                         FunctionArg("z", FixedType("number", [ ])),
                     ],
+                    [ ],
                     Addition(Value("x"), Addition(Value("y"), Value("z")))
                 ),
                 Function(
@@ -215,6 +223,7 @@ export function testParseMultiLine() {
                         FunctionArg("y", FixedType("number", [ ])),
                         FunctionArg("z", FixedType("number", [ ])),
                     ],
+                    [ ],
                     Addition(
                         Value("x"),
                         Subtraction(

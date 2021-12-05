@@ -79,6 +79,7 @@ export function testParse() {
                     "isTrue",
                     FixedType("boolean", [ ]),
                     [ FunctionArg("value", FixedType("boolean", [ ])) ],
+                    [ ],
                     IfStatement(Value("value"), Value("true"), Value("false"))
                 ),
             ],
@@ -97,6 +98,7 @@ export function testParseMultiLine() {
                     "isTrue",
                     FixedType("boolean", [ ]),
                     [ FunctionArg("value", FixedType("boolean", [ ])) ],
+                    [ ],
                     IfStatement(Value("value"), Value("true"), Value("false"))
                 ),
             ],
