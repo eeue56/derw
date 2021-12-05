@@ -23,20 +23,26 @@ mostCommon index bits =
 
 commonBits: List string -> List Common 
 commonBits xs =
-    [ 
-        mostCommon 0 xs,
-        mostCommon 1 xs,
-        mostCommon 2 xs,
-        mostCommon 3 xs,
-        mostCommon 4 xs,
-        mostCommon 5 xs,
-        mostCommon 6 xs,
-        mostCommon 7 xs,
-        mostCommon 8 xs,
-        mostCommon 9 xs,
-        mostCommon 10 xs,
-        mostCommon 11 xs
-    ]
+    let
+        truthy: string -> boolean
+        truthy str =
+            true
+        firstElement: any 
+        firstElement =
+            xs.find truthy 
+        length: number
+        length =
+            firstElement
+                |> \x -> x.length
+        lengthMinusOne: number 
+        lengthMinusOne =
+            length - 1 
+        commoner: number -> Common
+        commoner x =
+            mostCommon x xs
+    in 
+        [ 0..lengthMinusOne ]
+            |> \x -> x.map commoner
 
 gammaToString : Common -> string 
 gammaToString common =
