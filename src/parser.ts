@@ -792,6 +792,7 @@ function parseFunctionCall(body: string): Result<string, FunctionCall> {
     let buffer = "";
     let isInList = false;
     let isInObjectLiteral = false;
+    let isInQuote = false;
 
     const withoutFunctionCall = trimmedBody.split(" ").slice(1).join(" ");
 
@@ -812,7 +813,20 @@ function parseFunctionCall(body: string): Result<string, FunctionCall> {
         } else if (currentChar === "}") {
             isInObjectLiteral = false;
             buffer += currentChar;
-        } else if (currentChar === " " && !isInList && !isInObjectLiteral) {
+        } else if (currentChar === '"') {
+            if (isInQuote) {
+                args.push(Ok(StringValue(buffer)));
+                buffer = "";
+                isInQuote = false;
+            } else {
+                isInQuote = true;
+            }
+        } else if (
+            currentChar === " " &&
+            !isInList &&
+            !isInObjectLiteral &&
+            !isInQuote
+        ) {
             args.push(Ok(Value(buffer)));
             buffer = "";
         } else {
