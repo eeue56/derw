@@ -152,10 +152,16 @@ function generateListValue(list: ListValue): string {
 }
 
 function generateIfStatement(ifStatement: IfStatement): string {
+    const isSimpleIfBody = isSimpleValue(ifStatement.ifBody.kind);
+    const isSimpleElseBody = isSimpleValue(ifStatement.elseBody.kind);
+
+    const ifBodyPrefix = isSimpleIfBody ? "return " : "";
+    const elseBodyPrefix = isSimpleElseBody ? "return " : "";
+
     return `if (${generateExpression(ifStatement.predicate)}) {
-    return ${generateExpression(ifStatement.ifBody)};
+    ${ifBodyPrefix}${generateExpression(ifStatement.ifBody)};
 } else {
-    return ${generateExpression(ifStatement.elseBody)};
+    ${elseBodyPrefix}${generateExpression(ifStatement.elseBody)};
 }`;
 }
 

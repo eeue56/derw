@@ -559,7 +559,8 @@ export type SimpleValue =
     | "GreaterThanOrEqual"
     | "ModuleReference"
     | "FunctionCall"
-    | "LeftPipe";
+    | "LeftPipe"
+    | "ObjectLiteral";
 
 export function isSimpleValue(kind: string): kind is SimpleValue {
     return (
@@ -582,6 +583,7 @@ export function isSimpleValue(kind: string): kind is SimpleValue {
             "ModuleReference",
             "FunctionCall",
             "LeftPipe",
+            "ObjectLiteral",
         ].indexOf(kind) > -1
     );
 }
