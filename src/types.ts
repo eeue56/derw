@@ -556,7 +556,8 @@ export type SimpleValue =
     | "LessThan"
     | "LessThanOrEqual"
     | "GreaterThan"
-    | "GreaterThanOrEqual";
+    | "GreaterThanOrEqual"
+    | "ModuleReference";
 
 export function isSimpleValue(kind: string): kind is SimpleValue {
     return (
@@ -576,6 +577,7 @@ export function isSimpleValue(kind: string): kind is SimpleValue {
             "LessThanOrEqual",
             "GreaterThan",
             "GreaterThanOrEqual",
+            "ModuleReference",
         ].indexOf(kind) > -1
     );
 }
