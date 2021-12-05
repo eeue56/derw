@@ -1,7 +1,9 @@
-type BuiltinTypes = "boolean" | "number" | "string";
+type BuiltinTypes = "boolean" | "number" | "string" | "void";
 
 export function isBuiltinType(
     potentialType: string
 ): potentialType is BuiltinTypes {
-    return [ "boolean", "number", "string" ].indexOf(potentialType) > -1;
+    return (
+        [ "boolean", "number", "string", "void" ].indexOf(potentialType) > -1
+    );
 }
