@@ -138,6 +138,32 @@ export function Value(body: string): Value {
     };
 }
 
+export type Field = {
+    kind: "Field";
+    name: string;
+    value: Expression;
+};
+
+export function Field(name: string, value: Expression): Field {
+    return {
+        kind: "Field",
+        name,
+        value,
+    };
+}
+
+export type ObjectLiteral = {
+    kind: "ObjectLiteral";
+    fields: Field[];
+};
+
+export function ObjectLiteral(fields: Field[]): ObjectLiteral {
+    return {
+        kind: "ObjectLiteral",
+        fields,
+    };
+}
+
 export type StringValue = {
     kind: "StringValue";
     body: string;
@@ -512,6 +538,7 @@ export type Expression =
     | LessThanOrEqual
     | GreaterThan
     | GreaterThanOrEqual
+    | ObjectLiteral
     | Value;
 
 export type SimpleValue =

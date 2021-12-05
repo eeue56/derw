@@ -18,6 +18,7 @@ import {
     Division,
     Equality,
     Expression,
+    Field,
     FixedType,
     FormatStringValue,
     Function,
@@ -39,6 +40,7 @@ import {
     Module,
     ModuleReference,
     Multiplication,
+    ObjectLiteral,
     Property,
     RightPipe,
     StringValue,
@@ -309,6 +311,59 @@ function parseTypeAlias(block: string): Result<string, TypeAlias> {
             parsedProperties.map((property) => (property as Ok<Property>).value)
         )
     );
+}
+
+function parseObjectLiteral(body: string): Result<string, ObjectLiteral> {
+    const fields: Field[] = [ ];
+
+    let currentName = "";
+    let currentValue: Expression | null = null;
+    let objectDepth = 0;
+    let innermostBuffer = "";
+
+    let isInName = false;
+
+    for (var i = 0; i < body.length; i++) {
+        const currentChar = body[i];
+
+        if (currentChar === "{") {
+            objectDepth++;
+            isInName = true;
+        } else if (currentChar === "}") {
+            if (objectDepth === 1) {
+                const innerLiteral = parseExpression(innermostBuffer);
+                if (innerLiteral.kind === "err") return innerLiteral;
+                innermostBuffer = "";
+                currentValue = innerLiteral.value;
+
+                fields.push(Field(currentName.trim(), currentValue));
+                currentName = "";
+                currentValue = null;
+            }
+            objectDepth--;
+        } else if (currentChar === ":") {
+            isInName = false;
+        } else if (currentChar === ",") {
+            if (objectDepth > 1) {
+                innermostBuffer += currentChar;
+            } else {
+                const innerLiteral = parseExpression(innermostBuffer);
+                if (innerLiteral.kind === "err") return innerLiteral;
+                fields.push(Field(currentName.trim(), innerLiteral.value));
+                innermostBuffer = "";
+                currentName = "";
+                isInName = true;
+            }
+        } else {
+            if (isInName) {
+                currentName += currentChar;
+            } else {
+                innermostBuffer += currentChar;
+            }
+        }
+    }
+
+    return Ok(ObjectLiteral(fields));
 }
 
 function parseValue(body: string): Result<string, Value> {
@@ -842,6 +897,8 @@ function parseExpression(body: string): Result<string, Expression> {
         return parseIfStatement(body);
     } else if (trimmedBody.startsWith("case ")) {
         return parseCaseStatement(body);
+    } else if (trimmedBody.startsWith("{")) {
+        return parseObjectLiteral(body);
     } else if (trimmedBody.startsWith("\\")) {
         return parseLambda(body);
     } else if (trimmedBody.indexOf(" == ") > -1) {

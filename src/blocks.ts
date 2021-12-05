@@ -18,7 +18,9 @@ export function blockKind(block: string): Result<string, BlockKinds> {
         return Ok("Import");
     }
 
-    const hasTypeLine = block.split(":").length > 1;
+    const hasTypeLine =
+        block.split(":").length > 1 &&
+        block.split(":")[0].trim().split(" ").length === 1;
     const isAFunction = block.split("->").length > 1;
 
     if (hasTypeLine) {

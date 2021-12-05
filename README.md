@@ -76,6 +76,13 @@ type User =
     { name: string }
 ```
 
+-   [x] Object literals
+
+```elm
+user: User
+user = { name: string }
+```
+
 -   [ ] Imports
 
 ```elm

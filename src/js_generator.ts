@@ -8,6 +8,7 @@ import {
     Division,
     Equality,
     Expression,
+    Field,
     FormatStringValue,
     Function,
     FunctionCall,
@@ -25,6 +26,7 @@ import {
     Module,
     ModuleReference,
     Multiplication,
+    ObjectLiteral,
     RightPipe,
     StringValue,
     Subtraction,
@@ -61,6 +63,17 @@ function ${generatedType}(args) {
 
 function generateValue(value: Value): string {
     return value.body;
+}
+
+function generateField(field: Field): string {
+    return `${field.name}: ${generateExpression(field.value)}`;
+}
+
+function generateObjectLiteral(literal: ObjectLiteral): string {
+    const fields = literal.fields.map(generateField).join(",\n    ");
+    return `{ 
+    ${fields} 
+}`;
 }
 
 function generateStringValue(string: StringValue): string {
@@ -302,6 +315,8 @@ function generateExpression(expression: Expression): string {
             return generateFormatStringValue(expression);
         case "ListValue":
             return generateListValue(expression);
+        case "ObjectLiteral":
+            return generateObjectLiteral(expression);
         case "IfStatement":
             return generateIfStatement(expression);
         case "CaseStatement":
