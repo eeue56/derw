@@ -36,6 +36,7 @@ import {
     LeftPipe,
     LessThan,
     LessThanOrEqual,
+    ListRange,
     ListValue,
     Module,
     ModuleReference,
@@ -387,6 +388,18 @@ function parseStringValue(body: string): Result<string, StringValue> {
     } else {
         return Ok(StringValue(parts[0]));
     }
+}
+
+function parseListRange(body: string): Result<string, ListRange> {
+    const trimmed = body.trim().slice(1).slice(0, -1);
+    const pieces = trimmed.split("..");
+    const start = parseValue(pieces[0]);
+    const end = parseValue(pieces[1]);
+
+    if (start.kind === "err") return start;
+    if (end.kind === "err") return end;
+
+    return Ok(ListRange(start.value, end.value));
 }
 
 function parseListValue(body: string): Result<string, ListValue> {
@@ -983,6 +996,9 @@ function parseExpression(body: string): Result<string, Expression> {
     } else if (trimmedBody.startsWith("`")) {
         return parseFormatStringValue(body);
     } else if (trimmedBody.startsWith("[")) {
+        if (trimmedBody.indexOf("..") > -1) {
+            return parseListRange(body);
+        }
         return parseListValue(body);
     } else if (trimmedBody.split(" ").length === 1) {
         return parseValue(body);

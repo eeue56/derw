@@ -23,6 +23,7 @@ import {
     LeftPipe,
     LessThan,
     LessThanOrEqual,
+    ListRange,
     ListValue,
     Module,
     ModuleReference,
@@ -149,6 +150,12 @@ function generateFormatStringValue(string: FormatStringValue): string {
 function generateListValue(list: ListValue): string {
     if (list.items.length === 0) return `[ ]`;
     return `[ ${list.items.map(generateExpression).join(", ")} ]`;
+}
+
+function generateListRange(list: ListRange): string {
+    const gap = `${list.end.body} - ${list.start.body} + 1`;
+
+    return `Array.from({ length: ${gap} }, (x, i) => i + ${list.start.body})`;
 }
 
 function generateIfStatement(ifStatement: IfStatement): string {
@@ -415,6 +422,8 @@ function generateExpression(expression: Expression): string {
             return generateFormatStringValue(expression);
         case "ListValue":
             return generateListValue(expression);
+        case "ListRange":
+            return generateListRange(expression);
         case "ObjectLiteral":
             return generateObjectLiteral(expression);
         case "IfStatement":

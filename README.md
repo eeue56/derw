@@ -37,6 +37,8 @@ asIs result =
 -   [ ] Compose `>>`, `<<`
 -   [x] Constants `hello = "hello world"`
 -   [x] Function definitions
+-   [x] Lists `[ 1, 2, 3 ]`, `[ "hello", "world" ]`
+-   [x] List ranges `[ 1..5 ]`, `[ start..end ]`
 
 ```elm
 add : number -> number -> number
@@ -146,6 +148,17 @@ sayHiTo : User -> string
 sayHiTo user =
     case user of
         User { name } -> "Hi " + name + !"
+```
+
+-   [ ] List destructing
+
+```elm
+
+sayHiTo : List number -> string
+sayHiTo xs =
+    case xs of
+        [] -> "Empty"
+        x::ys -> "Hello " + x + (sayHiTo ys)
 ```
 
 -   [x] Constructing union types

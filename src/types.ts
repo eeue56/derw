@@ -188,6 +188,20 @@ export function ListValue(items: Expression[]): ListValue {
     };
 }
 
+export type ListRange = {
+    kind: "ListRange";
+    start: Value;
+    end: Value;
+};
+
+export function ListRange(start: Value, end: Value): ListRange {
+    return {
+        kind: "ListRange",
+        start,
+        end,
+    };
+}
+
 export type FormatStringValue = {
     kind: "FormatStringValue";
     body: string;
@@ -532,6 +546,7 @@ export type Expression =
     | StringValue
     | FormatStringValue
     | ListValue
+    | ListRange
     | Equality
     | InEquality
     | LessThan
@@ -545,6 +560,7 @@ export type SimpleValue =
     | "StringValue"
     | "FormatStringValue"
     | "ListValue"
+    | "ListRange"
     | "Value"
     | "Addition"
     | "Subtraction"
@@ -568,6 +584,7 @@ export function isSimpleValue(kind: string): kind is SimpleValue {
             "StringValue",
             "FormatStringValue",
             "ListValue",
+            "ListRange",
             "Value",
             "Addition",
             "Subtraction",
