@@ -10,7 +10,7 @@ isIncrease x y =
     x < y
 
 countHelper : Iteration -> number -> Iteration
-countHelper count x =  
+countHelper count x =
     if isIncrease count.value x then
         { value: x, count: count.count + 1 }
     else
@@ -21,40 +21,40 @@ getCount : Iteration -> number
 getCount iteration =
     iteration.count
 
-countIncreases : List number -> number 
+countIncreases : List number -> number
 countIncreases xs =
     xs.reduce countHelper { value: 9999, count: 0 }
         |> getCount
 
 adventInput : List number
-adventInput = 
+adventInput =
     fs.readFileSync "input.txt"
         |> toString
-        |> split 
+        |> split
         |> toNumbers
 
 toInt: string -> number
 toInt str =
-    parseInt(str, 10)
+    parseInt str 10
 
 toNumbers : List string -> List number
 toNumbers list =
-    list.map(toInt)
+    list.map toInt
 
 split: string -> List string
 split file =
-    file.split("\n")
+    file.split "\n"
 
-toString : Buffer -> string 
+toString : Buffer -> string
 toString buffer =
     buffer.toString()
 
 exampleMain : void
-exampleMain = 
+exampleMain =
     countIncreases [199, 200, 208, 210, 200, 207, 240, 269, 260, 263]
         |> console.log
 
-main : void 
-main = 
+main : void
+main =
     countIncreases adventInput
         |> console.log
