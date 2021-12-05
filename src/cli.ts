@@ -19,6 +19,7 @@ import { compileTypescript } from "./compile";
 import { generateTypescript } from "./generator";
 import { generateJavascript } from "./js_generator";
 import * as derwParser from "./parser";
+import { Block, Module } from "./types";
 
 async function ensureDirectoryExists(directory: string): Promise<void> {
     try {
@@ -31,6 +32,39 @@ async function ensureDirectoryExists(directory: string): Promise<void> {
     }
 }
 
+function filterBodyForName(module: Module, name: string): Block[] {
+    const blocks = [ ];
+    for (var element of module.body) {
+        switch (element.kind) {
+            case "Function":
+            case "Const": {
+                if (element.name === name) {
+                    blocks.push(element);
+                }
+                break;
+            }
+            case "Import": {
+                for (var moduleName of element.moduleNames) {
+                    if (moduleName === name) {
+                        blocks.push(element);
+                        break;
+                    }
+                }
+                break;
+            }
+            case "UnionType":
+            case "TypeAlias": {
+                if (element.type.name === name) {
+                    blocks.push(element);
+                }
+                break;
+            }
+        }
+    }
+
+    return blocks;
+}
+
 const programParser = parser([
     longFlag("files", "Filenames to be given", variableList(string())),
     longFlag("target", "Target either TS or JS output", oneOf([ "ts", "js" ])),
@@ -41,6 +75,7 @@ const programParser = parser([
         empty()
     ),
     longFlag("debug", "Show a parsed object tree", empty()),
+    longFlag("only", "Only show a particular object", string()),
     bothFlag("h", "help", "This help text", empty()),
 ]);
 
@@ -115,6 +150,19 @@ async function main(): Promise<void> {
             }
 
             if (debugMode) {
+                if (program.flags["only"].isPresent) {
+                    if (program.flags["only"].arguments.kind === "err") {
+                        console.log(program.flags.only.arguments.error);
+                    } else {
+                        const name = (
+                            program.flags["only"].arguments as Ok<string>
+                        ).value;
+                        const blocks = filterBodyForName(parsed, name);
+                        console.log(`Filtering for ${name}...`);
+                        console.log(util.inspect(blocks, true, null, true));
+                    }
+                    return;
+                }
                 console.log(util.inspect(parsed, true, null, true));
                 return;
             }
