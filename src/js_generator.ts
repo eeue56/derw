@@ -378,7 +378,7 @@ function generateFunction(function_: Function): string {
     const maybeLetBody =
         function_.letBody.length > 0
             ? "\n" +
-              prefixLines(function_.letBody.map(generateConst).join("\n"), 4)
+              prefixLines(function_.letBody.map(generateBlock).join("\n"), 4)
             : "";
 
     const bodyPrefix = isSimpleBody ? "return " : "";

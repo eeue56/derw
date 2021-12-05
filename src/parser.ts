@@ -1008,7 +1008,7 @@ function parseFunction(block: string): Result<string, Function> {
     const letStart = lines.findIndex((line) => line.startsWith("    let"));
     const letEnd = lines.findIndex((line) => line.startsWith("    in"));
 
-    let letBlock: Const[] = [ ];
+    let letBlock: Block[] = [ ];
 
     if (letStart > -1 && letEnd > -1) {
         const letLines = lines
@@ -1018,10 +1018,8 @@ function parseFunction(block: string): Result<string, Function> {
 
         letBlock = letBlocks
             .map(parseBlock)
-            .filter(
-                (block) => block.kind === "ok" && block.value.kind === "Const"
-            )
-            .map((block) => (block as Ok<Const>).value);
+            .filter((block) => block.kind === "ok")
+            .map((block) => (block as Ok<Block>).value);
     }
 
     const argumentLine = lines[1];

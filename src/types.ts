@@ -609,7 +609,7 @@ export type Function = {
     name: string;
     returnType: Type;
     args: FunctionArgsUnion[];
-    letBody: Const[];
+    letBody: Block[];
     body: Expression;
 };
 
@@ -617,7 +617,7 @@ export function Function(
     name: string,
     returnType: Type,
     args: FunctionArgsUnion[],
-    letBody: Const[],
+    letBody: Block[],
     body: Expression
 ): Function {
     return {
