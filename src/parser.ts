@@ -616,10 +616,17 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
         const line = lines[i];
         const indent = getIndentLevel(line);
 
+        let wasReset = false;
+
         if (rootIndentLevel + 4 === indent) {
             if (branchPattern === "") {
+                wasReset = true;
                 branchPattern = line.split("->")[0];
                 branchLines.push(line.split("->")[1]);
+            }
+
+            if (!branchLines.join("").trim()) {
+                continue;
             }
 
             const branchExpression = parseExpression(branchLines.join("\n"));
@@ -645,8 +652,13 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
                 );
             }
 
-            branchPattern = "";
-            branchLines = [ ];
+            if (!wasReset) {
+                branchPattern = line.split("->")[0];
+                branchLines = [ line.split("->")[1] ];
+            } else {
+                branchPattern = "";
+                branchLines = [ ];
+            }
         } else {
             branchLines.push(line);
         }

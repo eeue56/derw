@@ -46,10 +46,20 @@ type Result a b
     | Ok { value: b }
 `.trim();
 
+const multilineFunctionPart = `
+asIs: Result a b -> Result a b
+asIs result =
+    case result of
+        Err { error } ->
+            Err { error }
+        Ok { value } ->
+            Ok { value }
+`.trim();
+
 const multiLine = `
 ${rawMultiLine}
 
-${functionPart}
+${multilineFunctionPart}
 `.trim();
 
 const expectedOutput = `
@@ -132,7 +142,7 @@ export function testIntoBlocks() {
 export function testIntoBlocksMultiLine() {
     assert.deepStrictEqual(intoBlocks(multiLine), [
         UnparsedBlock("UnionTypeBlock", 0, rawMultiLine.split("\n")),
-        UnparsedBlock("FunctionBlock", 4, functionPart.split("\n")),
+        UnparsedBlock("FunctionBlock", 4, multilineFunctionPart.split("\n")),
     ]);
 }
 
@@ -159,6 +169,8 @@ export function testParse() {
         GenericType("a"),
         GenericType("b"),
     ]);
+
+    console.log(JSON.stringify(parse(oneLine), null, 4));
 
     assert.deepStrictEqual(
         parse(oneLine),
