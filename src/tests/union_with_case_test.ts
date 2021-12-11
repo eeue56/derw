@@ -170,8 +170,6 @@ export function testParse() {
         GenericType("b"),
     ]);
 
-    console.log(JSON.stringify(parse(oneLine), null, 4));
-
     assert.deepStrictEqual(
         parse(oneLine),
         Module(

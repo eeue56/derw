@@ -88,7 +88,6 @@ function mixOperators(x, y, z) {
 
 export function testIntoBlocks() {
     const split = oneLine.split("\n");
-    console.log(intoBlocks(oneLine));
     assert.deepStrictEqual(intoBlocks(oneLine), [
         UnparsedBlock("FunctionBlock", 0, split.slice(0, 2)),
         UnparsedBlock("FunctionBlock", 3, split.slice(3, 5)),
