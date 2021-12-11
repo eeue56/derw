@@ -17,6 +17,7 @@ import { writeFile } from "fs/promises";
 import path from "path";
 import * as util from "util";
 import { compileTypescript } from "./compile";
+import { generateDerw } from "./derw_generator";
 import { generateTypescript } from "./generator";
 import { generateJavascript } from "./js_generator";
 import * as derwParser from "./parser";
@@ -68,7 +69,11 @@ function filterBodyForName(module: Module, name: string): Block[] {
 
 const programParser = parser([
     longFlag("files", "Filenames to be given", variableList(string())),
-    longFlag("target", "Target either TS or JS output", oneOf([ "ts", "js" ])),
+    longFlag(
+        "target",
+        "Target either TS or JS output",
+        oneOf([ "ts", "js", "derw" ])
+    ),
     longFlag("output", "Output directory name", string()),
     longFlag(
         "verify",
@@ -117,10 +122,14 @@ async function main(): Promise<void> {
     }
 
     const outputDir = (program.flags.output.arguments as Ok<string>).value;
-    await ensureDirectoryExists(outputDir);
+    const isStdout = outputDir === "/dev/stdout";
+
+    if (!isStdout) {
+        await ensureDirectoryExists(outputDir);
+    }
 
     const target = program.flags.target.isPresent
-        ? (program.flags.target.arguments as Ok<"ts" | "js">).value
+        ? (program.flags.target.arguments as Ok<"ts" | "js" | "derw">).value
         : "ts";
 
     const shouldRun = program.flags.run.isPresent;
@@ -197,6 +206,14 @@ async function main(): Promise<void> {
                     }
                     break;
                 }
+                case "derw": {
+                    generated = generateDerw(parsed) + emptyLineAtEndOfFile;
+                }
+            }
+
+            if (isStdout) {
+                console.log(generated);
+                return;
             }
 
             if (fileName.indexOf("/") > -1) {
