@@ -179,7 +179,7 @@ noah = User { name: "Noah" }
 
 ## 1.0.0
 
--   [ ] An automatic formatter with no options
+-   [x] An automatic formatter with no options
 -   [ ] Testing support via [Bach](https://github.com/eeue56/bach)
 -   [ ] Benchmarking support via [Mainc](https://github.com/eeue56/mainc)
 

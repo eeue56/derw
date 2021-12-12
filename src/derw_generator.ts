@@ -42,7 +42,7 @@ import {
 function prefixLines(body: string, indent: number): string {
     return body
         .split("\n")
-        .map((line) => " ".repeat(indent) + line)
+        .map((line) => (line.trim() === "" ? "" : " ".repeat(indent) + line))
         .join("\n");
 }
 
@@ -397,7 +397,7 @@ function generateFunction(function_: Function): string {
 
     return `
 ${function_.name}: ${functionArgumentsTypes} -> ${returnType}
-${function_.name} ${functionArguments} = ${maybeLetBody}
+${function_.name} ${functionArguments} =${maybeLetBody}
 ${prefixedBody}
 `.trim();
 }

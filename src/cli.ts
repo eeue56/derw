@@ -83,6 +83,7 @@ const programParser = parser([
     longFlag("debug", "Show a parsed object tree", empty()),
     longFlag("only", "Only show a particular object", string()),
     longFlag("run", "Should be run via ts-node/node", empty()),
+    longFlag("format", "Format the files given in-place", empty()),
     bothFlag("h", "help", "This help text", empty()),
 ]);
 
@@ -116,19 +117,27 @@ async function main(): Promise<void> {
 
     const files = (program.flags.files.arguments as Ok<string[]>).value;
 
-    if (!program.flags.output.isPresent) {
-        console.log("You must provide a output directory name via --output");
+    const isFormat = program.flags.format.isPresent;
+
+    if (!program.flags.output.isPresent && !isFormat) {
+        console.log(
+            "You must provide a output directory name via --output or format in-place via --format"
+        );
         return;
     }
 
-    const outputDir = (program.flags.output.arguments as Ok<string>).value;
+    const outputDir = program.flags.output.isPresent
+        ? (program.flags.output.arguments as Ok<string>).value
+        : "./";
     const isStdout = outputDir === "/dev/stdout";
 
     if (!isStdout) {
         await ensureDirectoryExists(outputDir);
     }
 
-    const target = program.flags.target.isPresent
+    const target = isFormat
+        ? "derw"
+        : program.flags.target.isPresent
         ? (program.flags.target.arguments as Ok<"ts" | "js" | "derw">).value
         : "ts";
 
