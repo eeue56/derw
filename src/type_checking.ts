@@ -311,6 +311,28 @@ export function validateType(block: Block): Result<string, Type> {
                 )}.`
             );
         }
+
+        case "Function": {
+            const inferred = inferType(block.body);
+
+            if (isSameType(block.returnType, inferred)) {
+                return Ok(block.returnType);
+            }
+
+            return Err(
+                `Expected ${typeToText(block.returnType)} but got ${typeToText(
+                    inferred
+                )}.`
+            );
+        }
+
+        case "UnionType":
+        case "TypeAlias": {
+            return Ok(block.type);
+        }
+
+        case "Import": {
+            return Ok(FixedType("any", [ ]));
+        }
     }
-    return Err("str");
 }
