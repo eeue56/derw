@@ -54,6 +54,7 @@ import {
     UnparsedBlock,
     Value,
 } from "./types";
+import { validateType } from "./type_checking";
 
 function parseType(line: string): Result<string, Type> {
     const rootTypeName = line.split(" ")[0];
@@ -1218,11 +1219,33 @@ export function parse(body: string): Module {
         .filter((syn) => syn.kind === "err")
         .map((syn) => (syn as Err<string>).error);
 
+    const typeErrors = syntax
+        .map((resultBlock, i) => {
+            if (resultBlock.kind === "err") return null;
+
+            const block = resultBlock as Ok<Block>;
+            const rawBlock = blocks[i];
+            const validatedType = validateType(block.value);
+
+            return mapError(
+                (error) =>
+                    `Error on lines ${rawBlock.lineStart} - ${
+                        rawBlock.lineStart + rawBlock.lines.length
+                    }\n${error}:
+\`\`\`
+${rawBlock.lines.join("\n")}
+\`\`\``,
+                validatedType
+            );
+        })
+        .filter((type) => type && type.kind === "err")
+        .map((type) => (type as Err<string>).error);
+
     return Module(
         "main",
         syntax
             .filter((syn) => syn.kind === "ok")
             .map((syn) => (syn as Ok<any>).value),
-        errors
+        [ ...errors, ...typeErrors ]
     );
 }

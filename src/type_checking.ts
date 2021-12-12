@@ -306,9 +306,9 @@ export function validateType(block: Block): Result<string, Type> {
             }
 
             return Err(
-                `Expected ${typeToText(block.type)} but got ${typeToText(
+                `Expected \`${typeToText(block.type)}\` but got \`${typeToText(
                     inferred
-                )}.`
+                )}\``
             );
         }
 
@@ -320,9 +320,11 @@ export function validateType(block: Block): Result<string, Type> {
             }
 
             return Err(
-                `Expected ${typeToText(block.returnType)} but got ${typeToText(
+                `Expected \`${typeToText(
+                    block.returnType
+                )}\` but got \`${typeToText(
                     inferred
-                )}.`
+                )}\` in the body of the function`
             );
         }
 

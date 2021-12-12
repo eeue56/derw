@@ -173,7 +173,7 @@ noah = User { name: "Noah" }
 -   [x] Javscript output
 -   [x] Module resolution
 -   [x] CLI
--   [ ] Type checking
+-   [x] Type checking
 -   [ ] Support for [Coed](https://github.com/eeue56/coed)
 -   [ ] Syntax highlighting for editors
 
