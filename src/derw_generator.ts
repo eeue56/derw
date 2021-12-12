@@ -7,6 +7,7 @@ import {
     Constructor,
     Division,
     Equality,
+    Export,
     Expression,
     Field,
     FixedType,
@@ -422,10 +423,16 @@ function generateImportBlock(imports: Import): string {
         .join("\n");
 }
 
+function generateExportBlock(exports: Export): string {
+    return `exposing (${exports.names.join(", ")})`;
+}
+
 function generateBlock(syntax: Block): string {
     switch (syntax.kind) {
         case "Import":
             return generateImportBlock(syntax);
+        case "Export":
+            return generateExportBlock(syntax);
         case "UnionType":
             return generateUnionType(syntax);
         case "TypeAlias":

@@ -7,6 +7,7 @@ import {
     Constructor,
     Division,
     Equality,
+    Export,
     Expression,
     Field,
     FormatStringValue,
@@ -73,8 +74,8 @@ function generateField(field: Field): string {
 
 function generateObjectLiteral(literal: ObjectLiteral): string {
     const fields = literal.fields.map(generateField).join(",\n    ");
-    return `{ 
-    ${fields} 
+    return `{
+    ${fields}
 }`;
 }
 
@@ -435,6 +436,14 @@ function generateImportBlock(imports: Import): string {
         .join("\n");
 }
 
+function generateExportBlock(exports: Export): string {
+    return exports.names
+        .map((name) => {
+            return `export { ${name} };`;
+        })
+        .join("\n");
+}
+
 function generateTypeAlias(syntax: TypeAlias): string {
     const type = syntax.type.name;
     return `
@@ -450,6 +459,8 @@ function generateBlock(syntax: Block): string {
     switch (syntax.kind) {
         case "Import":
             return generateImportBlock(syntax);
+        case "Export":
+            return generateExportBlock(syntax);
         case "UnionType":
             return generateUnionType(syntax);
         case "TypeAlias":

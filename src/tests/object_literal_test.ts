@@ -24,23 +24,23 @@ person = { name: "hello", age: 28 }
 
 const multiLine = `
 person: Person
-person = { 
-    name: "hello", 
-    age: 28 
+person = {
+    name: "hello",
+    age: 28
 }
 `.trim();
 
 const expectedOutput = `
-const person: Person = { 
+const person: Person = {
     name: "hello",
-    age: 28 
+    age: 28
 };
 `.trim();
 
 const expectedOutputJS = `
-const person = { 
+const person = {
     name: "hello",
-    age: 28 
+    age: 28
 };
 `.trim();
 

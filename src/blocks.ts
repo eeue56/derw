@@ -18,6 +18,10 @@ export function blockKind(block: string): Result<string, BlockKinds> {
         return Ok("Import");
     }
 
+    if (block.startsWith("exposing")) {
+        return Ok("Export");
+    }
+
     const hasTypeLine =
         block.split(":").length > 1 &&
         block.split(":")[0].trim().split(" ").length === 1;
@@ -47,6 +51,11 @@ function createUnparsedBlock(
         case "Import": {
             return UnparsedBlock("ImportBlock", lineStart, lines);
         }
+
+        case "Export": {
+            return UnparsedBlock("ExportBlock", lineStart, lines);
+        }
+
         case "Const": {
             return UnparsedBlock("ConstBlock", lineStart, lines);
         }

@@ -333,6 +333,7 @@ export function validateType(block: Block): Result<string, Type> {
             return Ok(block.type);
         }
 
+        case "Export":
         case "Import": {
             return Ok(FixedType("any", [ ]));
         }

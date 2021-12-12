@@ -91,10 +91,10 @@ user = { name: string }
 import Result exposing (map)
 ```
 
--   [ ] Exports
+-   [x] Exports
 
 ```elm
-module Result exposing (map)
+exposing (map)
 ```
 
 -   [x] Let statements

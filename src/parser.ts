@@ -17,6 +17,7 @@ import {
     Destructure,
     Division,
     Equality,
+    Export,
     Expression,
     Field,
     FixedType,
@@ -1171,6 +1172,22 @@ function parseImport(block: string): Result<string, Import> {
     return Ok(Import(moduleNames));
 }
 
+function parseExport(block: string): Result<string, Export> {
+    const moduleNames = block
+        .split("\n")
+        .map((exportLine) =>
+            exportLine
+                .split("exposing")[1]
+                .trim()
+                .slice(1, -1)
+                .split(",")
+                .map((l) => l.trim())
+        )
+        .reduce((val, cur) => [ ...val, ...cur ]);
+
+    return Ok(Export(moduleNames));
+}
+
 export function parseBlock(block: UnparsedBlock): Result<string, Block> {
     const wrapError = (res: Result<string, Block>) => {
         return mapError((err) => {
@@ -1184,6 +1201,9 @@ ${block.lines.join("\n")}
     switch (block.kind) {
         case "ImportBlock": {
             return wrapError(parseImport(block.lines.join("\n")));
+        }
+        case "ExportBlock": {
+            return wrapError(parseExport(block.lines.join("\n")));
         }
         case "UnionTypeBlock": {
             return wrapError(parseUnionType(block.lines.join("\n")));
