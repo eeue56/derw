@@ -55,7 +55,7 @@ const expectedOutputJS = `
 function isIncrease(x) {
     const y = x + x;
     const z = "hello";
-    return x + y
+    return x + y;
 }
 `.trim();
 
