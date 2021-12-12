@@ -1,5 +1,7 @@
+import { Err, Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
 import {
     Addition,
+    Block,
     Branch,
     CaseStatement,
     Constructor,
@@ -39,8 +41,9 @@ function isSameFixedType(first: FixedType, second: FixedType): boolean {
     if (
         (first.name === "any" && first.args.length === 0) ||
         (second.name === "any" && second.args.length === 0)
-    )
+    ) {
         return true;
+    }
 
     if (first.args.length !== second.args.length) {
         return false;
@@ -49,7 +52,7 @@ function isSameFixedType(first: FixedType, second: FixedType): boolean {
     if (first.name !== second.name) return false;
 
     for (var i = 0; i < first.args.length; i++) {
-        if (isSameType(first.args[i], second.args[i])) {
+        if (!isSameType(first.args[i], second.args[i])) {
             return false;
         }
     }
@@ -58,6 +61,7 @@ function isSameFixedType(first: FixedType, second: FixedType): boolean {
 }
 
 export function isSameType(first: Type, second: Type): boolean {
+    if (first.name === "any" || second.name === "any") return true;
     if (first.kind !== second.kind) return false;
 
     switch (first.kind) {
@@ -279,4 +283,34 @@ export function inferType(expression: Expression): Type {
         case "GreaterThanOrEqual":
             return inferGreaterThanOrEqual(expression);
     }
+}
+
+function typeToText(type: Type): string {
+    switch (type.kind) {
+        case "GenericType": {
+            return type.name;
+        }
+        case "FixedType": {
+            return `${type.name} ${type.args.map(typeToText).join(" ")}`.trim();
+        }
+    }
+}
+
+export function validateType(block: Block): Result<string, Type> {
+    switch (block.kind) {
+        case "Const": {
+            const inferred = inferType(block.value);
+
+            if (isSameType(block.type, inferred)) {
+                return Ok(block.type);
+            }
+
+            return Err(
+                `Expected ${typeToText(block.type)} but got ${typeToText(
+                    inferred
+                )}.`
+            );
+        }
+    }
+    return Err("str");
 }

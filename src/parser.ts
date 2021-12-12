@@ -552,6 +552,7 @@ function parseIfStatement(body: string): Result<string, IfStatement> {
     const parsedPredicate = parseExpression(predicate.join(" "));
 
     const indentLevel = getIndentLevel(lines[0]);
+
     const elseIndex = lines.reduce(
         (previous, current, index) => {
             if (previous.found) return previous;
@@ -1130,7 +1131,28 @@ function parseConst(block: string): Result<string, Const> {
     const parsedType = parseType(constType);
 
     const bodyLines = block.split("\n").slice(1).join("\n");
-    const body = bodyLines.split("=").slice(1).join("=").trim();
+    const init: { pieces: string[]; hasSeenText: boolean } = {
+        pieces: [ ],
+        hasSeenText: false,
+    };
+    const body = bodyLines
+        .split("=")
+        .slice(1)
+        .join("=")
+        .split("\n")
+        .reduce((obj, line: string) => {
+            const { pieces, hasSeenText } = obj;
+            if (hasSeenText) {
+                pieces.push(line);
+                return { pieces, hasSeenText };
+            } else if (line.trim().length === 0) {
+                return { pieces, hasSeenText };
+            } else {
+                pieces.push(line);
+                return { pieces, hasSeenText: true };
+            }
+        }, init)
+        .pieces.join("\n");
 
     const parsedBody = parseExpression(body);
 
@@ -1148,7 +1170,7 @@ function parseImport(block: string): Result<string, Import> {
     return Ok(Import(moduleNames));
 }
 
-function parseBlock(block: UnparsedBlock): Result<string, Block> {
+export function parseBlock(block: UnparsedBlock): Result<string, Block> {
     const wrapError = (res: Result<string, Block>) => {
         return mapError((err) => {
             return `Line ${block.lineStart}: ${err}
