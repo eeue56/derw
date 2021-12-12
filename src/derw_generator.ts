@@ -114,7 +114,9 @@ function generateFormatStringValue(string: FormatStringValue): string {
 
 function generateListValue(list: ListValue): string {
     if (list.items.length === 0) return `[ ]`;
-    return `[ ${list.items.map(generateExpression).join(", ")} ]`;
+    return `[
+${prefixLines(list.items.map(generateExpression).join(",\n"), 4)}
+]`;
 }
 
 function generateListRange(list: ListRange): string {

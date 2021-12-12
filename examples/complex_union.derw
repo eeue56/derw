@@ -1,15 +1,17 @@
-type Animal
-    = Dog { name: string }
+type Animal =
+    Dog { name: string }
     | Cat { lives: number }
 
-sayHiToPet : Animal -> string
+sayHiToPet: Animal -> string
 sayHiToPet pet =
     case pet of
-        Dog { name } -> `Good boy ${name}!`
-        Cat { lives } -> "You have " + lives + " lives remaining."
+        Dog { name } ->
+            `Good boy ${name}!`
+        Cat { lives } ->
+            "You have " + lives + " lives remaining."
 
 main: void
 main =
-    Dog { name: "roof" }
+    Dog { name: "roof" } 
         |> sayHiToPet
         |> console.log

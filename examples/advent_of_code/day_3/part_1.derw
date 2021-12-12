@@ -6,7 +6,7 @@ type alias Common = {
 }
 
 reducer: number -> Common -> string -> Common
-reducer index common line = 
+reducer index common line =
     if line.charAt(index) == "0" then
         {
             zero: common.zero + 1,
@@ -19,11 +19,11 @@ reducer index common line =
         }
 
 mostCommon: number -> List string -> Common
-mostCommon index bits =     
+mostCommon index bits =
     let
         something: Common -> string -> Common
-        something x y = 
-            reducer index x y    
+        something x y =
+            reducer index x y
     in
         bits.reduce something {
             zero: 0,
@@ -31,90 +31,103 @@ mostCommon index bits =
         }
 
 commonBits: List string -> List Common
-commonBits xs =     
+commonBits xs =
     let
         truthy: string -> boolean
-        truthy str = 
+        truthy str =
             true
-        
+
         firstElement: any
         firstElement =
             xs.find truthy
-        
+
         length: number
         length =
             firstElement
                 |> \x -> x.length
-        
+
         lengthMinusOne: number
         lengthMinusOne =
             length - 1
-        
+
         commoner: number -> Common
-        commoner x = 
-            mostCommon x xs    
+        commoner x =
+            mostCommon x xs
     in
         [ 0..lengthMinusOne ]
             |> \x -> x.map commoner
 
 gammaToString: Common -> string
-gammaToString common = 
+gammaToString common =
     if common.zero > common.one then
         "0"
     else
         "1"
 
 epsilonToString: Common -> string
-epsilonToString common = 
+epsilonToString common =
     if common.zero > common.one then
         "1"
     else
         "0"
 
 getNumber: string -> number
-getNumber str = 
+getNumber str =
     parseInt str 2
 
 allGammaToString: List Common -> List string
-allGammaToString xs = 
+allGammaToString xs =
     xs.map gammaToString
 
 allEpsilonToString: List Common -> List string
-allEpsilonToString xs = 
+allEpsilonToString xs =
     xs.map epsilonToString
 
 join: List string -> string
-join str = 
+join str =
     str.join ""
 
 calc: List string -> number
-calc xs =     
+calc xs =
     let
         common: List Common
         common =
             commonBits xs
-        
+
         gamma: number
         gamma =
             allGammaToString common
                 |> join
                 |> getNumber
-        
+
         epsilon: number
         epsilon =
             allEpsilonToString common
                 |> join
                 |> getNumber
-        
+
         nothing: void
         nothing =
-            console.log gamma    
+            console.log gamma
     in
         gamma * epsilon
 
 exampleMain: void
 exampleMain =
-    [ "00100", "11110", "10110", "10111", "10101", "01111", "00111", "11100", "10000", "11001", "00010", "01010" ]
+    [
+        "00100",
+        "11110",
+        "10110",
+        "10111",
+        "10101",
+        "01111",
+        "00111",
+        "11100",
+        "10000",
+        "11001",
+        "00010",
+        "01010"
+    ]
         |> calc
         |> console.log
 
@@ -125,11 +138,11 @@ adventInput =
         |> split
 
 split: string -> List string
-split file = 
+split file =
     file.split("\n")
 
 toString: Buffer -> string
-toString buffer = 
+toString buffer =
     buffer.toString()
 
 main: void

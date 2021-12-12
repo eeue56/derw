@@ -8,49 +8,85 @@ type alias Iteration = {
     count: number
 }
 
-isIncrease : number -> number -> boolean
+isIncrease: number -> number -> boolean
 isIncrease x y =
     x < y
 
-sumIteration : Iteration -> number
+sumIteration: Iteration -> number
 sumIteration iteration =
     iteration.a + iteration.b + iteration.c
 
-countHelper : Iteration -> number -> Iteration
+countHelper: Iteration -> number -> Iteration
 countHelper count x =
     let
-        sumCurrent : number
-        sumCurrent = sumIteration count
+        sumCurrent: number
+        sumCurrent =
+            sumIteration count
 
-        sumNext : number
-        sumNext = count.b + count.c + x
+        sumNext: number
+        sumNext =
+            count.b + count.c + x
     in
         if count.a == 9999 then
-            { a: x, b: count.b, c: count.c, value: x, count: count.count }
+            {
+                a: x,
+                b: count.b,
+                c: count.c,
+                value: x,
+                count: count.count
+            }
         else
             if count.b == 9999 then
-                { a: count.a, b: x, c: count.c, value: x, count: count.count }
+                {
+                    a: count.a,
+                    b: x,
+                    c: count.c,
+                    value: x,
+                    count: count.count
+                }
             else
                 if count.c == 9999 then
-                    { a: count.a, b: x, c: x, value: x, count: count.count }
+                    {
+                        a: count.a,
+                        b: x,
+                        c: x,
+                        value: x,
+                        count: count.count
+                    }
                 else
                     if isIncrease sumCurrent sumNext then
-                        { a: count.b, b: count.c, c: x, value: x, count: count.count + 1 }
+                        {
+                            a: count.b,
+                            b: count.c,
+                            c: x,
+                            value: x,
+                            count: count.count + 1
+                        }
                     else
-                        { a: count.b, b: count.c, c: x, value: x, count: count.count }
+                        {
+                            a: count.b,
+                            b: count.c,
+                            c: x,
+                            value: x,
+                            count: count.count
+                        }
 
-
-
-getCount : Iteration -> number
+getCount: Iteration -> number
 getCount iteration =
     iteration.count
 
-countIncreases : List number -> number
+countIncreases: List number -> number
 countIncreases xs =
-    xs.reduce countHelper { a: 9999, b: 9999, c: 9999, value: 9999, count: 0 }
+    xs.reduce countHelper {
+        a: 9999,
+        b: 9999,
+        c: 9999,
+        value: 9999,
+        count: 0
+    }
         |> getCount
 
-adventInput : List number
+adventInput: List number
 adventInput =
     fs.readFileSync "input.txt"
         |> toString
@@ -61,7 +97,7 @@ toInt: string -> number
 toInt str =
     parseInt str 10
 
-toNumbers : List string -> List number
+toNumbers: List string -> List number
 toNumbers list =
     list.map toInt
 
@@ -69,16 +105,27 @@ split: string -> List string
 split file =
     file.split "\n"
 
-toString : Buffer -> string
+toString: Buffer -> string
 toString buffer =
     buffer.toString()
 
-exampleMain : void
+exampleMain: void
 exampleMain =
-    countIncreases [199, 200, 208, 210, 200, 207, 240, 269, 260, 263]
+    countIncreases [
+        199,
+        200,
+        208,
+        210,
+        200,
+        207,
+        240,
+        269,
+        260,
+        263
+    ]
         |> console.log
 
-main : void
+main: void
 main =
     countIncreases adventInput
         |> console.log
