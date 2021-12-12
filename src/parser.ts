@@ -968,7 +968,7 @@ function parseGreaterThanOrEqual(
     return Ok(GreaterThanOrEqual(left.value, right.value));
 }
 
-function parseExpression(body: string): Result<string, Expression> {
+export function parseExpression(body: string): Result<string, Expression> {
     const trimmedBody = body.trim();
 
     if (trimmedBody.startsWith("if ")) {
