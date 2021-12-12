@@ -21,6 +21,7 @@ countHelper count x =
     let
         sumCurrent : number
         sumCurrent = sumIteration count
+
         sumNext : number
         sumNext = count.b + count.c + x
     in

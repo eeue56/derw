@@ -36,6 +36,7 @@ isIncrease x =
     let
         y: number
         y = x + x
+
         z: string
         z = "hello"
     in

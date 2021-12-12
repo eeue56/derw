@@ -109,6 +109,9 @@ export function intoBlocks(body: string): UnparsedBlock[] {
 
             if (isIndent || isDefinition) {
                 // an indent, when indented we push the current block
+                if (i > 0 && lines[i - 1].trim() === "") {
+                    currentBlock.push(lines[i - 1]);
+                }
                 currentBlock.push(line);
             } else {
                 switch (currentBlockKind.kind) {

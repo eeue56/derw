@@ -383,7 +383,10 @@ function generateFunction(function_: Function): string {
         function_.letBody.length > 0
             ? prefixLines("\nlet", 4) +
               "\n" +
-              prefixLines(function_.letBody.map(generateBlock).join("\n"), 8) +
+              prefixLines(
+                  function_.letBody.map(generateBlock).join("\n\n"),
+                  8
+              ) +
               prefixLines("\nin", 4)
             : "";
 

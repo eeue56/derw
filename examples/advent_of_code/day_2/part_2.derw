@@ -8,7 +8,7 @@ type alias Boat = {
 
 forward: number -> Boat -> Boat
 forward x boat =
-    let 
+    let
         multi: number
         multi = x * boat.aim
     in
@@ -22,21 +22,21 @@ down: number -> Boat -> Boat
 down y boat =
     { horizontal: boat.horizontal, depth: boat.depth, aim: boat.aim + y }
 
-getMulti: Boat -> number 
+getMulti: Boat -> number
 getMulti boat =
     boat.horizontal * boat.depth
 
-run: Boat -> Command -> Boat 
+run: Boat -> Command -> Boat
 run boat command =
-    if command.command == "forward" then 
-        forward command.amount boat 
-    else 
-        if command.command == "up" then 
-            up command.amount boat 
-        else 
-            down command.amount boat 
+    if command.command == "forward" then
+        forward command.amount boat
+    else
+        if command.command == "up" then
+            up command.amount boat
+        else
+            down command.amount boat
 
-runAll: List Command -> Boat 
+runAll: List Command -> Boat
 runAll commands =
     commands.reduce run { horizontal: 0, depth: 0, aim: 0}
 
@@ -45,16 +45,18 @@ type alias Command = {
     amount: number
 }
 
-parseLine : string -> Command 
+parseLine : string -> Command
 parseLine str =
-    let 
+    let
         piece: List string
         piece = str.split " "
+
         left: string
         left = piece[0]
+
         right: number
         right = parseInt(piece[1])
-    in 
+    in
         { command: left, amount: right }
 
 parseLines : List string -> List Command
@@ -62,8 +64,8 @@ parseLines lines =
     lines.map parseLine
 
 exampleMain : void
-exampleMain = 
-    [ 
+exampleMain =
+    [
         "forward 5",
         "down 5",
         "forward 8",
@@ -76,22 +78,22 @@ exampleMain =
     |> console.log
 
 adventInput : List Command
-adventInput = 
+adventInput =
     fs.readFileSync "input.txt"
         |> toString
-        |> split 
+        |> split
         |> parseLines
 
 split: string -> List string
 split file =
-    file.split("\n")
+    file.split "\n"
 
-toString : Buffer -> string 
+toString : Buffer -> string
 toString buffer =
     buffer.toString()
 
-main : void 
-main = 
+main : void
+main =
      adventInput
         |> runAll
         |> getMulti
