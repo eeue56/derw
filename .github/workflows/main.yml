@@ -31,5 +31,8 @@ jobs:
       - name: Install npm packages
         run: npm install
         
+      - name: Install ts-node
+        run: npm install ts-node
+        
       - name: Run test
         run: npm run test
