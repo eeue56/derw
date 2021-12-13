@@ -1,5 +1,6 @@
 import {
     Addition,
+    And,
     Block,
     Branch,
     CaseStatement,
@@ -30,6 +31,7 @@ import {
     ModuleReference,
     Multiplication,
     ObjectLiteral,
+    Or,
     Property,
     RightPipe,
     StringValue,
@@ -304,6 +306,18 @@ function generateGreaterThanOrEqual(
     return `${left} >= ${right}`;
 }
 
+function generateAnd(and: And): string {
+    const left = generateExpression(and.left);
+    const right = generateExpression(and.right);
+    return `${left} && ${right}`;
+}
+
+function generateOr(or: Or): string {
+    const left = generateExpression(or.left);
+    const right = generateExpression(or.right);
+    return `${left} || ${right}`;
+}
+
 function generateExpression(expression: Expression): string {
     switch (expression.kind) {
         case "Value":
@@ -330,6 +344,10 @@ function generateExpression(expression: Expression): string {
             return generateMultiplication(expression);
         case "Division":
             return generateDivision(expression);
+        case "And":
+            return generateAnd(expression);
+        case "Or":
+            return generateOr(expression);
         case "LeftPipe":
             return generateLeftPipe(expression);
         case "RightPipe":

@@ -8,6 +8,7 @@ import { intoBlocks } from "./blocks";
 import { isBuiltinType } from "./builtins";
 import {
     Addition,
+    And,
     AnonFunctionArg,
     Block,
     Branch,
@@ -43,6 +44,7 @@ import {
     ModuleReference,
     Multiplication,
     ObjectLiteral,
+    Or,
     Property,
     RightPipe,
     StringValue,
@@ -971,6 +973,26 @@ function parseGreaterThanOrEqual(
     return Ok(GreaterThanOrEqual(left.value, right.value));
 }
 
+function parseAnd(body: string): Result<string, And> {
+    const left = parseExpression(body.split(" && ")[0]);
+    const right = parseExpression(body.split(" && ")[1]);
+
+    if (left.kind === "err") return left;
+    if (right.kind === "err") return right;
+
+    return Ok(And(left.value, right.value));
+}
+
+function parseOr(body: string): Result<string, Or> {
+    const left = parseExpression(body.split(" || ")[0]);
+    const right = parseExpression(body.split(" || ")[1]);
+
+    if (left.kind === "err") return left;
+    if (right.kind === "err") return right;
+
+    return Ok(Or(left.value, right.value));
+}
+
 export function parseExpression(body: string): Result<string, Expression> {
     const trimmedBody = body.trim();
 
@@ -998,6 +1020,10 @@ export function parseExpression(body: string): Result<string, Expression> {
         return parseGreaterThan(body);
     } else if (trimmedBody.indexOf(" >= ") > -1) {
         return parseGreaterThanOrEqual(body);
+    } else if (trimmedBody.indexOf(" && ") > -1) {
+        return parseAnd(body);
+    } else if (trimmedBody.indexOf(" || ") > -1) {
+        return parseOr(body);
     } else if (trimmedBody.indexOf("+") > -1) {
         return parseAddition(body);
     } else if (trimmedBody.indexOf("-") > -1) {

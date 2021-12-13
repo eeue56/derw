@@ -321,6 +321,34 @@ export function Division(left: Expression, right: Expression): Division {
     };
 }
 
+export type And = {
+    kind: "And";
+    left: Expression;
+    right: Expression;
+};
+
+export function And(left: Expression, right: Expression): And {
+    return {
+        kind: "And",
+        left,
+        right,
+    };
+}
+
+export type Or = {
+    kind: "Or";
+    left: Expression;
+    right: Expression;
+};
+
+export function Or(left: Expression, right: Expression): Or {
+    return {
+        kind: "Or",
+        left,
+        right,
+    };
+}
+
 export type LeftPipe = {
     kind: "LeftPipe";
     left: Expression;
@@ -551,6 +579,8 @@ export type Expression =
     | Subtraction
     | Multiplication
     | Division
+    | And
+    | Or
     | LeftPipe
     | RightPipe
     | ModuleReference
@@ -588,6 +618,8 @@ export type SimpleValue =
     | "LessThanOrEqual"
     | "GreaterThan"
     | "GreaterThanOrEqual"
+    | "And"
+    | "Or"
     | "ModuleReference"
     | "FunctionCall"
     | "LeftPipe"
@@ -612,6 +644,8 @@ export function isSimpleValue(kind: string): kind is SimpleValue {
             "LessThanOrEqual",
             "GreaterThan",
             "GreaterThanOrEqual",
+            "And",
+            "Or",
             "ModuleReference",
             "FunctionCall",
             "LeftPipe",

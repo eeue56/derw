@@ -25,7 +25,7 @@ asIs result =
 -   [x] Arrays `[ ]`, `[ 1, 2, 3 ]`, `[ [ 1, 2, 3 ], [ 3, 2, 1 ] ]`
 -   [x] Booleans `true`, `false`
 -   [x] Boolean equality `1 < 2`, `1 <= 2`, `1 == 2`, `1 != 2`, `1 > 2`, `1 >= 2`
--   [ ] Boolean operations `true && false`, `not true`, `true || false`
+-   [x] Boolean operations `true && false`, `not true`, `true || false`
 -   [x] Strings `""`, `"hello world"`
 -   [x] Format strings ` `` `, `` `Hello ${name}` ``
 -   [x] Numbers `-1`, `0`, `1`, `-1.1`, `1.1`

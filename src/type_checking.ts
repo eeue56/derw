@@ -1,6 +1,7 @@
 import { Err, Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
 import {
     Addition,
+    And,
     Block,
     Branch,
     CaseStatement,
@@ -26,6 +27,7 @@ import {
     ModuleReference,
     Multiplication,
     ObjectLiteral,
+    Or,
     RightPipe,
     StringValue,
     Subtraction,
@@ -230,6 +232,14 @@ function inferGreaterThanOrEqual(value: GreaterThanOrEqual): Type {
     return FixedType("boolean", [ ]);
 }
 
+function inferAnd(value: And): Type {
+    return FixedType("boolean", [ ]);
+}
+
+function inferOr(value: Or): Type {
+    return FixedType("boolean", [ ]);
+}
+
 export function inferType(expression: Expression): Type {
     switch (expression.kind) {
         case "Value":
@@ -256,6 +266,10 @@ export function inferType(expression: Expression): Type {
             return inferMultiplication(expression);
         case "Division":
             return inferDivision(expression);
+        case "And":
+            return inferAnd(expression);
+        case "Or":
+            return inferOr(expression);
         case "LeftPipe":
             return inferLeftPipe(expression);
         case "RightPipe":
