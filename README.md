@@ -88,6 +88,7 @@ user = { name: string }
 -   [ ] Imports
 
 ```elm
+import List
 import Result exposing (map)
 ```
 
@@ -174,12 +175,13 @@ noah = User { name: "Noah" }
 -   [x] Module resolution
 -   [x] CLI
 -   [x] Type checking
--   [ ] Support for [Coed](https://github.com/eeue56/coed)
--   [ ] Syntax highlighting for editors
+-   [x] Syntax highlighting for editors
 
 ## 1.0.0
 
 -   [x] An automatic formatter with no options
+-   [ ] A standard library
+-   [ ] Support for [Coed](https://github.com/eeue56/coed)
 -   [ ] Testing support via [Bach](https://github.com/eeue56/bach)
 -   [ ] Benchmarking support via [Mainc](https://github.com/eeue56/mainc)
 
@@ -187,8 +189,9 @@ noah = User { name: "Noah" }
 
 -   All top level consts or functions must have type definitions
 -   Format strings ``
+-   No need for module names in the module file itself. Use `exposing` instead
 
-# Language support
+# Editor language support
 
 Currently VSCode syntax highlighting is supported by this extenstion: https://github.com/eeue56/derw-syntax. It is not on the marketplace because Microsoft account creation was down when I tried.
 
