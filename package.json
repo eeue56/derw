@@ -3,9 +3,11 @@
     "version": "0.0.1",
     "description": "An Elm-inspired language that transpiles to TypeScript",
     "main": "index.js",
+    "bin": "build/cli.js",
     "scripts": {
         "test": "npx @eeue56/bach",
-        "format": "npx prettier --write ."
+        "format": "npx prettier --write .",
+        "prepublish": "npx tsc -p tsconfig.json"
     },
     "repository": {
         "type": "git",
