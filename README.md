@@ -2,6 +2,26 @@
 
 An Elm-inspired language that transpiles to TypeScript
 
+# Usage
+
+You can run the derw compiler via npx. You must provide files via `--files`.
+
+```bash
+npx @eeue56/derw
+
+Compiles Derw code
+Provide entry files via --files
+  --files [string...]:      Filenames to be given
+  --target ts | js | derw:	Target either TS or JS output
+  --output string:		    Output directory name
+  --verify :		        Run typescript compiler on generated files to ensure valid output
+  --debug :		            Show a parsed object tree
+  --only string:		    Only show a particular object
+  --run :		            Should be run via ts-node/node
+  --format :		        Format the files given in-place
+  -h, --help :		        This help text
+```
+
 # Example
 
 You can find a bunch of examples in [examples](./examples), along with the Typescript they generate. But the general gist is: Elm-compatible syntax where possible.
