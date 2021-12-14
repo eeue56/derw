@@ -213,7 +213,7 @@ noah = User { name: "Noah" }
 
 # Editor language support
 
-Currently VSCode syntax highlighting is supported by this extenstion: https://github.com/eeue56/derw-syntax. It is not on the marketplace because Microsoft account creation was down when I tried.
+Currently VSCode syntax highlighting is supported by this extension: https://github.com/eeue56/derw-syntax. It is not on the marketplace because Microsoft account creation was down when I tried.
 
 Instead, you can do:
 
