@@ -112,7 +112,7 @@ async function main(): Promise<void> {
     }
 
     if (!program.flags.files.isPresent) {
-        console.log("You must provide at least one file via --file");
+        console.log("You must provide at least one file via --files");
         return;
     }
 
