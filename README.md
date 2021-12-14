@@ -194,8 +194,10 @@ noah = User { name: "Noah" }
 -   [x] Javscript output
 -   [x] Module resolution
 -   [x] CLI
--   [x] Type checking
+-   [x] Basic type checking
 -   [x] Syntax highlighting for editors
+-   [x] Collision detection for names in a module
+-   [ ] Importing of Derw files
 
 ## 1.0.0
 
@@ -204,6 +206,9 @@ noah = User { name: "Noah" }
 -   [ ] Support for [Coed](https://github.com/eeue56/coed)
 -   [ ] Testing support via [Bach](https://github.com/eeue56/bach)
 -   [ ] Benchmarking support via [Mainc](https://github.com/eeue56/mainc)
+-   [ ] Type checking, with interop with TypeScript
+-   [ ] Derw compiler is written in Derw
+-   [ ] Async support
 
 # Divergence from Elm
 

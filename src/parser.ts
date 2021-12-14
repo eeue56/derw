@@ -6,6 +6,7 @@ import {
 } from "@eeue56/ts-core/build/main/lib/result";
 import { intoBlocks } from "./blocks";
 import { isBuiltinType } from "./builtins";
+import { collisions } from "./collisions";
 import {
     Addition,
     And,
@@ -1264,6 +1265,9 @@ export function parse(body: string): Module {
     const errors = syntax
         .filter((syn) => syn.kind === "err")
         .map((syn) => (syn as Err<string>).error);
+    const successes = syntax
+        .filter((syn) => syn.kind === "ok")
+        .map((syn) => (syn as Ok<Block>).value);
 
     const typeErrors = syntax
         .map((resultBlock, i) => {
@@ -1273,11 +1277,12 @@ export function parse(body: string): Module {
             const rawBlock = blocks[i];
             const validatedType = validateType(block.value);
 
+            const lineEnd = rawBlock.lineStart + rawBlock.lines.length;
             return mapError(
                 (error) =>
-                    `Error on lines ${rawBlock.lineStart} - ${
-                        rawBlock.lineStart + rawBlock.lines.length
-                    }\n${error}:
+                    `Error on lines ${
+                        rawBlock.lineStart
+                    } - ${lineEnd}\n${error}:
 \`\`\`
 ${rawBlock.lines.join("\n")}
 \`\`\``,
@@ -1287,11 +1292,33 @@ ${rawBlock.lines.join("\n")}
         .filter((type) => type && type.kind === "err")
         .map((type) => (type as Err<string>).error);
 
+    const collidingNames = collisions(successes).map(({ indexes, name }) => {
+        const lineNumbers = indexes.map((index) => {
+            const lineEnd =
+                blocks[index].lineStart + blocks[index].lines.length;
+            return `${blocks[index].lineStart} - ${lineEnd}`;
+        });
+        const definitions = indexes
+            .map((index) => blocks[index].lines)
+            .map((lines) => {
+                return `\`\`\`
+${lines.join("\n")}
+\`\`\``;
+            });
+
+        return `
+The name \`${name}\` has been used for different things, on lines ${lineNumbers.join(
+            ", "
+        )}
+${definitions.join("\n\n")}
+        `.trim();
+    });
+
     return Module(
         "main",
         syntax
             .filter((syn) => syn.kind === "ok")
             .map((syn) => (syn as Ok<any>).value),
-        [ ...errors, ...typeErrors ]
+        [ ...errors, ...typeErrors, ...collidingNames ]
     );
 }
