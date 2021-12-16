@@ -72,7 +72,7 @@ const programParser = parser([
     longFlag("files", "Filenames to be given", variableList(string())),
     longFlag(
         "target",
-        "Target either TS or JS output",
+        "Target TS, JS or Derw output",
         oneOf([ "ts", "js", "derw" ])
     ),
     longFlag("output", "Output directory name", string()),

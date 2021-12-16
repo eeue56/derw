@@ -12,7 +12,7 @@ npx @eeue56/derw
 Compiles Derw code
 Provide entry files via --files
   --files [string...]:      Filenames to be given
-  --target ts | js | derw:  Target either TS or JS output
+  --target ts | js | derw:  Target TS, JS or Derw output
   --output string:          Output directory name
   --verify :                Run typescript compiler on generated files to ensure valid output
   --debug :                 Show a parsed object tree
