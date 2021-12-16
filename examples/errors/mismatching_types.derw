@@ -1,0 +1,8 @@
+isTrue: boolean -> boolean
+isTrue x =
+    1 + 2
+
+names: List string
+names =
+    [1..2]
+

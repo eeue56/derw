@@ -91,3 +91,21 @@ export async function testExamplesAreConsistentlyParsed() {
         })
     );
 }
+
+export async function testMismatchingTypesGivesErrors() {
+    const derwContents = (
+        await readFile("./examples/errors/mismatching_types.derw")
+    ).toString();
+    const parsed = parse(derwContents);
+
+    assert.deepStrictEqual(parsed.errors.length, 2);
+}
+
+export async function testNameCollisions() {
+    const derwContents = (
+        await readFile("./examples/errors/name_collisions.derw")
+    ).toString();
+    const parsed = parse(derwContents);
+
+    assert.deepStrictEqual(parsed.errors.length, 2);
+}

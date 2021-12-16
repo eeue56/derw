@@ -230,6 +230,29 @@ isTrue x =
 ```
 ````
 
+-   [x] Some form of basic type errors
+
+````markdown
+Failed to parse examples/errors/mismatching_types.derw due to:
+Error on lines 0 - 3
+Expected `boolean` but got `number` in the body of the function:
+
+```
+isTrue: boolean -> boolean
+isTrue x =
+    1 + 2
+```
+
+Error on lines 4 - 7
+Expected `List string` but got `List number`:
+
+```
+names: List string
+names =
+    [1..2]
+```
+````
+
 -   [x] lambdas `\x -> x + 1`, `\x y -> x + y`
 -   [x] Typescript output
 -   [x] Javscript output
