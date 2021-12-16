@@ -1259,6 +1259,19 @@ ${block.lines.join("\n")}
     }
 }
 
+function getGap(blocks: UnparsedBlock[], index: number): string {
+    const rawBlock = blocks[index];
+    const lineEnd = rawBlock.lineStart + rawBlock.lines.length;
+    return `${blocks[index].lineStart} - ${lineEnd}`;
+}
+
+function reportBlock(block: UnparsedBlock): string {
+    return `
+\`\`\`
+${block.lines.join("\n")}
+\`\`\``.trim();
+}
+
 export function parse(body: string): Module {
     const blocks = intoBlocks(body);
     const syntax = blocks.map(parseBlock);
@@ -1270,22 +1283,17 @@ export function parse(body: string): Module {
         .map((syn) => (syn as Ok<Block>).value);
 
     const typeErrors = syntax
-        .map((resultBlock, i) => {
+        .map((resultBlock, index) => {
             if (resultBlock.kind === "err") return null;
 
             const block = resultBlock as Ok<Block>;
-            const rawBlock = blocks[i];
             const validatedType = validateType(block.value);
+            const gap = getGap(blocks, index);
 
-            const lineEnd = rawBlock.lineStart + rawBlock.lines.length;
             return mapError(
                 (error) =>
-                    `Error on lines ${
-                        rawBlock.lineStart
-                    } - ${lineEnd}\n${error}:
-\`\`\`
-${rawBlock.lines.join("\n")}
-\`\`\``,
+                    `Error on lines ${gap}\n${error}:
+${reportBlock(blocks[index])}`,
                 validatedType
             );
         })
@@ -1293,23 +1301,15 @@ ${rawBlock.lines.join("\n")}
         .map((type) => (type as Err<string>).error);
 
     const collidingNames = collisions(successes).map(({ indexes, name }) => {
-        const lineNumbers = indexes.map((index) => {
-            const lineEnd =
-                blocks[index].lineStart + blocks[index].lines.length;
-            return `${blocks[index].lineStart} - ${lineEnd}`;
+        const definitions = indexes.map((index) => {
+            const gap = getGap(blocks, index);
+
+            return `${gap}:
+${reportBlock(blocks[index])}`;
         });
-        const definitions = indexes
-            .map((index) => blocks[index].lines)
-            .map((lines) => {
-                return `\`\`\`
-${lines.join("\n")}
-\`\`\``;
-            });
 
         return `
-The name \`${name}\` has been used for different things, on lines ${lineNumbers.join(
-            ", "
-        )}
+The name \`${name}\` has been used for different things.
 ${definitions.join("\n\n")}
         `.trim();
     });

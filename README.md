@@ -189,6 +189,47 @@ type User = User { name: string }
 noah = User { name: "Noah" }
 ```
 
+-   [x] Errors on type name collison
+
+````markdown
+The name `Person` has been used for different things.
+8 - 10:
+
+```
+type Person =
+    Person { name: string }
+```
+
+11 - 14:
+
+```
+type alias Person = {
+    name: string
+}
+```
+````
+
+-   [x] Errors on function name collison
+
+````markdown
+The name `isTrue` has been used for different things.
+0 - 3:
+
+```
+isTrue: boolean -> boolean
+isTrue x =
+    x == true
+```
+
+4 - 7:
+
+```
+isTrue: boolean -> boolean
+isTrue x =
+    x != true
+```
+````
+
 -   [x] lambdas `\x -> x + 1`, `\x y -> x + y`
 -   [x] Typescript output
 -   [x] Javscript output

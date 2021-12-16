@@ -1,0 +1,14 @@
+isTrue: boolean -> boolean
+isTrue x =
+    x == true
+
+isTrue: boolean -> boolean
+isTrue x =
+    x != true
+
+type Person =
+    Person { name: string }
+
+type alias Person = {
+    name: string
+}
