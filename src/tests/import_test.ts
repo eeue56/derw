@@ -8,29 +8,36 @@ import { parse } from "../parser";
 import { BlockKinds, Import, Module, UnparsedBlock } from "../types";
 
 const oneLine = `import path
-import fs`.trim();
+import fs
+import "./other"`.trim();
 
 const multiLine = `
 import path
 import fs
+import "./other"
 `.trim();
 
 const expectedOutput = `
 import path from "path";
 
 import fs from "fs";
+
+import * as other from "./other";
 `.trim();
 
 const expectedOutputJS = `
 import path from "path";
 
 import fs from "fs";
+
+import * as other from "./other";
 `.trim();
 
 export function testIntoBlocks() {
     assert.deepStrictEqual(intoBlocks(oneLine), [
         UnparsedBlock("ImportBlock", 0, [ oneLine.split("\n")[0] ]),
         UnparsedBlock("ImportBlock", 1, [ oneLine.split("\n")[1] ]),
+        UnparsedBlock("ImportBlock", 2, [ oneLine.split("\n")[2] ]),
     ]);
 }
 
@@ -38,6 +45,7 @@ export function testIntoBlocksMultiLine() {
     assert.deepStrictEqual(intoBlocks(multiLine), [
         UnparsedBlock("ImportBlock", 0, [ multiLine.split("\n")[0] ]),
         UnparsedBlock("ImportBlock", 1, [ multiLine.split("\n")[1] ]),
+        UnparsedBlock("ImportBlock", 2, [ multiLine.split("\n")[2] ]),
     ]);
 }
 
@@ -58,14 +66,22 @@ export function testBlockKindMultiLine() {
 export function testParse() {
     assert.deepStrictEqual(
         parse(oneLine),
-        Module("main", [ Import([ "path" ]), Import([ "fs" ]) ], [ ])
+        Module(
+            "main",
+            [ Import([ "path" ]), Import([ "fs" ]), Import([ `"./other"` ]) ],
+            [ ]
+        )
     );
 }
 
 export function testParseMultiLine() {
     assert.deepStrictEqual(
         parse(multiLine),
-        Module("main", [ Import([ "path" ]), Import([ "fs" ]) ], [ ])
+        Module(
+            "main",
+            [ Import([ "path" ]), Import([ "fs" ]), Import([ `"./other"` ]) ],
+            [ ]
+        )
     );
 }
 

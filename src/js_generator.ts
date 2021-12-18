@@ -1,3 +1,4 @@
+import path from "path";
 import {
     Addition,
     And,
@@ -449,6 +450,11 @@ const ${constDef.name} = ${body};
 function generateImportBlock(imports: Import): string {
     return imports.moduleNames
         .map((moduleName) => {
+            if (moduleName.startsWith(`"`)) {
+                const withoutQuotes = moduleName.slice(1, -1);
+                const name = path.parse(withoutQuotes).name;
+                return `import * as ${name} from ${moduleName};`;
+            }
             return `import ${moduleName} from "${moduleName}";`;
         })
         .join("\n");

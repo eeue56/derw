@@ -22,7 +22,7 @@ import { generateDerw } from "./derw_generator";
 import { generateTypescript } from "./generator";
 import { generateJavascript } from "./js_generator";
 import * as derwParser from "./parser";
-import { Block, Module } from "./types";
+import { Block, Import, Module } from "./types";
 
 async function ensureDirectoryExists(directory: string): Promise<void> {
     try {
@@ -66,6 +66,10 @@ function filterBodyForName(module: Module, name: string): Block[] {
     }
 
     return blocks;
+}
+
+function getImports(module: Module): Block[] {
+    return module.body.filter((block) => block.kind === "Import");
 }
 
 const programParser = parser([
@@ -148,8 +152,10 @@ async function main(): Promise<void> {
 
     console.log(`Generating ${files.length} files...`);
 
+    const processedFiles: string[] = [ ];
+
     await Promise.all(
-        files.map(async (fileName) => {
+        files.map(async function compile(fileName) {
             const dotParts = fileName.split(".");
             const extension = dotParts[dotParts.length - 1];
 
@@ -170,6 +176,24 @@ async function main(): Promise<void> {
                 console.log(`Failed to parse ${fileName} due to:`);
                 console.log(parsed.errors.join("\n"));
                 return;
+            }
+
+            processedFiles.push(fileName);
+            const dir = path.dirname(fileName);
+            const imports: string[] = [ ];
+
+            getImports(parsed).forEach((import_: Block) => {
+                import_ = import_ as Import;
+
+                import_.moduleNames.forEach((moduleName) => {
+                    moduleName = moduleName.slice(1, -1);
+                    if (!moduleName.startsWith(".")) return;
+                    imports.push(path.normalize(path.join(dir, moduleName)));
+                });
+            });
+
+            for (const import_ of imports) {
+                await compile(import_ + ".derw");
             }
 
             if (debugMode) {
@@ -256,6 +280,8 @@ async function main(): Promise<void> {
             }
         })
     );
+
+    console.log("Processed:", processedFiles);
 }
 
 main();

@@ -105,3 +105,4 @@ dist
 
 build
 examples/advent_of_code/*/*.ts
+examples/derw_imports/*.ts

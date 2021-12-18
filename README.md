@@ -261,7 +261,11 @@ names =
 -   [x] Basic type checking
 -   [x] Syntax highlighting for editors
 -   [x] Collision detection for names in a module
--   [ ] Importing of Derw files
+-   [x] Importing of Derw files
+
+```elm
+import "./other"
+```
 
 ## 1.0.0
 

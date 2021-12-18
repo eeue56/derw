@@ -1,0 +1,5 @@
+exposing (isTrue)
+
+isTrue: boolean -> boolean
+isTrue bool =
+    bool == true

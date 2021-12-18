@@ -1791,6 +1791,7 @@ function parseImport(tokens: Token[]): Result<string, Import> {
                 }
             }
 
+            case "StringToken":
             case "IdentifierToken": {
                 imports.push(token.body);
             }
