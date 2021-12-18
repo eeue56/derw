@@ -7,6 +7,7 @@ import { generateJavascript } from "../js_generator";
 import { parse } from "../parser";
 import {
     FixedType,
+    FormatStringValue,
     Function,
     FunctionArg,
     FunctionCall,
@@ -19,34 +20,51 @@ import {
 const oneLine = `
 helloWorld: string -> List string
 helloWorld str = str.split "\\""
+
+goodbyeWorld: string -> List string
+goodbyeWorld str = str.split \`\\\`\`
 `.trim();
 
 const multiLine = `
 helloWorld: string -> List string
 helloWorld str =
     str.split "\\""
+
+goodbyeWorld: string -> List string
+goodbyeWorld str =
+    str.split \`\\\`\`
 `.trim();
 
 const expectedOutput = `
 function helloWorld(str: string): string[] {
     return str.split("\\"");
 }
+
+function goodbyeWorld(str: string): string[] {
+    return str.split(\`\\\`\`);
+}
 `.trim();
 
 const expectedOutputJS = `
 function helloWorld(str) {
     return str.split("\\"");
+}
+
+function goodbyeWorld(str) {
+    return str.split(\`\\\`\`);
 }`.trim();
 
 export function testIntoBlocks() {
     assert.deepStrictEqual(intoBlocks(oneLine), [
-        UnparsedBlock("FunctionBlock", 0, oneLine.split("\n")),
+        UnparsedBlock("FunctionBlock", 0, oneLine.split("\n").slice(0, 2)),
+        UnparsedBlock("FunctionBlock", 3, oneLine.split("\n").slice(3, 6)),
     ]);
 }
 
 export function testIntoBlocksMultiLine() {
     assert.deepStrictEqual(intoBlocks(multiLine), [
-        UnparsedBlock("FunctionBlock", 0, multiLine.split("\n")),
+        UnparsedBlock("FunctionBlock", 0, multiLine.split("\n").slice(0, 3)),
+        UnparsedBlock("FunctionBlock", 4, multiLine.split("\n").slice(4, 7)),
     ]);
 }
 
@@ -74,6 +92,17 @@ export function testParse() {
                         FunctionCall("split", [ StringValue('\\"') ])
                     )
                 ),
+
+                Function(
+                    "goodbyeWorld",
+                    FixedType("List", [ FixedType("string", [ ]) ]),
+                    [ FunctionArg("str", FixedType("string", [ ])) ],
+                    [ ],
+                    ModuleReference(
+                        [ "str" ],
+                        FunctionCall("split", [ FormatStringValue("\\`") ])
+                    )
+                ),
             ],
             [ ]
         )
@@ -94,6 +123,16 @@ export function testParseMultiLine() {
                     ModuleReference(
                         [ "str" ],
                         FunctionCall("split", [ StringValue('\\"') ])
+                    )
+                ),
+                Function(
+                    "goodbyeWorld",
+                    FixedType("List", [ FixedType("string", [ ]) ]),
+                    [ FunctionArg("str", FixedType("string", [ ])) ],
+                    [ ],
+                    ModuleReference(
+                        [ "str" ],
+                        FunctionCall("split", [ FormatStringValue("\\`") ])
                     )
                 ),
             ],
