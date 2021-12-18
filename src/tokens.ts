@@ -52,6 +52,16 @@ function InSquareBracket(depth: number): InSquareBracket {
     };
 }
 
+type InWhitespace = {
+    kind: "InWhitespace";
+};
+
+function InWhitespace(): InWhitespace {
+    return {
+        kind: "InWhitespace",
+    };
+}
+
 type Keyword = {
     kind: "Keyword";
 };
@@ -70,6 +80,10 @@ const keywords = [
     "alias",
     "import",
     "exposing",
+    "let",
+    "in",
+    "case",
+    "of",
 ];
 
 type State =
@@ -78,7 +92,8 @@ type State =
     | InFormatString
     | InBracket
     | InSquareBracket
-    | Keyword;
+    | Keyword
+    | InWhitespace;
 
 export type StringToken = {
     kind: "StringToken";
@@ -269,11 +284,24 @@ function isOperator(body: string): boolean {
             "<|",
             "&&",
             "||",
+            "\\",
         ].indexOf(body) > -1
     );
 }
 
-type Token =
+export type WhitespaceToken = {
+    kind: "WhitespaceToken";
+    body: string;
+};
+
+export function WhitespaceToken(body: string): WhitespaceToken {
+    return {
+        kind: "WhitespaceToken",
+        body,
+    };
+}
+
+export type Token =
     | StringToken
     | FormatStringToken
     | KeywordToken
@@ -288,7 +316,8 @@ type Token =
     | CloseCurlyBracesToken
     | OpenBracketToken
     | CloseBracketToken
-    | PipeToken;
+    | PipeToken
+    | WhitespaceToken;
 
 function checkKeywordToken(currentToken: string, tokens: Token[]): void {
     if (currentToken === "=") {
@@ -319,7 +348,13 @@ export function tokenize(body: string): Token[] {
         const isLast = i === body.length - 1;
 
         switch (state.kind) {
+            case "InWhitespace":
             case "Empty": {
+                if (char !== " " && char !== "\n" && currentToken.length > 0) {
+                    tokens.push(WhitespaceToken(currentToken));
+                    currentToken = "";
+                    state = Empty();
+                }
                 switch (char) {
                     case '"': {
                         state = InString();
@@ -347,6 +382,8 @@ export function tokenize(body: string): Token[] {
 
                     case "\n":
                     case " ": {
+                        state = InWhitespace();
+                        currentToken += char;
                         break;
                     }
 
@@ -396,6 +433,12 @@ export function tokenize(body: string): Token[] {
                         }
 
                         tokens.push(PipeToken());
+                        currentToken = "";
+                        break;
+                    }
+
+                    case "\\": {
+                        tokens.push(OperatorToken("\\"));
                         currentToken = "";
                         break;
                     }
@@ -469,6 +512,7 @@ export function tokenize(body: string): Token[] {
                         currentToken += char;
                         tokens.push(LiteralToken(currentToken));
                         currentToken = "";
+                        break;
                     } else {
                         state.depth--;
                     }
@@ -480,15 +524,23 @@ export function tokenize(body: string): Token[] {
             }
 
             case "Keyword": {
-                if (char === "\n" || char === " " || isLast) {
-                    if (isLast && char !== "\n" && char !== "\n") {
+                const isWhitespace = char === "\n" || char === " ";
+                if (isWhitespace || isLast) {
+                    if (isLast && !isWhitespace) {
                         currentToken += char;
                     }
-
                     checkKeywordToken(currentToken, tokens);
                     currentToken = "";
 
                     state = Empty();
+
+                    if (isWhitespace) {
+                        if (!isLast) {
+                            currentToken += char;
+                        } else {
+                            tokens.push(WhitespaceToken(char));
+                        }
+                    }
                     break;
                 } else if (char === ":") {
                     tokens.push(IdentifierToken(currentToken));
@@ -509,6 +561,63 @@ export function tokenize(body: string): Token[] {
     }
 
     return tokens;
+}
+
+function tokenToString(token: Token): string {
+    switch (token.kind) {
+        case "ArrowToken": {
+            return "->";
+        }
+        case "AssignToken": {
+            return "=";
+        }
+        case "CloseBracketToken": {
+            return ")";
+        }
+        case "CloseCurlyBracesToken": {
+            return "}";
+        }
+        case "ColonToken": {
+            return ":";
+        }
+        case "CommaToken": {
+            return ",";
+        }
+        case "FormatStringToken": {
+            return token.body;
+        }
+        case "IdentifierToken": {
+            return token.body;
+        }
+        case "KeywordToken": {
+            return token.body;
+        }
+        case "LiteralToken": {
+            return token.body;
+        }
+        case "OpenBracketToken": {
+            return "(";
+        }
+        case "OpenCurlyBracesToken": {
+            return "{";
+        }
+        case "OperatorToken": {
+            return token.body;
+        }
+        case "PipeToken": {
+            return "|";
+        }
+        case "StringToken": {
+            return token.body;
+        }
+        case "WhitespaceToken": {
+            return token.body;
+        }
+    }
+}
+
+export function tokensToString(tokens: Token[]): string {
+    return tokens.map(tokenToString).join("");
 }
 
 function log(x: string): void {

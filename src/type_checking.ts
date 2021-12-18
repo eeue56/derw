@@ -305,7 +305,11 @@ function typeToText(type: Type): string {
             return type.name;
         }
         case "FixedType": {
-            return `${type.name} ${type.args.map(typeToText).join(" ")}`.trim();
+            const typeArgs =
+                type.args.length === 0
+                    ? ""
+                    : " (" + type.args.map(typeToText).join(" ") + ")";
+            return `${type.name}${typeArgs}`.trim();
         }
     }
 }

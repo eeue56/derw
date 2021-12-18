@@ -15,31 +15,38 @@ import {
     PipeToken,
     StringToken,
     tokenize,
+    tokensToString,
+    WhitespaceToken,
 } from "../tokens";
 
 export function testString() {
     const str = `"hello"`;
     assert.deepStrictEqual(tokenize(str), [ StringToken(`"hello"`) ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testNestedString() {
     const str = `"\\"hello\\""`;
     assert.deepStrictEqual(tokenize(str), [ StringToken(`"\\"hello\\""`) ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testInt() {
     const str = `1`;
     assert.deepStrictEqual(tokenize(str), [ LiteralToken(`1`) ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testFloat() {
     const str = `3.14`;
     assert.deepStrictEqual(tokenize(str), [ LiteralToken(`3.14`) ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testArray() {
     const str = `[ 1, 2 ]`;
     assert.deepStrictEqual(tokenize(str), [ LiteralToken("[ 1, 2 ]") ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testNestedArray() {
@@ -47,34 +54,45 @@ export function testNestedArray() {
     assert.deepStrictEqual(tokenize(str), [
         LiteralToken("[ [ 1, 2 ], [ 3, 4 ] ]"),
     ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testRange() {
     const str = `[ 1..2 ]`;
     assert.deepStrictEqual(tokenize(str), [ LiteralToken("[ 1..2 ]") ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testTrue() {
     const str = `true`;
     assert.deepStrictEqual(tokenize(str), [ LiteralToken("true") ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testFalse() {
     const str = `false`;
     assert.deepStrictEqual(tokenize(str), [ LiteralToken("false") ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testBrackets() {
-    const str = `(x + y) + z`;
+    const str = `( x + y ) + z`;
     assert.deepStrictEqual(tokenize(str), [
         OpenBracketToken(),
+        WhitespaceToken(" "),
         IdentifierToken("x"),
+        WhitespaceToken(" "),
         OperatorToken("+"),
+        WhitespaceToken(" "),
         IdentifierToken("y"),
+        WhitespaceToken(" "),
         CloseBracketToken(),
+        WhitespaceToken(" "),
         OperatorToken("+"),
+        WhitespaceToken(" "),
         IdentifierToken("z"),
     ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testOperators() {
@@ -97,9 +115,12 @@ export function testOperators() {
         const str = `x ${op} y`;
         assert.deepStrictEqual(tokenize(str), [
             IdentifierToken("x"),
+            WhitespaceToken(" "),
             OperatorToken(op),
+            WhitespaceToken(" "),
             IdentifierToken("y"),
         ]);
+        assert.deepStrictEqual(tokensToString(tokenize(str)), str);
     });
 }
 
@@ -112,14 +133,22 @@ else
             `.trim();
     assert.deepStrictEqual(tokenize(str), [
         KeywordToken("if"),
+        WhitespaceToken(" "),
         LiteralToken("true"),
+        WhitespaceToken(" "),
         OperatorToken("=="),
+        WhitespaceToken(" "),
         LiteralToken("true"),
+        WhitespaceToken(" "),
         KeywordToken("then"),
+        WhitespaceToken("\n    "),
         IdentifierToken("x"),
+        WhitespaceToken("\n"),
         KeywordToken("else"),
+        WhitespaceToken("\n    "),
         IdentifierToken("y"),
     ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testFunction() {
@@ -130,26 +159,41 @@ isTrue x =
         true
     else
         false
-`;
+`.trim();
 
     assert.deepStrictEqual(tokenize(str), [
         IdentifierToken("isTrue"),
         ColonToken(),
+        WhitespaceToken(" "),
         IdentifierToken("boolean"),
+        WhitespaceToken(" "),
         ArrowToken(),
+        WhitespaceToken(" "),
         IdentifierToken("boolean"),
+        WhitespaceToken("\n"),
         IdentifierToken("isTrue"),
+        WhitespaceToken(" "),
         IdentifierToken("x"),
+        WhitespaceToken(" "),
         AssignToken(),
+        WhitespaceToken("\n    "),
         KeywordToken("if"),
+        WhitespaceToken(" "),
         IdentifierToken("x"),
+        WhitespaceToken(" "),
         OperatorToken("=="),
+        WhitespaceToken(" "),
         IdentifierToken("x"),
+        WhitespaceToken(" "),
         KeywordToken("then"),
+        WhitespaceToken("\n        "),
         LiteralToken("true"),
+        WhitespaceToken("\n    "),
         KeywordToken("else"),
+        WhitespaceToken("\n        "),
         LiteralToken("false"),
     ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testUnionType() {
@@ -157,28 +201,44 @@ export function testUnionType() {
 type Result a e =
     Ok { value: a }
     | Err { error: e }
-`;
+`.trim();
 
     assert.deepStrictEqual(tokenize(str), [
         KeywordToken("type"),
+        WhitespaceToken(" "),
         IdentifierToken("Result"),
+        WhitespaceToken(" "),
         IdentifierToken("a"),
+        WhitespaceToken(" "),
         IdentifierToken("e"),
+        WhitespaceToken(" "),
         AssignToken(),
+        WhitespaceToken("\n    "),
         IdentifierToken("Ok"),
+        WhitespaceToken(" "),
         OpenCurlyBracesToken(),
+        WhitespaceToken(" "),
         IdentifierToken("value"),
         ColonToken(),
+        WhitespaceToken(" "),
         IdentifierToken("a"),
+        WhitespaceToken(" "),
         CloseCurlyBracesToken(),
+        WhitespaceToken("\n    "),
         PipeToken(),
+        WhitespaceToken(" "),
         IdentifierToken("Err"),
+        WhitespaceToken(" "),
         OpenCurlyBracesToken(),
+        WhitespaceToken(" "),
         IdentifierToken("error"),
         ColonToken(),
+        WhitespaceToken(" "),
         IdentifierToken("e"),
+        WhitespaceToken(" "),
         CloseCurlyBracesToken(),
     ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testTypeAlias() {
@@ -187,49 +247,64 @@ type alias Person = {
     name: string,
     age: number
 }
-`;
+`.trim();
 
     assert.deepStrictEqual(tokenize(str), [
         KeywordToken("type"),
+        WhitespaceToken(" "),
         KeywordToken("alias"),
+        WhitespaceToken(" "),
         IdentifierToken("Person"),
+        WhitespaceToken(" "),
         AssignToken(),
+        WhitespaceToken(" "),
         OpenCurlyBracesToken(),
+        WhitespaceToken("\n    "),
         IdentifierToken("name"),
         ColonToken(),
+        WhitespaceToken(" "),
         IdentifierToken("string"),
         CommaToken(),
+        WhitespaceToken("\n    "),
         IdentifierToken("age"),
         ColonToken(),
+        WhitespaceToken(" "),
         IdentifierToken("number"),
+        WhitespaceToken("\n"),
         CloseCurlyBracesToken(),
     ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testImport() {
     const str = `
 import fs
-`;
+`.trim();
 
     assert.deepStrictEqual(tokenize(str), [
         KeywordToken("import"),
+        WhitespaceToken(" "),
         IdentifierToken("fs"),
     ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testExport() {
     const str = `
 exposing (isTrue, isFalse)
-`;
+`.trim();
 
     assert.deepStrictEqual(tokenize(str), [
         KeywordToken("exposing"),
+        WhitespaceToken(" "),
         OpenBracketToken(),
         IdentifierToken("isTrue"),
         CommaToken(),
+        WhitespaceToken(" "),
         IdentifierToken("isFalse"),
         CloseBracketToken(),
     ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testConst() {
@@ -237,18 +312,25 @@ export function testConst() {
 names: List (List string)
 names =
     [ ["noah"], ["david"] ]
-`;
+`.trim();
 
     assert.deepStrictEqual(tokenize(str), [
         IdentifierToken("names"),
         ColonToken(),
+        WhitespaceToken(" "),
         IdentifierToken("List"),
+        WhitespaceToken(" "),
         OpenBracketToken(),
         IdentifierToken("List"),
+        WhitespaceToken(" "),
         IdentifierToken("string"),
         CloseBracketToken(),
+        WhitespaceToken("\n"),
         IdentifierToken("names"),
+        WhitespaceToken(" "),
         AssignToken(),
+        WhitespaceToken("\n    "),
         LiteralToken(`[ ["noah"], ["david"] ]`),
     ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }

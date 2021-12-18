@@ -8,6 +8,13 @@ import { intoBlocks } from "./blocks";
 import { isBuiltinType } from "./builtins";
 import { collisions } from "./collisions";
 import {
+    IdentifierToken,
+    LiteralToken,
+    Token,
+    tokenize,
+    tokensToString,
+} from "./tokens";
+import {
     Addition,
     And,
     AnonFunctionArg,
@@ -60,11 +67,22 @@ import {
 } from "./types";
 import { validateType } from "./type_checking";
 
-function parseType(line: string): Result<string, Type> {
-    const rootTypeName = line.split(" ")[0];
-    if (rootTypeName.length === 0) {
-        return Err(`Missing type definition. Got: \`${line}\``);
+function parseType(tokens: Token[]): Result<string, Type> {
+    let index = 0;
+
+    while (index < tokens.length) {
+        if (tokens[index].kind === "IdentifierToken") {
+            break;
+        }
+        index++;
     }
+
+    if (index === tokens.length || tokens[index].kind !== "IdentifierToken") {
+        return Err(
+            `Missing type definition. Got: \`${tokensToString(tokens)}\``
+        );
+    }
+    const rootTypeName = (tokens[index] as IdentifierToken).body;
 
     if (isBuiltinType(rootTypeName)) {
         return Ok(FixedType(rootTypeName, [ ]));
@@ -72,36 +90,58 @@ function parseType(line: string): Result<string, Type> {
         return Ok(GenericType(rootTypeName));
     }
 
-    const typeArguments = line.split(" ").slice(1);
-    const types = typeArguments.join(" ").trim();
-    const parsedTypes = [ ];
-    let buffer = "";
+    index++;
+    let buffer: Token[] = [ ];
     let bracketDepth = 0;
+    let foundSomething = false;
+    const parsedTypes = [ ];
 
-    for (var i = 0; i < types.length; i++) {
-        const char = types[i];
+    while (index < tokens.length) {
+        const token = tokens[index];
 
-        if (char === "(") {
-            bracketDepth += 1;
-            if (bracketDepth > 1) buffer += char;
-        } else if (char === ")") {
-            bracketDepth -= 1;
-            if (bracketDepth === 0) {
-                parsedTypes.push(parseType(buffer));
-                buffer = "";
-            } else {
-                buffer += char;
+        switch (token.kind) {
+            case "WhitespaceToken": {
+                if (bracketDepth === 0) {
+                    if (!foundSomething) break;
+                    if (buffer.length === 0) break;
+                    parsedTypes.push(parseType(buffer));
+                    buffer = [ ];
+                } else {
+                    buffer.push(token);
+                }
+                break;
             }
-        } else if (char === " ") {
-            if (bracketDepth == 0) {
-                parsedTypes.push(parseType(buffer));
-                buffer = "";
-            } else {
-                buffer += char;
+
+            case "OpenBracketToken": {
+                bracketDepth++;
+                if (bracketDepth > 1) buffer.push(token);
+                break;
             }
-        } else {
-            buffer += char;
+
+            case "CloseBracketToken": {
+                bracketDepth--;
+                if (bracketDepth === 0) {
+                    parsedTypes.push(parseType(buffer));
+                    buffer = [ ];
+                } else {
+                    buffer.push(token);
+                }
+                break;
+            }
+
+            case "IdentifierToken": {
+                foundSomething = true;
+                buffer.push(token);
+                break;
+            }
+
+            default: {
+                return Err(
+                    `Expected identifier, brackets, or whitespace, but got ${token.kind}`
+                );
+            }
         }
+        index++;
     }
 
     if (buffer.length > 0) {
@@ -118,18 +158,95 @@ function parseType(line: string): Result<string, Type> {
     );
 }
 
-function parseUnionType(block: string): Result<string, UnionType> {
-    // get the List a from
-    // type List a = ...
-    const typeParts = block.split("=")[0].slice(4).trim();
-    const parsedType = parseType(typeParts);
+function parseUnionType(tokens: Token[]): Result<string, UnionType> {
+    if (tokens[0].kind === "KeywordToken") {
+        if (tokens[0].body !== "type") {
+            return Err("Expected `type` but got " + tokens[0].body);
+        }
+    }
+
+    let typeLine: Token[] = [ ];
+    let isInBranches = false;
+    let branches = [ ];
+    let currentBranch = [ ];
+
+    for (var i = 1; i < tokens.length; i++) {
+        const token = tokens[i];
+
+        switch (token.kind) {
+            case "IdentifierToken": {
+                if (isInBranches) {
+                    currentBranch.push(token.body);
+                } else {
+                    typeLine.push(token);
+                }
+
+                break;
+            }
+
+            case "PipeToken": {
+                branches.push(currentBranch.join(" "));
+                currentBranch = [ ];
+                break;
+            }
+
+            case "WhitespaceToken": {
+                typeLine.push(token);
+                break;
+            }
+
+            case "OpenBracketToken":
+            case "CloseBracketToken": {
+                continue;
+            }
+
+            case "CommaToken": {
+                currentBranch.push(",");
+                break;
+            }
+
+            case "ColonToken": {
+                currentBranch.push(":");
+                break;
+            }
+
+            case "OpenCurlyBracesToken": {
+                if (isInBranches) {
+                    currentBranch.push("{");
+                    break;
+                }
+            }
+
+            case "OpenCurlyBracesToken":
+            case "CloseCurlyBracesToken": {
+                if (isInBranches) {
+                    currentBranch.push(" }");
+                    break;
+                }
+            }
+
+            case "AssignToken": {
+                isInBranches = true;
+                break;
+            }
+
+            default: {
+                return Err(
+                    "Unexpected token parsing a union type. Got " + token.kind
+                );
+            }
+        }
+    }
+
+    if (currentBranch) {
+        branches.push(currentBranch.join(" "));
+    }
+
+    const parsedType = parseType(typeLine);
 
     if (parsedType.kind === "err") return parsedType;
 
-    // anything after the =, split based on pipes
-    const tagParts = block.split("=").slice(1).join("=").split("|");
-
-    const tags: Result<string, Tag>[] = tagParts.map((tag) => {
+    const tags: Result<string, Tag>[] = branches.map((tag) => {
         if (tag.startsWith("|")) {
             tag = tag.slice(1);
         }
@@ -138,7 +255,9 @@ function parseUnionType(block: string): Result<string, UnionType> {
         const tagName = tag.split(" ")[0];
         if (tagName.length === 0) {
             return Err(
-                `Missing expected tag name for union type \`${typeParts}\``
+                `Missing expected tag name for union type \`${tokensToString(
+                    typeLine
+                )}\``
             );
         }
 
@@ -158,11 +277,11 @@ function parseUnionType(block: string): Result<string, UnionType> {
                 const typeName = splitTypes[0];
                 const typeArguments = splitTypes
                     .slice(1)
-                    .map((name) => parseType(name))
+                    .map((name) => parseType(tokenize(name)))
                     .filter((type_) => type_.kind !== "err")
                     .map((type_) => (type_ as Ok<Type>).value);
 
-                const type_ = parseType(splitTypes.join(" "));
+                const type_ = parseType(tokenize(splitTypes.join(" ")));
 
                 if (type_.kind === "err") return type_;
                 return Ok(TagArg(split[0].trim(), type_.value));
@@ -193,6 +312,7 @@ function parseUnionType(block: string): Result<string, UnionType> {
             return tag;
         }
     }
+
     return Ok(
         UnionType(
             parsedType.value,
@@ -213,7 +333,7 @@ function parseProperty(block: string): Result<string, Property> {
             ? bitsAfterName.split(",").slice(0, -1).join(",").trim()
             : bitsAfterName.trim();
 
-    const type = parseType(bitsBeforeFinalComma);
+    const type = parseType(tokenize(bitsBeforeFinalComma));
 
     if (type.kind === "err") return type;
     return Ok(Property(name, type.value));
@@ -226,10 +346,92 @@ function isRootProperty(line: string): boolean {
     return false;
 }
 
-function parseTypeAlias(block: string): Result<string, TypeAlias> {
-    const parsedAliasName = parseType(
-        block.split("=")[0].slice("type alias".length).trim()
-    );
+function parseTypeAlias(tokens: Token[]): Result<string, TypeAlias> {
+    let index = 0;
+    let hasSeenType = false;
+
+    while (index < tokens.length) {
+        const token = tokens[index];
+        if (token.kind === "KeywordToken") {
+            if (hasSeenType) {
+                if (token.body === "alias") {
+                    break;
+                }
+            } else if (token.body === "type") {
+                hasSeenType = true;
+            } else {
+                return Err("Expected `type alias` but got " + token);
+            }
+        }
+
+        index++;
+    }
+
+    index += 2;
+
+    let typeLine: Token[] = [ ];
+    let isInDefinition = false;
+    let currentDefinition = [ ];
+
+    for (var i = index; i < tokens.length; i++) {
+        const token = tokens[i];
+
+        switch (token.kind) {
+            case "IdentifierToken": {
+                if (isInDefinition) {
+                    currentDefinition.push(token.body);
+                } else {
+                    typeLine.push(token);
+                }
+
+                break;
+            }
+
+            case "WhitespaceToken":
+            case "OpenBracketToken":
+            case "CloseBracketToken": {
+                continue;
+            }
+
+            case "CommaToken": {
+                currentDefinition.push(",");
+                break;
+            }
+
+            case "ColonToken": {
+                currentDefinition.push(":");
+                break;
+            }
+
+            case "OpenCurlyBracesToken": {
+                if (isInDefinition) {
+                    currentDefinition.push("{");
+                    break;
+                }
+            }
+
+            case "OpenCurlyBracesToken":
+            case "CloseCurlyBracesToken": {
+                if (isInDefinition) {
+                    currentDefinition.push(" }");
+                    break;
+                }
+            }
+
+            case "AssignToken": {
+                isInDefinition = true;
+                break;
+            }
+
+            default: {
+                return Err(
+                    "Unexpected token parsing a union type. Got " + token.kind
+                );
+            }
+        }
+    }
+
+    const parsedAliasName = parseType(typeLine);
 
     if (parsedAliasName.kind === "err") {
         return parsedAliasName;
@@ -237,7 +439,7 @@ function parseTypeAlias(block: string): Result<string, TypeAlias> {
 
     const aliasName = parsedAliasName.value;
 
-    const recordDefinition = block.split("=").slice(1).join("=");
+    const recordDefinition = currentDefinition.join(" ");
 
     let lines: string[] = [ ];
     recordDefinition.split("\n").forEach((line: string) => {
@@ -319,7 +521,7 @@ function parseTypeAlias(block: string): Result<string, TypeAlias> {
     );
 }
 
-function parseObjectLiteral(body: string): Result<string, ObjectLiteral> {
+function parseObjectLiteral(tokens: Token[]): Result<string, ObjectLiteral> {
     const fields: Field[] = [ ];
 
     let currentName = "";
@@ -329,90 +531,166 @@ function parseObjectLiteral(body: string): Result<string, ObjectLiteral> {
 
     let isInName = false;
 
-    for (var i = 0; i < body.length; i++) {
-        const currentChar = body[i];
+    let index = 0;
 
-        if (currentChar === "{") {
-            objectDepth++;
-            isInName = true;
-        } else if (currentChar === "}") {
-            if (objectDepth === 1) {
-                const innerLiteral = parseExpression(innermostBuffer);
-                if (innerLiteral.kind === "err") return innerLiteral;
-                innermostBuffer = "";
-                currentValue = innerLiteral.value;
+    while (index < tokens.length) {
+        const token = tokens[index];
 
-                fields.push(Field(currentName.trim(), currentValue));
-                currentName = "";
-                currentValue = null;
-            }
-            objectDepth--;
-        } else if (currentChar === ":") {
-            isInName = false;
-        } else if (currentChar === ",") {
-            if (objectDepth > 1) {
-                innermostBuffer += currentChar;
-            } else {
-                const innerLiteral = parseExpression(innermostBuffer);
-                if (innerLiteral.kind === "err") return innerLiteral;
-                fields.push(Field(currentName.trim(), innerLiteral.value));
-                innermostBuffer = "";
-                currentName = "";
+        switch (token.kind) {
+            case "OpenCurlyBracesToken": {
+                objectDepth++;
                 isInName = true;
+                break;
             }
-        } else {
-            if (isInName) {
-                currentName += currentChar;
-            } else {
-                innermostBuffer += currentChar;
+
+            case "CloseCurlyBracesToken": {
+                if (objectDepth === 1) {
+                    const innerLiteral = parseExpression(innermostBuffer);
+                    if (innerLiteral.kind === "err") return innerLiteral;
+                    innermostBuffer = "";
+                    currentValue = innerLiteral.value;
+
+                    fields.push(Field(currentName.trim(), currentValue));
+                    currentName = "";
+                    currentValue = null;
+                }
+                objectDepth--;
+                break;
+            }
+
+            case "ColonToken": {
+                isInName = false;
+                break;
+            }
+
+            case "CommaToken": {
+                if (objectDepth > 1) {
+                    innermostBuffer += ",";
+                } else {
+                    const innerLiteral = parseExpression(innermostBuffer);
+                    if (innerLiteral.kind === "err") return innerLiteral;
+                    fields.push(Field(currentName.trim(), innerLiteral.value));
+                    innermostBuffer = "";
+                    currentName = "";
+                    isInName = true;
+                }
+                break;
+            }
+
+            case "FormatStringToken":
+            case "StringToken":
+            case "LiteralToken":
+            case "IdentifierToken": {
+                if (isInName) {
+                    currentName += token.body;
+                } else {
+                    innermostBuffer += token.body;
+                }
+                break;
             }
         }
+
+        index++;
     }
 
     return Ok(ObjectLiteral(fields));
 }
 
-function parseValue(body: string): Result<string, Value> {
-    const trimmed = body.trim();
+function parseValue(tokens: Token[]): Result<string, Value> {
+    const body: (LiteralToken | IdentifierToken)[] = [ ];
 
-    if (trimmed.split(" ").length > 1) {
-        return Err(`Too many values: ${trimmed}`);
+    let index = 0;
+
+    while (index < tokens.length) {
+        const token = tokens[index];
+
+        switch (token.kind) {
+            case "WhitespaceToken": {
+                break;
+            }
+            case "LiteralToken":
+            case "IdentifierToken": {
+                body.push(token);
+                break;
+            }
+            default: {
+                return Err(`Expected value but got ${token.kind}`);
+            }
+        }
+        index++;
+    }
+
+    if (body.length > 1) {
+        return Err(`Too many values: ${body}`);
     } else {
-        return Ok(Value(trimmed));
+        return Ok(Value(body[0].body));
     }
 }
 
-function parseStringValue(body: string): Result<string, StringValue> {
-    const trimmed = body.trim();
-    const parts = trimmed.split('"').filter((part) => part.length > 0);
+function parseStringValue(tokens: Token[]): Result<string, StringValue> {
+    if (tokens[0].kind === "StringToken")
+        return Ok(StringValue(tokens[0].body.slice(1, -1)));
 
-    if (parts.length > 1) {
-        return Err(`Too many values: ${trimmed}`);
-    } else if (parts.length === 0) {
-        return Ok(StringValue(""));
-    } else {
-        return Ok(StringValue(parts[0]));
+    return Err(`Expected string literal, got ${tokens[0].kind}`);
+}
+
+function parseListRange(tokens: Token[]): Result<string, ListRange> {
+    let index = 0;
+
+    while (index < tokens.length) {
+        const token = tokens[index];
+
+        switch (token.kind) {
+            case "WhitespaceToken": {
+                break;
+            }
+
+            case "LiteralToken": {
+                const trimmed = token.body.trim().slice(1).slice(0, -1);
+                const pieces = trimmed.split("..");
+                const start = parseValue(tokenize(pieces[0]));
+                const end = parseValue(tokenize(pieces[1]));
+
+                if (start.kind === "err") return start;
+                if (end.kind === "err") return end;
+
+                return Ok(ListRange(start.value, end.value));
+            }
+
+            default: {
+                return Err(
+                    `Unxpected ${token.kind}, expected whitespace or literal`
+                );
+            }
+        }
+        index++;
     }
+
+    return Err("Failed to find list range. They should look like [1..2]");
 }
 
-function parseListRange(body: string): Result<string, ListRange> {
-    const trimmed = body.trim().slice(1).slice(0, -1);
-    const pieces = trimmed.split("..");
-    const start = parseValue(pieces[0]);
-    const end = parseValue(pieces[1]);
+function parseListValue(tokens: Token[]): Result<string, ListValue> {
+    let index = 0;
+    let isFound = false;
 
-    if (start.kind === "err") return start;
-    if (end.kind === "err") return end;
+    while (index < tokens.length) {
+        const token = tokens[index];
 
-    return Ok(ListRange(start.value, end.value));
-}
+        switch (token.kind) {
+            case "LiteralToken": {
+                isFound = true;
+            }
+        }
+        if (isFound) break;
+        index++;
+    }
 
-function parseListValue(body: string): Result<string, ListValue> {
-    const trimmed = body.trim();
-    const innerBody = trimmed.slice(1, trimmed.length - 1).trim();
     const parsedValues = [ ];
     let bracketDepth = 0;
     let buffer = "";
+    const body = tokensToString(tokens.slice(index));
+    const trimmed = body.trim();
+    const innerBody = trimmed.slice(1, trimmed.length - 1).trim();
 
     for (var i = 0; i < innerBody.length; i++) {
         const char = innerBody[i];
@@ -467,32 +745,114 @@ function parseListValue(body: string): Result<string, ListValue> {
 }
 
 function parseFormatStringValue(
-    body: string
+    tokens: Token[]
 ): Result<string, FormatStringValue> {
-    const trimmed = body.trim();
-    const parts = trimmed.split("`").filter((part) => part.length > 0);
+    if (tokens[0].kind === "FormatStringToken")
+        return Ok(FormatStringValue(tokens[0].body.slice(1, -1)));
 
-    if (parts.length > 1) {
-        return Err(`Too many values: ${trimmed}`);
-    } else if (parts.length === 0) {
-        return Ok(FormatStringValue(""));
-    } else {
-        return Ok(FormatStringValue(parts[0]));
-    }
+    return Err(`Expected string literal, got ${tokens[0].kind}`);
 }
 
-function parseDestructure(body: string): Result<string, Destructure> {
-    body = body.trim();
-    const constructor = body.split(" ")[0];
-    const pattern = body.split(" ").slice(1).join(" ");
+function parseDestructure(tokens: Token[]): Result<string, Destructure> {
+    let index = 0;
+    let constructor = null;
+
+    while (index < tokens.length) {
+        const token = tokens[index];
+
+        switch (token.kind) {
+            case "WhitespaceToken": {
+                break;
+            }
+            case "IdentifierToken": {
+                constructor = token.body;
+                break;
+            }
+            default: {
+                return Err(
+                    `Expected identifier or whitespace but got ${token.kind}.`
+                );
+            }
+        }
+        if (constructor) break;
+        index++;
+    }
+    index++;
+
+    if (constructor === null)
+        return Err("Expected identifer for a destructor but got nothing.");
+
+    let patternParts = [ ];
+
+    while (index < tokens.length) {
+        const token = tokens[index];
+
+        switch (token.kind) {
+            case "WhitespaceToken": {
+                if (patternParts.length === 0) break;
+            }
+            default: {
+                patternParts.push(token);
+                break;
+            }
+        }
+        index++;
+    }
+    index++;
+
+    const pattern = tokensToString(patternParts).trim();
 
     return Ok(Destructure(constructor, pattern));
 }
 
-function parseConstructor(body: string): Result<string, Constructor> {
-    body = body.trim();
-    const constructor = body.split(" ")[0];
-    const pattern = body.split(" ").slice(1).join(" ");
+function parseConstructor(tokens: Token[]): Result<string, Constructor> {
+    let index = 0;
+    let constructor = null;
+
+    while (index < tokens.length) {
+        const token = tokens[index];
+
+        switch (token.kind) {
+            case "WhitespaceToken": {
+                break;
+            }
+            case "IdentifierToken": {
+                constructor = token.body;
+                break;
+            }
+            default: {
+                return Err(
+                    `Expected identifier or whitespace but got ${token.kind}.`
+                );
+            }
+        }
+        if (constructor) break;
+        index++;
+    }
+    index++;
+
+    if (constructor === null)
+        return Err("Expected identifer for a constructor but got nothing.");
+
+    let patternParts = [ ];
+
+    while (index < tokens.length) {
+        const token = tokens[index];
+
+        switch (token.kind) {
+            case "WhitespaceToken": {
+                if (patternParts.length === 0) break;
+            }
+            default: {
+                patternParts.push(token);
+                break;
+            }
+        }
+        index++;
+    }
+    index++;
+
+    const pattern = tokensToString(patternParts);
 
     return Ok(Constructor(constructor, pattern));
 }
@@ -557,7 +917,6 @@ function parseIfStatement(body: string): Result<string, IfStatement> {
     const parsedPredicate = parseExpression(predicate.join(" "));
 
     const indentLevel = getIndentLevel(lines[0]);
-
     const elseIndex = lines.reduce(
         (previous, current, index) => {
             if (previous.found) return previous;
@@ -637,7 +996,9 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
 
             const branchExpression = parseExpression(branchLines.join("\n"));
 
-            const parsedBranchPattern = parseDestructure(branchPattern);
+            const parsedBranchPattern = parseDestructure(
+                tokenize(branchPattern)
+            );
 
             if (
                 branchExpression.kind === "err" ||
@@ -673,7 +1034,7 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
     if (branchLines.length > 0) {
         const branchExpression = parseExpression(branchLines.join("\n"));
 
-        const parsedBranchPattern = parseDestructure(branchPattern);
+        const parsedBranchPattern = parseDestructure(tokenize(branchPattern));
 
         if (
             branchExpression.kind === "err" ||
@@ -714,87 +1075,72 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
     );
 }
 
-function parseAddition(body: string): Result<string, Addition> {
-    const left = body.split("+")[0];
-    const right = body.split("+").slice(1).join("+");
+function parseAddition(tokens: Token[]): Result<string, Addition> {
+    const operator = "+";
+    const { left, right } = parseOperator(operator, tokens);
 
-    const leftParsed = parseExpression(left);
-    const rightParsed = parseExpression(right);
+    if (left.kind === "err") return left;
+    if (right.kind === "err") return right;
 
-    if (leftParsed.kind === "err") return leftParsed;
-    if (rightParsed.kind === "err") return rightParsed;
-
-    return Ok(Addition(leftParsed.value, rightParsed.value));
+    return Ok(Addition(left.value, right.value));
 }
 
-function parseSubtraction(body: string): Result<string, Subtraction> {
-    const left = body.split("-")[0];
-    const right = body.split("-").slice(1).join("-");
+function parseSubtraction(tokens: Token[]): Result<string, Subtraction> {
+    const operator = "-";
+    const { left, right } = parseOperator(operator, tokens);
 
-    const leftParsed = parseExpression(left);
-    const rightParsed = parseExpression(right);
+    if (left.kind === "err") return left;
+    if (right.kind === "err") return right;
 
-    if (leftParsed.kind === "err") return leftParsed;
-    if (rightParsed.kind === "err") return rightParsed;
-
-    return Ok(Subtraction(leftParsed.value, rightParsed.value));
+    return Ok(Subtraction(left.value, right.value));
 }
 
-function parseMultiplcation(body: string): Result<string, Multiplication> {
-    const left = body.split("*")[0];
-    const right = body.split("*").slice(1).join("*");
+function parseMultiplcation(tokens: Token[]): Result<string, Multiplication> {
+    const operator = "*";
+    const { left, right } = parseOperator(operator, tokens);
 
-    const leftParsed = parseExpression(left);
-    const rightParsed = parseExpression(right);
+    if (left.kind === "err") return left;
+    if (right.kind === "err") return right;
 
-    if (leftParsed.kind === "err") return leftParsed;
-    if (rightParsed.kind === "err") return rightParsed;
-
-    return Ok(Multiplication(leftParsed.value, rightParsed.value));
+    return Ok(Multiplication(left.value, right.value));
 }
 
-function parseDivision(body: string): Result<string, Division> {
-    const left = body.split("/")[0];
-    const right = body.split("/").slice(1).join("/");
+function parseDivision(tokens: Token[]): Result<string, Division> {
+    const operator = "/";
+    const { left, right } = parseOperator(operator, tokens);
 
-    const leftParsed = parseExpression(left);
-    const rightParsed = parseExpression(right);
+    if (left.kind === "err") return left;
+    if (right.kind === "err") return right;
 
-    if (leftParsed.kind === "err") return leftParsed;
-    if (rightParsed.kind === "err") return rightParsed;
-
-    return Ok(Division(leftParsed.value, rightParsed.value));
+    return Ok(Division(left.value, right.value));
 }
 
-function parseLeftPipe(body: string): Result<string, LeftPipe> {
-    const left = body.split("|>")[0];
-    const right = body.split("|>").slice(1).join("|>");
+function parseLeftPipe(tokens: Token[]): Result<string, LeftPipe> {
+    const operator = "|>";
+    const { left, right } = parseOperator(operator, tokens);
 
-    const leftParsed = parseExpression(left);
-    const rightParsed = parseExpression(right);
+    if (left.kind === "err") return left;
+    if (right.kind === "err") return right;
+    if (!isLeftPipeableExpression(right.value))
+        return Err(`Could not pipe to ${right.value}`);
 
-    if (leftParsed.kind === "err") return leftParsed;
-    if (rightParsed.kind === "err") return rightParsed;
-    if (!isLeftPipeableExpression(rightParsed.value))
-        return Err(`Could not pipe to ${rightParsed.value}`);
-
-    return Ok(LeftPipe(leftParsed.value, rightParsed.value));
+    return Ok(LeftPipe(left.value, right.value));
 }
 
-function parseRightPipe(body: string): Result<string, RightPipe> {
-    const left = body.split("<|")[0];
-    const right = body.split("<|").slice(1).join("<|");
+function parseRightPipe(tokens: Token[]): Result<string, RightPipe> {
+    const operator = "<|";
+    const { left, right } = parseOperator(operator, tokens);
 
-    const leftParsed = parseExpression(left);
-    const rightParsed = parseExpression(right);
+    if (left.kind === "err") return left;
+    if (right.kind === "err") return right;
 
-    if (leftParsed.kind === "err") return leftParsed;
-    if (rightParsed.kind === "err") return rightParsed;
-
-    return Ok(RightPipe(leftParsed.value, rightParsed.value));
+    return Ok(RightPipe(left.value, right.value));
 }
 
-function parseModuleReference(body: string): Result<string, ModuleReference> {
+function parseModuleReference(
+    tokens: Token[]
+): Result<string, ModuleReference> {
+    const body = tokensToString(tokens);
     const trimmedBody = body.trim();
     const firstPart = trimmedBody.split(" ")[0];
     const possibleModuleParts = firstPart.split(".");
@@ -816,57 +1162,48 @@ function parseModuleReference(body: string): Result<string, ModuleReference> {
     return Ok(ModuleReference(moduleName, expression.value));
 }
 
-function parseFunctionCall(body: string): Result<string, FunctionCall> {
-    const trimmedBody = body.trim();
-    const functionName = trimmedBody.split(" ")[0];
-    const args: (string | Result<string, Expression>)[] = [ ];
-    let buffer = "";
-    let isInList = false;
-    let isInObjectLiteral = false;
-    let isInQuote = false;
+function parseFunctionCall(tokens: Token[]): Result<string, FunctionCall> {
+    let functionName = null;
+    let index = 0;
 
-    const withoutFunctionCall = trimmedBody.split(" ").slice(1).join(" ");
-
-    for (var i = 0; i < withoutFunctionCall.length; i++) {
-        const currentChar = withoutFunctionCall[i];
-
-        if (currentChar === "[") {
-            isInList = true;
-            buffer += currentChar;
-        } else if (currentChar === "]") {
-            isInList = false;
-            buffer += currentChar;
-            args.push(buffer);
-            buffer = "";
-        } else if (currentChar === "{") {
-            isInObjectLiteral = true;
-            buffer += currentChar;
-        } else if (currentChar === "}") {
-            isInObjectLiteral = false;
-            buffer += currentChar;
-        } else if (currentChar === '"') {
-            if (isInQuote) {
-                args.push(Ok(StringValue(buffer)));
-                buffer = "";
-                isInQuote = false;
-            } else {
-                isInQuote = true;
-            }
-        } else if (
-            currentChar === " " &&
-            !isInList &&
-            !isInObjectLiteral &&
-            !isInQuote
-        ) {
-            args.push(Ok(Value(buffer)));
-            buffer = "";
+    while (index < tokens.length) {
+        const token = tokens[index];
+        if (token.kind === "WhitespaceToken") {
+        } else if (token.kind === "IdentifierToken") {
+            functionName = token.body;
+            break;
         } else {
-            buffer += currentChar;
+            return Err(`Expected identifier but got ${token.kind}`);
+        }
+        index++;
+    }
+    index++;
+
+    if (!functionName) {
+        return Err(`Expected identifier but got nothing.`);
+    }
+
+    while (index < tokens.length) {
+        if (tokens[index].kind === "WhitespaceToken") {
+            index++;
+        } else {
+            break;
         }
     }
 
-    if (buffer.length > 0) {
-        args.push(buffer);
+    const args: (string | Result<string, Expression>)[] = [ ];
+
+    for (var i = index; i < tokens.length; i++) {
+        const token = tokens[i];
+
+        switch (token.kind) {
+            case "LiteralToken":
+            case "StringToken":
+            case "FormatStringToken":
+            case "IdentifierToken": {
+                args.push(token.body);
+            }
+        }
     }
 
     const parsedArgs = args.map((arg) => {
@@ -892,15 +1229,36 @@ function parseFunctionCall(body: string): Result<string, FunctionCall> {
     return Ok(FunctionCall(functionName, correctArgs));
 }
 
-function parseLambda(body: string): Result<string, Lambda> {
-    // Looks like \x y -> x + y
-    const trimmedBody = body.trim();
+function parseLambda(tokens: Token[]): Result<string, Lambda> {
+    let index = 0;
+    let isDone = false;
+    const args = [ ];
 
-    // Looks like [x, y]
-    const args = trimmedBody.split("->")[0].split("\\")[1].trim().split(" ");
+    while (index < tokens.length) {
+        const token = tokens[index];
+
+        switch (token.kind) {
+            case "IdentifierToken": {
+                args.push(token.body);
+                break;
+            }
+
+            case "ArrowToken": {
+                isDone = true;
+                break;
+            }
+
+            case "WhitespaceToken": {
+                break;
+            }
+        }
+        if (isDone) break;
+        index++;
+    }
+    index++;
 
     // Looks like x + y
-    const lambdaBody = trimmedBody.split("->")[1].trim();
+    const lambdaBody = tokensToString(tokens.slice(index));
     const parsedBody = parseExpression(lambdaBody);
 
     if (parsedBody.kind === "err") {
@@ -912,19 +1270,46 @@ function parseLambda(body: string): Result<string, Lambda> {
     return Ok(Lambda(args, parsedBody.value));
 }
 
-function parseEquality(body: string): Result<string, Equality> {
-    const left = parseExpression(body.split(" == ")[0]);
-    const right = parseExpression(body.split(" == ")[1]);
+function parseOperator(
+    operator: string,
+    tokens: Token[]
+): { left: Result<string, Expression>; right: Result<string, Expression> } {
+    let seenOperator = false;
+    let index = 0;
 
+    while (index < tokens.length) {
+        const token = tokens[index];
+
+        switch (token.kind) {
+            case "OperatorToken": {
+                if (token.body === operator) {
+                    seenOperator = true;
+                }
+            }
+        }
+
+        if (seenOperator) break;
+        index++;
+    }
+
+    const left = parseExpression(tokensToString(tokens.slice(0, index)));
+    const right = parseExpression(tokensToString(tokens.slice(index + 1)));
+
+    return { left, right };
+}
+
+function parseEquality(tokens: Token[]): Result<string, Equality> {
+    const operator = "==";
+    const { left, right } = parseOperator(operator, tokens);
     if (left.kind === "err") return left;
     if (right.kind === "err") return right;
 
     return Ok(Equality(left.value, right.value));
 }
 
-function parseInEquality(body: string): Result<string, InEquality> {
-    const left = parseExpression(body.split(" != ")[0]);
-    const right = parseExpression(body.split(" != ")[1]);
+function parseInEquality(tokens: Token[]): Result<string, InEquality> {
+    const operator = "!=";
+    const { left, right } = parseOperator(operator, tokens);
 
     if (left.kind === "err") return left;
     if (right.kind === "err") return right;
@@ -932,9 +1317,9 @@ function parseInEquality(body: string): Result<string, InEquality> {
     return Ok(InEquality(left.value, right.value));
 }
 
-function parseLessThan(body: string): Result<string, LessThan> {
-    const left = parseExpression(body.split(" < ")[0]);
-    const right = parseExpression(body.split(" < ")[1]);
+function parseLessThan(tokens: Token[]): Result<string, LessThan> {
+    const operator = "<";
+    const { left, right } = parseOperator(operator, tokens);
 
     if (left.kind === "err") return left;
     if (right.kind === "err") return right;
@@ -942,9 +1327,11 @@ function parseLessThan(body: string): Result<string, LessThan> {
     return Ok(LessThan(left.value, right.value));
 }
 
-function parseLessThanOrEqual(body: string): Result<string, LessThanOrEqual> {
-    const left = parseExpression(body.split(" <= ")[0]);
-    const right = parseExpression(body.split(" <= ")[1]);
+function parseLessThanOrEqual(
+    tokens: Token[]
+): Result<string, LessThanOrEqual> {
+    const operator = "<=";
+    const { left, right } = parseOperator(operator, tokens);
 
     if (left.kind === "err") return left;
     if (right.kind === "err") return right;
@@ -952,9 +1339,9 @@ function parseLessThanOrEqual(body: string): Result<string, LessThanOrEqual> {
     return Ok(LessThanOrEqual(left.value, right.value));
 }
 
-function parseGreaterThan(body: string): Result<string, GreaterThan> {
-    const left = parseExpression(body.split(" > ")[0]);
-    const right = parseExpression(body.split(" > ")[1]);
+function parseGreaterThan(tokens: Token[]): Result<string, GreaterThan> {
+    const operator = ">";
+    const { left, right } = parseOperator(operator, tokens);
 
     if (left.kind === "err") return left;
     if (right.kind === "err") return right;
@@ -963,10 +1350,10 @@ function parseGreaterThan(body: string): Result<string, GreaterThan> {
 }
 
 function parseGreaterThanOrEqual(
-    body: string
+    tokens: Token[]
 ): Result<string, GreaterThanOrEqual> {
-    const left = parseExpression(body.split(" >= ")[0]);
-    const right = parseExpression(body.split(" >= ")[1]);
+    const operator = ">=";
+    const { left, right } = parseOperator(operator, tokens);
 
     if (left.kind === "err") return left;
     if (right.kind === "err") return right;
@@ -974,9 +1361,9 @@ function parseGreaterThanOrEqual(
     return Ok(GreaterThanOrEqual(left.value, right.value));
 }
 
-function parseAnd(body: string): Result<string, And> {
-    const left = parseExpression(body.split(" && ")[0]);
-    const right = parseExpression(body.split(" && ")[1]);
+function parseAnd(tokens: Token[]): Result<string, And> {
+    const operator = "&&";
+    const { left, right } = parseOperator(operator, tokens);
 
     if (left.kind === "err") return left;
     if (right.kind === "err") return right;
@@ -984,9 +1371,9 @@ function parseAnd(body: string): Result<string, And> {
     return Ok(And(left.value, right.value));
 }
 
-function parseOr(body: string): Result<string, Or> {
-    const left = parseExpression(body.split(" || ")[0]);
-    const right = parseExpression(body.split(" || ")[1]);
+function parseOr(tokens: Token[]): Result<string, Or> {
+    const operator = "||";
+    const { left, right } = parseOperator(operator, tokens);
 
     if (left.kind === "err") return left;
     if (right.kind === "err") return right;
@@ -996,84 +1383,222 @@ function parseOr(body: string): Result<string, Or> {
 
 export function parseExpression(body: string): Result<string, Expression> {
     const trimmedBody = body.trim();
+    const tokens = tokenize(body);
 
-    if (trimmedBody.startsWith("if ")) {
-        return parseIfStatement(body);
-    } else if (trimmedBody.startsWith("case ")) {
-        return parseCaseStatement(body);
-    } else if (trimmedBody.startsWith("{")) {
-        return parseObjectLiteral(body);
-    } else if (trimmedBody.startsWith("\\")) {
-        return parseLambda(body);
-    } else if (trimmedBody.indexOf("|>") > -1) {
-        return parseLeftPipe(body);
-    } else if (trimmedBody.indexOf("<|") > -1) {
-        return parseRightPipe(body);
-    } else if (trimmedBody.indexOf(" == ") > -1) {
-        return parseEquality(body);
-    } else if (trimmedBody.indexOf(" != ") > -1) {
-        return parseInEquality(body);
-    } else if (trimmedBody.indexOf(" < ") > -1) {
-        return parseLessThan(body);
-    } else if (trimmedBody.indexOf(" <= ") > -1) {
-        return parseLessThanOrEqual(body);
-    } else if (trimmedBody.indexOf(" > ") > -1) {
-        return parseGreaterThan(body);
-    } else if (trimmedBody.indexOf(" >= ") > -1) {
-        return parseGreaterThanOrEqual(body);
-    } else if (trimmedBody.indexOf(" && ") > -1) {
-        return parseAnd(body);
-    } else if (trimmedBody.indexOf(" || ") > -1) {
-        return parseOr(body);
-    } else if (trimmedBody.indexOf("+") > -1) {
-        return parseAddition(body);
-    } else if (trimmedBody.indexOf("-") > -1) {
-        return parseSubtraction(body);
-    } else if (trimmedBody.indexOf("*") > -1) {
-        return parseMultiplcation(body);
-    } else if (trimmedBody.indexOf("/") > -1) {
-        return parseDivision(body);
-    } else if (trimmedBody.startsWith('"')) {
-        return parseStringValue(body);
-    } else if (trimmedBody.startsWith("`")) {
-        return parseFormatStringValue(body);
-    } else if (trimmedBody.startsWith("[")) {
-        if (trimmedBody.indexOf("..") > -1) {
-            return parseListRange(body);
+    let index = 0;
+
+    while (index < tokens.length) {
+        if (tokens[index].kind !== "WhitespaceToken") break;
+        index++;
+    }
+
+    const firstToken = tokens[index];
+    switch (firstToken.kind) {
+        case "KeywordToken": {
+            if (firstToken.body === "if") {
+                return parseIfStatement(body);
+            } else if (firstToken.body === "case") {
+                return parseCaseStatement(body);
+            }
         }
-        return parseListValue(body);
+        case "OperatorToken": {
+            if (firstToken.body === "\\") {
+                return parseLambda(tokens);
+            }
+        }
+        case "OpenCurlyBracesToken": {
+            return parseObjectLiteral(tokens);
+        }
+    }
+
+    if (trimmedBody.indexOf("|>") > 0) {
+        return parseLeftPipe(tokens);
+    } else if (trimmedBody.indexOf("<|") > 0) {
+        return parseRightPipe(tokens);
+    } else if (trimmedBody.indexOf(" == ") > 0) {
+        return parseEquality(tokens);
+    } else if (trimmedBody.indexOf(" != ") > 0) {
+        return parseInEquality(tokens);
+    } else if (trimmedBody.indexOf(" < ") > 0) {
+        return parseLessThan(tokens);
+    } else if (trimmedBody.indexOf(" <= ") > 0) {
+        return parseLessThanOrEqual(tokens);
+    } else if (trimmedBody.indexOf(" > ") > 0) {
+        return parseGreaterThan(tokens);
+    } else if (trimmedBody.indexOf(" >= ") > 0) {
+        return parseGreaterThanOrEqual(tokens);
+    } else if (trimmedBody.indexOf(" && ") > 0) {
+        return parseAnd(tokens);
+    } else if (trimmedBody.indexOf(" || ") > 0) {
+        return parseOr(tokens);
+    } else if (trimmedBody.indexOf("+") > 0) {
+        return parseAddition(tokens);
+    } else if (trimmedBody.indexOf("-") > 0) {
+        return parseSubtraction(tokens);
+    } else if (trimmedBody.indexOf("*") > 0) {
+        return parseMultiplcation(tokens);
+    } else if (trimmedBody.indexOf("/") > 0) {
+        return parseDivision(tokens);
+    }
+
+    let isDone = false;
+    while (index < tokens.length) {
+        const token = tokens[index];
+        isDone = true;
+        switch (token.kind) {
+            case "ArrowToken": {
+                break;
+            }
+            case "AssignToken": {
+                break;
+            }
+            case "CloseBracketToken": {
+                break;
+            }
+            case "CloseCurlyBracesToken": {
+                break;
+            }
+            case "ColonToken": {
+                break;
+            }
+            case "CommaToken": {
+                break;
+            }
+            case "FormatStringToken": {
+                return parseFormatStringValue(tokens.slice(index));
+            }
+            case "IdentifierToken": {
+                break;
+            }
+            case "KeywordToken": {
+                break;
+            }
+            case "LiteralToken": {
+                break;
+            }
+            case "OpenBracketToken": {
+            }
+            case "OpenCurlyBracesToken": {
+                break;
+            }
+            case "OperatorToken": {
+                if (token.body === "\\") {
+                    return parseLambda(tokens.slice(index));
+                }
+                break;
+            }
+            case "PipeToken": {
+                break;
+            }
+            case "StringToken": {
+                return parseStringValue(tokens.slice(index));
+            }
+            case "WhitespaceToken": {
+                index++;
+                isDone = false;
+                break;
+            }
+        }
+
+        if (isDone) break;
+    }
+
+    if (trimmedBody.startsWith("[")) {
+        if (trimmedBody.indexOf("..") > -1) {
+            return parseListRange(tokens);
+        }
+        return parseListValue(tokens);
     } else if (trimmedBody.split(" ").length === 1) {
-        return parseValue(body);
+        return parseValue(tokens);
     } else {
         const firstPart = trimmedBody.split(" ")[0];
         const possibleModuleParts = firstPart.split(".");
 
         if (possibleModuleParts.length > 1) {
-            return parseModuleReference(body);
+            return parseModuleReference(tokens);
         }
 
         const firstChar = trimmedBody.slice(0, 1);
         if (firstChar.toUpperCase() === firstChar) {
-            return parseConstructor(body);
+            return parseConstructor(tokens);
         }
 
         if (trimmedBody.split(" ").length > 1) {
-            return parseFunctionCall(body);
+            return parseFunctionCall(tokens);
         }
     }
 
     return Err(`No expression found: '${body}'`);
 }
 
-function parseFunction(block: string): Result<string, Function> {
-    const typeLine = block.split("\n")[0];
-    const functionName = typeLine.split(":")[0].trim();
-    const types = typeLine
-        .split(":")
-        .slice(1)
-        .join(":")
-        .split("->")
-        .map((s) => s.trim());
+function parseFunction(tokens: Token[]): Result<string, Function> {
+    if (tokens[0].kind !== "IdentifierToken") {
+        return Err("Expected identfier, got " + tokens[0].kind);
+    }
+
+    const functionName = tokens[0].body;
+    let index = 1;
+
+    while (index < tokens.length) {
+        if (tokens[index].kind === "WhitespaceToken") {
+        } else if (tokens[index].kind !== "ColonToken") {
+            return Err("Expected `:`, got " + tokens[index].kind);
+        } else if (tokens[index].kind === "ColonToken") {
+            break;
+        }
+
+        index++;
+    }
+
+    index++;
+    const lastIndex = index;
+    let typeLine: string[] = [ ];
+    let currentType: string[] = [ ];
+    let isDone = false;
+
+    while (index < tokens.length) {
+        const token = tokens[index];
+        const previousToken = index > lastIndex ? tokens[index - 1] : null;
+
+        switch (token.kind) {
+            case "ArrowToken": {
+                typeLine.push(currentType.join(" "));
+                currentType = [ ];
+                break;
+            }
+
+            case "IdentifierToken": {
+                if (
+                    previousToken &&
+                    previousToken.kind === "WhitespaceToken" &&
+                    previousToken.body.indexOf("\n") > -1
+                ) {
+                    isDone = true;
+                } else {
+                    currentType.push(token.body);
+                }
+            }
+
+            case "WhitespaceToken": {
+                break;
+            }
+
+            default: {
+                return Err("Expected function type, got " + token.kind);
+            }
+        }
+
+        if (isDone) break;
+        index++;
+    }
+
+    if (currentType.length > 0) {
+        typeLine.push(currentType.join(" "));
+    }
+
+    const types = typeLine;
+    const bodyTokens = tokens.slice(index);
+    const block = tokensToString(bodyTokens);
 
     const lines = block.split("\n");
 
@@ -1094,7 +1619,10 @@ function parseFunction(block: string): Result<string, Function> {
             .map((block) => (block as Ok<Block>).value);
     }
 
-    const argumentLine = lines[1];
+    if (letBlock.length > 0) {
+    }
+
+    const argumentLine = lines[0];
     const argumentNames = argumentLine
         .slice(functionName.length)
         .split("=")[0]
@@ -1106,7 +1634,7 @@ function parseFunction(block: string): Result<string, Function> {
         .slice(0, types.length - 1)
         .map((type_, i) => {
             if (argumentNames.length <= i) {
-                const parsedType = parseType(type_);
+                const parsedType = parseType(tokenize(type_));
                 if (parsedType.kind === "err")
                     return Err(
                         `Failed to parse argument ${i} due to ${parsedType.error}`
@@ -1115,7 +1643,7 @@ function parseFunction(block: string): Result<string, Function> {
                 return Ok(AnonFunctionArg(i, parsedType.value));
             } else {
                 const name = argumentNames[i];
-                const parsedType = parseType(type_);
+                const parsedType = parseType(tokenize(type_));
                 if (parsedType.kind === "err")
                     return Err(
                         `Failed to parse ${name} due to ${parsedType.error}`
@@ -1126,10 +1654,10 @@ function parseFunction(block: string): Result<string, Function> {
         });
 
     const returnParts = types[types.length - 1].trim().split(" ");
-    const returnType = parseType(returnParts.join(" "));
+    const returnType = parseType(tokenize(returnParts.join(" ")));
 
     const body = [ argumentLine.split("=").slice(1).join("=").trim() ].concat(
-        block.split("\n").slice(letEnd > -1 ? letEnd + 1 : 2)
+        block.split("\n").slice(letEnd > -1 ? letEnd + 1 : 1)
     );
 
     const parsedBody = parseExpression(body.join("\n"));
@@ -1153,13 +1681,70 @@ function parseFunction(block: string): Result<string, Function> {
     );
 }
 
-function parseConst(block: string): Result<string, Const> {
-    const typeLine = block.split("\n")[0];
-    const constName = typeLine.split(":")[0].trim();
-    const constType = typeLine.split(":").slice(1).join(":").trim();
+function parseConst(tokens: Token[]): Result<string, Const> {
+    if (tokens[0].kind !== "IdentifierToken") {
+        return Err("Expected identfier, got " + tokens[0].kind);
+    }
+
+    const constName = tokens[0].body;
+    let index = 1;
+
+    // move parser past colon
+    while (index < tokens.length) {
+        const token = tokens[index];
+        if (token.kind === "WhitespaceToken") {
+        } else if (token.kind !== "ColonToken") {
+            return Err("Expected `:`, got " + token.kind);
+        } else if (token.kind === "ColonToken") {
+            break;
+        }
+
+        index++;
+    }
+    index++;
+
+    let constType: Token[] = [ ];
+    let isDoneReadingType = false;
+
+    while (index < tokens.length) {
+        const token = tokens[index];
+
+        switch (token.kind) {
+            case "WhitespaceToken": {
+                if (token.body.indexOf("\n") > -1) {
+                    isDoneReadingType = true;
+                    break;
+                }
+                break;
+            }
+
+            case "IdentifierToken": {
+                constType.push(token);
+                break;
+            }
+
+            case "OpenBracketToken": {
+                constType.push(token);
+                break;
+            }
+
+            case "CloseBracketToken": {
+                constType.push(token);
+                break;
+            }
+        }
+
+        if (isDoneReadingType) break;
+        index++;
+    }
+    index++;
+
+    let bodyParts = tokens.slice(index);
+    let block = tokensToString(bodyParts);
+
     const parsedType = parseType(constType);
 
-    const bodyLines = block.split("\n").slice(1).join("\n");
+    const bodyLines = block;
     const init: { pieces: string[]; hasSeenText: boolean } = {
         pieces: [ ],
         hasSeenText: false,
@@ -1191,28 +1776,71 @@ function parseConst(block: string): Result<string, Const> {
     return Ok(Const(constName, parsedType.value, parsedBody.value));
 }
 
-function parseImport(block: string): Result<string, Import> {
-    const moduleNames = block
-        .split("\n")
-        .map((importLine) => importLine.split("import")[1].trim());
+function parseImport(tokens: Token[]): Result<string, Import> {
+    const imports = [ ];
 
-    return Ok(Import(moduleNames));
+    for (var i = 0; i < tokens.length; i++) {
+        const token = tokens[i];
+
+        switch (token.kind) {
+            case "KeywordToken": {
+                if (token.body === "import") {
+                    continue;
+                } else {
+                    return Err("Expected `import` but got " + token.body);
+                }
+            }
+
+            case "IdentifierToken": {
+                imports.push(token.body);
+            }
+
+            case "WhitespaceToken":
+            case "CommaToken": {
+                continue;
+            }
+
+            default: {
+                return Err("Expected `import` but got " + token.kind);
+            }
+        }
+    }
+
+    return Ok(Import(imports));
 }
 
-function parseExport(block: string): Result<string, Export> {
-    const moduleNames = block
-        .split("\n")
-        .map((exportLine) =>
-            exportLine
-                .split("exposing")[1]
-                .trim()
-                .slice(1, -1)
-                .split(",")
-                .map((l) => l.trim())
-        )
-        .reduce((val, cur) => [ ...val, ...cur ]);
+function parseExport(tokens: Token[]): Result<string, Export> {
+    const exports = [ ];
+    for (var i = 0; i < tokens.length; i++) {
+        const token = tokens[i];
 
-    return Ok(Export(moduleNames));
+        switch (token.kind) {
+            case "KeywordToken": {
+                if (token.body === "exposing") {
+                    continue;
+                } else {
+                    return Err("Expected `exposing` but got " + token.body);
+                }
+            }
+
+            case "IdentifierToken": {
+                exports.push(token.body);
+            }
+
+            case "WhitespaceToken":
+            case "OpenBracketToken":
+            case "CloseBracketToken":
+            case "CommaToken": {
+                continue;
+            }
+
+            default: {
+                return Err("Expected `exposing` but got " + token.kind);
+            }
+        }
+    }
+
+    return Ok(Export(exports));
 }
 
 export function parseBlock(block: UnparsedBlock): Result<string, Block> {
@@ -1225,24 +1853,26 @@ ${block.lines.join("\n")}
         }, res);
     };
 
+    const tokens = tokenize(block.lines.join("\n"));
+
     switch (block.kind) {
         case "ImportBlock": {
-            return wrapError(parseImport(block.lines.join("\n")));
+            return wrapError(parseImport(tokens));
         }
         case "ExportBlock": {
-            return wrapError(parseExport(block.lines.join("\n")));
+            return wrapError(parseExport(tokens));
         }
         case "UnionTypeBlock": {
-            return wrapError(parseUnionType(block.lines.join("\n")));
+            return wrapError(parseUnionType(tokens));
         }
         case "TypeAliasBlock": {
-            return wrapError(parseTypeAlias(block.lines.join("\n")));
+            return wrapError(parseTypeAlias(tokens));
         }
         case "FunctionBlock": {
-            return wrapError(parseFunction(block.lines.join("\n")));
+            return wrapError(parseFunction(tokens));
         }
         case "ConstBlock": {
-            return wrapError(parseConst(block.lines.join("\n")));
+            return wrapError(parseConst(tokens));
         }
         case "UnknownBlock": {
             return Err(
