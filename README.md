@@ -260,6 +260,7 @@ names =
 -   [x] Module resolution
 -   [x] CLI
 -   [x] Basic type checking
+-   [x] Detect if types exist in current namespace
 -   [x] Syntax highlighting for editors
 -   [x] Collision detection for names in a module
 -   [x] Importing of Derw files

@@ -1,7 +1,15 @@
 import * as assert from "@eeue56/ts-assert";
+import { Nothing } from "@eeue56/ts-core/build/main/lib/maybe";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { parseBlock } from "../parser";
-import { Block, FixedType, GenericType, UnparsedBlock } from "../types";
+import {
+    Block,
+    FixedType,
+    GenericType,
+    Import,
+    ImportModule,
+    UnparsedBlock,
+} from "../types";
 import { validateType } from "../type_checking";
 
 export async function testEmptyList() {
@@ -15,7 +23,15 @@ value a = [ ]
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value),
+        validateType(
+            value,
+            [ ],
+            [
+                Import([
+                    ImportModule("List", Nothing(), [ "List" ], "Global"),
+                ]),
+            ]
+        ),
         Ok(FixedType("List", [ GenericType("any") ]))
     );
 }
@@ -31,7 +47,15 @@ value a = [ "hello", "world" ]
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value),
+        validateType(
+            value,
+            [ ],
+            [
+                Import([
+                    ImportModule("List", Nothing(), [ "List" ], "Global"),
+                ]),
+            ]
+        ),
         Ok(FixedType("List", [ FixedType("string", [ ]) ]))
     );
 }
@@ -47,7 +71,15 @@ value a = [ 1, 2 ]
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value),
+        validateType(
+            value,
+            [ ],
+            [
+                Import([
+                    ImportModule("List", Nothing(), [ "List" ], "Global"),
+                ]),
+            ]
+        ),
         Ok(FixedType("List", [ FixedType("number", [ ]) ]))
     );
 }
@@ -63,7 +95,15 @@ value a = [ 1..2 ]
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value),
+        validateType(
+            value,
+            [ ],
+            [
+                Import([
+                    ImportModule("List", Nothing(), [ "List" ], "Global"),
+                ]),
+            ]
+        ),
         Ok(FixedType("List", [ FixedType("number", [ ]) ]))
     );
 }
@@ -79,7 +119,18 @@ value a =
     assert.deepStrictEqual(parsed.kind, "ok");
 
     const value = (parsed as Ok<Block>).value;
-    assert.deepStrictEqual(validateType(value), Ok(FixedType("string", [ ])));
+    assert.deepStrictEqual(
+        validateType(
+            value,
+            [ ],
+            [
+                Import([
+                    ImportModule("List", Nothing(), [ "List" ], "Global"),
+                ]),
+            ]
+        ),
+        Ok(FixedType("string", [ ]))
+    );
 }
 
 export async function testFormatString() {
@@ -93,7 +144,18 @@ value a =
     assert.deepStrictEqual(parsed.kind, "ok");
 
     const value = (parsed as Ok<Block>).value;
-    assert.deepStrictEqual(validateType(value), Ok(FixedType("string", [ ])));
+    assert.deepStrictEqual(
+        validateType(
+            value,
+            [ ],
+            [
+                Import([
+                    ImportModule("Result", Nothing(), [ "Result" ], "Global"),
+                ]),
+            ]
+        ),
+        Ok(FixedType("string", [ ]))
+    );
 }
 
 export async function testObjectLiteral() {
@@ -110,7 +172,18 @@ value a =
     assert.deepStrictEqual(parsed.kind, "ok");
 
     const value = (parsed as Ok<Block>).value;
-    assert.deepStrictEqual(validateType(value), Ok(FixedType("Person", [ ])));
+    assert.deepStrictEqual(
+        validateType(
+            value,
+            [ ],
+            [
+                Import([
+                    ImportModule("Person", Nothing(), [ "Person" ], "Global"),
+                ]),
+            ]
+        ),
+        Ok(FixedType("Person", [ ]))
+    );
 }
 
 export async function testIfStatement() {
@@ -127,7 +200,10 @@ value a =
     assert.deepStrictEqual(parsed.kind, "ok");
 
     const value = (parsed as Ok<Block>).value;
-    assert.deepStrictEqual(validateType(value), Ok(FixedType("string", [ ])));
+    assert.deepStrictEqual(
+        validateType(value, [ ], [ ]),
+        Ok(FixedType("string", [ ]))
+    );
 }
 
 export async function testMultiIfStatement() {
@@ -144,7 +220,10 @@ value a =
     assert.deepStrictEqual(parsed.kind, "ok");
 
     const value = (parsed as Ok<Block>).value;
-    assert.deepStrictEqual(validateType(value), Ok(GenericType("any")));
+    assert.deepStrictEqual(
+        validateType(value, [ ], [ ]),
+        Ok(GenericType("any"))
+    );
 }
 
 export async function testCaseStatement() {
@@ -161,7 +240,18 @@ value x =
     assert.deepStrictEqual(parsed.kind, "ok");
 
     const value = (parsed as Ok<Block>).value;
-    assert.deepStrictEqual(validateType(value), Ok(FixedType("string", [ ])));
+    assert.deepStrictEqual(
+        validateType(
+            value,
+            [ ],
+            [
+                Import([
+                    ImportModule("Animal", Nothing(), [ "Animal" ], "Global"),
+                ]),
+            ]
+        ),
+        Ok(FixedType("string", [ ]))
+    );
 }
 
 export async function testMultiStatement() {
@@ -178,7 +268,18 @@ value x =
     assert.deepStrictEqual(parsed.kind, "ok");
 
     const value = (parsed as Ok<Block>).value;
-    assert.deepStrictEqual(validateType(value), Ok(GenericType("any")));
+    assert.deepStrictEqual(
+        validateType(
+            value,
+            [ ],
+            [
+                Import([
+                    ImportModule("Animal", Nothing(), [ "Animal" ], "Global"),
+                ]),
+            ]
+        ),
+        Ok(GenericType("any"))
+    );
 }
 
 export async function testAddition() {
@@ -193,7 +294,10 @@ value a =
     assert.deepStrictEqual(parsed.kind, "ok");
 
     const value = (parsed as Ok<Block>).value;
-    assert.deepStrictEqual(validateType(value), Ok(FixedType("number", [ ])));
+    assert.deepStrictEqual(
+        validateType(value, [ ], [ ]),
+        Ok(FixedType("number", [ ]))
+    );
 }
 
 export async function testMultiAddition() {
@@ -208,7 +312,10 @@ value a =
     assert.deepStrictEqual(parsed.kind, "ok");
 
     const value = (parsed as Ok<Block>).value;
-    assert.deepStrictEqual(validateType(value), Ok(GenericType("any")));
+    assert.deepStrictEqual(
+        validateType(value, [ ], [ ]),
+        Ok(GenericType("any"))
+    );
 }
 
 export async function testSubtraction() {
@@ -223,7 +330,10 @@ value a =
     assert.deepStrictEqual(parsed.kind, "ok");
 
     const value = (parsed as Ok<Block>).value;
-    assert.deepStrictEqual(validateType(value), Ok(FixedType("number", [ ])));
+    assert.deepStrictEqual(
+        validateType(value, [ ], [ ]),
+        Ok(FixedType("number", [ ]))
+    );
 }
 
 export async function testMultiSubtraction() {
@@ -238,7 +348,10 @@ value a =
     assert.deepStrictEqual(parsed.kind, "ok");
 
     const value = (parsed as Ok<Block>).value;
-    assert.deepStrictEqual(validateType(value), Ok(GenericType("any")));
+    assert.deepStrictEqual(
+        validateType(value, [ ], [ ]),
+        Ok(GenericType("any"))
+    );
 }
 
 export async function testMultiplication() {
@@ -253,7 +366,10 @@ value a =
     assert.deepStrictEqual(parsed.kind, "ok");
 
     const value = (parsed as Ok<Block>).value;
-    assert.deepStrictEqual(validateType(value), Ok(FixedType("number", [ ])));
+    assert.deepStrictEqual(
+        validateType(value, [ ], [ ]),
+        Ok(FixedType("number", [ ]))
+    );
 }
 
 export async function testMultiMultiplication() {
@@ -268,7 +384,10 @@ value a =
     assert.deepStrictEqual(parsed.kind, "ok");
 
     const value = (parsed as Ok<Block>).value;
-    assert.deepStrictEqual(validateType(value), Ok(GenericType("any")));
+    assert.deepStrictEqual(
+        validateType(value, [ ], [ ]),
+        Ok(GenericType("any"))
+    );
 }
 
 export async function testDivision() {
@@ -283,7 +402,10 @@ value a =
     assert.deepStrictEqual(parsed.kind, "ok");
 
     const value = (parsed as Ok<Block>).value;
-    assert.deepStrictEqual(validateType(value), Ok(FixedType("number", [ ])));
+    assert.deepStrictEqual(
+        validateType(value, [ ], [ ]),
+        Ok(FixedType("number", [ ]))
+    );
 }
 
 export async function testMultiDivision() {
@@ -298,7 +420,10 @@ value a =
     assert.deepStrictEqual(parsed.kind, "ok");
 
     const value = (parsed as Ok<Block>).value;
-    assert.deepStrictEqual(validateType(value), Ok(GenericType("any")));
+    assert.deepStrictEqual(
+        validateType(value, [ ], [ ]),
+        Ok(GenericType("any"))
+    );
 }
 
 export async function testEquality() {
@@ -313,7 +438,10 @@ value a =
     assert.deepStrictEqual(parsed.kind, "ok");
 
     const value = (parsed as Ok<Block>).value;
-    assert.deepStrictEqual(validateType(value), Ok(FixedType("boolean", [ ])));
+    assert.deepStrictEqual(
+        validateType(value, [ ], [ ]),
+        Ok(FixedType("boolean", [ ]))
+    );
 }
 
 export async function testInEquality() {
@@ -328,7 +456,10 @@ value a =
     assert.deepStrictEqual(parsed.kind, "ok");
 
     const value = (parsed as Ok<Block>).value;
-    assert.deepStrictEqual(validateType(value), Ok(FixedType("boolean", [ ])));
+    assert.deepStrictEqual(
+        validateType(value, [ ], [ ]),
+        Ok(FixedType("boolean", [ ]))
+    );
 }
 
 export async function testLessThan() {
@@ -343,7 +474,10 @@ value a =
     assert.deepStrictEqual(parsed.kind, "ok");
 
     const value = (parsed as Ok<Block>).value;
-    assert.deepStrictEqual(validateType(value), Ok(FixedType("boolean", [ ])));
+    assert.deepStrictEqual(
+        validateType(value, [ ], [ ]),
+        Ok(FixedType("boolean", [ ]))
+    );
 }
 
 export async function testLessThanOrEqual() {
@@ -358,7 +492,10 @@ value a =
     assert.deepStrictEqual(parsed.kind, "ok");
 
     const value = (parsed as Ok<Block>).value;
-    assert.deepStrictEqual(validateType(value), Ok(FixedType("boolean", [ ])));
+    assert.deepStrictEqual(
+        validateType(value, [ ], [ ]),
+        Ok(FixedType("boolean", [ ]))
+    );
 }
 
 export async function testGreaterThan() {
@@ -373,7 +510,10 @@ value a =
     assert.deepStrictEqual(parsed.kind, "ok");
 
     const value = (parsed as Ok<Block>).value;
-    assert.deepStrictEqual(validateType(value), Ok(FixedType("boolean", [ ])));
+    assert.deepStrictEqual(
+        validateType(value, [ ], [ ]),
+        Ok(FixedType("boolean", [ ]))
+    );
 }
 
 export async function testGreaterThanOrEqual() {
@@ -388,5 +528,8 @@ value a =
     assert.deepStrictEqual(parsed.kind, "ok");
 
     const value = (parsed as Ok<Block>).value;
-    assert.deepStrictEqual(validateType(value), Ok(FixedType("boolean", [ ])));
+    assert.deepStrictEqual(
+        validateType(value, [ ], [ ]),
+        Ok(FixedType("boolean", [ ]))
+    );
 }

@@ -12,16 +12,27 @@ import {
     GenericType,
     IfStatement,
     Module,
+    Tag,
+    TagArg,
+    UnionType,
     UnparsedBlock,
     Value,
 } from "../types";
 
 const oneLine = `
+type Maybe a =
+    Just { value: a }
+    | Nothing
+
 isTrue: Maybe a -> Maybe b
 isTrue value = if value then value else value
 `.trim();
 
 const multiLine = `
+type Maybe a =
+    Just { value: a }
+    | Nothing
+
 isTrue: Maybe a -> Maybe b
 isTrue value =
     if value then
@@ -31,6 +42,31 @@ isTrue value =
 `.trim();
 
 const expectedOutput = `
+type Just<a> = {
+    kind: "Just";
+    value: a;
+};
+
+function Just<a>(args: { value: a }): Just<a> {
+    return {
+        kind: "Just",
+        ...args,
+    };
+}
+
+type Nothing = {
+    kind: "Nothing";
+};
+
+function Nothing(args: {}): Nothing {
+    return {
+        kind: "Nothing",
+        ...args,
+    };
+}
+
+type Maybe<a> = Just<a> | Nothing;
+
 function isTrue<a, b>(value: Maybe<a>): Maybe<b> {
     if (value) {
         return value;
@@ -41,6 +77,20 @@ function isTrue<a, b>(value: Maybe<a>): Maybe<b> {
 `.trim();
 
 const expectedOutputJS = `
+function Just(args) {
+    return {
+        kind: "Just",
+        ...args,
+    };
+}
+
+function Nothing(args) {
+    return {
+        kind: "Nothing",
+        ...args,
+    };
+}
+
 function isTrue(value) {
     if (value) {
         return value;
@@ -52,22 +102,24 @@ function isTrue(value) {
 
 export function testIntoBlocks() {
     assert.deepStrictEqual(intoBlocks(oneLine), [
-        UnparsedBlock("FunctionBlock", 0, oneLine.split("\n")),
+        UnparsedBlock("UnionTypeBlock", 0, oneLine.split("\n").slice(0, 3)),
+        UnparsedBlock("FunctionBlock", 4, oneLine.split("\n").slice(4)),
     ]);
 }
 
 export function testIntoBlocksMultiLine() {
     assert.deepStrictEqual(intoBlocks(multiLine), [
-        UnparsedBlock("FunctionBlock", 0, multiLine.split("\n")),
+        UnparsedBlock("UnionTypeBlock", 0, multiLine.split("\n").slice(0, 3)),
+        UnparsedBlock("FunctionBlock", 4, multiLine.split("\n").slice(4)),
     ]);
 }
 
 export function testBlockKind() {
-    assert.deepStrictEqual(blockKind(oneLine), Ok("Function"));
+    assert.deepStrictEqual(blockKind(oneLine), Ok("UnionType"));
 }
 
 export function testBlockKindMultiLine() {
-    assert.deepStrictEqual(blockKind(multiLine), Ok("Function"));
+    assert.deepStrictEqual(blockKind(multiLine), Ok("UnionType"));
 }
 
 export function testParse() {
@@ -76,6 +128,10 @@ export function testParse() {
         Module(
             "main",
             [
+                UnionType(FixedType("Maybe", [ GenericType("a") ]), [
+                    Tag("Just", [ TagArg("value", GenericType("a")) ]),
+                    Tag("Nothing", [ ]),
+                ]),
                 Function(
                     "isTrue",
                     FixedType("Maybe", [ GenericType("b") ]),
@@ -100,6 +156,10 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
+                UnionType(FixedType("Maybe", [ GenericType("a") ]), [
+                    Tag("Just", [ TagArg("value", GenericType("a")) ]),
+                    Tag("Nothing", [ ]),
+                ]),
                 Function(
                     "isTrue",
                     FixedType("Maybe", [ GenericType("b") ]),

@@ -1,5 +1,5 @@
 import { Err, Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
-import { BlockKinds, UnparsedBlock } from "./types";
+import { Block, BlockKinds, TypedBlock, UnparsedBlock } from "./types";
 
 export function blockKind(block: string): Result<string, BlockKinds> {
     if (block.startsWith("type alias")) {
@@ -170,4 +170,11 @@ export function intoBlocks(body: string): UnparsedBlock[] {
     }
 
     return blocks;
+}
+
+export function typeBlocks(blocks: Block[]): TypedBlock[] {
+    return blocks.filter(
+        (block: Block) =>
+            block.kind === "UnionType" || block.kind === "TypeAlias"
+    ) as TypedBlock[];
 }

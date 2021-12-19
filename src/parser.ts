@@ -5,7 +5,7 @@ import {
     Ok,
     Result,
 } from "@eeue56/ts-core/build/main/lib/result";
-import { intoBlocks } from "./blocks";
+import { intoBlocks, typeBlocks } from "./blocks";
 import { isBuiltinType } from "./builtins";
 import { collisions } from "./collisions";
 import {
@@ -86,7 +86,7 @@ function parseType(tokens: Token[]): Result<string, Type> {
     }
     const rootTypeName = (tokens[index] as IdentifierToken).body;
 
-    if (isBuiltinType(rootTypeName)) {
+    if (isBuiltinType(rootTypeName) && rootTypeName !== "any") {
         return Ok(FixedType(rootTypeName, [ ]));
     } else if (rootTypeName.toLowerCase() === rootTypeName) {
         return Ok(GenericType(rootTypeName));
@@ -1940,12 +1940,24 @@ export function parse(body: string): Module {
         .filter((syn) => syn.kind === "ok")
         .map((syn) => (syn as Ok<Block>).value);
 
+    const imports: Import[] = syntax
+        .filter((syn) => syn.kind === "ok" && syn.value.kind === "Import")
+        .map((syn) => syn.kind === "ok" && syn.value) as Import[];
+
     const typeErrors = syntax
         .map((resultBlock, index) => {
             if (resultBlock.kind === "err") return null;
 
             const block = resultBlock as Ok<Block>;
-            const validatedType = validateType(block.value);
+            const validatedType = validateType(
+                block.value,
+                typeBlocks(
+                    [ ...syntax.slice(0, index), ...syntax.slice(index) ]
+                        .filter((b) => b.kind === "ok")
+                        .map((b) => (b as Ok<Block>).value)
+                ),
+                imports
+            );
             const gap = getGap(blocks, index);
 
             return mapError(

@@ -15,7 +15,10 @@ type Animal =
     assert.deepStrictEqual(parsed.kind, "ok");
 
     const value = (parsed as Ok<Block>).value;
-    assert.deepStrictEqual(validateType(value), Ok(FixedType("Animal", [ ])));
+    assert.deepStrictEqual(
+        validateType(value, [ ], [ ]),
+        Ok(FixedType("Animal", [ ]))
+    );
 }
 
 export async function testTypeAlias() {
@@ -30,5 +33,8 @@ type alias Person = {
     assert.deepStrictEqual(parsed.kind, "ok");
 
     const value = (parsed as Ok<Block>).value;
-    assert.deepStrictEqual(validateType(value), Ok(FixedType("Person", [ ])));
+    assert.deepStrictEqual(
+        validateType(value, [ ], [ ]),
+        Ok(FixedType("Person", [ ]))
+    );
 }

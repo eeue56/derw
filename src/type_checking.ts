@@ -1,4 +1,5 @@
 import { Err, Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
+import { isBuiltinType } from "./builtins";
 import {
     Addition,
     And,
@@ -16,6 +17,7 @@ import {
     GreaterThan,
     GreaterThanOrEqual,
     IfStatement,
+    Import,
     InEquality,
     Lambda,
     LambdaCall,
@@ -32,14 +34,24 @@ import {
     StringValue,
     Subtraction,
     Type,
+    TypedBlock,
     Value,
 } from "./types";
 
-function isSameGenericType(first: GenericType, second: GenericType): boolean {
+function isSameGenericType(
+    first: GenericType,
+    second: GenericType,
+    topLevel: boolean
+): boolean {
+    if (topLevel) return true;
     return first.name === second.name;
 }
 
-function isSameFixedType(first: FixedType, second: FixedType): boolean {
+function isSameFixedType(
+    first: FixedType,
+    second: FixedType,
+    topLevel: boolean
+): boolean {
     if (
         (first.name === "any" && first.args.length === 0) ||
         (second.name === "any" && second.args.length === 0)
@@ -54,7 +66,7 @@ function isSameFixedType(first: FixedType, second: FixedType): boolean {
     if (first.name !== second.name) return false;
 
     for (var i = 0; i < first.args.length; i++) {
-        if (!isSameType(first.args[i], second.args[i])) {
+        if (!isSameType(first.args[i], second.args[i], topLevel)) {
             return false;
         }
     }
@@ -62,16 +74,20 @@ function isSameFixedType(first: FixedType, second: FixedType): boolean {
     return true;
 }
 
-export function isSameType(first: Type, second: Type): boolean {
+export function isSameType(
+    first: Type,
+    second: Type,
+    topLevel: boolean
+): boolean {
     if (first.name === "any" || second.name === "any") return true;
     if (first.kind !== second.kind) return false;
 
     switch (first.kind) {
         case "FixedType": {
-            return isSameFixedType(first, second as FixedType);
+            return isSameFixedType(first, second as FixedType, topLevel);
         }
         case "GenericType": {
-            return isSameGenericType(first, second as GenericType);
+            return isSameGenericType(first, second as GenericType, topLevel);
         }
     }
 }
@@ -93,7 +109,10 @@ function inferFormatStringValue(value: FormatStringValue): Type {
 
 function reduceTypes(types: Type[]): Type[] {
     return types.reduce((uniques: Type[], type) => {
-        if (uniques.filter((unique) => isSameType(unique, type)).length === 0) {
+        if (
+            uniques.filter((unique) => isSameType(unique, type, false))
+                .length === 0
+        ) {
             uniques.push(type);
         }
         return uniques;
@@ -127,7 +146,7 @@ function inferIfStatement(value: IfStatement): Type {
     const ifBranch = inferType(value.ifBody);
     const elseBranch = inferType(value.elseBody);
 
-    if (isSameType(ifBranch, elseBranch)) return ifBranch;
+    if (isSameType(ifBranch, elseBranch, false)) return ifBranch;
 
     return FixedType("any", [ ]);
 }
@@ -148,7 +167,7 @@ function inferAddition(value: Addition): Type {
     const left = inferType(value.left);
     const right = inferType(value.right);
 
-    if (!isSameType(left, right)) return FixedType("any", [ ]);
+    if (!isSameType(left, right, false)) return FixedType("any", [ ]);
     return left;
 }
 
@@ -156,7 +175,7 @@ function inferSubtraction(value: Subtraction): Type {
     const left = inferType(value.left);
     const right = inferType(value.right);
 
-    if (!isSameType(left, right)) return FixedType("any", [ ]);
+    if (!isSameType(left, right, false)) return FixedType("any", [ ]);
     return left;
 }
 
@@ -164,7 +183,7 @@ function inferMultiplication(value: Multiplication): Type {
     const left = inferType(value.left);
     const right = inferType(value.right);
 
-    if (!isSameType(left, right)) return FixedType("any", [ ]);
+    if (!isSameType(left, right, false)) return FixedType("any", [ ]);
     return left;
 }
 
@@ -172,7 +191,7 @@ function inferDivision(value: Division): Type {
     const left = inferType(value.left);
     const right = inferType(value.right);
 
-    if (!isSameType(left, right)) return FixedType("any", [ ]);
+    if (!isSameType(left, right, false)) return FixedType("any", [ ]);
     return left;
 }
 
@@ -299,7 +318,7 @@ export function inferType(expression: Expression): Type {
     }
 }
 
-function typeToText(type: Type): string {
+function typeToString(type: Type): string {
     switch (type.kind) {
         case "GenericType": {
             return type.name;
@@ -308,39 +327,84 @@ function typeToText(type: Type): string {
             const typeArgs =
                 type.args.length === 0
                     ? ""
-                    : " (" + type.args.map(typeToText).join(" ") + ")";
+                    : " (" + type.args.map(typeToString).join(" ") + ")";
             return `${type.name}${typeArgs}`.trim();
         }
     }
 }
 
-export function validateType(block: Block): Result<string, Type> {
+function typeExistsInNamespace(
+    type: Type,
+    blocks: TypedBlock[],
+    imports: Import[]
+): boolean {
+    if (isBuiltinType(type.name)) return true;
+    if (type.name === "List") return true;
+
+    for (const block of blocks) {
+        if (isSameType(type, block.type, true)) return true;
+    }
+
+    for (const import_ of imports) {
+        for (const module of import_.modules) {
+            for (const exposed of module.exposing) {
+                if (type.name === exposed) return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+export function validateType(
+    block: Block,
+    typedBlocks: TypedBlock[],
+    imports: Import[]
+): Result<string, Type> {
     switch (block.kind) {
         case "Const": {
+            if (!typeExistsInNamespace(block.type, typedBlocks, imports)) {
+                return Err(
+                    `Type ${typeToString(
+                        block.type
+                    )} did not exist in the namespace.`
+                );
+            }
+
             const inferred = inferType(block.value);
 
-            if (isSameType(block.type, inferred)) {
+            if (isSameType(block.type, inferred, false)) {
                 return Ok(block.type);
             }
 
             return Err(
-                `Expected \`${typeToText(block.type)}\` but got \`${typeToText(
-                    inferred
-                )}\``
+                `Expected \`${typeToString(
+                    block.type
+                )}\` but got \`${typeToString(inferred)}\``
             );
         }
 
         case "Function": {
+            if (
+                !typeExistsInNamespace(block.returnType, typedBlocks, imports)
+            ) {
+                return Err(
+                    `Type ${typeToString(
+                        block.returnType
+                    )} did not exist in the namespace.`
+                );
+            }
+
             const inferred = inferType(block.body);
 
-            if (isSameType(block.returnType, inferred)) {
+            if (isSameType(block.returnType, inferred, false)) {
                 return Ok(block.returnType);
             }
 
             return Err(
-                `Expected \`${typeToText(
+                `Expected \`${typeToString(
                     block.returnType
-                )}\` but got \`${typeToText(
+                )}\` but got \`${typeToString(
                     inferred
                 )}\` in the body of the function`
             );

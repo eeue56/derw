@@ -807,6 +807,7 @@ export type BlockKinds =
     | "Unknown";
 
 export type Block = UnionType | TypeAlias | Function | Const | Import | Export;
+export type TypedBlock = UnionType | TypeAlias;
 
 export type Module = {
     kind: "Module";

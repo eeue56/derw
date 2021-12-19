@@ -12,17 +12,29 @@ import {
     FixedType,
     Module,
     ObjectLiteral,
+    Property,
     StringValue,
+    TypeAlias,
     UnparsedBlock,
     Value,
 } from "../types";
 
 const oneLine = `
+type alias Person = {
+    name: string,
+    age: number
+}
+
 person: Person
 person = { name: "hello", age: 28 }
 `.trim();
 
 const multiLine = `
+type alias Person = {
+    name: string,
+    age: number
+}
+
 person: Person
 person = {
     name: "hello",
@@ -31,6 +43,17 @@ person = {
 `.trim();
 
 const expectedOutput = `
+type Person = {
+    name: string;
+    age: number;
+}
+
+function Person(args: { name: string, age: number }): Person {
+    return {
+        ...args,
+    };
+}
+
 const person: Person = {
     name: "hello",
     age: 28
@@ -38,6 +61,12 @@ const person: Person = {
 `.trim();
 
 const expectedOutputJS = `
+function Person(args) {
+    return {
+        ...args,
+    };
+}
+
 const person = {
     name: "hello",
     age: 28
@@ -46,24 +75,29 @@ const person = {
 
 export function testIntoBlocks() {
     assert.deepStrictEqual(intoBlocks(oneLine), [
-        UnparsedBlock("ConstBlock", 0, oneLine.split("\n")),
+        UnparsedBlock("TypeAliasBlock", 0, oneLine.split("\n").slice(0, 4)),
+        UnparsedBlock("ConstBlock", 5, oneLine.split("\n").slice(5)),
     ]);
 }
 
 export function testIntoBlocksMultiLine() {
     assert.deepStrictEqual(intoBlocks(multiLine), [
-        UnparsedBlock("ConstBlock", 0, multiLine.split("\n")),
+        UnparsedBlock("TypeAliasBlock", 0, multiLine.split("\n").slice(0, 4)),
+        UnparsedBlock("ConstBlock", 5, multiLine.split("\n").slice(5)),
     ]);
 }
 
 export function testBlockKind() {
-    assert.deepStrictEqual(blockKind(oneLine), Ok<string, BlockKinds>("Const"));
+    assert.deepStrictEqual(
+        blockKind(oneLine),
+        Ok<string, BlockKinds>("TypeAlias")
+    );
 }
 
 export function testBlockKindMultiLine() {
     assert.deepStrictEqual(
         blockKind(multiLine),
-        Ok<string, BlockKinds>("Const")
+        Ok<string, BlockKinds>("TypeAlias")
     );
 }
 
@@ -73,6 +107,10 @@ export function testParse() {
         Module(
             "main",
             [
+                TypeAlias(FixedType("Person", [ ]), [
+                    Property("name", FixedType("string", [ ])),
+                    Property("age", FixedType("number", [ ])),
+                ]),
                 Const(
                     "person",
                     FixedType("Person", [ ]),
@@ -93,6 +131,10 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
+                TypeAlias(FixedType("Person", [ ]), [
+                    Property("name", FixedType("string", [ ])),
+                    Property("age", FixedType("number", [ ])),
+                ]),
                 Const(
                     "person",
                     FixedType("Person", [ ]),
