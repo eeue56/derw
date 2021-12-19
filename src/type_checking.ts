@@ -13,6 +13,7 @@ import {
     FixedType,
     FormatStringValue,
     FunctionCall,
+    FunctionType,
     GenericType,
     GreaterThan,
     GreaterThanOrEqual,
@@ -74,6 +75,24 @@ function isSameFixedType(
     return true;
 }
 
+function isSameFunctionType(
+    first: FunctionType,
+    second: FunctionType,
+    topLevel: boolean
+): boolean {
+    if (first.args.length !== second.args.length) {
+        return false;
+    }
+
+    for (var i = 0; i < first.args.length; i++) {
+        if (!isSameType(first.args[i], second.args[i], topLevel)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 export function isSameType(
     first: Type,
     second: Type,
@@ -88,6 +107,9 @@ export function isSameType(
         }
         case "GenericType": {
             return isSameGenericType(first, second as GenericType, topLevel);
+        }
+        case "FunctionType": {
+            return isSameFunctionType(first, second as FunctionType, topLevel);
         }
     }
 }
@@ -329,6 +351,9 @@ function typeToString(type: Type): string {
                     ? ""
                     : " (" + type.args.map(typeToString).join(" ") + ")";
             return `${type.name}${typeArgs}`.trim();
+        }
+        case "FunctionType": {
+            return type.args.map(typeToString).join("->");
         }
     }
 }

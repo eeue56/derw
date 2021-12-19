@@ -1,11 +1,14 @@
 import * as assert from "@eeue56/ts-assert";
+import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import {
     ArrowToken,
     AssignToken,
+    BaseTypeToken,
     CloseBracketToken,
     CloseCurlyBracesToken,
     ColonToken,
     CommaToken,
+    FunctionTypeToken,
     IdentifierToken,
     KeywordToken,
     LiteralToken,
@@ -15,6 +18,7 @@ import {
     PipeToken,
     StringToken,
     tokenize,
+    tokenizeType,
     tokensToString,
     WhitespaceToken,
 } from "../tokens";
@@ -333,4 +337,60 @@ names =
         LiteralToken(`[ ["noah"], ["david"] ]`),
     ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
+}
+
+export function testFunctionArg() {
+    const str = `
+map: (a -> b) -> a -> b
+map fn x =
+    fn x
+`.trim();
+
+    assert.deepStrictEqual(tokenize(str), [
+        IdentifierToken("map"),
+        ColonToken(),
+        WhitespaceToken(" "),
+        OpenBracketToken(),
+        IdentifierToken("a"),
+        WhitespaceToken(" "),
+        ArrowToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("b"),
+        CloseBracketToken(),
+        WhitespaceToken(" "),
+        ArrowToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("a"),
+        WhitespaceToken(" "),
+        ArrowToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("b"),
+        WhitespaceToken("\n"),
+        IdentifierToken("map"),
+        WhitespaceToken(" "),
+        IdentifierToken("fn"),
+        WhitespaceToken(" "),
+        IdentifierToken("x"),
+        WhitespaceToken(" "),
+        AssignToken(),
+        WhitespaceToken("\n    "),
+        IdentifierToken("fn"),
+        WhitespaceToken(" "),
+        IdentifierToken("x"),
+    ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
+
+    const typeParts = tokenize(str).slice(3, 18);
+    assert.deepStrictEqual(
+        tokenizeType(typeParts),
+        Ok([
+            FunctionTypeToken([
+                IdentifierToken("a"),
+                ArrowToken(),
+                IdentifierToken("b"),
+            ]),
+            BaseTypeToken([ IdentifierToken("a") ]),
+            BaseTypeToken([ IdentifierToken("b") ]),
+        ])
+    );
 }

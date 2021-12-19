@@ -185,6 +185,9 @@ function generateType(type_: Type): string {
 
             return `${type_.name} ${args.map(generateType).join(" ")}`;
         }
+        case "FunctionType": {
+            return type_.args.map(generateType).join("->");
+        }
     }
 }
 

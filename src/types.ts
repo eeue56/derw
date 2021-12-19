@@ -26,7 +26,21 @@ export function FixedType(name: string, args: Type[]): FixedType {
     };
 }
 
-export type Type = GenericType | FixedType;
+export type FunctionType = {
+    kind: "FunctionType";
+    name: string;
+    args: Type[];
+};
+
+export function FunctionType(name: string, args: Type[]): FunctionType {
+    return {
+        kind: "FunctionType",
+        name,
+        args,
+    };
+}
+
+export type Type = GenericType | FixedType | FunctionType;
 
 export type TagArg = {
     kind: "TagArg";

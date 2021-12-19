@@ -1,3 +1,5 @@
+import { Err, Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
+
 type Empty = {
     kind: "Empty";
 };
@@ -619,6 +621,188 @@ function tokenToString(token: Token): string {
 
 export function tokensToString(tokens: Token[]): string {
     return tokens.map(tokenToString).join("");
+}
+
+export type BaseTypeToken = {
+    kind: "BaseTypeToken";
+    body: TypeToken[];
+};
+
+export function BaseTypeToken(body: TypeToken[]): BaseTypeToken {
+    return {
+        kind: "BaseTypeToken",
+        body,
+    };
+}
+
+export type FunctionTypeToken = {
+    kind: "FunctionTypeToken";
+    body: TypeToken[];
+};
+
+export function FunctionTypeToken(body: TypeToken[]): FunctionTypeToken {
+    return {
+        kind: "FunctionTypeToken",
+        body,
+    };
+}
+
+export type TypeToken =
+    | IdentifierToken
+    | ArrowToken
+    | OpenBracketToken
+    | CloseBracketToken
+    | BaseTypeToken
+    | FunctionTypeToken;
+
+export type RootTypeTokens = BaseTypeToken | FunctionTypeToken;
+
+export function tokenizeType(
+    tokens: Token[]
+): Result<string, RootTypeTokens[]> {
+    const typeTokens: RootTypeTokens[] = [ ];
+    let currentToken: TypeToken[] = [ ];
+    let innerToken: TypeToken[] = [ ];
+    let isInInner = false;
+    let isInFunction = false;
+    let wasInFunction = false;
+    let bracketDepth = 0;
+
+    for (const token of tokens) {
+        switch (token.kind) {
+            case "WhitespaceToken": {
+                break;
+            }
+
+            case "OpenBracketToken": {
+                bracketDepth++;
+                if (currentToken.length === 0) {
+                    isInFunction = true;
+                } else {
+                    isInInner = true;
+                }
+                break;
+            }
+
+            case "CloseBracketToken": {
+                bracketDepth--;
+                if (isInFunction) {
+                    if (bracketDepth === 0) {
+                        typeTokens.push(FunctionTypeToken(currentToken));
+                        currentToken = [ ];
+                        isInFunction = false;
+                        wasInFunction = true;
+                    } else {
+                        currentToken.push(token);
+                    }
+                } else if (isInInner) {
+                    if (bracketDepth === 0) {
+                        currentToken.push(BaseTypeToken(innerToken));
+                        innerToken = [ ];
+                        isInInner = false;
+                    } else {
+                    }
+                } else {
+                    currentToken.push(token);
+                }
+                break;
+            }
+
+            case "IdentifierToken": {
+                if (isInInner) {
+                    innerToken.push(token);
+                } else {
+                    currentToken.push(token);
+                }
+                break;
+            }
+
+            case "ArrowToken": {
+                if (isInFunction) {
+                    currentToken.push(token);
+                } else if (wasInFunction) {
+                    wasInFunction = false;
+                } else {
+                    typeTokens.push(BaseTypeToken(currentToken));
+                    currentToken = [ ];
+                }
+                break;
+            }
+
+            default: {
+                return Err(`Unexpected ${token.kind} while parsing type.`);
+            }
+        }
+    }
+
+    if (currentToken.length > 0) {
+        if (isInFunction) {
+            return Err("Didn't find matching closing bracket parsing type.");
+        }
+        typeTokens.push(BaseTypeToken(currentToken));
+    }
+
+    return Ok(typeTokens);
+}
+
+function typeTokenToString(token: TypeToken): string {
+    switch (token.kind) {
+        case "ArrowToken": {
+            return "->";
+        }
+        case "BaseTypeToken": {
+            return rootTypeTokensToString([ token ]);
+        }
+        case "CloseBracketToken": {
+            return ")";
+        }
+        case "FunctionTypeToken": {
+            return rootTypeTokensToString([ token ]);
+        }
+        case "IdentifierToken": {
+            return token.body;
+        }
+        case "OpenBracketToken": {
+            return "(";
+        }
+    }
+}
+
+export function rootTypeTokensToString(tokens: RootTypeTokens[]): string {
+    const output: string[] = [ ];
+    let index = 0;
+    for (const token of tokens) {
+        switch (token.kind) {
+            case "BaseTypeToken": {
+                token.body.forEach((value) => {
+                    if (value.kind === "BaseTypeToken") {
+                        output.push(typeTokenToString(OpenBracketToken()));
+                        value.body.forEach((v) =>
+                            output.push(typeTokenToString(v))
+                        );
+                        output.push(typeTokenToString(CloseBracketToken()));
+                    } else {
+                        output.push(typeTokenToString(value));
+                    }
+                });
+                break;
+            }
+            case "FunctionTypeToken": {
+                output.push(typeTokenToString(OpenBracketToken()));
+                token.body.forEach((value) => {
+                    output.push(typeTokenToString(value));
+                });
+                output.push(typeTokenToString(CloseBracketToken()));
+                break;
+            }
+        }
+        if (index < tokens.length - 1) {
+            output.push(typeTokenToString(ArrowToken()));
+        }
+        index++;
+    }
+
+    return output.join(" ");
 }
 
 function log(x: string): void {

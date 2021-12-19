@@ -231,6 +231,9 @@ function generateType(type_: Type): string {
 
             return `${type_.name}<${args.map(generateType).join(", ")}>`;
         }
+        case "FunctionType": {
+            return type_.args.map(generateType).join("->");
+        }
     }
 }
 
@@ -510,8 +513,10 @@ function collectTypeArguments(type_: Type): string[] {
         case "GenericType":
             return [ type_.name ];
         case "FixedType":
+        case "FunctionType": {
             const args: string[][] = type_.args.map(collectTypeArguments);
             return ([ ] as string[]).concat(...args);
+        }
     }
 }
 
