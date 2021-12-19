@@ -47,8 +47,8 @@ function filterBodyForName(module: Module, name: string): Block[] {
                 break;
             }
             case "Import": {
-                for (var moduleName of element.moduleNames) {
-                    if (moduleName === name) {
+                for (var module_ of element.modules) {
+                    if (module_.name === name) {
                         blocks.push(element);
                         break;
                     }
@@ -185,9 +185,9 @@ async function main(): Promise<void> {
             getImports(parsed).forEach((import_: Block) => {
                 import_ = import_ as Import;
 
-                import_.moduleNames.forEach((moduleName) => {
-                    moduleName = moduleName.slice(1, -1);
-                    if (!moduleName.startsWith(".")) return;
+                import_.modules.forEach((module) => {
+                    if (module.namespace === "Global") return;
+                    const moduleName = module.name.slice(1, -1);
                     imports.push(path.normalize(path.join(dir, moduleName)));
                 });
             });

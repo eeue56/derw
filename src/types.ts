@@ -1,3 +1,5 @@
+import { Maybe } from "@eeue56/ts-core/build/main/lib/maybe";
+
 export type GenericType = {
     kind: "GenericType";
     name: string;
@@ -717,15 +719,40 @@ export function Const(name: string, type: Type, value: Expression): Const {
     };
 }
 
-export type Import = {
-    kind: "Import";
-    moduleNames: string[];
+export type ImportNamespace = "Global" | "Relative";
+
+export type ImportModule = {
+    kind: "ImportModule";
+    name: string;
+    alias: Maybe<string>;
+    exposing: string[];
+    namespace: ImportNamespace;
 };
 
-export function Import(moduleNames: string[]): Import {
+export function ImportModule(
+    name: string,
+    alias: Maybe<string>,
+    exposing: string[],
+    namespace: ImportNamespace
+): ImportModule {
+    return {
+        kind: "ImportModule",
+        name,
+        alias,
+        exposing,
+        namespace,
+    };
+}
+
+export type Import = {
+    kind: "Import";
+    modules: ImportModule[];
+};
+
+export function Import(modules: ImportModule[]): Import {
     return {
         kind: "Import",
-        moduleNames,
+        modules,
     };
 }
 

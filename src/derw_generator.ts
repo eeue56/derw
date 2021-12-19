@@ -434,9 +434,16 @@ ${body}
 }
 
 function generateImportBlock(imports: Import): string {
-    return imports.moduleNames
-        .map((moduleName) => {
-            return `import ${moduleName}`;
+    return imports.modules
+        .map((module) => {
+            if (module.alias.kind === "just")
+                return `import ${module.name} as ${module.alias.value}`;
+
+            if (module.exposing.length > 0)
+                return `import ${module.name} exposing ( ${module.exposing.join(
+                    ", "
+                )} )`;
+            return `import ${module.name}`;
         })
         .join("\n");
 }

@@ -105,17 +105,18 @@ user: User
 user = { name: string }
 ```
 
--   [ ] Imports
+-   [x] Imports
 
 ```elm
 import List
-import Result exposing (map)
+import Result exposing ( map )
+import something as banana
 ```
 
 -   [x] Exports
 
 ```elm
-exposing (map)
+exposing ( map )
 ```
 
 -   [x] Let statements
@@ -265,6 +266,8 @@ names =
 
 ```elm
 import "./other"
+import "./something" as banana
+import "./another" exposing ( isTrue, isFalse )
 ```
 
 ## 1.0.0

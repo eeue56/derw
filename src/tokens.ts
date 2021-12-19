@@ -80,6 +80,7 @@ const keywords = [
     "alias",
     "import",
     "exposing",
+    "as",
     "let",
     "in",
     "case",

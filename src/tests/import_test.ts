@@ -1,20 +1,31 @@
 import * as assert from "@eeue56/ts-assert";
+import { Just, Nothing } from "@eeue56/ts-core/build/main/lib/maybe";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { blockKind, intoBlocks } from "../blocks";
 import { compileTypescript } from "../compile";
 import { generateTypescript } from "../generator";
 import { generateJavascript } from "../js_generator";
 import { parse } from "../parser";
-import { BlockKinds, Import, Module, UnparsedBlock } from "../types";
+import {
+    BlockKinds,
+    Import,
+    ImportModule,
+    Module,
+    UnparsedBlock,
+} from "../types";
 
 const oneLine = `import path
 import fs
-import "./other"`.trim();
+import "./other"
+import "./something" as banana
+import "./another" exposing (isTrue, isFalse)`.trim();
 
 const multiLine = `
 import path
 import fs
 import "./other"
+import "./something" as banana
+import "./another" exposing (isTrue, isFalse)
 `.trim();
 
 const expectedOutput = `
@@ -23,6 +34,10 @@ import path from "path";
 import fs from "fs";
 
 import * as other from "./other";
+
+import * as banana from "./something";
+
+import { isTrue, isFalse } from "./another";
 `.trim();
 
 const expectedOutputJS = `
@@ -31,6 +46,10 @@ import path from "path";
 import fs from "fs";
 
 import * as other from "./other";
+
+import * as banana from "./something";
+
+import { isTrue, isFalse } from "./another";
 `.trim();
 
 export function testIntoBlocks() {
@@ -38,6 +57,8 @@ export function testIntoBlocks() {
         UnparsedBlock("ImportBlock", 0, [ oneLine.split("\n")[0] ]),
         UnparsedBlock("ImportBlock", 1, [ oneLine.split("\n")[1] ]),
         UnparsedBlock("ImportBlock", 2, [ oneLine.split("\n")[2] ]),
+        UnparsedBlock("ImportBlock", 3, [ oneLine.split("\n")[3] ]),
+        UnparsedBlock("ImportBlock", 4, [ oneLine.split("\n")[4] ]),
     ]);
 }
 
@@ -46,6 +67,8 @@ export function testIntoBlocksMultiLine() {
         UnparsedBlock("ImportBlock", 0, [ multiLine.split("\n")[0] ]),
         UnparsedBlock("ImportBlock", 1, [ multiLine.split("\n")[1] ]),
         UnparsedBlock("ImportBlock", 2, [ multiLine.split("\n")[2] ]),
+        UnparsedBlock("ImportBlock", 3, [ multiLine.split("\n")[3] ]),
+        UnparsedBlock("ImportBlock", 4, [ multiLine.split("\n")[4] ]),
     ]);
 }
 
@@ -68,7 +91,29 @@ export function testParse() {
         parse(oneLine),
         Module(
             "main",
-            [ Import([ "path" ]), Import([ "fs" ]), Import([ `"./other"` ]) ],
+            [
+                Import([ ImportModule("path", Nothing(), [ ], "Global") ]),
+                Import([ ImportModule("fs", Nothing(), [ ], "Global") ]),
+                Import([
+                    ImportModule(`"./other"`, Nothing(), [ ], "Relative"),
+                ]),
+                Import([
+                    ImportModule(
+                        `"./something"`,
+                        Just("banana"),
+                        [ ],
+                        "Relative"
+                    ),
+                ]),
+                Import([
+                    ImportModule(
+                        `"./another"`,
+                        Nothing(),
+                        [ "isTrue", "isFalse" ],
+                        "Relative"
+                    ),
+                ]),
+            ],
             [ ]
         )
     );
@@ -79,7 +124,29 @@ export function testParseMultiLine() {
         parse(multiLine),
         Module(
             "main",
-            [ Import([ "path" ]), Import([ "fs" ]), Import([ `"./other"` ]) ],
+            [
+                Import([ ImportModule("path", Nothing(), [ ], "Global") ]),
+                Import([ ImportModule("fs", Nothing(), [ ], "Global") ]),
+                Import([
+                    ImportModule(`"./other"`, Nothing(), [ ], "Relative"),
+                ]),
+                Import([
+                    ImportModule(
+                        `"./something"`,
+                        Just("banana"),
+                        [ ],
+                        "Relative"
+                    ),
+                ]),
+                Import([
+                    ImportModule(
+                        `"./another"`,
+                        Nothing(),
+                        [ "isTrue", "isFalse" ],
+                        "Relative"
+                    ),
+                ]),
+            ],
             [ ]
         )
     );

@@ -1,3 +1,4 @@
+import { Just, Maybe, Nothing } from "@eeue56/ts-core/build/main/lib/maybe";
 import {
     Err,
     mapError,
@@ -40,6 +41,7 @@ import {
     GreaterThanOrEqual,
     IfStatement,
     Import,
+    ImportModule,
     InEquality,
     isLeftPipeableExpression,
     Lambda,
@@ -1778,6 +1780,12 @@ function parseConst(tokens: Token[]): Result<string, Const> {
 
 function parseImport(tokens: Token[]): Result<string, Import> {
     const imports = [ ];
+    let isInExposing = false;
+    let isInAlias = false;
+
+    let moduleName = "";
+    let alias: Maybe<string> = Nothing();
+    const exposing = [ ];
 
     for (var i = 0; i < tokens.length; i++) {
         const token = tokens[i];
@@ -1786,18 +1794,33 @@ function parseImport(tokens: Token[]): Result<string, Import> {
             case "KeywordToken": {
                 if (token.body === "import") {
                     continue;
+                } else if (token.body === "exposing") {
+                    isInExposing = true;
+                } else if (token.body === "as") {
+                    isInExposing = false;
+                    isInAlias = true;
                 } else {
                     return Err("Expected `import` but got " + token.body);
                 }
+                break;
             }
 
             case "StringToken":
             case "IdentifierToken": {
-                imports.push(token.body);
+                if (isInExposing) {
+                    exposing.push(token.body);
+                } else if (isInAlias) {
+                    alias = Just(token.body);
+                } else {
+                    moduleName = token.body;
+                }
+                break;
             }
 
             case "WhitespaceToken":
-            case "CommaToken": {
+            case "CommaToken":
+            case "OpenBracketToken":
+            case "CloseBracketToken": {
                 continue;
             }
 
@@ -1806,6 +1829,10 @@ function parseImport(tokens: Token[]): Result<string, Import> {
             }
         }
     }
+
+    const namespace = moduleName.startsWith('"') ? "Relative" : "Global";
+
+    imports.push(ImportModule(moduleName, alias, exposing, namespace));
 
     return Ok(Import(imports));
 }

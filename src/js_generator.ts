@@ -448,18 +448,36 @@ const ${constDef.name} = ${body};
 }
 
 function generateImportBlock(imports: Import): string {
-    return imports.moduleNames
-        .map((moduleName) => {
-            if (moduleName.startsWith(`"`)) {
-                const withoutQuotes = moduleName.slice(1, -1);
-                const name = path.parse(withoutQuotes).name;
-                return `import * as ${name} from ${moduleName};`;
+    return imports.modules
+        .map((module) => {
+            if (module.namespace === "Relative") {
+                const withoutQuotes = module.name.slice(1, -1);
+                const name =
+                    module.alias.kind === "just"
+                        ? module.alias.value
+                        : path.parse(withoutQuotes).name;
+
+                if (module.exposing.length === 0) {
+                    return `import * as ${name} from ${module.name};`;
+                } else {
+                    return `import { ${module.exposing.join(", ")} } from ${
+                        module.name
+                    };`;
+                }
             }
-            return `import ${moduleName} from "${moduleName}";`;
+            const name =
+                module.alias.kind === "just" ? module.alias.value : module.name;
+
+            if (module.exposing.length === 0) {
+                return `import ${name} from "${module.name}";`;
+            } else {
+                return `import { ${module.exposing.join(", ")} } from "${
+                    module.name
+                }";`;
+            }
         })
         .join("\n");
 }
-
 function generateExportBlock(exports: Export): string {
     return exports.names
         .map((name) => {
