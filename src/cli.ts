@@ -81,6 +81,26 @@ async function fileExists(name: string): Promise<boolean> {
     return true;
 }
 
+function runFile(target: "js" | "ts" | "derw", fullName: string): void {
+    let child;
+    switch (target) {
+        case "js": {
+            child = spawnSync(`npx`, [ `node`, `${fullName}` ], {
+                stdio: "inherit",
+                encoding: "utf-8",
+            });
+            break;
+        }
+        case "ts": {
+            child = spawnSync(`npx`, [ `ts-node`, `${fullName}` ], {
+                stdio: "inherit",
+                encoding: "utf-8",
+            });
+            break;
+        }
+    }
+}
+
 const programParser = parser([
     longFlag("files", "Filenames to be given", variableList(string())),
     longFlag(
@@ -292,23 +312,7 @@ async function main(): Promise<void> {
             await writeFile(fullName, generated);
 
             if (shouldRun) {
-                let child;
-                switch (target) {
-                    case "js": {
-                        child = spawnSync(`npx`, [ `node`, `${fullName}` ], {
-                            stdio: "inherit",
-                            encoding: "utf-8",
-                        });
-                        break;
-                    }
-                    case "ts": {
-                        child = spawnSync(`npx`, [ `ts-node`, `${fullName}` ], {
-                            stdio: "inherit",
-                            encoding: "utf-8",
-                        });
-                        break;
-                    }
-                }
+                runFile(target, fullName);
             }
         })
     );
