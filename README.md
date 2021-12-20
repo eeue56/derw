@@ -271,6 +271,12 @@ import "./something" as banana
 import "./another" exposing ( isTrue, isFalse )
 ```
 
+-   [x] Errors when failing to find relative import
+
+```
+Warning! Failed to find `examples/derw_imports/banana` as either derw, ts or js
+```
+
 ## 1.0.0
 
 -   [x] An automatic formatter with no options

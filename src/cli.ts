@@ -72,6 +72,15 @@ function getImports(module: Module): Block[] {
     return module.body.filter((block) => block.kind === "Import");
 }
 
+async function fileExists(name: string): Promise<boolean> {
+    try {
+        await promises.access(name);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
+
 const programParser = parser([
     longFlag("files", "Filenames to be given", variableList(string())),
     longFlag(
@@ -193,7 +202,30 @@ async function main(): Promise<void> {
             });
 
             for (const import_ of imports) {
-                await compile(import_ + ".derw");
+                const fileWithDerwExtension = import_ + `.derw`;
+                const isDerw = await fileExists(fileWithDerwExtension);
+
+                if (isDerw) {
+                    await compile(fileWithDerwExtension);
+                    continue;
+                }
+
+                // check if ts/js versions of the file exist
+                const fileWithTsExtension = import_ + `.ts`;
+                const fileWithJsExtension = import_ + `.js`;
+                let doesFileExist = false;
+
+                if (await fileExists(fileWithTsExtension)) {
+                    doesFileExist = true;
+                } else if (await fileExists(fileWithJsExtension)) {
+                    doesFileExist = true;
+                }
+
+                if (!doesFileExist) {
+                    console.log(
+                        `Warning! Failed to find \`${import_}\` as either derw, ts or js`
+                    );
+                }
             }
 
             if (debugMode) {
