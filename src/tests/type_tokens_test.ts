@@ -139,7 +139,6 @@ export function testNextedListMap() {
     ]);
 
     const tokenizedType = tokenizeType(tokenized);
-    console.log(JSON.stringify(tokenizedType, null, 4));
     assert.deepStrictEqual(
         tokenizedType,
         Ok([

@@ -8,13 +8,7 @@ import {
 import { intoBlocks, typeBlocks } from "./blocks";
 import { isBuiltinType } from "./builtins";
 import { collisions } from "./collisions";
-import {
-    IdentifierToken,
-    LiteralToken,
-    Token,
-    tokenize,
-    tokensToString,
-} from "./tokens";
+import { IdentifierToken, Token, tokenize, tokensToString } from "./tokens";
 import {
     Addition,
     And,
@@ -590,6 +584,20 @@ function parseObjectLiteral(tokens: Token[]): Result<string, ObjectLiteral> {
                 }
                 break;
             }
+
+            case "OperatorToken": {
+                if (!isInName) {
+                    innermostBuffer += token.body;
+                }
+                break;
+            }
+
+            case "WhitespaceToken": {
+                if (!isInName) {
+                    innermostBuffer += token.body;
+                }
+                break;
+            }
         }
 
         index++;
@@ -599,7 +607,7 @@ function parseObjectLiteral(tokens: Token[]): Result<string, ObjectLiteral> {
 }
 
 function parseValue(tokens: Token[]): Result<string, Value> {
-    const body: (LiteralToken | IdentifierToken)[] = [ ];
+    const body: string[] = [ ];
 
     let index = 0;
 
@@ -612,7 +620,15 @@ function parseValue(tokens: Token[]): Result<string, Value> {
             }
             case "LiteralToken":
             case "IdentifierToken": {
-                body.push(token);
+                body.push(token.body);
+                break;
+            }
+            case "OpenBracketToken": {
+                body.push("(");
+                break;
+            }
+            case "CloseBracketToken": {
+                body.push(")");
                 break;
             }
             default: {
@@ -622,11 +638,7 @@ function parseValue(tokens: Token[]): Result<string, Value> {
         index++;
     }
 
-    if (body.length > 1) {
-        return Err(`Too many values: ${body}`);
-    } else {
-        return Ok(Value(body[0].body));
-    }
+    return Ok(Value(body.join("")));
 }
 
 function parseStringValue(tokens: Token[]): Result<string, StringValue> {
@@ -1193,7 +1205,8 @@ function parseFunctionCall(tokens: Token[]): Result<string, FunctionCall> {
         }
     }
 
-    const args: (string | Result<string, Expression>)[] = [ ];
+    const args: string[] = [ ];
+    let currentArg: string[] = [ ];
 
     for (var i = index; i < tokens.length; i++) {
         const token = tokens[i];
@@ -1203,17 +1216,47 @@ function parseFunctionCall(tokens: Token[]): Result<string, FunctionCall> {
             case "StringToken":
             case "FormatStringToken":
             case "IdentifierToken": {
-                args.push(token.body);
+                if (currentArg.join().trim().length > 0) {
+                    currentArg.push(token.body);
+                } else {
+                    args.push(currentArg.join(""));
+                    args.push(token.body);
+                    currentArg = [ ];
+                }
+                break;
+            }
+            case "OpenCurlyBracesToken": {
+                currentArg.push("{");
+                break;
+            }
+            case "CloseCurlyBracesToken": {
+                currentArg.push("}");
+                break;
+            }
+            case "ColonToken": {
+                currentArg.push(":");
+                break;
+            }
+            case "CommaToken": {
+                currentArg.push(",");
+                break;
+            }
+            case "WhitespaceToken": {
+                currentArg.push(token.body);
+                break;
             }
         }
     }
 
-    const parsedArgs = args.map((arg) => {
-        if (typeof arg === "string") {
+    if (currentArg.length > 0) {
+        args.push(currentArg.join(""));
+    }
+
+    const parsedArgs = args
+        .filter((arg) => arg.trim().length > 0)
+        .map((arg) => {
             return parseExpression(arg);
-        }
-        return arg;
-    });
+        });
 
     const errors = parsedArgs.filter((arg) => arg.kind === "err");
 

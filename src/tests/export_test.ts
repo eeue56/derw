@@ -177,7 +177,6 @@ export function testBlockKindMultiLine() {
 }
 
 export function testParse() {
-    console.log(parse(oneLine).errors);
     assert.deepStrictEqual(
         parse(oneLine).body[0],
         Export([ "isValid", "Animal" ])

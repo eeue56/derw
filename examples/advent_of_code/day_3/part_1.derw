@@ -7,7 +7,7 @@ type alias Common = {
 
 reducer: number -> Common -> string -> Common
 reducer index common line =
-    if line.charAt(index) == "0" then
+    if line.charAt index == "0" then
         {
             zero: common.zero + 1,
             one: common.one
@@ -139,7 +139,7 @@ adventInput =
 
 split: string -> List string
 split file =
-    file.split("\n")
+    file.split "\n"
 
 toString: Buffer -> string
 toString buffer =
