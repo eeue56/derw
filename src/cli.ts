@@ -124,7 +124,7 @@ function generate(
                 if (output.kind === "err") {
                     console.log(
                         `Failed to compile ${fileName} due to`,
-                        output.error.join("\n")
+                        output.error.map((e) => e.messageText).join("\n")
                     );
                 } else {
                     console.log(`Successfully compiled ${fileName}`);
