@@ -293,6 +293,43 @@ import fs
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
+export function testImportWithExposing() {
+    const str = `
+import fs exposing (exists)
+`.trim();
+
+    assert.deepStrictEqual(tokenize(str), [
+        KeywordToken("import"),
+        WhitespaceToken(" "),
+        IdentifierToken("fs"),
+        WhitespaceToken(" "),
+        KeywordToken("exposing"),
+        WhitespaceToken(" "),
+        OpenBracketToken(),
+        IdentifierToken("exists"),
+        CloseBracketToken(),
+    ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
+}
+
+export function testImportWithExposingAndNearBrackets() {
+    const str = `
+import fs exposing(exists)
+`.trim();
+
+    assert.deepStrictEqual(tokenize(str), [
+        KeywordToken("import"),
+        WhitespaceToken(" "),
+        IdentifierToken("fs"),
+        WhitespaceToken(" "),
+        KeywordToken("exposing"),
+        OpenBracketToken(),
+        IdentifierToken("exists"),
+        CloseBracketToken(),
+    ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
+}
+
 export function testExport() {
     const str = `
 exposing (isTrue, isFalse)

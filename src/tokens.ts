@@ -529,6 +529,13 @@ export function tokenize(body: string): Token[] {
             case "Keyword": {
                 const isWhitespace = char === "\n" || char === " ";
                 if (isWhitespace || isLast) {
+                    if (char === ")") {
+                        checkKeywordToken(currentToken, tokens);
+                        tokens.push(CloseBracketToken());
+                        currentToken = "";
+                        state = Empty();
+                        break;
+                    }
                     if (isLast && !isWhitespace) {
                         currentToken += char;
                     }
@@ -554,6 +561,18 @@ export function tokenize(body: string): Token[] {
                 } else if (char === ",") {
                     tokens.push(IdentifierToken(currentToken));
                     tokens.push(CommaToken());
+                    currentToken = "";
+                    state = Empty();
+                    break;
+                } else if (char === "(") {
+                    checkKeywordToken(currentToken, tokens);
+                    tokens.push(OpenBracketToken());
+                    currentToken = "";
+                    state = Empty();
+                    break;
+                } else if (char === ")") {
+                    tokens.push(IdentifierToken(currentToken));
+                    tokens.push(CloseBracketToken());
                     currentToken = "";
                     state = Empty();
                     break;

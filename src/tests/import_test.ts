@@ -18,7 +18,8 @@ const oneLine = `import path
 import fs
 import "./other"
 import "./something" as banana
-import "./another" exposing (isTrue, isFalse)`.trim();
+import "./another" exposing (isTrue, isFalse)
+import "./nothing" exposing(isNothing)`.trim();
 
 const multiLine = `
 import path
@@ -26,6 +27,7 @@ import fs
 import "./other"
 import "./something" as banana
 import "./another" exposing (isTrue, isFalse)
+import "./nothing" exposing(isNothing)
 `.trim();
 
 const expectedOutput = `
@@ -38,6 +40,8 @@ import * as other from "./other";
 import * as banana from "./something";
 
 import { isTrue, isFalse } from "./another";
+
+import { isNothing } from "./nothing";
 `.trim();
 
 const expectedOutputJS = `
@@ -50,6 +54,8 @@ import * as other from "./other";
 import * as banana from "./something";
 
 import { isTrue, isFalse } from "./another";
+
+import { isNothing } from "./nothing";
 `.trim();
 
 export function testIntoBlocks() {
@@ -59,6 +65,7 @@ export function testIntoBlocks() {
         UnparsedBlock("ImportBlock", 2, [ oneLine.split("\n")[2] ]),
         UnparsedBlock("ImportBlock", 3, [ oneLine.split("\n")[3] ]),
         UnparsedBlock("ImportBlock", 4, [ oneLine.split("\n")[4] ]),
+        UnparsedBlock("ImportBlock", 5, [ oneLine.split("\n")[5] ]),
     ]);
 }
 
@@ -69,6 +76,7 @@ export function testIntoBlocksMultiLine() {
         UnparsedBlock("ImportBlock", 2, [ multiLine.split("\n")[2] ]),
         UnparsedBlock("ImportBlock", 3, [ multiLine.split("\n")[3] ]),
         UnparsedBlock("ImportBlock", 4, [ multiLine.split("\n")[4] ]),
+        UnparsedBlock("ImportBlock", 5, [ multiLine.split("\n")[5] ]),
     ]);
 }
 
@@ -113,6 +121,14 @@ export function testParse() {
                         "Relative"
                     ),
                 ]),
+                Import([
+                    ImportModule(
+                        `"./nothing"`,
+                        Nothing(),
+                        [ "isNothing" ],
+                        "Relative"
+                    ),
+                ]),
             ],
             [ ]
         )
@@ -143,6 +159,14 @@ export function testParseMultiLine() {
                         `"./another"`,
                         Nothing(),
                         [ "isTrue", "isFalse" ],
+                        "Relative"
+                    ),
+                ]),
+                Import([
+                    ImportModule(
+                        `"./nothing"`,
+                        Nothing(),
+                        [ "isNothing" ],
                         "Relative"
                     ),
                 ]),
