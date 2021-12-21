@@ -24,6 +24,10 @@ import { generateJavascript } from "./js_generator";
 import * as derwParser from "./parser";
 import { Block, Import, Module } from "./types";
 
+const emptyLineAtEndOfFile = "\n";
+
+type Target = "js" | "ts" | "derw";
+
 async function ensureDirectoryExists(directory: string): Promise<void> {
     try {
         const lstat = await promises.lstat(directory);
@@ -81,7 +85,7 @@ async function fileExists(name: string): Promise<boolean> {
     return true;
 }
 
-function runFile(target: "js" | "ts" | "derw", fullName: string): void {
+function runFile(target: Target, fullName: string): void {
     let child;
     switch (target) {
         case "js": {
@@ -97,6 +101,40 @@ function runFile(target: "js" | "ts" | "derw", fullName: string): void {
                 encoding: "utf-8",
             });
             break;
+        }
+    }
+}
+
+function generate(
+    target: Target,
+    shouldVerify: boolean,
+    parsed: Module,
+    fileName: string
+): string {
+    switch (target) {
+        case "js": {
+            return generateJavascript(parsed) + emptyLineAtEndOfFile;
+        }
+        case "ts": {
+            const generated = generateTypescript(parsed) + emptyLineAtEndOfFile;
+
+            if (shouldVerify) {
+                const output = compileTypescript(generated);
+
+                if (output.kind === "err") {
+                    console.log(
+                        `Failed to compile ${fileName} due to`,
+                        output.error.join("\n")
+                    );
+                } else {
+                    console.log(`Successfully compiled ${fileName}`);
+                }
+            }
+
+            return generated;
+        }
+        case "derw": {
+            return generateDerw(parsed) + emptyLineAtEndOfFile;
         }
     }
 }
@@ -172,12 +210,10 @@ async function main(): Promise<void> {
     const target = isFormat
         ? "derw"
         : program.flags.target.isPresent
-        ? (program.flags.target.arguments as Ok<"ts" | "js" | "derw">).value
+        ? (program.flags.target.arguments as Ok<Target>).value
         : "ts";
 
     const shouldRun = program.flags.run.isPresent;
-
-    const emptyLineAtEndOfFile = "\n";
 
     console.log(`Generating ${files.length} files...`);
 
@@ -266,36 +302,12 @@ async function main(): Promise<void> {
                 return;
             }
 
-            let generated;
-
-            switch (target) {
-                case "js": {
-                    generated =
-                        generateJavascript(parsed) + emptyLineAtEndOfFile;
-                    break;
-                }
-                case "ts": {
-                    generated =
-                        generateTypescript(parsed) + emptyLineAtEndOfFile;
-
-                    if (program.flags.verify.isPresent) {
-                        const output = compileTypescript(generated);
-
-                        if (output.kind === "err") {
-                            console.log(
-                                `Failed to compile ${fileName} due to`,
-                                output.error.join("\n")
-                            );
-                        } else {
-                            console.log(`Successfully compiled ${fileName}`);
-                        }
-                    }
-                    break;
-                }
-                case "derw": {
-                    generated = generateDerw(parsed) + emptyLineAtEndOfFile;
-                }
-            }
+            const generated = generate(
+                target,
+                program.flags.verify.isPresent,
+                parsed,
+                fileName
+            );
 
             if (isStdout) {
                 console.log(generated);
