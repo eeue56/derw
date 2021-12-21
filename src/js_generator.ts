@@ -108,10 +108,28 @@ function generateIfStatement(ifStatement: IfStatement): string {
     const ifBodyPrefix = isSimpleIfBody ? "return " : "";
     const elseBodyPrefix = isSimpleElseBody ? "return " : "";
 
+    const ifBody = generateExpression(ifStatement.ifBody);
+    const indentedIfBody =
+        ifBody.split("\n").length === 1
+            ? ifBody
+            : [
+                  ifBody.split("\n")[0],
+                  prefixLines(ifBody.split("\n").slice(1).join("\n"), 4),
+              ].join("\n");
+
+    const elseBody = generateExpression(ifStatement.elseBody);
+    const indentedElseBody =
+        elseBody.split("\n").length === 1
+            ? elseBody
+            : [
+                  elseBody.split("\n")[0],
+                  prefixLines(elseBody.split("\n").slice(1).join("\n"), 4),
+              ].join("\n");
+
     return `if (${generateExpression(ifStatement.predicate)}) {
-    ${ifBodyPrefix}${generateExpression(ifStatement.ifBody)};
+    ${ifBodyPrefix}${indentedIfBody};
 } else {
-    ${elseBodyPrefix}${generateExpression(ifStatement.elseBody)};
+    ${elseBodyPrefix}${indentedElseBody};
 }`;
 }
 
