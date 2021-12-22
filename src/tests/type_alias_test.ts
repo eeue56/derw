@@ -2,9 +2,9 @@ import * as assert from "@eeue56/ts-assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { blockKind, intoBlocks } from "../blocks";
 import { compileTypescript } from "../compile";
-import { generateTypescript } from "../generator";
 import { generateJavascript } from "../js_generator";
 import { parse } from "../parser";
+import { generateTypescript } from "../ts_generator";
 import {
     BlockKinds,
     FixedType,
@@ -19,9 +19,9 @@ type alias Person = { name: string, age: number }
 `.trim();
 
 const multiLine = `
-type alias Person = { 
-    name: string, 
-    age: number 
+type alias Person = {
+    name: string,
+    age: number
 }
 `.trim();
 

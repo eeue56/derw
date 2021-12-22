@@ -2,9 +2,9 @@ import * as assert from "@eeue56/ts-assert";
 import { readdir, readFile } from "fs/promises";
 import path from "path";
 import { generateDerw } from "../derw_generator";
-import { generateTypescript } from "../generator";
 import { generateJavascript } from "../js_generator";
 import { parse } from "../parser";
+import { generateTypescript } from "../ts_generator";
 
 const adventOfCodePath = "./examples/advent_of_code";
 const emptyLineAtEndOfFile = "\n";

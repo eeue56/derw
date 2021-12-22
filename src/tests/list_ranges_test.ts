@@ -2,9 +2,9 @@ import * as assert from "@eeue56/ts-assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { blockKind, intoBlocks } from "../blocks";
 import { compileTypescript } from "../compile";
-import { generateTypescript } from "../generator";
 import { generateJavascript } from "../js_generator";
 import { parse } from "../parser";
+import { generateTypescript } from "../ts_generator";
 import {
     Const,
     FixedType,
@@ -21,7 +21,7 @@ helloWorld = [ 1..5 ]
 
 const multiLine = `
 helloWorld: List number
-helloWorld = 
+helloWorld =
     [ 1..5 ]
 `.trim();
 

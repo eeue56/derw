@@ -19,9 +19,9 @@ import path from "path";
 import * as util from "util";
 import { compileTypescript } from "./compile";
 import { generateDerw } from "./derw_generator";
-import { generateTypescript } from "./generator";
 import { generateJavascript } from "./js_generator";
 import * as derwParser from "./parser";
+import { generateTypescript } from "./ts_generator";
 import { Block, Import, Module } from "./types";
 
 const emptyLineAtEndOfFile = "\n";

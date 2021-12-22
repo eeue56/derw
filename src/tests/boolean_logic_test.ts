@@ -1,9 +1,9 @@
 import * as assert from "@eeue56/ts-assert";
 import { intoBlocks } from "../blocks";
 import { compileTypescript } from "../compile";
-import { generateTypescript } from "../generator";
 import { generateJavascript } from "../js_generator";
 import { parse } from "../parser";
+import { generateTypescript } from "../ts_generator";
 import {
     And,
     Const,
