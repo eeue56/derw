@@ -3,6 +3,7 @@ import { readdir, readFile } from "fs/promises";
 import path from "path";
 import { generateDerw } from "../derw_generator";
 import { generateTypescript } from "../generator";
+import { generateJavascript } from "../js_generator";
 import { parse } from "../parser";
 
 const adventOfCodePath = "./examples/advent_of_code";
@@ -26,27 +27,41 @@ async function adventOfCodeFiles(): Promise<string[]> {
 }
 
 export async function testExamples() {
-    const files = await readdir("./examples");
+    const exampleFiles: string[] = await (
+        await readdir("./examples")
+    ).map((file) => path.join("examples", file));
+
+    const aocFiles = await (
+        await adventOfCodeFiles()
+    ).map((file) => path.join(adventOfCodePath, file));
+
+    const files: string[] = exampleFiles.concat(aocFiles);
 
     const filePairs = files
         .filter((file) => file.endsWith("derw"))
         .map((derwFile) => {
             return {
-                derw: path.join("examples", derwFile),
-                ts: path.join("examples", derwFile.split(".")[0] + ".ts"),
+                derw: derwFile,
+                ts: derwFile.split(".")[0] + ".ts",
+                js: derwFile.split(".")[0] + ".js",
             };
         });
 
     await Promise.all(
-        filePairs.map(async ({ derw, ts }) => {
+        filePairs.map(async ({ derw, ts, js }) => {
             const derwContents = (await readFile(derw)).toString();
             const tsContents = (await readFile(ts)).toString();
+            const jsContents = (await readFile(js)).toString();
 
             const parsed = parse(derwContents);
-            const generated = generateTypescript(parsed) + emptyLineAtEndOfFile;
+            const generatedTS =
+                generateTypescript(parsed) + emptyLineAtEndOfFile;
+            const generatedJS =
+                generateJavascript(parsed) + emptyLineAtEndOfFile;
 
             try {
-                assert.deepStrictEqual(tsContents, generated);
+                assert.deepStrictEqual(tsContents, generatedTS);
+                assert.deepStrictEqual(jsContents, generatedJS);
             } catch (e) {
                 console.log(`Failed to correctly generate ${derw}`);
                 throw e;
