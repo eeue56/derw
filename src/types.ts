@@ -247,10 +247,13 @@ export function Destructure(constructor: string, pattern: string): Destructure {
 export type Constructor = {
     kind: "Constructor";
     constructor: string;
-    pattern: string;
+    pattern: ObjectLiteral;
 };
 
-export function Constructor(constructor: string, pattern: string): Constructor {
+export function Constructor(
+    constructor: string,
+    pattern: ObjectLiteral
+): Constructor {
     return {
         kind: "Constructor",
         constructor,

@@ -10,11 +10,13 @@ import {
     CaseStatement,
     Constructor,
     Destructure,
+    Field,
     FixedType,
     Function,
     FunctionArg,
     GenericType,
     Module,
+    ObjectLiteral,
     Tag,
     TagArg,
     UnionType,
@@ -26,8 +28,8 @@ const functionPart = `
 asIs: Result a b -> Result a b
 asIs result =
     case result of
-        Err { error } -> Err { error }
-        Ok { value } -> Ok { value }
+        Err { error } -> Err { error: error  }
+        Ok { value } -> Ok { value: value }
 `.trim();
 
 const rawOneLine = `
@@ -51,9 +53,9 @@ asIs: Result a b -> Result a b
 asIs result =
     case result of
         Err { error } ->
-            Err { error }
+            Err { error: error }
         Ok { value } ->
-            Ok { value }
+            Ok { value: value }
 `.trim();
 
 const multiLine = `
@@ -187,11 +189,21 @@ export function testParse() {
                     CaseStatement(Value("result"), [
                         Branch(
                             Destructure("Err", "{ error }"),
-                            Constructor("Err", "{ error }")
+                            Constructor(
+                                "Err",
+                                ObjectLiteral([
+                                    Field("error", Value("error")),
+                                ])
+                            )
                         ),
                         Branch(
                             Destructure("Ok", "{ value }"),
-                            Constructor("Ok", "{ value }")
+                            Constructor(
+                                "Ok",
+                                ObjectLiteral([
+                                    Field("value", Value("value")),
+                                ])
+                            )
                         ),
                     ])
                 ),
@@ -224,11 +236,21 @@ export function testParseMultiLine() {
                     CaseStatement(Value("result"), [
                         Branch(
                             Destructure("Err", "{ error }"),
-                            Constructor("Err", "{ error }")
+                            Constructor(
+                                "Err",
+                                ObjectLiteral([
+                                    Field("error", Value("error")),
+                                ])
+                            )
                         ),
                         Branch(
                             Destructure("Ok", "{ value }"),
-                            Constructor("Ok", "{ value }")
+                            Constructor(
+                                "Ok",
+                                ObjectLiteral([
+                                    Field("value", Value("value")),
+                                ])
+                            )
                         ),
                     ])
                 ),
@@ -240,6 +262,8 @@ export function testParseMultiLine() {
 
 export function testGenerate() {
     const parsed = parse(oneLine);
+
+    console.log(generateTypescript(parsed));
 
     assert.deepStrictEqual(generateTypescript(parsed), expectedOutput);
 }

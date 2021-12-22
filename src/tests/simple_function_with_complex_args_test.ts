@@ -6,59 +6,62 @@ import { generateTypescript } from "../generator";
 import { generateJavascript } from "../js_generator";
 import { parse } from "../parser";
 import {
-    Const,
+    Addition,
+    Field,
     FixedType,
-    Lambda,
-    LeftPipe,
-    ListValue,
+    Function,
+    FunctionArg,
+    FunctionCall,
+    GenericType,
     Module,
-    ModuleReference,
+    ObjectLiteral,
     UnparsedBlock,
     Value,
 } from "../types";
 
 const oneLine = `
-listLength: number
-listLength = [1, 2, 3] |> \\x -> x.length
+repeat: number -> any
+repeat x = fn something x { x: x + 1 }
 `.trim();
 
 const multiLine = `
-listLength: number
-listLength =
-    [1, 2, 3]
-        |> \\x -> x.length
+repeat: number -> any
+repeat x =
+    fn something x {
+        x: x + 1
+    }
 `.trim();
 
 const expectedOutput = `
-const listLength: number = (function(x: any) {
-    return x.length;
-})([ 1, 2, 3 ]);
+function repeat<any>(x: number): any {
+    return fn(something, x, { x: x + 1 });
+}
 `.trim();
 
 const expectedOutputJS = `
-const listLength = (function(x) {
-    return x.length;
-})([ 1, 2, 3 ]);
+function repeat(x) {
+    return fn(something, x, { x: x + 1 });
+}
 `.trim();
 
 export function testIntoBlocks() {
     assert.deepStrictEqual(intoBlocks(oneLine), [
-        UnparsedBlock("ConstBlock", 0, oneLine.split("\n")),
+        UnparsedBlock("FunctionBlock", 0, oneLine.split("\n")),
     ]);
 }
 
 export function testIntoBlocksMultiLine() {
     assert.deepStrictEqual(intoBlocks(multiLine), [
-        UnparsedBlock("ConstBlock", 0, multiLine.split("\n")),
+        UnparsedBlock("FunctionBlock", 0, multiLine.split("\n")),
     ]);
 }
 
 export function testBlockKind() {
-    assert.deepStrictEqual(blockKind(oneLine), Ok("Const"));
+    assert.deepStrictEqual(blockKind(oneLine), Ok("Function"));
 }
 
 export function testBlockKindMultiLine() {
-    assert.deepStrictEqual(blockKind(multiLine), Ok("Const"));
+    assert.deepStrictEqual(blockKind(multiLine), Ok("Function"));
 }
 
 export function testParse() {
@@ -67,16 +70,18 @@ export function testParse() {
         Module(
             "main",
             [
-                Const(
-                    "listLength",
-                    FixedType("number", [ ]),
-                    LeftPipe(
-                        ListValue([ Value("1"), Value("2"), Value("3") ]),
-                        Lambda(
-                            [ "x" ],
-                            ModuleReference([ "x" ], Value("length"))
-                        )
-                    )
+                Function(
+                    "repeat",
+                    GenericType("any"),
+                    [ FunctionArg("x", FixedType("number", [ ])) ],
+                    [ ],
+                    FunctionCall("fn", [
+                        Value("something"),
+                        Value("x"),
+                        ObjectLiteral([
+                            Field("x", Addition(Value("x"), Value("1"))),
+                        ]),
+                    ])
                 ),
             ],
             [ ]
@@ -90,16 +95,18 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
-                Const(
-                    "listLength",
-                    FixedType("number", [ ]),
-                    LeftPipe(
-                        ListValue([ Value("1"), Value("2"), Value("3") ]),
-                        Lambda(
-                            [ "x" ],
-                            ModuleReference([ "x" ], Value("length"))
-                        )
-                    )
+                Function(
+                    "repeat",
+                    GenericType("any"),
+                    [ FunctionArg("x", FixedType("number", [ ])) ],
+                    [ ],
+                    FunctionCall("fn", [
+                        Value("something"),
+                        Value("x"),
+                        ObjectLiteral([
+                            Field("x", Addition(Value("x"), Value("1"))),
+                        ]),
+                    ])
                 ),
             ],
             [ ]

@@ -377,6 +377,12 @@ export function tokenize(body: string): Token[] {
                         break;
                     }
 
+                    case ")": {
+                        state = Empty();
+                        tokens.push(CloseBracketToken());
+                        break;
+                    }
+
                     case "[": {
                         state = InSquareBracket(0);
                         currentToken += char;
@@ -822,6 +828,14 @@ export function rootTypeTokensToString(tokens: RootTypeTokens[]): string {
     }
 
     return output.join(" ");
+}
+
+export function nextNonWhitespace(tokens: Token[]): Token | null {
+    for (const token of tokens) {
+        if (token.kind !== "WhitespaceToken") return token;
+    }
+
+    return null;
 }
 
 function log(x: string): void {

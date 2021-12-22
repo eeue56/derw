@@ -72,11 +72,20 @@ function generateValue(value: Value): string {
 }
 
 function generateField(field: Field): string {
-    return `${field.name}: ${generateExpression(field.value)}`;
+    const value = generateExpression(field.value);
+
+    if (field.name === value) {
+        return `${field.name}`;
+    }
+
+    return `${field.name}: ${value}`;
 }
 
 function generateObjectLiteral(literal: ObjectLiteral): string {
-    const fields = literal.fields.map(generateField).join(",\n    ");
+    let fields = literal.fields.map(generateField).join(",\n    ");
+
+    if (literal.fields.length === 1) return `{ ${fields} }`;
+
     return `{
     ${fields}
 }`;
@@ -134,7 +143,9 @@ function generateIfStatement(ifStatement: IfStatement): string {
 }
 
 function generateConstructor(constructor: Constructor): string {
-    return `${constructor.constructor}(${constructor.pattern})`;
+    return `${constructor.constructor}(${generateObjectLiteral(
+        constructor.pattern
+    )})`;
 }
 
 function generateBranch(predicate: string, branch: Branch): string {

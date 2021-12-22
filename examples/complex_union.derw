@@ -12,6 +12,6 @@ sayHiToPet pet =
 
 main: void
 main =
-    Dog { name: "roof" } 
+    Dog { name: "roof" }
         |> sayHiToPet
         |> console.log

@@ -542,6 +542,7 @@ function parseObjectLiteral(tokens: Token[]): Result<string, ObjectLiteral> {
             case "CloseCurlyBracesToken": {
                 if (objectDepth === 1) {
                     const innerLiteral = parseExpression(innermostBuffer);
+
                     if (innerLiteral.kind === "err") return innerLiteral;
                     innermostBuffer = "";
                     currentValue = innerLiteral.value;
@@ -784,7 +785,7 @@ function parseDestructure(tokens: Token[]): Result<string, Destructure> {
             }
             default: {
                 return Err(
-                    `Expected identifier or whitespace but got ${token.kind}.`
+                    `Expected identifier or whitespace but got ${token.kind} while parsing a destructure.`
                 );
             }
         }
@@ -836,7 +837,7 @@ function parseConstructor(tokens: Token[]): Result<string, Constructor> {
             }
             default: {
                 return Err(
-                    `Expected identifier or whitespace but got ${token.kind}.`
+                    `Expected identifier or whitespace but got ${token.kind} while parsing constructor.`
                 );
             }
         }
@@ -866,9 +867,10 @@ function parseConstructor(tokens: Token[]): Result<string, Constructor> {
     }
     index++;
 
-    const pattern = tokensToString(patternParts);
+    const pattern = parseObjectLiteral(patternParts);
+    if (pattern.kind === "err") return pattern;
 
-    return Ok(Constructor(constructor, pattern));
+    return Ok(Constructor(constructor, pattern.value));
 }
 
 function parseIfStatementSingleLine(body: string): Result<string, IfStatement> {
@@ -982,6 +984,7 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
         .join("\n");
 
     const rootIndentLevel = getIndentLevel(body.split("\n")[0]);
+
     const casePredicate = parseExpression(
         body.split("case ")[1].split(" of")[0]
     );
@@ -1007,7 +1010,6 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
             if (!branchLines.join("").trim()) {
                 continue;
             }
-
             const branchExpression = parseExpression(branchLines.join("\n"));
 
             const parsedBranchPattern = parseDestructure(
@@ -1176,7 +1178,9 @@ function parseModuleReference(
     return Ok(ModuleReference(moduleName, expression.value));
 }
 
-function parseFunctionCall(tokens: Token[]): Result<string, FunctionCall> {
+function parseFunctionCall(
+    tokens: Token[]
+): Result<string, FunctionCall | Constructor> {
     let functionName = null;
     let index = 0;
 
@@ -1195,6 +1199,10 @@ function parseFunctionCall(tokens: Token[]): Result<string, FunctionCall> {
 
     if (!functionName) {
         return Err(`Expected identifier but got nothing.`);
+    }
+
+    if (functionName[0].toUpperCase() === functionName[0]) {
+        return parseConstructor(tokens);
     }
 
     while (index < tokens.length) {
@@ -1239,6 +1247,10 @@ function parseFunctionCall(tokens: Token[]): Result<string, FunctionCall> {
             }
             case "CommaToken": {
                 currentArg.push(",");
+                break;
+            }
+            case "OperatorToken": {
+                currentArg.push(token.body);
                 break;
             }
             case "WhitespaceToken": {
@@ -1436,6 +1448,11 @@ export function parseExpression(body: string): Result<string, Expression> {
         if (tokens[index].kind !== "WhitespaceToken") break;
         index++;
     }
+    if (trimmedBody.indexOf("|>") > 0) {
+        return parseLeftPipe(tokens);
+    } else if (trimmedBody.indexOf("<|") > 0) {
+        return parseRightPipe(tokens);
+    }
 
     const firstToken = tokens[index];
     switch (firstToken.kind) {
@@ -1452,15 +1469,71 @@ export function parseExpression(body: string): Result<string, Expression> {
             }
         }
         case "OpenCurlyBracesToken": {
+            const tokensOtherThanWhitespace = tokens
+                .slice(index + 1)
+                .filter((token) => token.kind !== "WhitespaceToken");
+
+            if (
+                tokensOtherThanWhitespace.filter(
+                    (token) =>
+                        token.kind === "IdentifierToken" ||
+                        token.kind === "CommaToken" ||
+                        token.kind === "CloseCurlyBracesToken"
+                ).length === tokensOtherThanWhitespace.length
+            ) {
+            }
             return parseObjectLiteral(tokens);
+        }
+        case "IdentifierToken": {
+            const tokensOtherThanWhitespace = tokens
+                .slice(index + 1)
+                .filter((token) => token.kind !== "WhitespaceToken");
+
+            if (firstToken.body.indexOf(".") > -1) {
+                const possibleModuleParts = firstToken.body.split(".");
+
+                if (possibleModuleParts.length > 1) {
+                    return parseModuleReference(tokens.slice(index));
+                }
+            }
+            if (tokensOtherThanWhitespace.length >= 2) {
+                let tempIndex = index + 1;
+                let seenOperator = false;
+
+                while (tempIndex < tokens.length) {
+                    let escape = false;
+                    switch (tokens[tempIndex].kind) {
+                        case "OperatorToken": {
+                            seenOperator = true;
+                            escape = true;
+                            break;
+                        }
+                        case "OpenCurlyBracesToken":
+                        case "ColonToken": {
+                            escape = true;
+                            break;
+                        }
+                    }
+
+                    if (escape) {
+                        break;
+                    }
+                    tempIndex++;
+                }
+
+                if (seenOperator) {
+                    break;
+                }
+            }
+            if (tokensOtherThanWhitespace.length > 0) {
+                return parseFunctionCall(tokens.slice(index));
+            }
+
+            break;
         }
     }
 
-    if (trimmedBody.indexOf("|>") > 0) {
-        return parseLeftPipe(tokens);
-    } else if (trimmedBody.indexOf("<|") > 0) {
-        return parseRightPipe(tokens);
-    } else if (trimmedBody.indexOf(" == ") > 0) {
+    if (trimmedBody.indexOf(" == ") > 0) {
         return parseEquality(tokens);
     } else if (trimmedBody.indexOf(" != ") > 0) {
         return parseInEquality(tokens);
@@ -1522,6 +1595,7 @@ export function parseExpression(body: string): Result<string, Expression> {
                 break;
             }
             case "OpenBracketToken": {
+                break;
             }
             case "OpenCurlyBracesToken": {
                 break;
@@ -1553,7 +1627,10 @@ export function parseExpression(body: string): Result<string, Expression> {
             return parseListRange(tokens);
         }
         return parseListValue(tokens);
-    } else if (trimmedBody.split(" ").length === 1) {
+    } else if (
+        trimmedBody.split(" ").length === 1 ||
+        !isNaN(parseInt(trimmedBody, 10))
+    ) {
         return parseValue(tokens);
     } else {
         const firstPart = trimmedBody.split(" ")[0];

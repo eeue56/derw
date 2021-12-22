@@ -431,3 +431,33 @@ map fn x =
         ])
     );
 }
+
+export function testEmptyFunctionCall() {
+    const str = `
+toString: Buffer -> string
+toString buffer =
+    buffer.toString()
+`.trim();
+
+    assert.deepStrictEqual(tokenize(str), [
+        IdentifierToken("toString"),
+        ColonToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("Buffer"),
+        WhitespaceToken(" "),
+        ArrowToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("string"),
+        WhitespaceToken("\n"),
+        IdentifierToken("toString"),
+        WhitespaceToken(" "),
+        IdentifierToken("buffer"),
+        WhitespaceToken(" "),
+        AssignToken(),
+        WhitespaceToken("\n    "),
+        IdentifierToken("buffer.toString"),
+        OpenBracketToken(),
+        CloseBracketToken(),
+    ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
+}

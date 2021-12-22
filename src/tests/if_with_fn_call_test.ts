@@ -6,59 +6,75 @@ import { generateTypescript } from "../generator";
 import { generateJavascript } from "../js_generator";
 import { parse } from "../parser";
 import {
-    Const,
+    Equality,
     FixedType,
-    Lambda,
-    LeftPipe,
-    ListValue,
+    Function,
+    FunctionArg,
+    FunctionCall,
+    IfStatement,
     Module,
     ModuleReference,
+    StringValue,
     UnparsedBlock,
     Value,
 } from "../types";
 
 const oneLine = `
-listLength: number
-listLength = [1, 2, 3] |> \\x -> x.length
+reducer: number -> string -> boolean
+reducer index line =
+    if line.charAt index == "0" then
+        true
+    else
+        false
 `.trim();
 
 const multiLine = `
-listLength: number
-listLength =
-    [1, 2, 3]
-        |> \\x -> x.length
+reducer: number -> string -> boolean
+reducer index line =
+    if line.charAt index == "0" then
+        true
+    else
+        false
 `.trim();
 
 const expectedOutput = `
-const listLength: number = (function(x: any) {
-    return x.length;
-})([ 1, 2, 3 ]);
+function reducer(index: number, line: string): boolean {
+    if (line.charAt(index) === "0") {
+        return true;
+    } else {
+        return false;
+    }
+}
 `.trim();
 
 const expectedOutputJS = `
-const listLength = (function(x) {
-    return x.length;
-})([ 1, 2, 3 ]);
+function reducer(index, line) {
+    if (line.charAt(index) === "0") {
+        return true;
+    } else {
+        return false;
+    }
+}
 `.trim();
 
 export function testIntoBlocks() {
     assert.deepStrictEqual(intoBlocks(oneLine), [
-        UnparsedBlock("ConstBlock", 0, oneLine.split("\n")),
+        UnparsedBlock("FunctionBlock", 0, oneLine.split("\n")),
     ]);
 }
 
 export function testIntoBlocksMultiLine() {
     assert.deepStrictEqual(intoBlocks(multiLine), [
-        UnparsedBlock("ConstBlock", 0, multiLine.split("\n")),
+        UnparsedBlock("FunctionBlock", 0, multiLine.split("\n")),
     ]);
 }
 
 export function testBlockKind() {
-    assert.deepStrictEqual(blockKind(oneLine), Ok("Const"));
+    assert.deepStrictEqual(blockKind(oneLine), Ok("Function"));
 }
 
 export function testBlockKindMultiLine() {
-    assert.deepStrictEqual(blockKind(multiLine), Ok("Const"));
+    assert.deepStrictEqual(blockKind(multiLine), Ok("Function"));
 }
 
 export function testParse() {
@@ -67,15 +83,24 @@ export function testParse() {
         Module(
             "main",
             [
-                Const(
-                    "listLength",
-                    FixedType("number", [ ]),
-                    LeftPipe(
-                        ListValue([ Value("1"), Value("2"), Value("3") ]),
-                        Lambda(
-                            [ "x" ],
-                            ModuleReference([ "x" ], Value("length"))
-                        )
+                Function(
+                    "reducer",
+                    FixedType("boolean", [ ]),
+                    [
+                        FunctionArg("index", FixedType("number", [ ])),
+                        FunctionArg("line", FixedType("string", [ ])),
+                    ],
+                    [ ],
+                    IfStatement(
+                        ModuleReference(
+                            [ "line" ],
+                            Equality(
+                                FunctionCall("charAt", [ Value("index") ]),
+                                StringValue("0")
+                            )
+                        ),
+                        Value("true"),
+                        Value("false")
                     )
                 ),
             ],
@@ -90,15 +115,24 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
-                Const(
-                    "listLength",
-                    FixedType("number", [ ]),
-                    LeftPipe(
-                        ListValue([ Value("1"), Value("2"), Value("3") ]),
-                        Lambda(
-                            [ "x" ],
-                            ModuleReference([ "x" ], Value("length"))
-                        )
+                Function(
+                    "reducer",
+                    FixedType("boolean", [ ]),
+                    [
+                        FunctionArg("index", FixedType("number", [ ])),
+                        FunctionArg("line", FixedType("string", [ ])),
+                    ],
+                    [ ],
+                    IfStatement(
+                        ModuleReference(
+                            [ "line" ],
+                            Equality(
+                                FunctionCall("charAt", [ Value("index") ]),
+                                StringValue("0")
+                            )
+                        ),
+                        Value("true"),
+                        Value("false")
                     )
                 ),
             ],

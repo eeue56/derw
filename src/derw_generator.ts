@@ -93,11 +93,20 @@ type alias ${type} = {
 }
 
 function generateField(field: Field): string {
-    return `${field.name}: ${generateExpression(field.value)}`;
+    const value = generateExpression(field.value);
+
+    if (field.name === value) {
+        return `${field.name}: ${value}`;
+    }
+
+    return `${field.name}: ${value}`;
 }
 
 function generateObjectLiteral(literal: ObjectLiteral): string {
-    const fields = literal.fields.map(generateField).join(",\n    ");
+    let fields = literal.fields.map(generateField).join(",\n    ");
+
+    if (literal.fields.length === 1) return `{ ${fields} }`;
+
     return `{
     ${fields}
 }`;
@@ -135,7 +144,9 @@ ${prefixLines(generateExpression(ifStatement.elseBody), 4)}
 }
 
 function generateConstructor(constructor: Constructor): string {
-    return `${constructor.constructor} ${constructor.pattern} `;
+    return `${constructor.constructor} ${generateObjectLiteral(
+        constructor.pattern
+    )} `;
 }
 
 function generateBranch(branch: Branch): string {
@@ -245,6 +256,7 @@ function generateModuleReference(moduleReference: ModuleReference): string {
 }
 
 function generateFunctionCall(functionCall: FunctionCall): string {
+    if (functionCall.args.length === 0) return `${functionCall.name}()`;
     const right = functionCall.args.map(generateExpression).join(" ");
 
     return `${functionCall.name} ${right}`;
