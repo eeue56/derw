@@ -239,7 +239,7 @@ async function main(): Promise<void> {
 
             const derwContents = (await promises.readFile(fileName)).toString();
 
-            const parsed = derwParser.parse(derwContents);
+            const parsed = derwParser.parse(derwContents, fileName);
 
             if (parsed.errors.length > 0) {
                 console.log(`Failed to parse ${fileName} due to:`);

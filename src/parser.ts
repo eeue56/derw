@@ -2089,7 +2089,7 @@ ${block.lines.join("\n")}
 \`\`\``.trim();
 }
 
-export function parse(body: string): Module {
+export function parse(body: string, filename: string = "main"): Module {
     const blocks = intoBlocks(body);
     const syntax = blocks.map(parseBlock);
     const errors = syntax
@@ -2143,8 +2143,10 @@ ${definitions.join("\n\n")}
         `.trim();
     });
 
+    const moduleName = filename;
+
     return Module(
-        "main",
+        moduleName,
         syntax
             .filter((syn) => syn.kind === "ok")
             .map((syn) => (syn as Ok<any>).value),
