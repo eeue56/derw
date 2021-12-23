@@ -48,7 +48,7 @@ export function collisions(blocks: Block[]): Collision[] {
     for (const name of Object.keys(seenNames)) {
         const indexes = seenNames[name];
 
-        if (indexes.length === 1) break;
+        if (indexes.length === 1) continue;
 
         collisionsFound.push(Collision(name, indexes));
     }
