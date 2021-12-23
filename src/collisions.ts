@@ -19,12 +19,33 @@ export function collisions(blocks: Block[]): Collision[] {
     let seenNames: Record<string, number[]> = {};
 
     blocks.forEach((block, i) => {
+        function incrementTimesSeen(name: string): void {
+            if (Object.keys(seenNames).indexOf(name) === -1) {
+                seenNames[name] = [ i ];
+            } else {
+                seenNames[name].push(i);
+            }
+        }
+
         let name;
         switch (block.kind) {
             case "Comment":
             case "MultilineComment":
-            case "Export":
+            case "Export": {
+                return;
+            }
             case "Import": {
+                for (const module of block.modules) {
+                    for (const exposed of module.exposing) {
+                        incrementTimesSeen(exposed);
+                    }
+
+                    if (module.alias.kind === "just") {
+                        incrementTimesSeen(module.alias.value);
+                    } else {
+                        incrementTimesSeen(module.name);
+                    }
+                }
                 return;
             }
             case "Function":
@@ -40,11 +61,7 @@ export function collisions(blocks: Block[]): Collision[] {
             }
         }
 
-        if (Object.keys(seenNames).indexOf(name) === -1) {
-            seenNames[name] = [ i ];
-        } else {
-            seenNames[name].push(i);
-        }
+        incrementTimesSeen(name);
     });
 
     for (const name of Object.keys(seenNames)) {
