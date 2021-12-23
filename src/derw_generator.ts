@@ -482,6 +482,7 @@ function generateBlock(syntax: Block): string {
         case "Const":
             return generateConst(syntax);
         case "Comment":
+        case "MultilineComment":
             return "";
     }
 }

@@ -22,6 +22,7 @@ export function collisions(blocks: Block[]): Collision[] {
         let name;
         switch (block.kind) {
             case "Comment":
+            case "MultilineComment":
             case "Export":
             case "Import": {
                 return;

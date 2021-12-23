@@ -13,6 +13,7 @@ import {
     IdentifierToken,
     KeywordToken,
     LiteralToken,
+    MultilineCommentToken,
     OpenBracketToken,
     OpenCurlyBracesToken,
     OperatorToken,
@@ -495,6 +496,48 @@ toString buffer =
         CommentToken(),
         WhitespaceToken(" "),
         IdentifierToken("world"),
+        WhitespaceToken("\n    "),
+        IdentifierToken("buffer.toString"),
+        OpenBracketToken(),
+        CloseBracketToken(),
+    ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
+}
+
+export function testMultilineComment() {
+    const str = `
+{-
+    hello
+    world
+-}
+toString: Buffer -> string
+toString buffer =
+    buffer.toString()
+`.trim();
+
+    assert.deepStrictEqual(tokenize(str), [
+        MultilineCommentToken("{-"),
+        WhitespaceToken("\n    "),
+        IdentifierToken("hello"),
+        WhitespaceToken("\n    "),
+        IdentifierToken("world"),
+        WhitespaceToken("\n"),
+        MultilineCommentToken("-}"),
+        WhitespaceToken("\n"),
+        IdentifierToken("toString"),
+        ColonToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("Buffer"),
+        WhitespaceToken(" "),
+        ArrowToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("string"),
+        WhitespaceToken("\n"),
+        IdentifierToken("toString"),
+        WhitespaceToken(" "),
+        IdentifierToken("buffer"),
+        WhitespaceToken(" "),
+        AssignToken(),
         WhitespaceToken("\n    "),
         IdentifierToken("buffer.toString"),
         OpenBracketToken(),

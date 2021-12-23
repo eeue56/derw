@@ -198,6 +198,20 @@ export function CommentToken(): CommentToken {
     };
 }
 
+export type MultilineCommentToken = {
+    kind: "MultilineCommentToken";
+    body: "{-" | "-}";
+};
+
+export function MultilineCommentToken(
+    body: "{-" | "-}"
+): MultilineCommentToken {
+    return {
+        kind: "MultilineCommentToken",
+        body,
+    };
+}
+
 export type AssignToken = {
     kind: "AssignToken";
 };
@@ -324,6 +338,7 @@ export type Token =
     | ArrowToken
     | CommaToken
     | CommentToken
+    | MultilineCommentToken
     | OperatorToken
     | AssignToken
     | OpenCurlyBracesToken
@@ -344,6 +359,8 @@ function checkKeywordToken(currentToken: string, tokens: Token[]): void {
         tokens.push(KeywordToken(currentToken));
     } else if (currentToken === "--") {
         tokens.push(CommentToken());
+    } else if (currentToken === "{-" || currentToken === "-}") {
+        tokens.push(MultilineCommentToken(currentToken));
     } else if (isLiteral(currentToken)) {
         tokens.push(LiteralToken(currentToken));
     } else if (isOperator(currentToken)) {
@@ -631,6 +648,9 @@ function tokenToString(token: Token): string {
             return token.body;
         }
         case "IdentifierToken": {
+            return token.body;
+        }
+        case "MultilineCommentToken": {
             return token.body;
         }
         case "KeywordToken": {

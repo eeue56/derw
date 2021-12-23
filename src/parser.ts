@@ -47,6 +47,7 @@ import {
     ListValue,
     Module,
     ModuleReference,
+    MultilineComment,
     Multiplication,
     ObjectLiteral,
     Or,
@@ -2026,6 +2027,9 @@ ${block.lines.join("\n")}
         case "CommentBlock": {
             return Ok(Comment());
         }
+        case "MultilineCommentBlock": {
+            return Ok(MultilineComment());
+        }
         case "UnknownBlock": {
             return Err(
                 `Not sure what the block starting on line ${
@@ -2044,6 +2048,7 @@ ${block.lines.join("\n")}
 export function stripComments(tokens: Token[]): Token[] {
     const returnTokens = [ ];
     let isInComment = false;
+    let isInMultilineComment = false;
 
     for (const token of tokens) {
         if (isInComment) {
@@ -2053,9 +2058,15 @@ export function stripComments(tokens: Token[]): Token[] {
                     returnTokens.push(token);
                 }
             }
+        } else if (isInMultilineComment) {
+            if (token.kind === "MultilineCommentToken") {
+                isInMultilineComment = false;
+            }
         } else {
             if (token.kind === "CommentToken") {
                 isInComment = true;
+            } else if (token.kind === "MultilineCommentToken") {
+                isInMultilineComment = true;
             } else {
                 returnTokens.push(token);
             }

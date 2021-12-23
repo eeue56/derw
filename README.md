@@ -296,7 +296,7 @@ isTrue x =
     x
 ```
 
--   [ ] Mulit line comments
+-   [x] Multiline comments
 
 ```elm
 {-

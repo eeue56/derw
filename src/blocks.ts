@@ -6,6 +6,10 @@ export function blockKind(block: string): Result<string, BlockKinds> {
         return Ok("Comment");
     }
 
+    if (block.startsWith("{-")) {
+        return Ok("MultilineComment");
+    }
+
     if (block.startsWith("type alias")) {
         return Ok("TypeAlias");
     }
@@ -88,6 +92,10 @@ function createUnparsedBlock(
             return UnparsedBlock("CommentBlock", lineStart, lines);
         }
 
+        case "MultilineComment": {
+            return UnparsedBlock("MultilineCommentBlock", lineStart, lines);
+        }
+
         case "Unknown": {
             return UnparsedBlock("UnknownBlock", lineStart, lines);
         }
@@ -115,6 +123,25 @@ export function intoBlocks(body: string): UnparsedBlock[] {
             lineStart = i;
             currentBlock.push(line);
         } else {
+            if (
+                currentBlockKind.kind === "ok" &&
+                currentBlockKind.value === "MultilineComment"
+            ) {
+                if (line === "-}") {
+                    currentBlock.push(line);
+                    blocks.push(
+                        createUnparsedBlock(
+                            currentBlockKind.value,
+                            lineStart,
+                            currentBlock
+                        )
+                    );
+                    currentBlock = [ ];
+                } else {
+                    currentBlock.push(line);
+                }
+                continue;
+            }
             const currentLineBlockKind = blockKind(line);
 
             const isIndent =

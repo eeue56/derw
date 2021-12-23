@@ -440,6 +440,7 @@ export function validateType(
             return Ok(block.type);
         }
 
+        case "MultilineComment":
         case "Comment":
         case "Export":
         case "Import": {

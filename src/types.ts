@@ -795,6 +795,16 @@ export function Comment(): Comment {
     };
 }
 
+export type MultilineComment = {
+    kind: "MultilineComment";
+};
+
+export function MultilineComment(): MultilineComment {
+    return {
+        kind: "MultilineComment",
+    };
+}
+
 export type UnparsedBlockTypes =
     | "ImportBlock"
     | "ExportBlock"
@@ -803,6 +813,7 @@ export type UnparsedBlockTypes =
     | "FunctionBlock"
     | "ConstBlock"
     | "CommentBlock"
+    | "MultilineCommentBlock"
     | "UnknownBlock";
 
 export type UnparsedBlock = {
@@ -833,6 +844,7 @@ export type BlockKinds =
     | "Indent"
     | "Definition"
     | "Comment"
+    | "MultilineComment"
     | "Unknown";
 
 export type Block =
@@ -842,7 +854,9 @@ export type Block =
     | Const
     | Import
     | Export
-    | Comment;
+    | Comment
+    | MultilineComment;
+
 export type TypedBlock = UnionType | TypeAlias;
 
 export type Module = {
