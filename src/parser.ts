@@ -16,6 +16,7 @@ import {
     Block,
     Branch,
     CaseStatement,
+    Comment,
     Const,
     Constructor,
     Destructure,
@@ -2001,7 +2002,7 @@ ${block.lines.join("\n")}
         }, res);
     };
 
-    const tokens = tokenize(block.lines.join("\n"));
+    const tokens = stripComments(tokenize(block.lines.join("\n")));
 
     switch (block.kind) {
         case "ImportBlock": {
@@ -2022,6 +2023,9 @@ ${block.lines.join("\n")}
         case "ConstBlock": {
             return wrapError(parseConst(tokens));
         }
+        case "CommentBlock": {
+            return Ok(Comment());
+        }
         case "UnknownBlock": {
             return Err(
                 `Not sure what the block starting on line ${
@@ -2035,6 +2039,30 @@ ${block.lines.join("\n")}
             );
         }
     }
+}
+
+export function stripComments(tokens: Token[]): Token[] {
+    const returnTokens = [ ];
+    let isInComment = false;
+
+    for (const token of tokens) {
+        if (isInComment) {
+            if (token.kind === "WhitespaceToken") {
+                if (token.body.indexOf("\n") > -1) {
+                    isInComment = false;
+                    returnTokens.push(token);
+                }
+            }
+        } else {
+            if (token.kind === "CommentToken") {
+                isInComment = true;
+            } else {
+                returnTokens.push(token);
+            }
+        }
+    }
+
+    return returnTokens;
 }
 
 function getGap(blocks: UnparsedBlock[], index: number): string {

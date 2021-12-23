@@ -21,6 +21,7 @@ export function collisions(blocks: Block[]): Collision[] {
     blocks.forEach((block, i) => {
         let name;
         switch (block.kind) {
+            case "Comment":
             case "Export":
             case "Import": {
                 return;

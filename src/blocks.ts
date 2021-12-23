@@ -2,6 +2,10 @@ import { Err, Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
 import { Block, BlockKinds, TypedBlock, UnparsedBlock } from "./types";
 
 export function blockKind(block: string): Result<string, BlockKinds> {
+    if (block.startsWith("--")) {
+        return Ok("Comment");
+    }
+
     if (block.startsWith("type alias")) {
         return Ok("TypeAlias");
     }
@@ -78,6 +82,10 @@ function createUnparsedBlock(
 
         case "Definition": {
             return UnparsedBlock("UnknownBlock", lineStart, lines);
+        }
+
+        case "Comment": {
+            return UnparsedBlock("CommentBlock", lineStart, lines);
         }
 
         case "Unknown": {

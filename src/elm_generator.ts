@@ -529,6 +529,8 @@ function generateBlock(syntax: Block): string {
             return generateFunction(syntax);
         case "Const":
             return generateConst(syntax);
+        case "Comment":
+            return "";
     }
 }
 

@@ -8,6 +8,7 @@ import {
     CloseCurlyBracesToken,
     ColonToken,
     CommaToken,
+    CommentToken,
     FunctionTypeToken,
     IdentifierToken,
     KeywordToken,
@@ -454,6 +455,46 @@ toString buffer =
         IdentifierToken("buffer"),
         WhitespaceToken(" "),
         AssignToken(),
+        WhitespaceToken("\n    "),
+        IdentifierToken("buffer.toString"),
+        OpenBracketToken(),
+        CloseBracketToken(),
+    ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
+}
+
+export function testComment() {
+    const str = `
+-- hello
+toString: Buffer -> string
+toString buffer =
+    -- world
+    buffer.toString()
+`.trim();
+
+    assert.deepStrictEqual(tokenize(str), [
+        CommentToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("hello"),
+        WhitespaceToken("\n"),
+        IdentifierToken("toString"),
+        ColonToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("Buffer"),
+        WhitespaceToken(" "),
+        ArrowToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("string"),
+        WhitespaceToken("\n"),
+        IdentifierToken("toString"),
+        WhitespaceToken(" "),
+        IdentifierToken("buffer"),
+        WhitespaceToken(" "),
+        AssignToken(),
+        WhitespaceToken("\n    "),
+        CommentToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("world"),
         WhitespaceToken("\n    "),
         IdentifierToken("buffer.toString"),
         OpenBracketToken(),

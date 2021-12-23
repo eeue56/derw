@@ -440,6 +440,7 @@ export function validateType(
             return Ok(block.type);
         }
 
+        case "Comment":
         case "Export":
         case "Import": {
             return Ok(FixedType("any", [ ]));

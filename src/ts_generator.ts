@@ -653,9 +653,14 @@ function generateBlock(syntax: Block): string {
             return generateFunction(syntax);
         case "Const":
             return generateConst(syntax);
+        case "Comment":
+            return "";
     }
 }
 
 export function generateTypescript(module: Module): string {
-    return module.body.map(generateBlock).join("\n\n");
+    return module.body
+        .map(generateBlock)
+        .filter((line) => line.length > 0)
+        .join("\n\n");
 }

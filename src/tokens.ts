@@ -188,6 +188,16 @@ export function ArrowToken(): ArrowToken {
     };
 }
 
+export type CommentToken = {
+    kind: "CommentToken";
+};
+
+export function CommentToken(): CommentToken {
+    return {
+        kind: "CommentToken",
+    };
+}
+
 export type AssignToken = {
     kind: "AssignToken";
 };
@@ -313,6 +323,7 @@ export type Token =
     | ColonToken
     | ArrowToken
     | CommaToken
+    | CommentToken
     | OperatorToken
     | AssignToken
     | OpenCurlyBracesToken
@@ -331,6 +342,8 @@ function checkKeywordToken(currentToken: string, tokens: Token[]): void {
         tokens.push(CloseCurlyBracesToken());
     } else if (keywords.indexOf(currentToken) > -1) {
         tokens.push(KeywordToken(currentToken));
+    } else if (currentToken === "--") {
+        tokens.push(CommentToken());
     } else if (isLiteral(currentToken)) {
         tokens.push(LiteralToken(currentToken));
     } else if (isOperator(currentToken)) {
@@ -610,6 +623,9 @@ function tokenToString(token: Token): string {
         }
         case "CommaToken": {
             return ",";
+        }
+        case "CommentToken": {
+            return "--";
         }
         case "FormatStringToken": {
             return token.body;

@@ -785,6 +785,16 @@ export function Export(names: string[]): Export {
     };
 }
 
+export type Comment = {
+    kind: "Comment";
+};
+
+export function Comment(): Comment {
+    return {
+        kind: "Comment",
+    };
+}
+
 export type UnparsedBlockTypes =
     | "ImportBlock"
     | "ExportBlock"
@@ -792,6 +802,7 @@ export type UnparsedBlockTypes =
     | "TypeAliasBlock"
     | "FunctionBlock"
     | "ConstBlock"
+    | "CommentBlock"
     | "UnknownBlock";
 
 export type UnparsedBlock = {
@@ -821,9 +832,17 @@ export type BlockKinds =
     | "Const"
     | "Indent"
     | "Definition"
+    | "Comment"
     | "Unknown";
 
-export type Block = UnionType | TypeAlias | Function | Const | Import | Export;
+export type Block =
+    | UnionType
+    | TypeAlias
+    | Function
+    | Const
+    | Import
+    | Export
+    | Comment;
 export type TypedBlock = UnionType | TypeAlias;
 
 export type Module = {

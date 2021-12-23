@@ -278,6 +278,36 @@ import "./another" exposing ( isTrue, isFalse )
 Warning! Failed to find `examples/derw_imports/banana` as either derw, ts or js
 ```
 
+-   [x] Single line comments
+
+```elm
+-- hello
+isTrue: boolean -> boolean
+isTrue x =
+    x
+```
+
+-   [x] Single line comments in function or const bodies
+
+```elm
+isTrue: boolean -> boolean
+isTrue x =
+    -- hello
+    x
+```
+
+-   [ ] Mulit line comments
+
+```elm
+{-
+hello
+world
+-}
+isTrue: boolean -> boolean
+isTrue x =
+    x
+```
+
 ## 1.0.0
 
 -   [x] An automatic formatter with no options
