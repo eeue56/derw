@@ -257,6 +257,7 @@ names =
 -   [x] lambdas `\x -> x + 1`, `\x y -> x + y`
 -   [x] Typescript output
 -   [x] Javscript output
+-   [ ] Elm output
 -   [x] Module resolution
 -   [x] CLI
 -   [x] Basic type checking

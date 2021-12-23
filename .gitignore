@@ -105,3 +105,7 @@ dist
 
 build
 examples/derw_imports/*.ts
+examples/derw_imports/*.elm
+
+examples/elm.json
+examples/elm-stuff

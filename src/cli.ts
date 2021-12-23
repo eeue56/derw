@@ -19,6 +19,7 @@ import path from "path";
 import * as util from "util";
 import { compileTypescript } from "./compile";
 import { generateDerw } from "./derw_generator";
+import { generateElm } from "./elm_generator";
 import { generateJavascript } from "./js_generator";
 import * as derwParser from "./parser";
 import { generateTypescript } from "./ts_generator";
@@ -26,7 +27,7 @@ import { Block, Import, Module } from "./types";
 
 const emptyLineAtEndOfFile = "\n";
 
-type Target = "js" | "ts" | "derw";
+type Target = "js" | "ts" | "derw" | "elm";
 
 async function ensureDirectoryExists(directory: string): Promise<void> {
     try {
@@ -136,6 +137,9 @@ function generate(
         case "derw": {
             return generateDerw(parsed) + emptyLineAtEndOfFile;
         }
+        case "elm": {
+            return generateElm(parsed) + emptyLineAtEndOfFile;
+        }
     }
 }
 
@@ -144,7 +148,7 @@ const programParser = parser([
     longFlag(
         "target",
         "Target TS, JS or Derw output",
-        oneOf([ "ts", "js", "derw" ])
+        oneOf([ "ts", "js", "derw", "elm" ])
     ),
     longFlag("output", "Output directory name", string()),
     longFlag(

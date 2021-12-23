@@ -1,33 +1,33 @@
-type True = {
-    kind: "True";
+type One = {
+    kind: "One";
 };
 
-function True(args: {}): True {
+function One(args: {}): One {
     return {
-        kind: "True",
+        kind: "One",
         ...args,
     };
 }
 
-type False = {
-    kind: "False";
+type Zero = {
+    kind: "Zero";
 };
 
-function False(args: {}): False {
+function Zero(args: {}): Zero {
     return {
-        kind: "False",
+        kind: "Zero",
         ...args,
     };
 }
 
-type Binary = True | False;
+type Binary = One | Zero;
 
 function isTruthy(binary: Binary): boolean {
     switch (binary.kind) {
-        case "True": {
+        case "One": {
             return true;
         }
-        case "False": {
+        case "Zero": {
             return false;
         }
     }

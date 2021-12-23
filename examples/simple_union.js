@@ -1,23 +1,23 @@
-function True(args) {
+function One(args) {
     return {
-        kind: "True",
+        kind: "One",
         ...args,
     };
 }
 
-function False(args) {
+function Zero(args) {
     return {
-        kind: "False",
+        kind: "Zero",
         ...args,
     };
 }
 
 function isTruthy(binary) {
     switch (binary.kind) {
-        case "True": {
+        case "One": {
             return true;
         }
-        case "False": {
+        case "Zero": {
             return false;
         }
     }

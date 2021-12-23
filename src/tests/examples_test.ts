@@ -2,6 +2,7 @@ import * as assert from "@eeue56/ts-assert";
 import { readdir, readFile } from "fs/promises";
 import path from "path";
 import { generateDerw } from "../derw_generator";
+import { generateElm } from "../elm_generator";
 import { generateJavascript } from "../js_generator";
 import { parse } from "../parser";
 import { generateTypescript } from "../ts_generator";
@@ -44,24 +45,28 @@ export async function testExamples() {
                 derw: derwFile,
                 ts: derwFile.split(".")[0] + ".ts",
                 js: derwFile.split(".")[0] + ".js",
+                elm: derwFile.split(".")[0] + ".elm",
             };
         });
 
     await Promise.all(
-        filePairs.map(async ({ derw, ts, js }) => {
+        filePairs.map(async ({ derw, ts, js, elm }) => {
             const derwContents = (await readFile(derw)).toString();
             const tsContents = (await readFile(ts)).toString();
             const jsContents = (await readFile(js)).toString();
+            const elmContents = (await readFile(elm)).toString();
 
             const parsed = parse(derwContents);
             const generatedTS =
                 generateTypescript(parsed) + emptyLineAtEndOfFile;
             const generatedJS =
                 generateJavascript(parsed) + emptyLineAtEndOfFile;
+            const generatedElm = generateElm(parsed) + emptyLineAtEndOfFile;
 
             try {
                 assert.deepStrictEqual(tsContents, generatedTS);
                 assert.deepStrictEqual(jsContents, generatedJS);
+                assert.deepStrictEqual(elmContents, generatedElm);
             } catch (e) {
                 console.log(`Failed to correctly generate ${derw}`);
                 throw e;
