@@ -183,12 +183,12 @@ export async function main(): Promise<void> {
     if (errors.length > 0) {
         console.log("Errors:");
         console.log(errors.join("\n"));
-        return;
+        process.exit(1);
     }
 
     if (!program.flags.files.isPresent) {
         console.log("You must provide at least one file via --files");
-        return;
+        process.exit(1);
     }
 
     const files = (program.flags.files.arguments as Ok<string[]>).value;
@@ -199,7 +199,7 @@ export async function main(): Promise<void> {
         console.log(
             "You must provide a output directory name via --output or format in-place via --format"
         );
-        return;
+        process.exit(1);
     }
 
     const outputDir = program.flags.output.isPresent
