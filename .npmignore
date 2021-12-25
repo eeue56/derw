@@ -2,3 +2,4 @@ src/tests
 build/tests
 examples
 test/
+bench/
