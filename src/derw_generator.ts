@@ -146,7 +146,7 @@ ${prefixLines(generateExpression(ifStatement.elseBody), 4)}
 function generateConstructor(constructor: Constructor): string {
     return `${constructor.constructor} ${generateObjectLiteral(
         constructor.pattern
-    )} `;
+    )}`;
 }
 
 function generateBranch(branch: Branch): string {

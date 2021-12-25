@@ -169,7 +169,7 @@ function showHelp(): void {
     console.log(help(programParser));
 }
 
-async function main(): Promise<void> {
+export async function main(): Promise<void> {
     const program = parse(programParser, process.argv);
 
     if (program.flags["h/help"].isPresent) {
@@ -239,7 +239,11 @@ async function main(): Promise<void> {
 
             const derwContents = (await promises.readFile(fileName)).toString();
 
-            const parsed = derwParser.parse(derwContents, fileName);
+            const isMain = files.indexOf(fileName) > -1;
+            const parsed = derwParser.parse(
+                derwContents,
+                isMain ? "Main" : fileName
+            );
 
             if (parsed.errors.length > 0) {
                 console.log(`Failed to parse ${fileName} due to:`);
@@ -336,4 +340,6 @@ async function main(): Promise<void> {
     console.log("Processed:", processedFiles);
 }
 
-main();
+if (require.main === module) {
+    main();
+}

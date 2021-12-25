@@ -75,7 +75,7 @@ parseLine str =
 
         right: number
         right =
-            parseInt(piece[1])
+            parseInt piece[1]
     in
         {
             command: left,

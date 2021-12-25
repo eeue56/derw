@@ -14,6 +14,6 @@ sayHiToPet pet =
 
 main: String
 main =
-    Dog { name = "roof" } 
+    Dog { name = "roof" }
         |> sayHiToPet
         |> Debug.log ""

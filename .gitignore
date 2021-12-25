@@ -109,3 +109,4 @@ examples/derw_imports/*.elm
 
 examples/elm.json
 examples/elm-stuff
+test/
