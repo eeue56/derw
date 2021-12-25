@@ -1446,14 +1446,15 @@ export function parseExpression(body: string): Result<string, Expression> {
 
     let index = 0;
 
-    while (index < tokens.length) {
-        if (tokens[index].kind !== "WhitespaceToken") break;
-        index++;
-    }
     if (trimmedBody.indexOf("|>") > 0) {
         return parseLeftPipe(tokens);
     } else if (trimmedBody.indexOf("<|") > 0) {
         return parseRightPipe(tokens);
+    }
+
+    while (index < tokens.length) {
+        if (tokens[index].kind !== "WhitespaceToken") break;
+        index++;
     }
 
     const firstToken = tokens[index];
