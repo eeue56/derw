@@ -265,7 +265,7 @@ function generateLambda(lambda: Lambda): string {
     const args = lambda.args.map((arg: any) => `${arg}`).join(" ");
     const body = generateExpression(lambda.body);
     return `
-\\${args} -> ${body}
+(\\${args} -> ${body})
 `.trim();
 }
 

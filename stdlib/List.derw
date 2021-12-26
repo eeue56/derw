@@ -28,12 +28,7 @@ filterMapHelp fn a xs =
 
 filterMap: (a -> Maybe b) -> List a -> List b
 filterMap fn xs =
-    let
-        help: a -> List b -> List b
-        help y ys =
-            filterMapHelp fn y ys
-    in
-        foldl help [] xs
+    foldl (\y ys -> filterMapHelp fn y ys) [] xs
 
 append: List a -> List a -> List a
 append xs ys =

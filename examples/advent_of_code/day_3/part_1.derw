@@ -44,7 +44,7 @@ commonBits xs =
         length: number
         length =
             firstElement
-                |> \x -> x.length
+                |> (\x -> x.length)
 
         lengthMinusOne: number
         lengthMinusOne =
@@ -55,7 +55,7 @@ commonBits xs =
             mostCommon x xs
     in
         [ 0..lengthMinusOne ]
-            |> \x -> x.map commoner
+            |> (\x -> x.map commoner)
 
 gammaToString: Common -> string
 gammaToString common =

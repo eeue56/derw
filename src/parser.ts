@@ -9,6 +9,7 @@ import { intoBlocks, typeBlocks } from "./blocks";
 import { isBuiltinType } from "./builtins";
 import { collisions } from "./collisions";
 import {
+    BaseTypeToken,
     IdentifierToken,
     RootTypeTokens,
     Token,
@@ -74,6 +75,37 @@ import {
 } from "./types";
 import { validateType } from "./type_checking";
 
+function afterArrow(tokens: TypeToken[]): TypeToken[] {
+    let index = 0;
+    while (index < tokens.length) {
+        if (tokens[index].kind !== "ArrowToken") break;
+
+        index++;
+    }
+
+    return tokens.slice(index);
+}
+
+function splitOnArrow(tokens: TypeToken[]): TypeToken[][] {
+    const results = [ ];
+    let lastIndex = 0;
+    let index = 0;
+    while (index < tokens.length) {
+        if (tokens[index].kind === "ArrowToken") {
+            results.push(tokens.slice(lastIndex, index));
+            lastIndex = index + 1;
+        }
+
+        index++;
+    }
+
+    if (index > lastIndex) {
+        results.push(tokens.slice(lastIndex, index));
+    }
+
+    return results;
+}
+
 function parseTypeToken(token: TypeToken): Result<string, Type> {
     switch (token.kind) {
         case "ArrowToken": {
@@ -82,7 +114,9 @@ function parseTypeToken(token: TypeToken): Result<string, Type> {
         case "BaseTypeToken": {
             const rootType = token.body[0];
             if (rootType.kind === "IdentifierToken") {
-                const parsedTypes = token.body.slice(1).map(parseTypeToken);
+                const parsedTypes = afterArrow(token.body.slice(1)).map(
+                    parseTypeToken
+                );
 
                 if (parsedTypes.length === 0) {
                     if (
@@ -117,9 +151,9 @@ function parseTypeToken(token: TypeToken): Result<string, Type> {
             return Err("Unexpected close bracket in type");
         }
         case "FunctionTypeToken": {
-            const parsedTypes = token.body
-                .filter((t) => t.kind !== "ArrowToken")
-                .map(parseTypeToken);
+            const parsedTypes = splitOnArrow(token.body).map((x) =>
+                parseTypeToken(BaseTypeToken(x))
+            );
             const errors = [ ];
             const correct = [ ];
 
@@ -1374,6 +1408,18 @@ function parseFunctionCall(
                 }
                 break;
             }
+            case "OpenBracketToken": {
+                if (currentArg.join().trim().length > 0) {
+                    args.push(currentArg.join(""));
+                }
+                currentArg = [ ];
+                break;
+            }
+            case "CloseBracketToken": {
+                args.push(currentArg.join(""));
+                currentArg = [ ];
+                break;
+            }
             case "OpenCurlyBracesToken": {
                 currentArg.push("{");
                 break;
@@ -1396,6 +1442,10 @@ function parseFunctionCall(
             }
             case "WhitespaceToken": {
                 currentArg.push(token.body);
+                break;
+            }
+            case "ArrowToken": {
+                currentArg.push("->");
                 break;
             }
         }
@@ -1579,8 +1629,42 @@ function parseOr(tokens: Token[]): Result<string, Or> {
     return Ok(Or(left.value, right.value));
 }
 
+function dropSurroundingBrackets(tokens: Token[]): Token[] {
+    let start = 0;
+    let end = tokens.length - 1;
+    let seenOpen = false;
+
+    while (start < tokens.length) {
+        if (tokens[start].kind === "OpenBracketToken") {
+            seenOpen = true;
+            break;
+        } else if (tokens[start].kind !== "WhitespaceToken") {
+            break;
+        }
+        start++;
+    }
+
+    if (!seenOpen) return tokens;
+
+    let seenClose = false;
+
+    while (end > start) {
+        if (tokens[end].kind === "CloseBracketToken") {
+            seenClose = true;
+            break;
+        } else if (tokens[end].kind !== "WhitespaceToken") {
+            break;
+        }
+        end--;
+    }
+
+    if (!seenClose) return tokens;
+
+    return tokens.slice(start + 1, end);
+}
+
 export function parseExpression(body: string): Result<string, Expression> {
-    const tokens = tokenize(body);
+    const tokens = dropSurroundingBrackets(tokenize(body));
 
     let index = 0;
 
@@ -1596,6 +1680,10 @@ export function parseExpression(body: string): Result<string, Expression> {
     }
 
     const firstToken = tokens[index];
+    if (!firstToken) {
+        return Err(`Expected a token but got "${tokens}"`);
+    }
+
     switch (firstToken.kind) {
         case "KeywordToken": {
             if (firstToken.body === "if") {
@@ -1690,13 +1778,13 @@ export function parseExpression(body: string): Result<string, Expression> {
         return parseAnd(tokens);
     } else if (body.indexOf(" || ") > 0) {
         return parseOr(tokens);
-    } else if (body.indexOf("+") > 0) {
+    } else if (body.indexOf(" + ") > 0) {
         return parseAddition(tokens);
-    } else if (body.indexOf("-") > 0) {
+    } else if (body.indexOf(" - ") > 0) {
         return parseSubtraction(tokens);
-    } else if (body.indexOf("*") > 0) {
+    } else if (body.indexOf(" * ") > 0) {
         return parseMultiplcation(tokens);
-    } else if (body.indexOf("/") > 0) {
+    } else if (body.indexOf(" / ") > 0) {
         return parseDivision(tokens);
     }
 
