@@ -1,0 +1,3 @@
+exposing (Maybe, Just, Nothing)
+
+type Maybe a = Just { value: a } | Nothing
