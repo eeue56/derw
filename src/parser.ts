@@ -1441,14 +1441,13 @@ function parseOr(tokens: Token[]): Result<string, Or> {
 }
 
 export function parseExpression(body: string): Result<string, Expression> {
-    const trimmedBody = body.trim();
     const tokens = tokenize(body);
 
     let index = 0;
 
-    if (trimmedBody.indexOf("|>") > 0) {
+    if (body.indexOf("|>") > 0) {
         return parseLeftPipe(tokens);
-    } else if (trimmedBody.indexOf("<|") > 0) {
+    } else if (body.indexOf("<|") > 0) {
         return parseRightPipe(tokens);
     }
 
@@ -1536,29 +1535,29 @@ export function parseExpression(body: string): Result<string, Expression> {
         }
     }
 
-    if (trimmedBody.indexOf(" == ") > 0) {
+    if (body.indexOf(" == ") > 0) {
         return parseEquality(tokens);
-    } else if (trimmedBody.indexOf(" != ") > 0) {
+    } else if (body.indexOf(" != ") > 0) {
         return parseInEquality(tokens);
-    } else if (trimmedBody.indexOf(" < ") > 0) {
+    } else if (body.indexOf(" < ") > 0) {
         return parseLessThan(tokens);
-    } else if (trimmedBody.indexOf(" <= ") > 0) {
+    } else if (body.indexOf(" <= ") > 0) {
         return parseLessThanOrEqual(tokens);
-    } else if (trimmedBody.indexOf(" > ") > 0) {
+    } else if (body.indexOf(" > ") > 0) {
         return parseGreaterThan(tokens);
-    } else if (trimmedBody.indexOf(" >= ") > 0) {
+    } else if (body.indexOf(" >= ") > 0) {
         return parseGreaterThanOrEqual(tokens);
-    } else if (trimmedBody.indexOf(" && ") > 0) {
+    } else if (body.indexOf(" && ") > 0) {
         return parseAnd(tokens);
-    } else if (trimmedBody.indexOf(" || ") > 0) {
+    } else if (body.indexOf(" || ") > 0) {
         return parseOr(tokens);
-    } else if (trimmedBody.indexOf("+") > 0) {
+    } else if (body.indexOf("+") > 0) {
         return parseAddition(tokens);
-    } else if (trimmedBody.indexOf("-") > 0) {
+    } else if (body.indexOf("-") > 0) {
         return parseSubtraction(tokens);
-    } else if (trimmedBody.indexOf("*") > 0) {
+    } else if (body.indexOf("*") > 0) {
         return parseMultiplcation(tokens);
-    } else if (trimmedBody.indexOf("/") > 0) {
+    } else if (body.indexOf("/") > 0) {
         return parseDivision(tokens);
     }
 
@@ -1595,6 +1594,12 @@ export function parseExpression(body: string): Result<string, Expression> {
                 break;
             }
             case "LiteralToken": {
+                if (token.body.startsWith("[")) {
+                    if (token.body.indexOf("..") > -1) {
+                        return parseListRange(tokens);
+                    }
+                    return parseListValue(tokens);
+                }
                 break;
             }
             case "OpenBracketToken": {
@@ -1625,12 +1630,8 @@ export function parseExpression(body: string): Result<string, Expression> {
         if (isDone) break;
     }
 
-    if (trimmedBody.startsWith("[")) {
-        if (trimmedBody.indexOf("..") > -1) {
-            return parseListRange(tokens);
-        }
-        return parseListValue(tokens);
-    } else if (
+    const trimmedBody = body.trim();
+    if (
         trimmedBody.split(" ").length === 1 ||
         !isNaN(parseInt(trimmedBody, 10))
     ) {
