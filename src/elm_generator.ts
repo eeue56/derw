@@ -193,6 +193,10 @@ function generateType(type_: Type): string {
         }
         case "FixedType": {
             if (type_.name === "List") {
+                if (type_.args[0] && type_.args[0].kind === "GenericType") {
+                    return "List " + generateType(type_.args[0]);
+                }
+
                 const fixedArgs = type_.args.filter(
                     (type_) => type_.kind === "FixedType"
                 );
