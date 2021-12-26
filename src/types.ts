@@ -28,14 +28,12 @@ export function FixedType(name: string, args: Type[]): FixedType {
 
 export type FunctionType = {
     kind: "FunctionType";
-    name: string;
     args: Type[];
 };
 
-export function FunctionType(name: string, args: Type[]): FunctionType {
+export function FunctionType(args: Type[]): FunctionType {
     return {
         kind: "FunctionType",
-        name,
         args,
     };
 }
@@ -72,11 +70,11 @@ export function Tag(name: string, args: TagArg[]): Tag {
 
 export type UnionType = {
     kind: "UnionType";
-    type: Type;
+    type: FixedType;
     tags: Tag[];
 };
 
-export function UnionType(type: Type, tags: Tag[]): UnionType {
+export function UnionType(type: FixedType, tags: Tag[]): UnionType {
     return {
         kind: "UnionType",
         type,
@@ -100,11 +98,11 @@ export function Property(name: string, type: Type): Property {
 
 export type TypeAlias = {
     kind: "TypeAlias";
-    type: Type;
+    type: FixedType;
     properties: Property[];
 };
 
-export function TypeAlias(type: Type, properties: Property[]): TypeAlias {
+export function TypeAlias(type: FixedType, properties: Property[]): TypeAlias {
     return {
         kind: "TypeAlias",
         type,

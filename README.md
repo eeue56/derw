@@ -309,6 +309,14 @@ isTrue x =
     x
 ```
 
+-   [x] Function arguments
+
+```elm
+map: (a -> b) -> a -> b
+map fn value =
+    fn value
+```
+
 ## 1.0.0
 
 -   [x] An automatic formatter with no options

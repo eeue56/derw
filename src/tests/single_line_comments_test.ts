@@ -195,7 +195,6 @@ export function testStripCommentsMultiLine() {
     const tokens = tokenize(multiLine);
     const withoutComments = stripComments(tokens);
 
-    console.log({ withoutComments });
     assert.deepStrictEqual(withoutComments, [
         WhitespaceToken("\n"),
         IdentifierToken("toString"),

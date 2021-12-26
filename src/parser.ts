@@ -8,7 +8,15 @@ import {
 import { intoBlocks, typeBlocks } from "./blocks";
 import { isBuiltinType } from "./builtins";
 import { collisions } from "./collisions";
-import { IdentifierToken, Token, tokenize, tokensToString } from "./tokens";
+import {
+    IdentifierToken,
+    RootTypeTokens,
+    Token,
+    tokenize,
+    tokenizeType,
+    tokensToString,
+    TypeToken,
+} from "./tokens";
 import {
     Addition,
     And,
@@ -31,6 +39,7 @@ import {
     FunctionArg,
     FunctionArgsUnion,
     FunctionCall,
+    FunctionType,
     GenericType,
     GreaterThan,
     GreaterThanOrEqual,
@@ -64,6 +73,95 @@ import {
     Value,
 } from "./types";
 import { validateType } from "./type_checking";
+
+function parseTypeToken(token: TypeToken): Result<string, Type> {
+    switch (token.kind) {
+        case "ArrowToken": {
+            return Err("Unexpected arrow in type");
+        }
+        case "BaseTypeToken": {
+            const rootType = token.body[0];
+            if (rootType.kind === "IdentifierToken") {
+                const parsedTypes = token.body.slice(1).map(parseTypeToken);
+
+                if (parsedTypes.length === 0) {
+                    if (
+                        isBuiltinType(rootType.body) &&
+                        rootType.body !== "any"
+                    ) {
+                        return Ok(FixedType(rootType.body, [ ]));
+                    } else if (rootType.body.toLowerCase() === rootType.body) {
+                        return Ok(GenericType(rootType.body));
+                    }
+                }
+
+                const errors = [ ];
+                const correct = [ ];
+                for (const parsed of parsedTypes) {
+                    if (parsed.kind === "ok") {
+                        correct.push(parsed.value);
+                    } else {
+                        errors.push(parsed.error);
+                    }
+                }
+
+                if (errors.length > 0) {
+                    return Err(errors.join("\n"));
+                }
+
+                return Ok(FixedType(rootType.body, correct));
+            }
+            return Err(`Invalid root type ${rootType.kind}`);
+        }
+        case "CloseBracketToken": {
+            return Err("Unexpected close bracket in type");
+        }
+        case "FunctionTypeToken": {
+            const parsedTypes = token.body
+                .filter((t) => t.kind !== "ArrowToken")
+                .map(parseTypeToken);
+            const errors = [ ];
+            const correct = [ ];
+
+            for (const parsed of parsedTypes) {
+                if (parsed.kind === "ok") {
+                    correct.push(parsed.value);
+                } else {
+                    errors.push(parsed.error);
+                }
+            }
+
+            if (errors.length > 0) {
+                return Err(errors.join("\n"));
+            }
+
+            return Ok(FunctionType(correct));
+        }
+        case "IdentifierToken": {
+            if (isBuiltinType(token.body) && token.body !== "any") {
+                return Ok(FixedType(token.body, [ ]));
+            } else if (token.body.toLowerCase() === token.body) {
+                return Ok(GenericType(token.body));
+            }
+
+            return Ok(FixedType(token.body, [ ]));
+        }
+        case "OpenBracketToken": {
+            return Err("Unexected open bracket in type");
+        }
+    }
+}
+
+function parseRootTypeTokens(token: RootTypeTokens): Result<string, Type> {
+    switch (token.kind) {
+        case "BaseTypeToken": {
+            return parseTypeToken(token);
+        }
+        case "FunctionTypeToken": {
+            return parseTypeToken(token);
+        }
+    }
+}
 
 function parseType(tokens: Token[]): Result<string, Type> {
     let index = 0;
@@ -215,7 +313,6 @@ function parseUnionType(tokens: Token[]): Result<string, UnionType> {
                 }
             }
 
-            case "OpenCurlyBracesToken":
             case "CloseCurlyBracesToken": {
                 if (isInBranches) {
                     currentBranch.push(" }");
@@ -309,6 +406,18 @@ function parseUnionType(tokens: Token[]): Result<string, UnionType> {
         if (tag.kind === "err") {
             return tag;
         }
+    }
+
+    if (parsedType.value.kind === "GenericType") {
+        return Err(
+            "Expected a fixed type but got a generic type for a union type. Maybe you missed a captal letter?"
+        );
+    }
+
+    if (parsedType.value.kind === "FunctionType") {
+        return Err(
+            "Expected a fixed type but got a function type for a union type. Maybe you missed a captal letter?"
+        );
     }
 
     return Ok(
@@ -526,6 +635,18 @@ function parseTypeAlias(tokens: Token[]): Result<string, TypeAlias> {
                         (err as Err<string>).error
                 )
                 .join("\n")
+        );
+    }
+
+    if (aliasName.kind === "GenericType") {
+        return Err(
+            "Expected a fixed type but got a generic type for a type alias. Maybe you missed a captal letter?"
+        );
+    }
+
+    if (aliasName.kind === "FunctionType") {
+        return Err(
+            "Expected a fixed type but got a function type for a type alias. Maybe you missed a captal letter?"
         );
     }
 
@@ -1696,8 +1817,7 @@ function parseFunction(tokens: Token[]): Result<string, Function> {
 
     index++;
     const lastIndex = index;
-    let typeLine: string[] = [ ];
-    let currentType: string[] = [ ];
+    let currentType: Token[] = [ ];
     let isDone = false;
 
     while (index < tokens.length) {
@@ -1705,12 +1825,6 @@ function parseFunction(tokens: Token[]): Result<string, Function> {
         const previousToken = index > lastIndex ? tokens[index - 1] : null;
 
         switch (token.kind) {
-            case "ArrowToken": {
-                typeLine.push(currentType.join(" "));
-                currentType = [ ];
-                break;
-            }
-
             case "IdentifierToken": {
                 if (
                     previousToken &&
@@ -1719,16 +1833,13 @@ function parseFunction(tokens: Token[]): Result<string, Function> {
                 ) {
                     isDone = true;
                 } else {
-                    currentType.push(token.body);
+                    currentType.push(token);
                 }
-            }
-
-            case "WhitespaceToken": {
                 break;
             }
 
             default: {
-                return Err("Expected function type, got " + token.kind);
+                currentType.push(token);
             }
         }
 
@@ -1736,11 +1847,11 @@ function parseFunction(tokens: Token[]): Result<string, Function> {
         index++;
     }
 
-    if (currentType.length > 0) {
-        typeLine.push(currentType.join(" "));
-    }
+    const tokenizedTypes = tokenizeType(currentType);
 
-    const types = typeLine;
+    if (tokenizedTypes.kind === "err") return tokenizedTypes;
+    const types = tokenizedTypes.value;
+
     const bodyTokens = tokens.slice(index);
     const block = tokensToString(bodyTokens);
 
@@ -1778,7 +1889,7 @@ function parseFunction(tokens: Token[]): Result<string, Function> {
         .slice(0, types.length - 1)
         .map((type_, i) => {
             if (argumentNames.length <= i) {
-                const parsedType = parseType(tokenize(type_));
+                const parsedType = parseRootTypeTokens(type_);
                 if (parsedType.kind === "err")
                     return Err(
                         `Failed to parse argument ${i} due to ${parsedType.error}`
@@ -1787,7 +1898,7 @@ function parseFunction(tokens: Token[]): Result<string, Function> {
                 return Ok(AnonFunctionArg(i, parsedType.value));
             } else {
                 const name = argumentNames[i];
-                const parsedType = parseType(tokenize(type_));
+                const parsedType = parseRootTypeTokens(type_);
                 if (parsedType.kind === "err")
                     return Err(
                         `Failed to parse ${name} due to ${parsedType.error}`
@@ -1797,8 +1908,8 @@ function parseFunction(tokens: Token[]): Result<string, Function> {
             }
         });
 
-    const returnParts = types[types.length - 1].trim().split(" ");
-    const returnType = parseType(tokenize(returnParts.join(" ")));
+    const returnParts = types[types.length - 1];
+    const returnType = parseRootTypeTokens(returnParts);
 
     const body = [ argumentLine.split("=").slice(1).join("=").trim() ].concat(
         block.split("\n").slice(letEnd > -1 ? letEnd + 1 : 1)

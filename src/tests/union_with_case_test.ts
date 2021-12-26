@@ -263,8 +263,6 @@ export function testParseMultiLine() {
 export function testGenerate() {
     const parsed = parse(oneLine);
 
-    console.log(generateTypescript(parsed));
-
     assert.deepStrictEqual(generateTypescript(parsed), expectedOutput);
 }
 

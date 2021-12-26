@@ -231,6 +231,10 @@ ${prefixLines(branches.join("\n"), 4)}
 }`.trim();
 }
 
+// function map(fn: (a) => b, a: a): b {
+//     return fn(a);
+// }
+
 function generateType(type_: Type): string {
     switch (type_.kind) {
         case "GenericType": {
@@ -261,7 +265,19 @@ function generateType(type_: Type): string {
             return `${type_.name}<${args.map(generateType).join(", ")}>`;
         }
         case "FunctionType": {
-            return type_.args.map(generateType).join("->");
+            const parts = [ ];
+            let index = 0;
+            for (const typePart of type_.args.slice(0, -1)) {
+                parts.push(`arg${index}: ${generateType(typePart)}`);
+                index++;
+            }
+
+            return (
+                "(" +
+                parts.join(", ") +
+                ") => " +
+                generateType(type_.args[type_.args.length - 1])
+            );
         }
     }
 }

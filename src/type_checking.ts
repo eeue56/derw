@@ -93,13 +93,48 @@ function isSameFunctionType(
     return true;
 }
 
+function doesFunctionTypeContainType(
+    first: FunctionType,
+    second: GenericType | FixedType,
+    topLevel: boolean
+): boolean {
+    switch (second.kind) {
+        case "GenericType": {
+            for (const arg of first.args) {
+                if (isSameType(arg, second, topLevel)) {
+                    return true;
+                }
+            }
+        }
+        case "FixedType": {
+            for (const arg of first.args) {
+                if (isSameType(arg, second, topLevel)) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
 export function isSameType(
     first: Type,
     second: Type,
     topLevel: boolean
 ): boolean {
-    if (first.name === "any" || second.name === "any") return true;
-    if (first.kind !== second.kind) return false;
+    if (
+        (first.kind !== "FunctionType" && first.name === "any") ||
+        (second.kind !== "FunctionType" && second.name === "any")
+    )
+        return true;
+
+    if (first.kind !== second.kind) {
+        if (first.kind === "FunctionType" && second.kind !== "FunctionType") {
+            return doesFunctionTypeContainType(first, second, topLevel);
+        }
+        return false;
+    }
 
     switch (first.kind) {
         case "FixedType": {
@@ -363,8 +398,10 @@ function typeExistsInNamespace(
     blocks: TypedBlock[],
     imports: Import[]
 ): boolean {
+    if (type.kind === "FunctionType") return true;
     if (isBuiltinType(type.name)) return true;
     if (type.name === "List") return true;
+    if (type.kind === "GenericType") return true;
 
     for (const block of blocks) {
         if (isSameType(type, block.type, true)) return true;
