@@ -321,17 +321,35 @@ function parseUnionType(tokens: Token[]): Result<string, UnionType> {
     );
 }
 
-function parseProperty(block: string): Result<string, Property> {
-    const name = block.split(":")[0].trim();
+function parseProperty(tokens: Token[]): Result<string, Property> {
+    let index = 0;
+    let name = null;
+    while (index < tokens.length) {
+        const token = tokens[index];
+        if (token.kind === "WhitespaceToken") {
+        } else if (token.kind === "IdentifierToken") {
+            if (name) {
+                return Err("Got too many identifiers for property name");
+            }
+            name = token.body;
+        } else if (token.kind === "ColonToken") {
+            break;
+        } else {
+            return Err(
+                `Expected identifier in property name but got ${token.kind}`
+            );
+        }
 
-    const bitsAfterName = block.split(":").slice(1).join(":");
+        index++;
+    }
+    index++;
 
-    const bitsBeforeFinalComma =
-        bitsAfterName.indexOf(",") > -1
-            ? bitsAfterName.split(",").slice(0, -1).join(",").trim()
-            : bitsAfterName.trim();
+    if (name === null) {
+        return Err("Expected identifier for property name but found nothing");
+    }
 
-    const type = parseType(tokenize(bitsBeforeFinalComma));
+    const bitsAfterName = tokens.slice(index);
+    const type = parseType(bitsAfterName);
 
     if (type.kind === "err") return type;
     return Ok(Property(name, type.value));
@@ -495,7 +513,7 @@ function parseTypeAlias(tokens: Token[]): Result<string, TypeAlias> {
         properties.push(currentBuffer.join("\n"));
     }
 
-    const parsedProperties = properties.map(parseProperty);
+    const parsedProperties = properties.map((x) => parseProperty(tokenize(x)));
     const errors = parsedProperties.filter(
         (property: Result<string, Property>) => property.kind === "err"
     );
