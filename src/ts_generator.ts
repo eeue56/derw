@@ -163,6 +163,8 @@ function generateFormatStringValue(string: FormatStringValue): string {
 
 function generateListValue(list: ListValue): string {
     if (list.items.length === 0) return `[ ]`;
+    if (list.items.length === 1)
+        return `[ ${generateExpression(list.items[0])} ]`;
     return `[ ${list.items.map(generateExpression).join(", ")} ]`;
 }
 

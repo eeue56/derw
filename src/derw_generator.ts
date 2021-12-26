@@ -59,14 +59,7 @@ function generateUnionType(syntax: UnionType): string {
             const funcDefArgsStr =
                 tag.args.length > 0 ? ` { ${typeDefArgs} }` : "";
 
-            return (
-                generateType(
-                    FixedType(
-                        tag.name,
-                        tag.args.map((arg) => arg.type)
-                    )
-                ) + funcDefArgsStr
-            );
+            return generateType(FixedType(tag.name, [ ])) + funcDefArgsStr;
         })
         .join("\n| ");
 
@@ -126,6 +119,8 @@ function generateFormatStringValue(string: FormatStringValue): string {
 
 function generateListValue(list: ListValue): string {
     if (list.items.length === 0) return `[ ]`;
+    if (list.items.length === 1)
+        return `[ ${generateExpression(list.items[0])} ]`;
     return `[
 ${prefixLines(list.items.map(generateExpression).join(",\n"), 4)}
 ]`;
