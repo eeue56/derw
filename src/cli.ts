@@ -160,6 +160,7 @@ const programParser = parser([
     longFlag("only", "Only show a particular object", string()),
     longFlag("run", "Should be run via ts-node/node", empty()),
     longFlag("format", "Format the files given in-place", empty()),
+    longFlag("quiet", "Keep it short and sweet", empty()),
     bothFlag("h", "help", "This help text", empty()),
 ]);
 
@@ -219,7 +220,11 @@ export async function main(): Promise<void> {
 
     const shouldRun = program.flags.run.isPresent;
 
-    console.log(`Generating ${files.length} files...`);
+    const isQuiet = program.flags.quiet.isPresent;
+
+    if (!isQuiet) {
+        console.log(`Generating ${files.length} files...`);
+    }
 
     const processedFiles: string[] = [ ];
 
@@ -337,7 +342,9 @@ export async function main(): Promise<void> {
         })
     );
 
-    console.log("Processed:", processedFiles);
+    if (!isQuiet) {
+        console.log("Processed:", processedFiles);
+    }
 }
 
 if (require.main === module) {

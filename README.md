@@ -19,6 +19,7 @@ Provide entry files via --files
   --only string:            Only show a particular object
   --run :                   Should be run via ts-node/node
   --format :                Format the files given in-place
+  --quiet :                 Keep it short and sweet
   -h, --help :              This help text
 ```
 

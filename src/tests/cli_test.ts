@@ -57,6 +57,7 @@ export async function testExamples() {
                     outputDir,
                     "--target",
                     target,
+                    "--quiet",
                 ];
                 await main();
             }
