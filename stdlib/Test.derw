@@ -1,7 +1,11 @@
 import assert
 
-exposing (equals)
+exposing (equals, notEquals)
 
 equals: a -> a -> void
 equals expected actual =
     assert.deepStrictEqual actual expected
+
+notEquals: a -> a -> void
+notEquals expected actual =
+    assert.notDeepStrictEqual actual expected

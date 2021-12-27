@@ -1,3 +1,15 @@
-exposing (Maybe, Just, Nothing)
+exposing (Maybe, Just, Nothing, map, withDefault)
 
 type Maybe a = Just { value: a } | Nothing
+
+map: (a -> b) -> Maybe a -> Maybe b
+map fn maybe =
+    case maybe of
+        Just { value } -> Just { value: fn value }
+        Nothing -> Nothing
+
+withDefault: a -> Maybe a -> a
+withDefault defaultValue maybe =
+    case maybe of
+        Just { value } -> value
+        Nothing -> defaultValue

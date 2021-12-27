@@ -281,7 +281,7 @@ function inferLambdaCall(value: LambdaCall): Type {
 }
 
 function inferConstructor(value: Constructor): Type {
-    return FixedType(value.constructor, [ ]);
+    return FixedType("any", [ ]);
 }
 
 function inferEquality(value: Equality): Type {
@@ -434,7 +434,6 @@ export function validateType(
             }
 
             const inferred = inferType(block.value);
-
             if (isSameType(block.type, inferred, false)) {
                 return Ok(block.type);
             }

@@ -216,6 +216,8 @@ function generateIfStatement(ifStatement: IfStatement): string {
 }
 
 function generateConstructor(constructor: Constructor): string {
+    if (constructor.pattern.fields.length === 0)
+        return `${constructor.constructor}({ })`;
     return `${constructor.constructor}(${generateObjectLiteral(
         constructor.pattern
     )})`;
