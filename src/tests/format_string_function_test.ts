@@ -30,13 +30,14 @@ sayHiToPet pet =
 
 const expectedOutput = `
 function sayHiToPet(pet: Animal): string {
-    switch (pet.kind) {
+    const _res = pet;
+    switch (_res.kind) {
         case "Dog": {
-            const { name } = pet;
+            const { name } = _res;
             return \`Good boy \${name}!\`;
         }
         case "Cat": {
-            const { lives } = pet;
+            const { lives } = _res;
             return "You have " + lives + " lives remaining.";
         }
     }
@@ -45,13 +46,14 @@ function sayHiToPet(pet: Animal): string {
 
 const expectedOutputJS = `
 function sayHiToPet(pet) {
-    switch (pet.kind) {
+    const _res = pet;
+    switch (_res.kind) {
         case "Dog": {
-            const { name } = pet;
+            const { name } = _res;
             return \`Good boy \${name}!\`;
         }
         case "Cat": {
-            const { lives } = pet;
+            const { lives } = _res;
             return "You have " + lives + " lives remaining.";
         }
     }

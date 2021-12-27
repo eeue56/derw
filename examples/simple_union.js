@@ -13,7 +13,8 @@ function Zero(args) {
 }
 
 function isTruthy(binary) {
-    switch (binary.kind) {
+    const _res = binary;
+    switch (_res.kind) {
         case "One": {
             return true;
         }

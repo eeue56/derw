@@ -234,10 +234,12 @@ function generateBranch(predicate: string, branch: Branch): string {
 function generateCaseStatement(caseStatement: CaseStatement): string {
     const predicate = generateExpression(caseStatement.predicate);
     const branches = caseStatement.branches.map((branch) =>
-        generateBranch(predicate, branch)
+        generateBranch("_res", branch)
     );
 
-    return `switch (${predicate}.kind) {
+    return `
+const _res = ${predicate};
+switch (_res.kind) {
 ${prefixLines(branches.join("\n"), 4)}
 }`.trim();
 }
