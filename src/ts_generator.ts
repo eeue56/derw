@@ -1,4 +1,5 @@
 import path from "path";
+import { isBuiltinType } from "./builtins";
 import {
     Addition,
     And,
@@ -65,7 +66,15 @@ function generateUnionType(syntax: UnionType): string {
             const generatedType = generateType(
                 FixedType(
                     tag.name,
-                    tag.args.map((arg) => arg.type)
+                    tag.args
+                        .map((arg) => arg.type)
+                        .filter(
+                            (arg) =>
+                                !(
+                                    arg.kind === "FixedType" &&
+                                    isBuiltinType(arg.name)
+                                )
+                        )
                 )
             );
 
@@ -557,8 +566,13 @@ function generateExpression(expression: Expression): string {
 function collectTypeArguments(type_: Type): string[] {
     switch (type_.kind) {
         case "GenericType":
+            if (isBuiltinType(type_.name)) return [ ];
             return [ type_.name ];
-        case "FixedType":
+        case "FixedType": {
+            if (isBuiltinType(type_.name)) {
+                return [ ];
+            }
+        }
         case "FunctionType": {
             const args: string[][] = type_.args.map(collectTypeArguments);
             return ([ ] as string[]).concat(...args);

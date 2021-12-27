@@ -8,7 +8,8 @@
         "test": "npx @eeue56/bach",
         "bench": "npx @eeue56/mainc",
         "format": "npx prettier --write .",
-        "prepublish": "npx tsc -p tsconfig.json"
+        "prepublish": "npx tsc -p tsconfig.json",
+        "stdlib": "npx ts-node src/cli.ts --files stdlib/*.derw --output ./"
     },
     "repository": {
         "type": "git",

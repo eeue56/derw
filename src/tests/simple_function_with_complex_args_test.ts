@@ -33,7 +33,7 @@ repeat x =
 `.trim();
 
 const expectedOutput = `
-function repeat<any>(x: number): any {
+function repeat(x: number): any {
     return fn(something, x, { x: x + 1 });
 }
 `.trim();

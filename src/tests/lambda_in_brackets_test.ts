@@ -109,11 +109,6 @@ export function testParse() {
 }
 
 export function testParseMultiLine() {
-    // console.log(JSON.stringify(parse(multiLine), null, 4));
-    // return;
-    // filterMap: (a -> Maybe b) -> List a -> List b
-    // filterMap fn xs =
-    // foldl (\\y ys -> filterMapHelp fn y ys) [] xs
     assert.deepStrictEqual(
         parse(multiLine),
         Module(

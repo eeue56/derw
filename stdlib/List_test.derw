@@ -1,0 +1,94 @@
+exposing (testEmptyList, testMap, testFilter, testFoldl, testFilterMap, testAppend)
+
+import "./Test" exposing (equals)
+import "./List" exposing (emptyList, map, filter, foldl, filterMap, append)
+import "./Maybe" exposing (Maybe, Just, Nothing)
+
+testEmptyList: boolean -> void
+testEmptyList a? =
+    equals 0 emptyList.length
+
+testMap: boolean -> void
+testMap a? =
+    let
+        increment: number -> number
+        increment x =
+            x + 1
+    in
+        map increment [
+            1,
+            2
+        ]
+            |> equals [
+            2,
+            3
+        ]
+
+testFilter: boolean -> void
+testFilter a? =
+    let
+        isLessThanThree: number -> boolean
+        isLessThanThree x =
+            x < 3
+    in
+        filter isLessThanThree [
+            1,
+            2,
+            3,
+            4
+        ]
+            |> equals [
+            1,
+            2
+        ]
+
+testFoldl: boolean -> void
+testFoldl a? =
+    let
+        add: number -> number -> number
+        add a b =
+            a + b
+    in
+        foldl add 0 [
+            1,
+            2,
+            3
+        ]
+            |> equals 6
+
+testFilterMap: boolean -> void
+testFilterMap a? =
+    let
+        isLessThanThree: number -> any
+        isLessThanThree x =
+            if x < 3 then
+                Just { value: x }
+            else
+                Nothing
+    in
+        filterMap isLessThanThree [
+            1,
+            2,
+            3,
+            4
+        ]
+            |> equals [
+            1,
+            2
+        ]
+
+testAppend: boolean -> void
+testAppend a? =
+    append [
+        1,
+        2
+    ] [
+        3,
+        4
+    ]
+        |> equals [
+        1,
+        2,
+        3,
+        4
+    ]

@@ -782,7 +782,7 @@ function parseObjectLiteral(tokens: Token[]): Result<string, ObjectLiteral> {
     return Ok(ObjectLiteral(fields));
 }
 
-function parseValue(tokens: Token[]): Result<string, Value> {
+function parseValue(tokens: Token[]): Result<string, Value | Constructor> {
     const body: string[] = [ ];
 
     let index = 0;
@@ -812,6 +812,11 @@ function parseValue(tokens: Token[]): Result<string, Value> {
             }
         }
         index++;
+    }
+
+    const firstChar = body.join("").slice(0, 1);
+    if (firstChar.toUpperCase() === firstChar && isNaN(parseFloat(firstChar))) {
+        return parseConstructor(tokens);
     }
 
     return Ok(Value(body.join("")));
@@ -844,7 +849,13 @@ function parseListRange(tokens: Token[]): Result<string, ListRange> {
                 if (start.kind === "err") return start;
                 if (end.kind === "err") return end;
 
-                return Ok(ListRange(start.value, end.value));
+                if (start.kind === "ok" && start.value.kind === "Constructor")
+                    return Err("Expected variable but got constructor");
+
+                if (end.kind === "ok" && end.value.kind === "Constructor")
+                    return Err("Expected variable but got constructor");
+
+                return Ok(ListRange(start.value as Value, end.value as Value));
             }
 
             default: {

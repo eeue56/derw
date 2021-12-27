@@ -2,7 +2,7 @@ import "./Maybe" exposing ( Maybe )
 
 exposing (emptyList, map, filter, foldl, filterMap, append)
 
-emptyList: List a
+emptyList: List any
 emptyList =
     [ ]
 
@@ -10,21 +10,25 @@ map: (a -> b) -> List a -> List b
 map fn xs =
     xs.map fn
 
-filter: (a -> boolean) -> List a -> List b
+filter: (a -> boolean) -> List a -> List a
 filter fn xs =
     xs.filter fn
 
 foldl: (a -> b -> b) -> b -> List a -> b
 foldl fn init xs =
-    xs.reduce fn init
+    xs.reduce (\a b -> fn b a) init
 
 filterMapHelp: (a -> Maybe b) -> a -> List b -> List b
 filterMapHelp fn a xs =
-    case fn a of
-        Just { value } ->
-            append xs [ value ]
-        Nothing ->
-            xs
+    let
+        maybe: Maybe b
+        maybe = fn a
+    in
+        case maybe of
+            Just { value } ->
+                append xs [ value ]
+            Nothing ->
+                xs
 
 filterMap: (a -> Maybe b) -> List a -> List b
 filterMap fn xs =

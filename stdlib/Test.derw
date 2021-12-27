@@ -1,0 +1,7 @@
+import assert
+
+exposing (equals)
+
+equals: a -> a -> void
+equals expected actual =
+    assert.deepStrictEqual actual expected

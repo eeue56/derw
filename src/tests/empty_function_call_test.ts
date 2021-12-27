@@ -28,7 +28,7 @@ toString buffer =
 `.trim();
 
 const expectedOutput = `
-function toString<any>(buffer: any): string {
+function toString(buffer: any): string {
     return buffer.toString();
 }
 `.trim();

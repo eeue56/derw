@@ -640,7 +640,8 @@ export type SimpleValue =
     | "ModuleReference"
     | "FunctionCall"
     | "LeftPipe"
-    | "ObjectLiteral";
+    | "ObjectLiteral"
+    | "Constructor";
 
 export function isSimpleValue(kind: string): kind is SimpleValue {
     return (
@@ -667,6 +668,7 @@ export function isSimpleValue(kind: string): kind is SimpleValue {
             "FunctionCall",
             "LeftPipe",
             "ObjectLiteral",
+            "Constructor",
         ].indexOf(kind) > -1
     );
 }
