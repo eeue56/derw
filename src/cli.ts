@@ -15,7 +15,7 @@ import {
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { spawnSync } from "child_process";
 import { promises } from "fs";
-import { writeFile } from "fs/promises";
+import { readdir, writeFile } from "fs/promises";
 import path from "path";
 import * as util from "util";
 import { compileTypescript } from "./compile";
@@ -147,7 +147,8 @@ function generate(
 
 const programParser = parser([
     longFlag("init", "Initialize a project", empty()),
-    longFlag("files", "Filenames to be given", variableList(string())),
+    longFlag("files", "File names to be compiled", variableList(string())),
+    longFlag("test", "Test the project", empty()),
     longFlag(
         "target",
         "Target TS, JS or Derw output",
@@ -172,22 +173,27 @@ function showHelp(): void {
     console.log("To get started:");
     console.log("Initialize the current directory via --init");
     console.log("Or provide entry files via --files");
+    console.log("Or run me without args inside a package directory");
     console.log(help(programParser));
 }
 
-async function compileFiles(program: Program): Promise<void> {
+async function getDerwFiles(): Promise<string[]> {
+    return await (await readdir("./src"))
+        .map((file) => path.join("src", file))
+        .filter((file) => file.endsWith("derw"));
+}
+
+async function compileFiles(
+    program: Program,
+    isInPackageDirectory: boolean
+): Promise<void> {
     const debugMode = program.flags["debug"].isPresent;
 
-    const files = (program.flags.files.arguments as Ok<string[]>).value;
+    const files = isInPackageDirectory
+        ? await getDerwFiles()
+        : (program.flags.files.arguments as Ok<string[]>).value;
 
     const isFormat = program.flags.format.isPresent;
-
-    if (!program.flags.output.isPresent && !isFormat) {
-        console.log(
-            "You must provide a output directory name via --output or format in-place via --format"
-        );
-        process.exit(1);
-    }
 
     const outputDir = program.flags.output.isPresent
         ? (program.flags.output.arguments as Ok<string>).value
@@ -209,6 +215,9 @@ async function compileFiles(program: Program): Promise<void> {
     const isQuiet = program.flags.quiet.isPresent;
 
     if (!isQuiet) {
+        if (isInPackageDirectory) {
+            console.log("Compiling package...");
+        }
         console.log(`Generating ${files.length} files...`);
     }
 
@@ -394,12 +403,15 @@ export async function main(): Promise<void> {
         return;
     }
 
-    if (!program.flags.files.isPresent) {
+    const isInPackageDirectory = await fileExists("derw-package.json");
+
+    if (!program.flags.files.isPresent && !isInPackageDirectory) {
         console.log("You must provide at least one file via --files");
+        console.log("Or be in a directory wit derw-package.json.");
         process.exit(1);
     }
 
-    await compileFiles(program);
+    await compileFiles(program, isInPackageDirectory);
 }
 
 if (require.main === module) {
