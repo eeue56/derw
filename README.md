@@ -343,6 +343,18 @@ Compile it, then run bach via `npx @eeue56/bach`
 -   [ ] Benchmarking support via [Mainc](https://github.com/eeue56/mainc)
 -   [ ] Async support
 -   [ ] Packaging
+-   [x] Package init
+
+```
+derw --init
+```
+
+-   [x] Package testing
+
+```
+# inside a package directory
+derw --test
+```
 
 # 2.0.0
 

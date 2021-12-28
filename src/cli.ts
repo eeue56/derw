@@ -1,4 +1,5 @@
 #!/usr/bin/env ts-node
+import { runner } from "@eeue56/bach/build/bach";
 import {
     allErrors,
     bothFlag,
@@ -383,6 +384,15 @@ async function init() {
     await copyTSconfig();
 }
 
+async function runTests(isInPackageDirectory: boolean): Promise<void> {
+    if (!isInPackageDirectory) {
+        console.log("Must run tests from the root of a package directory.");
+        process.exit(1);
+    }
+
+    await runner();
+}
+
 export async function main(): Promise<void> {
     const program = parse(programParser, process.argv);
 
@@ -404,6 +414,12 @@ export async function main(): Promise<void> {
     }
 
     const isInPackageDirectory = await fileExists("derw-package.json");
+
+    if (program.flags.test.isPresent) {
+        await compileFiles(program, isInPackageDirectory);
+        await runTests(isInPackageDirectory);
+        return;
+    }
 
     if (!program.flags.files.isPresent && !isInPackageDirectory) {
         console.log("You must provide at least one file via --files");
