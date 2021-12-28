@@ -13,8 +13,10 @@ Let\'s write some Derw code
 To get started:
 Initialize the current directory via --init
 Or provide entry files via --files
-    --init :                Initialize a project
+Or run me without args inside a package directory
+  --init :                  Initialize a project
   --files [string...]:      Filenames to be given
+  --test :                  Test the project
   --target ts | js | derw:  Target TS, JS or Derw output
   --output string:          Output directory name
   --verify :                Run typescript compiler on generated files to ensure valid output
