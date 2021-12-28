@@ -9,8 +9,11 @@ You can run the derw compiler via npx. You must provide files via `--files`.
 ```bash
 npx @eeue56/derw
 
-Compiles Derw code
-Provide entry files via --files
+Let\'s write some Derw code
+To get started:
+Initialize the current directory via --init
+Or provide entry files via --files
+    --init :                Initialize a project
   --files [string...]:      Filenames to be given
   --target ts | js | derw:  Target TS, JS or Derw output
   --output string:          Output directory name

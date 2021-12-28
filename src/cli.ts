@@ -8,6 +8,7 @@ import {
     oneOf,
     parse,
     parser,
+    Program,
     string,
     variableList,
 } from "@eeue56/baner";
@@ -21,6 +22,7 @@ import { compileTypescript } from "./compile";
 import { generateDerw } from "./derw_generator";
 import { generateElm } from "./elm_generator";
 import { generateJavascript } from "./js_generator";
+import { exportPackage, Package } from "./package";
 import * as derwParser from "./parser";
 import { generateTypescript } from "./ts_generator";
 import { Block, Import, Module } from "./types";
@@ -144,6 +146,7 @@ function generate(
 }
 
 const programParser = parser([
+    longFlag("init", "Initialize a project", empty()),
     longFlag("files", "Filenames to be given", variableList(string())),
     longFlag(
         "target",
@@ -165,32 +168,15 @@ const programParser = parser([
 ]);
 
 function showHelp(): void {
-    console.log("Compiles Derw code");
-    console.log("Provide entry files via --files");
+    console.log("Let's write some Derw code");
+    console.log("To get started:");
+    console.log("Initialize the current directory via --init");
+    console.log("Or provide entry files via --files");
     console.log(help(programParser));
 }
 
-export async function main(): Promise<void> {
-    const program = parse(programParser, process.argv);
-
-    if (program.flags["h/help"].isPresent) {
-        showHelp();
-        return;
-    }
-
+async function compileFiles(program: Program): Promise<void> {
     const debugMode = program.flags["debug"].isPresent;
-
-    const errors = allErrors(program);
-    if (errors.length > 0) {
-        console.log("Errors:");
-        console.log(errors.join("\n"));
-        process.exit(1);
-    }
-
-    if (!program.flags.files.isPresent) {
-        console.log("You must provide at least one file via --files");
-        process.exit(1);
-    }
 
     const files = (program.flags.files.arguments as Ok<string[]>).value;
 
@@ -345,6 +331,47 @@ export async function main(): Promise<void> {
     if (!isQuiet) {
         console.log("Processed:", processedFiles);
     }
+}
+
+async function init() {
+    const packageName = path.basename(process.cwd());
+
+    const package_ = Package(packageName, [ ], [ ]);
+
+    if (await fileExists("derw-package.json")) {
+        console.log("Package already initialized!");
+        return -1;
+    }
+
+    await writeFile("derw-package.json", exportPackage(package_));
+}
+
+export async function main(): Promise<void> {
+    const program = parse(programParser, process.argv);
+
+    if (program.flags["h/help"].isPresent) {
+        showHelp();
+        return;
+    }
+
+    const errors = allErrors(program);
+    if (errors.length > 0) {
+        console.log("Errors:");
+        console.log(errors.join("\n"));
+        process.exit(1);
+    }
+
+    if (program.flags.init.isPresent) {
+        await init();
+        return;
+    }
+
+    if (!program.flags.files.isPresent) {
+        console.log("You must provide at least one file via --files");
+        process.exit(1);
+    }
+
+    await compileFiles(program);
 }
 
 if (require.main === module) {

@@ -33,6 +33,7 @@
         "prettier": "github:eeue56/prettier#feat/spacing-around-square-brackets"
     },
     "dependencies": {
+        "@eeue56/adeilad": "^0.0.1",
         "@eeue56/baner": "^0.0.2",
         "@eeue56/ts-core": "^1.1.0",
         "typescript": "^4.3.5"
