@@ -23,19 +23,32 @@ jobs:
         # Steps represent a sequence of tasks that will be executed as part of the job
         steps:
             # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-            - uses: actions/checkout@v2
+            - name: Check out main
+              uses: actions/checkout@v2
+              with:
+                  path: derw
+
+            - name: Checkout stdlib
+              uses: actions/checkout@v2
+              with:
+                  repository: derw-lang/stdlib
+                  path: derw-lang/stdlib
 
             - name: Setup Node.js environment
               uses: actions/setup-node@v2.5.0
 
             - name: Install npm packages
+              working-directory: derw
               run: npm install
 
             - name: Install ts-node
+              working-directory: derw
               run: npm install ts-node
 
             - name: Build stdlib
+              working-directory: derw
               run: npm run stdlib
 
             - name: Run test
+              working-directory: derw
               run: npm run test

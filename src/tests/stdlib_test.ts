@@ -8,8 +8,8 @@ const emptyLineAtEndOfFile = "\n";
 
 export async function testStdlibAreConsistentlyParsed() {
     const exampleFiles: string[] = await (
-        await readdir("./stdlib")
-    ).map((file) => path.join("stdlib", file));
+        await readdir("../derw-lang/stdlib/src")
+    ).map((file) => path.join("../derw-lang/stdlib/src", file));
 
     const files: string[] = exampleFiles;
 
