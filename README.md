@@ -322,11 +322,29 @@ map fn value =
 -   [x] An automatic formatter with no options
 -   [ ] A standard library
 -   [ ] Support for [Coed](https://github.com/eeue56/coed)
--   [ ] Testing support via [Bach](https://github.com/eeue56/bach)
+-   [x] Testing support via [Bach](https://github.com/eeue56/bach)
+
+Write a file with `_test` as an extension (e.g `List_test.derw`).
+
+```elm
+import Test exposing (equals)
+
+testMath: boolean -> void
+testMath a? =
+    equals 1 1
+```
+
+Compile it, then run bach via `npx @eeue56/bach`
+
+-   [ ] Type checking
 -   [ ] Benchmarking support via [Mainc](https://github.com/eeue56/mainc)
--   [ ] Type checking, with interop with TypeScript
--   [ ] Derw compiler is written in Derw
 -   [ ] Async support
+-   [ ] Packaging
+
+# 2.0.0
+
+-   [ ] Type checking with interop with TypeScript
+-   [ ] Derw compiler is written in Derw
 
 # Divergence from Elm
 
