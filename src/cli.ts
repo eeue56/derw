@@ -333,6 +333,33 @@ async function compileFiles(program: Program): Promise<void> {
     }
 }
 
+async function copyTSconfig() {
+    const tsconfig = {
+        compilerOptions: {
+            target: "es2017",
+            module: "commonjs",
+            declaration: true,
+            outDir: "./build/",
+            rootDirs: [ "src" ],
+            strict: true,
+            moduleResolution: "node",
+            types: [ "node" ],
+            esModuleInterop: true,
+            skipLibCheck: true,
+            forceConsistentCasingInFileNames: true,
+        },
+        include: [ "src/**/*" ],
+        exclude: [ "node_modules/**" ],
+    };
+
+    if (await fileExists("tsconfig.json")) {
+        console.log("Already got a tsconfig!");
+        return -1;
+    }
+
+    await writeFile("tsconfig.json", JSON.stringify(tsconfig, null, 4));
+}
+
 async function init() {
     const packageName = path.basename(process.cwd());
 
@@ -344,6 +371,7 @@ async function init() {
     }
 
     await writeFile("derw-package.json", exportPackage(package_));
+    await copyTSconfig();
 }
 
 export async function main(): Promise<void> {
