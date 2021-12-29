@@ -1188,6 +1188,10 @@ function parseBranchPattern(tokens: Token[]): Result<string, BranchPattern> {
             }
             if (firstToken.body === "default") {
                 return Ok(Default());
+            } else {
+                return Err(
+                    "Expected a string or a destructure, but got an identifier. Try using an if statement instead"
+                );
             }
             break;
         }
