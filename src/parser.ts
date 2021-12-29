@@ -24,10 +24,12 @@ import {
     AnonFunctionArg,
     Block,
     Branch,
+    BranchPattern,
     CaseStatement,
     Comment,
     Const,
     Constructor,
+    Default,
     Destructure,
     Division,
     Equality,
@@ -1163,6 +1165,42 @@ function parseIfStatement(body: string): Result<string, IfStatement> {
     );
 }
 
+function isConstructor(str: string): boolean {
+    return str[0].toUpperCase() === str[0] && isNaN(parseInt(str, 10));
+}
+
+function parseBranchPattern(tokens: Token[]): Result<string, BranchPattern> {
+    let index = 0;
+
+    while (index < tokens.length) {
+        if (tokens[index].kind !== "WhitespaceToken") break;
+        index++;
+    }
+
+    const firstToken = tokens[index];
+
+    if (!firstToken) return Err("Failed to find token in branch.");
+
+    switch (firstToken.kind) {
+        case "IdentifierToken": {
+            if (isConstructor(firstToken.body)) {
+                return parseDestructure(tokens);
+            }
+            if (firstToken.body === "default") {
+                return Ok(Default());
+            }
+            break;
+        }
+        case "OpenCurlyBracesToken": {
+            return parseDestructure(tokens);
+        }
+        case "StringToken": {
+            return parseStringValue(tokens.slice(index));
+        }
+    }
+    return Err(`Expected destructure or string but got ${firstToken.kind}`);
+}
+
 function parseCaseStatement(body: string): Result<string, CaseStatement> {
     body = body
         .split("\n")
@@ -1198,7 +1236,7 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
             }
             const branchExpression = parseExpression(branchLines.join("\n"));
 
-            const parsedBranchPattern = parseDestructure(
+            const parsedBranchPattern = parseBranchPattern(
                 tokenize(branchPattern)
             );
 
@@ -1214,7 +1252,7 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
                 branches.push(
                     Ok(
                         Branch(
-                            (parsedBranchPattern as Ok<Destructure>).value,
+                            (parsedBranchPattern as Ok<BranchPattern>).value,
                             (branchExpression as Ok<Expression>).value
                         )
                     )
@@ -1236,7 +1274,7 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
     if (branchLines.length > 0) {
         const branchExpression = parseExpression(branchLines.join("\n"));
 
-        const parsedBranchPattern = parseDestructure(tokenize(branchPattern));
+        const parsedBranchPattern = parseBranchPattern(tokenize(branchPattern));
 
         if (
             branchExpression.kind === "err" ||
@@ -1250,7 +1288,7 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
             branches.push(
                 Ok(
                     Branch(
-                        (parsedBranchPattern as Ok<Destructure>).value,
+                        (parsedBranchPattern as Ok<BranchPattern>).value,
                         (branchExpression as Ok<Expression>).value
                     )
                 )

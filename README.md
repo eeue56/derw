@@ -4,7 +4,7 @@ An Elm-inspired language that transpiles to TypeScript
 
 # Usage
 
-You can run the derw compiler via npx. You must provide files via `--files`.
+You can run the derw compiler via npx. You must provide files via `--files` or be in a package directory.
 
 ```bash
 npx @eeue56/derw
@@ -176,6 +176,17 @@ sayHiTo : User -> string
 sayHiTo user =
     case user of
         User { name } -> "Hi " + name + !"
+```
+
+-   [x] strings in case..of
+-   [x] defaults in case..of
+
+```elm
+sayHiTo : string -> string
+sayHiTo name =
+    case name of
+        "Noah" -> "Hi " + name + !"
+        default: "I don't know you"
 ```
 
 -   [ ] List destructing

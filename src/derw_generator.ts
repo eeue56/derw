@@ -3,6 +3,7 @@ import {
     And,
     Block,
     Branch,
+    BranchPattern,
     CaseStatement,
     Const,
     Constructor,
@@ -146,9 +147,25 @@ function generateConstructor(constructor: Constructor): string {
     )}`;
 }
 
+function generateBranchPattern(branchPattern: BranchPattern): string {
+    switch (branchPattern.kind) {
+        case "Destructure": {
+            const pattern = branchPattern.pattern
+                ? ` ${branchPattern.pattern}`
+                : "";
+            return `${branchPattern.constructor}${pattern}`;
+        }
+        case "StringValue": {
+            return `"` + branchPattern.body + `"`;
+        }
+        case "Default": {
+            return "default";
+        }
+    }
+}
+
 function generateBranch(branch: Branch): string {
-    const pattern = branch.pattern.pattern ? ` ${branch.pattern.pattern}` : "";
-    return `${branch.pattern.constructor}${pattern} ->
+    return `${generateBranchPattern(branch.pattern)} ->
     ${generateExpression(branch.body)}
 `.trim();
 }

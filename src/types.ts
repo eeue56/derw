@@ -456,13 +456,25 @@ export function LambdaCall(lambda: Lambda, args: Expression[]): LambdaCall {
     };
 }
 
+export type Default = {
+    kind: "Default";
+};
+
+export function Default(): Default {
+    return {
+        kind: "Default",
+    };
+}
+
+export type BranchPattern = Default | Destructure | StringValue;
+
 export type Branch = {
     kind: "Branch";
-    pattern: Destructure;
+    pattern: BranchPattern;
     body: Expression;
 };
 
-export function Branch(pattern: Destructure, body: Expression): Branch {
+export function Branch(pattern: BranchPattern, body: Expression): Branch {
     return {
         kind: "Branch",
         pattern,

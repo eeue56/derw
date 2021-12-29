@@ -224,13 +224,27 @@ function generateConstructor(constructor: Constructor): string {
 }
 
 function generateBranch(predicate: string, branch: Branch): string {
-    const pattern =
-        branch.pattern.pattern.trim().length > 0
-            ? `\n    const ${branch.pattern.pattern} = ${predicate};`
-            : "";
-    return `case "${branch.pattern.constructor}": {${pattern}
+    switch (branch.pattern.kind) {
+        case "Destructure": {
+            const pattern =
+                branch.pattern.pattern.trim().length > 0
+                    ? `\n    const ${branch.pattern.pattern} = ${predicate};`
+                    : "";
+            return `case "${branch.pattern.constructor}": {${pattern}
     return ${generateExpression(branch.body)};
 }`;
+        }
+        case "StringValue": {
+            return `case "${branch.pattern.body}": {
+    return ${generateExpression(branch.body)};
+}`;
+        }
+        case "Default": {
+            return `default: {
+    return ${generateExpression(branch.body)};
+}`;
+        }
+    }
 }
 
 function generateCaseStatement(caseStatement: CaseStatement): string {
@@ -238,6 +252,19 @@ function generateCaseStatement(caseStatement: CaseStatement): string {
     const branches = caseStatement.branches.map((branch) =>
         generateBranch("_res", branch)
     );
+
+    const isString =
+        caseStatement.branches.filter(
+            (branch) => branch.pattern.kind === "StringValue"
+        ).length > 0;
+
+    if (isString) {
+        return `
+const _res = ${predicate};
+switch (_res) {
+${prefixLines(branches.join("\n"), 4)}
+}`.trim();
+    }
 
     return `
 const _res = ${predicate};
