@@ -68,13 +68,17 @@ function generateUnionType(syntax: UnionType): string {
                     tag.name,
                     tag.args
                         .map((arg) => arg.type)
-                        .filter(
-                            (arg) =>
-                                !(
-                                    arg.kind === "FixedType" &&
-                                    isBuiltinType(arg.name)
-                                )
-                        )
+                        .filter((arg) => {
+                            if (arg.kind === "FixedType") {
+                                if (isBuiltinType(arg.name)) return false;
+                            }
+
+                            if (arg.kind === "GenericType") {
+                                if (isBuiltinType(arg.name)) return false;
+                            }
+
+                            return true;
+                        })
                 )
             );
 
@@ -102,7 +106,19 @@ function ${generatedType}(args: ${funcDefArgsStr}): ${generatedType} {
             return generateType(
                 FixedType(
                     tag.name,
-                    tag.args.map((arg) => arg.type)
+                    tag.args
+                        .map((arg) => arg.type)
+                        .filter((arg) => {
+                            if (arg.kind === "FixedType") {
+                                if (isBuiltinType(arg.name)) return false;
+                            }
+
+                            if (arg.kind === "GenericType") {
+                                if (isBuiltinType(arg.name)) return false;
+                            }
+
+                            return true;
+                        })
                 )
             );
         })
