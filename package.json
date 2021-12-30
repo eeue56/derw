@@ -9,7 +9,7 @@
         "bench": "npx @eeue56/mainc",
         "format": "npx prettier --write .",
         "prepublish": "npx tsc -p tsconfig.json",
-        "stdlib": "npx ts-node src/cli.ts --files ../derw-lang/stdlib/src/*.derw --output ../derw-lang/stdlib",
+        "stdlib": "npx ts-node src/cli.ts compile --files ../derw-lang/stdlib/src/*.derw --output ../derw-lang/stdlib",
         "test-stdlib": "npx @eeue56/bach --file ../derw-lang/stdlib/src/*.ts"
     },
     "repository": {
