@@ -13,7 +13,7 @@ import {
     string,
     variableList,
 } from "@eeue56/baner";
-import { Ok } from "@eeue56/ts-core/build/main/lib/result";
+import { Err, Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
 import { spawnSync } from "child_process";
 import { promises } from "fs";
 import { readdir, writeFile } from "fs/promises";
@@ -102,10 +102,28 @@ function runFile(target: Target, fullName: string): void {
     }
 }
 
-const programParser = parser([
-    longFlag("init", "Initialize a project", empty()),
+type CliCommand = "init" | "compile" | "test";
+
+function parseCliCommand(): Result<string, CliCommand> {
+    if (typeof process.argv[2] === "undefined") {
+        return Err("No command provided.");
+    }
+
+    switch (process.argv[2]) {
+        case "init":
+            return Ok("init");
+        case "compile":
+            return Ok("compile");
+        case "test":
+            return Ok("test");
+        default: {
+            return Err(`Unknown command \`${process.argv[2]}\``);
+        }
+    }
+}
+
+const compileParser = parser([
     longFlag("files", "File names to be compiled", variableList(string())),
-    longFlag("test", "Test the project", empty()),
     longFlag(
         "target",
         "Target TS, JS or Derw output",
@@ -128,10 +146,10 @@ const programParser = parser([
 function showHelp(): void {
     console.log("Let's write some Derw code");
     console.log("To get started:");
-    console.log("Initialize the current directory via --init");
-    console.log("Or provide entry files via --files");
+    console.log("Initialize the current directory via `init`");
+    console.log("Or provide entry files via `--files`");
     console.log("Or run me without args inside a package directory");
-    console.log(help(programParser));
+    console.log(help(compileParser));
 }
 
 async function getDerwFiles(): Promise<string[]> {
@@ -349,6 +367,7 @@ async function init() {
 
     await writeFile("derw-package.json", exportPackage(package_));
     await copyTSconfig();
+    await ensureDirectoryExists("src");
 }
 
 async function runTests(isInPackageDirectory: boolean): Promise<void> {
@@ -360,41 +379,72 @@ async function runTests(isInPackageDirectory: boolean): Promise<void> {
     await runner();
 }
 
+function showCommandHelp(): void {
+    console.log("To get started:");
+    console.log("Start a package via `init`");
+    console.log("Compile via `compile`");
+    console.log("Or compile and test via `test`");
+}
+
 export async function main(): Promise<void> {
-    const program = parse(programParser, process.argv);
+    const command = parseCliCommand();
 
-    if (program.flags["h/help"].isPresent) {
-        showHelp();
+    if (command.kind === "err") {
+        console.log(command.error);
+        showCommandHelp();
         return;
     }
 
-    const errors = allErrors(program);
-    if (errors.length > 0) {
-        console.log("Errors:");
-        console.log(errors.join("\n"));
-        process.exit(1);
+    switch (command.value) {
+        case "compile": {
+            const program = parse(compileParser, process.argv);
+
+            if (program.flags["h/help"].isPresent) {
+                showHelp();
+                return;
+            }
+
+            const errors = allErrors(program);
+            if (errors.length > 0) {
+                console.log("Errors:");
+                console.log(errors.join("\n"));
+                process.exit(1);
+            }
+
+            const isInPackageDirectory = await fileExists("derw-package.json");
+
+            if (!program.flags.files.isPresent && !isInPackageDirectory) {
+                console.log("You must provide at least one file via --files");
+                console.log("Or be in a directory wit derw-package.json.");
+                process.exit(1);
+            }
+
+            await compileFiles(program, isInPackageDirectory);
+            return;
+        }
+        case "init": {
+            await init();
+            console.log("Project initialized!");
+            console.log("Put your files in `src`");
+            console.log("Compile your project via `derw compile`");
+            console.log("Run tests via `derw test`");
+            return;
+        }
+        case "test": {
+            const program = parse(compileParser, process.argv);
+            const errors = allErrors(program);
+            if (errors.length > 0) {
+                console.log("Errors:");
+                console.log(errors.join("\n"));
+                process.exit(1);
+            }
+            const isInPackageDirectory = await fileExists("derw-package.json");
+
+            await compileFiles(program, isInPackageDirectory);
+            await runTests(isInPackageDirectory);
+            return;
+        }
     }
-
-    if (program.flags.init.isPresent) {
-        await init();
-        return;
-    }
-
-    const isInPackageDirectory = await fileExists("derw-package.json");
-
-    if (program.flags.test.isPresent) {
-        await compileFiles(program, isInPackageDirectory);
-        await runTests(isInPackageDirectory);
-        return;
-    }
-
-    if (!program.flags.files.isPresent && !isInPackageDirectory) {
-        console.log("You must provide at least one file via --files");
-        console.log("Or be in a directory wit derw-package.json.");
-        process.exit(1);
-    }
-
-    await compileFiles(program, isInPackageDirectory);
 }
 
 if (require.main === module) {

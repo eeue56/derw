@@ -4,6 +4,15 @@ An Elm-inspired language that transpiles to TypeScript
 
 # Usage
 
+```bash
+npx @eeue56/derw
+
+To get started:
+Start a package via `derw init`
+Compile via `derw compile`
+Or compile and test via `derw test`
+```
+
 You can run the derw compiler via npx. You must provide files via `--files` or be in a package directory.
 
 ```bash
@@ -11,10 +20,8 @@ npx @eeue56/derw
 
 Let\'s write some Derw code
 To get started:
-Initialize the current directory via --init
-Or provide entry files via --files
+Provide entry files via --files
 Or run me without args inside a package directory
-  --init :                  Initialize a project
   --files [string...]:      Filenames to be given
   --test :                  Test the project
   --target ts | js | derw:  Target TS, JS or Derw output
