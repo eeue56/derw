@@ -80,7 +80,7 @@ export function exportPackage(package_: Package): string {
     const dependencies: Record<string, string> = {};
 
     for (const dependency of package_.dependencies) {
-        dependencies[dependency.name] = dependencies.version;
+        dependencies[dependency.name] = dependency.version;
     }
 
     return JSON.stringify(

@@ -45,55 +45,51 @@ export async function testExamples() {
             };
         });
 
-    await Promise.all(
-        filePairs.map(async ({ derw, ts, js, elm }, index) => {
-            const outputDir = `test/temp/${index}`;
+    await rm("test/temp", { force: true, recursive: true });
 
-            await rm(outputDir, { force: true, recursive: true });
+    let index = 0;
 
-            for (const target of [ "derw", "ts", "js", "elm" ]) {
-                process.argv = [
-                    "",
-                    "",
-                    "compile",
-                    "--files",
-                    derw,
-                    "--output",
-                    outputDir,
-                    "--target",
-                    target,
-                    "--quiet",
-                ];
-                await main();
-            }
+    for (const pair of filePairs) {
+        const { derw, ts, js, elm } = pair;
+        const outputDir = `test/temp/${index}`;
+        index++;
 
-            const derwContents = (await readFile(derw)).toString();
-            const tsContents = (await readFile(ts)).toString();
-            const jsContents = (await readFile(js)).toString();
-            const elmContents = (await readFile(elm)).toString();
+        for (const target of [ "ts", "js", "elm", "derw" ]) {
+            process.argv = [
+                "",
+                "",
+                "compile",
+                "--files",
+                derw,
+                "--output",
+                outputDir,
+                "--target",
+                target,
+                "--quiet",
+            ];
+            await main();
+        }
 
-            const generatedDerw = (
-                await readFile(`${outputDir}/${derw}`)
-            ).toString();
-            const generatedTS = (
-                await readFile(`${outputDir}/${ts}`)
-            ).toString();
-            const generatedJS = (
-                await readFile(`${outputDir}/${js}`)
-            ).toString();
-            const generatedElm = (
-                await readFile(`${outputDir}/${elm}`)
-            ).toString();
+        const derwContents = (await readFile(derw)).toString();
+        const tsContents = (await readFile(ts)).toString();
+        const jsContents = (await readFile(js)).toString();
+        const elmContents = (await readFile(elm)).toString();
 
-            try {
-                assert.deepStrictEqual(derwContents, generatedDerw);
-                assert.deepStrictEqual(tsContents, generatedTS);
-                assert.deepStrictEqual(jsContents, generatedJS);
-                assert.deepStrictEqual(elmContents, generatedElm);
-            } catch (e) {
-                console.log(`Failed to correctly generate ${derw}`);
-                throw e;
-            }
-        })
-    );
+        const generatedDerw = (
+            await readFile(`${outputDir}/${derw}`)
+        ).toString();
+        const generatedTS = (await readFile(`${outputDir}/${ts}`)).toString();
+        const generatedJS = (await readFile(`${outputDir}/${js}`)).toString();
+        const generatedElm = (await readFile(`${outputDir}/${elm}`)).toString();
+
+        try {
+            assert.deepStrictEqual(derwContents, generatedDerw);
+            assert.deepStrictEqual(tsContents, generatedTS);
+            assert.deepStrictEqual(jsContents, generatedJS);
+            assert.deepStrictEqual(elmContents, generatedElm);
+        } catch (e) {
+            console.log(`Failed to correctly generate ${derw}`);
+            throw e;
+        }
+    }
 }
