@@ -226,6 +226,10 @@ async function compileFiles(
 
     await Promise.all(
         files.map(async function compile(fileName) {
+            if (processedFiles.indexOf(fileName) > -1) {
+                return;
+            }
+            processedFiles.push(fileName);
             const dotParts = fileName.split(".");
             const extension = dotParts[dotParts.length - 1];
 
@@ -252,7 +256,6 @@ async function compileFiles(
                 return;
             }
 
-            processedFiles.push(fileName);
             const dir = path.dirname(fileName);
             const imports: string[] = [ ];
 
