@@ -1,5 +1,5 @@
 import * as assert from "@eeue56/ts-assert";
-import { readdir, readFile } from "fs/promises";
+import { readdir, readFile, rm } from "fs/promises";
 import path from "path";
 import { main } from "../cli";
 
@@ -49,8 +49,13 @@ export async function testExamples() {
         filePairs.map(async ({ derw, ts, js, elm }, index) => {
             const outputDir = `test/temp/${index}`;
 
+            await rm(outputDir, { force: true, recursive: true });
+
             for (const target of [ "derw", "ts", "js", "elm" ]) {
                 process.argv = [
+                    "",
+                    "",
+                    "compile",
                     "--files",
                     derw,
                     "--output",
