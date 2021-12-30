@@ -76,6 +76,21 @@ const packageDecoder = pipeline(
     Package
 );
 
+export function addDependency(
+    dependency: Dependency,
+    package_: Package
+): Package {
+    for (const dep of package_.dependencies) {
+        if (dep.name === dependency.name) {
+            dep.version = dependency.version;
+            return package_;
+        }
+    }
+    package_.dependencies.push(dependency);
+
+    return package_;
+}
+
 export function exportPackage(package_: Package): string {
     const dependencies: Record<string, string> = {};
 
