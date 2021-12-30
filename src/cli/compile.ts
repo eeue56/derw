@@ -13,11 +13,12 @@ import {
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { spawnSync } from "child_process";
 import { promises } from "fs";
-import { readdir, writeFile } from "fs/promises";
+import { readdir, readFile, writeFile } from "fs/promises";
 import path from "path";
 import * as util from "util";
 import { compileTypescript } from "../compile";
 import { generate, Target } from "../generator";
+import { decodePackage } from "../package";
 import * as derwParser from "../parser";
 import { Block, Import, Module } from "../types";
 import { ensureDirectoryExists, fileExists } from "./utils";
@@ -76,9 +77,9 @@ function runFile(target: Target, fullName: string): void {
     }
 }
 
-async function getDerwFiles(): Promise<string[]> {
-    return await (await readdir("./src"))
-        .map((file) => path.join("src", file))
+async function getDerwFiles(dir: string): Promise<string[]> {
+    return await (await readdir(path.join(dir, "src")))
+        .map((file) => path.join(dir, "src", file))
         .filter((file) => file.endsWith("derw"));
 }
 
@@ -141,8 +142,29 @@ export async function compileFiles(
     const debugMode = program.flags["debug"].isPresent;
 
     const files = isInPackageDirectory
-        ? await getDerwFiles()
+        ? await getDerwFiles("./")
         : (program.flags.files.arguments as Ok<string[]>).value;
+
+    if (isInPackageDirectory) {
+        const packageFile = decodePackage(
+            JSON.parse(await (await readFile("derw-package.json")).toString())
+        );
+
+        if (packageFile.kind === "err") {
+            console.log("Failed to parse package file due to:");
+            console.log(packageFile.error);
+            process.exit(1);
+        }
+
+        const validPackage = packageFile.value;
+        for (const dep of validPackage.dependencies) {
+            for (const file of await getDerwFiles(
+                `derw-packages/${dep.name}`
+            )) {
+                files.push(file);
+            }
+        }
+    }
 
     const isFormat = program.flags.format.isPresent;
 
