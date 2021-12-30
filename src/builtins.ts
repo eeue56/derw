@@ -9,3 +9,7 @@ export function isBuiltinType(
         ) > -1
     );
 }
+
+export function isReservedName(potentialName: string): boolean {
+    return [ "Object", "Function" ].indexOf(potentialName.trim()) > -1;
+}

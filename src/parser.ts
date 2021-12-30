@@ -6,7 +6,7 @@ import {
     Result,
 } from "@eeue56/ts-core/build/main/lib/result";
 import { intoBlocks, typeBlocks } from "./blocks";
-import { isBuiltinType } from "./builtins";
+import { isBuiltinType, isReservedName } from "./builtins";
 import { collisions } from "./collisions";
 import {
     BaseTypeToken,
@@ -389,6 +389,11 @@ function parseUnionType(tokens: Token[]): Result<string, UnionType> {
                 `Missing expected tag name for union type \`${tokensToString(
                     typeLine
                 )}\``
+            );
+        }
+        if (isReservedName(tagName)) {
+            return Err(
+                `Redefining ${tagName.trim()} will cause problems. Try renaming it to ${tagName.trim()}Value`
             );
         }
 
