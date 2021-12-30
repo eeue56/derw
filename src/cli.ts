@@ -20,17 +20,10 @@ import { readdir, writeFile } from "fs/promises";
 import path from "path";
 import * as util from "util";
 import { compileTypescript } from "./compile";
-import { generateDerw } from "./derw_generator";
-import { generateElm } from "./elm_generator";
-import { generateJavascript } from "./js_generator";
+import { generate, Target } from "./generator";
 import { exportPackage, Package } from "./package";
 import * as derwParser from "./parser";
-import { generateTypescript } from "./ts_generator";
 import { Block, Import, Module } from "./types";
-
-const emptyLineAtEndOfFile = "\n";
-
-type Target = "js" | "ts" | "derw" | "elm";
 
 async function ensureDirectoryExists(directory: string): Promise<void> {
     try {
@@ -105,43 +98,6 @@ function runFile(target: Target, fullName: string): void {
                 encoding: "utf-8",
             });
             break;
-        }
-    }
-}
-
-function generate(
-    target: Target,
-    shouldVerify: boolean,
-    parsed: Module,
-    fileName: string
-): string {
-    switch (target) {
-        case "js": {
-            return generateJavascript(parsed) + emptyLineAtEndOfFile;
-        }
-        case "ts": {
-            const generated = generateTypescript(parsed) + emptyLineAtEndOfFile;
-
-            if (shouldVerify) {
-                const output = compileTypescript(generated);
-
-                if (output.kind === "err") {
-                    console.log(
-                        `Failed to compile ${fileName} due to`,
-                        output.error.map((e) => e.messageText).join("\n")
-                    );
-                } else {
-                    console.log(`Successfully compiled ${fileName}`);
-                }
-            }
-
-            return generated;
-        }
-        case "derw": {
-            return generateDerw(parsed) + emptyLineAtEndOfFile;
-        }
-        case "elm": {
-            return generateElm(parsed) + emptyLineAtEndOfFile;
         }
     }
 }
@@ -314,12 +270,20 @@ async function compileFiles(
                 return;
             }
 
-            const generated = generate(
-                target,
-                program.flags.verify.isPresent,
-                parsed,
-                fileName
-            );
+            const generated = generate(target, parsed);
+
+            if (program.flags.verify.isPresent && target === "ts") {
+                const output = compileTypescript(generated);
+
+                if (output.kind === "err") {
+                    console.log(
+                        `Failed to compile ${fileName} due to`,
+                        output.error.map((e) => e.messageText).join("\n")
+                    );
+                } else {
+                    console.log(`Successfully compiled ${fileName}`);
+                }
+            }
 
             if (isStdout) {
                 console.log(generated);
