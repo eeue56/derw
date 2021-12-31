@@ -201,6 +201,7 @@ export async function compileFiles(
             if (processedFiles.indexOf(fileName) > -1) {
                 return;
             }
+            const isPackageFile = fileName.startsWith("derw-packages");
             processedFiles.push(fileName);
             const dotParts = fileName.split(".");
             const extension = dotParts[dotParts.length - 1];
@@ -235,6 +236,14 @@ export async function compileFiles(
                 import_ = import_ as Import;
 
                 import_.modules.forEach((module) => {
+                    if (isPackageFile) {
+                        if (module.name.startsWith('"../derw-packages')) {
+                            module.name = module.name.replace(
+                                "../derw-packages",
+                                "../../.."
+                            );
+                        }
+                    }
                     if (module.namespace === "Global") return;
                     const moduleName = module.name.slice(1, -1);
                     imports.push(path.normalize(path.join(dir, moduleName)));
