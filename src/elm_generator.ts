@@ -198,6 +198,33 @@ function typeMapNameLookup(name: string): string {
     return typeMap[name];
 }
 
+function generateTopLevelType(type_: Type): string {
+    switch (type_.kind) {
+        case "GenericType": {
+            return generateType(type_);
+        }
+        case "FixedType": {
+            if (type_.name === "List") {
+                return generateType(type_);
+            }
+
+            const args = type_.args.filter(
+                (type_) =>
+                    type_.kind === "GenericType" || type_.kind === "FixedType"
+            );
+
+            if (args.length === 0) {
+                return typeMapNameLookup(type_.name);
+            }
+
+            return `${type_.name} ${args.map(generateType).join(" ")}`;
+        }
+        case "FunctionType": {
+            return generateType(type_);
+        }
+    }
+}
+
 function generateType(type_: Type): string {
     switch (type_.kind) {
         case "GenericType": {
@@ -476,7 +503,7 @@ function generateFunction(function_: Function): string {
               prefixLines("\nin", 4)
             : "";
 
-    const returnType = generateType(function_.returnType);
+    const returnType = generateTopLevelType(function_.returnType);
     const body = generateExpression(function_.body);
 
     const prefixedBody = prefixLines(body, maybeLetBody === "" ? 4 : 8);
@@ -490,7 +517,7 @@ ${prefixedBody}
 
 function generateConst(constDef: Const): string {
     const body = prefixLines(generateExpression(constDef.value), 4);
-    const typeDef = generateType(constDef.type);
+    const typeDef = generateTopLevelType(constDef.type);
     return `
 ${constDef.name}: ${typeDef}
 ${constDef.name} =

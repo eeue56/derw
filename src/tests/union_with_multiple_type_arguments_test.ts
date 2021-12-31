@@ -6,23 +6,47 @@ import { generateJavascript } from "../js_generator";
 import { parse } from "../parser";
 import { generateTypescript } from "../ts_generator";
 import {
+    Const,
+    Constructor,
+    Field,
     FixedType,
+    Function,
+    FunctionArg,
     GenericType,
     Module,
+    ObjectLiteral,
+    StringValue,
     Tag,
     TagArg,
     UnionType,
     UnparsedBlock,
+    Value,
 } from "../types";
 
 const oneLine = `
 type Either a b = Left { value: a } | Right { value: b }
+
+value: Either number string
+value =
+    Left { value: 1 }
+
+fn: boolean -> Either number string
+fn b =
+    Right { value: "hello" }
 `.trim();
 
 const multiLine = `
 type Either a b
     = Left { value: a }
     | Right { value: b }
+
+value: Either number string
+value =
+    Left { value: 1 }
+
+fn: boolean -> Either number string
+fn b =
+    Right { value: "hello" }
 `.trim();
 
 const expectedOutput = `
@@ -51,6 +75,12 @@ function Right<b>(args: { value: b }): Right<b> {
 }
 
 type Either<a, b> = Left<a> | Right<b>;
+
+const value: Either<number, string> = Left({ value: 1 });
+
+function fn(b: boolean): Either<number, string> {
+    return Right({ value: "hello" });
+}
 `.trim();
 
 const expectedOutputJS = `
@@ -67,17 +97,27 @@ function Right(args) {
         ...args,
     };
 }
+
+const value = Left({ value: 1 });
+
+function fn(b) {
+    return Right({ value: "hello" });
+}
 `.trim();
 
 export function testIntoBlocks() {
     assert.deepStrictEqual(intoBlocks(oneLine), [
-        UnparsedBlock("UnionTypeBlock", 0, oneLine.split("\n")),
+        UnparsedBlock("UnionTypeBlock", 0, oneLine.split("\n").slice(0, 1)),
+        UnparsedBlock("ConstBlock", 2, oneLine.split("\n").slice(2, 5)),
+        UnparsedBlock("FunctionBlock", 6, oneLine.split("\n").slice(6)),
     ]);
 }
 
 export function testIntoBlocksMultiLine() {
     assert.deepStrictEqual(intoBlocks(multiLine), [
-        UnparsedBlock("UnionTypeBlock", 0, multiLine.split("\n")),
+        UnparsedBlock("UnionTypeBlock", 0, multiLine.split("\n").slice(0, 3)),
+        UnparsedBlock("ConstBlock", 4, multiLine.split("\n").slice(4, 7)),
+        UnparsedBlock("FunctionBlock", 8, multiLine.split("\n").slice(8)),
     ]);
 }
 
@@ -102,6 +142,30 @@ export function testParse() {
                         Tag("Right", [ TagArg("value", GenericType("b")) ]),
                     ]
                 ),
+                Const(
+                    "value",
+                    FixedType("Either", [
+                        FixedType("number", [ ]),
+                        FixedType("string", [ ]),
+                    ]),
+                    Constructor(
+                        "Left",
+                        ObjectLiteral([ Field("value", Value("1")) ])
+                    )
+                ),
+                Function(
+                    "fn",
+                    FixedType("Either", [
+                        FixedType("number", [ ]),
+                        FixedType("string", [ ]),
+                    ]),
+                    [ FunctionArg("b", FixedType("boolean", [ ])) ],
+                    [ ],
+                    Constructor(
+                        "Right",
+                        ObjectLiteral([ Field("value", StringValue("hello")) ])
+                    )
+                ),
             ],
             [ ]
         )
@@ -120,6 +184,30 @@ export function testParseMultiLine() {
                         Tag("Left", [ TagArg("value", GenericType("a")) ]),
                         Tag("Right", [ TagArg("value", GenericType("b")) ]),
                     ]
+                ),
+                Const(
+                    "value",
+                    FixedType("Either", [
+                        FixedType("number", [ ]),
+                        FixedType("string", [ ]),
+                    ]),
+                    Constructor(
+                        "Left",
+                        ObjectLiteral([ Field("value", Value("1")) ])
+                    )
+                ),
+                Function(
+                    "fn",
+                    FixedType("Either", [
+                        FixedType("number", [ ]),
+                        FixedType("string", [ ]),
+                    ]),
+                    [ FunctionArg("b", FixedType("boolean", [ ])) ],
+                    [ ],
+                    Constructor(
+                        "Right",
+                        ObjectLiteral([ Field("value", StringValue("hello")) ])
+                    )
                 ),
             ],
             [ ]

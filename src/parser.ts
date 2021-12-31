@@ -277,7 +277,7 @@ function parseType(tokens: Token[]): Result<string, Type> {
     }
 
     if (buffer.length > 0) {
-        parsedTypes.push(parseType(buffer));
+        buffer.forEach((b) => parsedTypes.push(parseType([ b ])));
     }
 
     return Ok(
