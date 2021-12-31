@@ -17,7 +17,7 @@ import {
     exportPackage,
     Package,
 } from "../package";
-import { ensureDirectoryExists } from "./utils";
+import { ensureDirectoryExists, fileExists } from "./utils";
 
 const installParser = parser([
     longFlag("name", "name of the package e.g derw-lang/stdlib", string()),
@@ -111,6 +111,11 @@ async function installPackages(
             console.log(`Fetching ${dependency.name}@${dependency.version}...`);
         await cloneRepo(dependency);
         await checkoutRef(dependency);
+
+        if (await fileExists(`derw-packages/${dependency.name}/package.json`)) {
+            if (!isQuiet) console.log("Installing npm packages...");
+            await npmInstall(dependency);
+        }
     }
 }
 
@@ -131,7 +136,6 @@ async function cloneRepo(dependency: Dependency): Promise<void> {
 async function checkoutRef(dependency: Dependency) {
     let res = spawnSync("git", [ "fetch", `origin`, `${dependency.version}` ], {
         cwd: `derw-packages/${dependency.name}`,
-
         encoding: "utf-8",
     });
 
@@ -142,12 +146,25 @@ async function checkoutRef(dependency: Dependency) {
 
     res = spawnSync("git", [ "checkout", `${dependency.version}` ], {
         cwd: `derw-packages/${dependency.name}`,
-
         encoding: "utf-8",
     });
 
     if (res.error) {
         console.log(`Encountered error cloning ${dependency.name}`);
+        console.log(res.error);
+    }
+}
+
+async function npmInstall(dependency: Dependency): Promise<void> {
+    const res = spawnSync("npm", [ "install" ], {
+        cwd: `derw-packages/${dependency.name}`,
+        encoding: "utf-8",
+    });
+
+    if (res.error) {
+        console.log(
+            `Encountered error installing npm packages from ${dependency.name}`
+        );
         console.log(res.error);
     }
 }
