@@ -31,9 +31,9 @@ import "./nothing" exposing(isNothing)
 `.trim();
 
 const expectedOutput = `
-import path from "path";
+import * as path from "path";
 
-import fs from "fs";
+import * as fs from "fs";
 
 import * as other from "./other";
 
@@ -45,9 +45,9 @@ import { isNothing } from "./nothing";
 `.trim();
 
 const expectedOutputJS = `
-import path from "path";
+import * as path from "path";
 
-import fs from "fs";
+import * as fs from "fs";
 
 import * as other from "./other";
 

@@ -725,7 +725,7 @@ function generateImportBlock(imports: Import): string {
                 module.alias.kind === "just" ? module.alias.value : module.name;
 
             if (module.exposing.length === 0) {
-                return `import ${name} from "${module.name}";`;
+                return `import * as ${name} from "${module.name}";`;
             } else {
                 return `import { ${module.exposing.join(", ")} } from "${
                     module.name
