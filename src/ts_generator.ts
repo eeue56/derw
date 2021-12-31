@@ -240,6 +240,8 @@ function generateConstructor(constructor: Constructor): string {
 }
 
 function generateBranch(predicate: string, branch: Branch): string {
+    const body = generateExpression(branch.body);
+    const returnWrapper = isSimpleValue(branch.body.kind) ? "return " : "";
     switch (branch.pattern.kind) {
         case "Destructure": {
             const pattern =
@@ -247,17 +249,17 @@ function generateBranch(predicate: string, branch: Branch): string {
                     ? `\n    const ${branch.pattern.pattern} = ${predicate};`
                     : "";
             return `case "${branch.pattern.constructor}": {${pattern}
-    return ${generateExpression(branch.body)};
+    ${returnWrapper}${body};
 }`;
         }
         case "StringValue": {
             return `case "${branch.pattern.body}": {
-    return ${generateExpression(branch.body)};
+    ${returnWrapper}${body};
 }`;
         }
         case "Default": {
             return `default: {
-    return ${generateExpression(branch.body)};
+    ${returnWrapper}${body};
 }`;
         }
     }
