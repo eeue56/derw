@@ -37,6 +37,8 @@
         "@eeue56/bach": "^0.0.10",
         "@eeue56/baner": "^0.0.2",
         "@eeue56/ts-core": "^1.1.0",
+        "@types/node-fetch": "^2.5.12",
+        "node-fetch": "^2.6.6",
         "typescript": "^4.3.5"
     }
 }

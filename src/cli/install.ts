@@ -7,11 +7,13 @@ import {
     parser,
     string,
 } from "@eeue56/baner";
-import { Ok } from "@eeue56/ts-core/build/main/lib/result";
+import { Err, Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
 import { spawnSync } from "child_process";
 import { writeFile } from "fs/promises";
+import fetch from "node-fetch";
 import {
     addDependency,
+    decodePackage,
     Dependency,
     exportPackage,
     loadPackageFile,
@@ -69,7 +71,7 @@ export async function install(
     if (isInstallNewPackage) {
         const name = (program.flags.name.arguments as Ok<string>).value;
 
-        let version = "master;";
+        let version = "main";
         if (program.flags.version.isPresent) {
             version = (program.flags.version.arguments as Ok<string>).value;
         }
@@ -101,15 +103,42 @@ export async function install(
     }
 }
 
+function isPackageAlreadyThere(
+    package_: Package,
+    packages: Package[]
+): boolean {
+    for (const p of packages) {
+        if (package_.name === p.name) return true;
+    }
+    return false;
+}
+
 async function installPackages(
     validPackage: Package,
     isQuiet: boolean
-): Promise<void> {
+): Promise<Package[]> {
     await ensureDirectoryExists("derw-packages");
+    const installedPackages: Package[] = [ ];
 
     for (const dependency of validPackage.dependencies) {
         if (!isQuiet)
             console.log(`Fetching ${dependency.name}@${dependency.version}...`);
+
+        const depPackage = await fetchDependencyPackage(dependency);
+
+        if (depPackage.kind === "ok") {
+            if (!isPackageAlreadyThere(depPackage.value, installedPackages)) {
+                const subpackages = await installPackages(
+                    depPackage.value,
+                    isQuiet
+                );
+
+                for (const subpackage of subpackages) {
+                    installedPackages.push(subpackage);
+                }
+            }
+        }
+
         await cloneRepo(dependency);
         await checkoutRef(dependency);
 
@@ -117,7 +146,13 @@ async function installPackages(
             if (!isQuiet) console.log("Installing npm packages...");
             await npmInstall(dependency);
         }
+
+        if (depPackage.kind === "ok") {
+            installedPackages.push(depPackage.value);
+        }
     }
+
+    return installedPackages;
 }
 
 async function cloneRepo(dependency: Dependency): Promise<void> {
@@ -181,5 +216,19 @@ async function npmInstall(dependency: Dependency): Promise<void> {
             `Encountered error installing npm packages from ${dependency.name}`
         );
         console.log(res.error);
+    }
+}
+
+async function fetchDependencyPackage(
+    dependency: Dependency
+): Promise<Result<string, Package>> {
+    try {
+        const response = await fetch(
+            `https://raw.githubusercontent.com/${dependency.name}/${dependency.version}/derw-package.json`
+        );
+        return decodePackage(await response.json());
+    } catch (error) {
+        console.log(error);
+        return Err(`Failed to fetch ${dependency.name}@${dependency.version}`);
     }
 }
