@@ -13,12 +13,12 @@ import {
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { spawnSync } from "child_process";
 import { promises } from "fs";
-import { readdir, readFile, writeFile } from "fs/promises";
+import { readdir, writeFile } from "fs/promises";
 import path from "path";
 import * as util from "util";
 import { compileTypescript } from "../compile";
 import { generate, Target } from "../generator";
-import { decodePackage } from "../package";
+import { loadPackageFile } from "../package";
 import * as derwParser from "../parser";
 import { Block, Import, Module } from "../types";
 import { ensureDirectoryExists, fileExists } from "./utils";
@@ -116,14 +116,17 @@ function filterBodyForName(module: Module, name: string): Block[] {
     return blocks;
 }
 
+export type ProcessedFiles = Record<string, Module>;
+
 export async function compileFiles(
-    isInPackageDirectory: boolean
-): Promise<void> {
-    const program = parse(compileParser, process.argv);
+    isInPackageDirectory: boolean,
+    argv: string[]
+): Promise<ProcessedFiles> {
+    const program = parse(compileParser, argv);
 
     if (program.flags["h/help"].isPresent) {
         showCompileHelp();
-        return;
+        return {};
     }
 
     const errors = allErrors(program);
@@ -141,14 +144,15 @@ export async function compileFiles(
 
     const debugMode = program.flags["debug"].isPresent;
 
-    const files = isInPackageDirectory
+    const isPackageDirectoryAndNoFilesPassed =
+        isInPackageDirectory && !program.flags.files.isPresent;
+
+    const files = isPackageDirectoryAndNoFilesPassed
         ? await getDerwFiles("./")
         : (program.flags.files.arguments as Ok<string[]>).value;
 
-    if (isInPackageDirectory) {
-        const packageFile = decodePackage(
-            JSON.parse(await (await readFile("derw-package.json")).toString())
-        );
+    if (isPackageDirectoryAndNoFilesPassed) {
+        const packageFile = await loadPackageFile("derw-package.json");
 
         if (packageFile.kind === "err") {
             console.log("Failed to parse package file due to:");
@@ -195,6 +199,7 @@ export async function compileFiles(
     }
 
     const processedFiles: string[] = [ ];
+    const parsedFiles: Record<string, Module> = {};
 
     for (const fileName of files) {
         await (async function compile(fileName: string): Promise<void> {
@@ -228,6 +233,8 @@ export async function compileFiles(
                 console.log(parsed.errors.join("\n"));
                 return;
             }
+
+            parsedFiles[fileName] = parsed;
 
             const dir = path.dirname(fileName);
             const imports: string[] = [ ];
@@ -333,4 +340,6 @@ export async function compileFiles(
     if (!isQuiet) {
         console.log("Processed:", processedFiles);
     }
+
+    return parsedFiles;
 }

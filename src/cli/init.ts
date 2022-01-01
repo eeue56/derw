@@ -30,7 +30,10 @@ async function copyTSconfig() {
     await writeFile("tsconfig.json", JSON.stringify(tsconfig, null, 4));
 }
 
-export async function init(isInPackageDirectory: boolean): Promise<void> {
+export async function init(
+    isInPackageDirectory: boolean,
+    argv: string[]
+): Promise<void> {
     const packageName = path.basename(process.cwd());
 
     const package_ = Package(packageName, [ ], [ ]);

@@ -1,12 +1,13 @@
 #!/usr/bin/env ts-node
 import { Err, Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
 import { compileFiles } from "./cli/compile";
+import { info } from "./cli/info";
 import { init } from "./cli/init";
 import { install } from "./cli/install";
 import { runTests } from "./cli/testing";
 import { fileExists } from "./cli/utils";
 
-type CliCommand = "init" | "compile" | "test" | "install";
+type CliCommand = "init" | "compile" | "test" | "install" | "info";
 
 function parseCliCommand(): Result<string, CliCommand> {
     if (typeof process.argv[2] === "undefined") {
@@ -22,6 +23,8 @@ function parseCliCommand(): Result<string, CliCommand> {
             return Ok("test");
         case "install":
             return Ok("install");
+        case "info":
+            return Ok("info");
         default: {
             return Err(`Unknown command \`${process.argv[2]}\``);
         }
@@ -33,6 +36,7 @@ function showCommandHelp(): void {
     console.log("Start a package via `init`");
     console.log("Compile via `compile`");
     console.log("Or compile and test via `test`");
+    console.log("Or get info about a file or package via `info`");
 }
 
 export async function main(): Promise<number> {
@@ -44,24 +48,29 @@ export async function main(): Promise<number> {
         process.exit(1);
     }
 
+    const argv = process.argv;
     const isInPackageDirectory = await fileExists("derw-package.json");
 
     switch (command.value) {
         case "compile": {
-            await compileFiles(isInPackageDirectory);
+            await compileFiles(isInPackageDirectory, argv);
             return 0;
         }
         case "init": {
-            await init(isInPackageDirectory);
+            await init(isInPackageDirectory, argv);
             return 0;
         }
         case "install": {
-            await install(isInPackageDirectory);
+            await install(isInPackageDirectory, argv);
             return 0;
         }
         case "test": {
-            await compileFiles(isInPackageDirectory);
-            await runTests(isInPackageDirectory);
+            await compileFiles(isInPackageDirectory, argv);
+            await runTests(isInPackageDirectory, argv);
+            return 0;
+        }
+        case "info": {
+            await info(isInPackageDirectory, argv);
             return 0;
         }
     }

@@ -9,12 +9,12 @@ import {
 } from "@eeue56/baner";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { spawnSync } from "child_process";
-import { readFile, writeFile } from "fs/promises";
+import { writeFile } from "fs/promises";
 import {
     addDependency,
-    decodePackage,
     Dependency,
     exportPackage,
+    loadPackageFile,
     Package,
 } from "../package";
 import { ensureDirectoryExists, fileExists } from "./utils";
@@ -36,7 +36,10 @@ function showInstallHelp(): void {
     console.log(help(installParser));
 }
 
-export async function install(isInPackageDirectory: boolean): Promise<void> {
+export async function install(
+    isInPackageDirectory: boolean,
+    argv: string[]
+): Promise<void> {
     if (!isInPackageDirectory) {
         console.log(
             "No derw-package.json found. Maybe you need to run `derw init` first?"
@@ -44,7 +47,7 @@ export async function install(isInPackageDirectory: boolean): Promise<void> {
         process.exit(1);
     }
 
-    const program = parse(installParser, process.argv);
+    const program = parse(installParser, argv);
     if (program.flags["h/help"].isPresent) {
         showInstallHelp();
         return;
@@ -53,9 +56,7 @@ export async function install(isInPackageDirectory: boolean): Promise<void> {
     const isQuiet = program.flags.quiet.isPresent;
 
     const isInstallNewPackage = program.flags.name.isPresent;
-    const packageFile = decodePackage(
-        JSON.parse(await (await readFile("derw-package.json")).toString())
-    );
+    const packageFile = await loadPackageFile("derw-package.json");
 
     if (packageFile.kind === "err") {
         console.log("Failed to parse package file due to:");

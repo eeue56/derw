@@ -11,6 +11,7 @@ To get started:
 Start a package via `derw init`
 Compile via `derw compile`
 Or compile and test via `derw test`
+Or find out info via `derw info`
 ```
 
 You can run the derw compiler via npx. You must provide files via `--files` or be in a package directory.
@@ -362,19 +363,30 @@ Compile it, then run bach via `npx @eeue56/bach`
 -   [ ] Type checking
 -   [ ] Benchmarking support via [Mainc](https://github.com/eeue56/mainc)
 -   [ ] Async support
--   [ ] Packaging
+-   [x] Packaging
 -   [x] Package init
 
 ```
-derw --init
+derw init
 ```
 
 -   [x] Package testing
 
 ```
 # inside a package directory
-derw --test
+derw test
 ```
+
+-   [x] Compile a package
+
+```
+derw compile
+```
+
+-   [x] An info command to find out stats about modules
+
+```
+derw init
 
 # 2.0.0
 
@@ -394,10 +406,13 @@ Currently VSCode syntax highlighting is supported by this extension: https://git
 Instead, you can do:
 
 ```
+
 git clone https://github.com/eeue56/derw-syntax
 cp -r derw-syntax ~/.vscode/extensions/derw-syntax-0.0.1
+
 ```
 
 # Name
 
 derw which means oak. Oak is one of the native trees in Wales, famous for it's long life, tall stature, and hard, good quality wood. An English speaker might pronounce it as "deh-ru".
+```

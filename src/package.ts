@@ -8,6 +8,7 @@ import {
     string,
 } from "@eeue56/adeilad";
 import { Result } from "@eeue56/ts-core/build/main/lib/result";
+import { readFile } from "fs/promises";
 
 export type PackageModule = {
     kind: "PackageModule";
@@ -107,6 +108,12 @@ export function exportPackage(package_: Package): string {
         null,
         4
     );
+}
+
+export async function loadPackageFile(
+    path: string
+): Promise<Result<string, Package>> {
+    return decodePackage(JSON.parse(await (await readFile(path)).toString()));
 }
 
 export function decodePackage(potentialPackage: any): Result<string, Package> {
