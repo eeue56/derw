@@ -141,17 +141,31 @@ async function checkoutRef(dependency: Dependency) {
     });
 
     if (res.error) {
-        console.log(`Encountered error cloning ${dependency.name}`);
+        console.log(`Encountered error fetching ${dependency.name}`);
         console.log(res.error);
     }
 
-    res = spawnSync("git", [ "checkout", `${dependency.version}` ], {
+    res = spawnSync(
+        "git",
+        [ "reset", "--hard", `origin/${dependency.version}` ],
+        {
+            cwd: `derw-packages/${dependency.name}`,
+            encoding: "utf-8",
+        }
+    );
+
+    if (res.error) {
+        console.log(`Encountered error checkout ${dependency.name}`);
+        console.log(res.error);
+    }
+
+    res = spawnSync("git", [ "reset", "--hard", `${dependency.version}` ], {
         cwd: `derw-packages/${dependency.name}`,
         encoding: "utf-8",
     });
 
     if (res.error) {
-        console.log(`Encountered error cloning ${dependency.name}`);
+        console.log(`Encountered error checkout ${dependency.name}`);
         console.log(res.error);
     }
 }
