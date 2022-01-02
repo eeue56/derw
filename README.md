@@ -345,7 +345,10 @@ map fn value =
 
 -   [x] An automatic formatter with no options
 -   [ ] A standard library
--   [ ] Support for [Coed](https://github.com/eeue56/coed)
+-   [x] Support for [Coed](https://github.com/eeue56/coed)
+
+Use [html](https://github.com/derw-lang/html)
+
 -   [x] Testing support via [Bach](https://github.com/eeue56/bach)
 
 Write a file with `_test` as an extension (e.g `List_test.derw`).
@@ -387,6 +390,7 @@ derw compile
 
 ```
 derw init
+```
 
 # 2.0.0
 
@@ -415,4 +419,3 @@ cp -r derw-syntax ~/.vscode/extensions/derw-syntax-0.0.1
 # Name
 
 derw which means oak. Oak is one of the native trees in Wales, famous for it's long life, tall stature, and hard, good quality wood. An English speaker might pronounce it as "deh-ru".
-```
