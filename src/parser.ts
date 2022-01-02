@@ -1720,14 +1720,7 @@ function dropSurroundingBrackets(tokens: Token[]): Token[] {
 
 export function parseExpression(body: string): Result<string, Expression> {
     const tokens = dropSurroundingBrackets(tokenize(body));
-
     let index = 0;
-
-    if (body.indexOf("|>") > 0) {
-        return parseLeftPipe(tokens);
-    } else if (body.indexOf("<|") > 0) {
-        return parseRightPipe(tokens);
-    }
 
     while (index < tokens.length) {
         if (tokens[index].kind !== "WhitespaceToken") break;
@@ -1737,6 +1730,20 @@ export function parseExpression(body: string): Result<string, Expression> {
     const firstToken = tokens[index];
     if (!firstToken) {
         return Err(`Expected a token but got "${tokens}"`);
+    }
+
+    if (
+        tokens.filter(
+            (token) => token.kind === "OperatorToken" && token.body === "|>"
+        ).length > 0
+    ) {
+        return parseLeftPipe(tokens);
+    } else if (
+        tokens.filter(
+            (token) => token.kind === "OperatorToken" && token.body === "<|"
+        ).length > 0
+    ) {
+        return parseRightPipe(tokens);
     }
 
     switch (firstToken.kind) {
