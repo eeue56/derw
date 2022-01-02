@@ -894,41 +894,38 @@ function parseListValue(tokens: Token[]): Result<string, ListValue> {
     }
 
     const parsedValues = [ ];
-    let bracketDepth = 0;
-    let buffer = "";
+
+    // drop leading and trailing []
     const body = tokensToString(tokens.slice(index));
     const trimmed = body.trim();
     const innerBody = trimmed.slice(1, trimmed.length - 1).trim();
 
-    for (var i = 0; i < innerBody.length; i++) {
-        const char = innerBody[i];
+    if (innerBody.trim().length === 0) return Ok(ListValue([ ]));
 
-        if (char === "[") {
-            bracketDepth += 1;
-            if (bracketDepth > 0) buffer += char;
-        } else if (char === "]") {
-            bracketDepth -= 1;
-            buffer += char;
-            if (bracketDepth === 0) {
-                parsedValues.push(parseExpression(buffer));
-                buffer = "";
+    const innerTokens = tokenize(innerBody);
+    let innerIndex = 0;
+    let currentBuffer = [ ];
+
+    while (innerIndex < innerTokens.length) {
+        const token = innerTokens[innerIndex];
+        switch (token.kind) {
+            case "CommaToken": {
+                parsedValues.push(
+                    parseExpression(tokensToString(currentBuffer))
+                );
+                currentBuffer = [ ];
+                break;
             }
-        } else if (char === ",") {
-            if (bracketDepth == 0) {
-                if (buffer.trim().length > 0) {
-                    parsedValues.push(parseExpression(buffer));
-                }
-                buffer = "";
-            } else {
-                buffer += char;
+            default: {
+                currentBuffer.push(token);
             }
-        } else {
-            buffer += char;
         }
+
+        innerIndex++;
     }
 
-    if (buffer.length > 0) {
-        parsedValues.push(parseExpression(buffer));
+    if (currentBuffer.length > 0) {
+        parsedValues.push(parseExpression(tokensToString(currentBuffer)));
     }
 
     const errors = parsedValues.filter((part) => part.kind === "err");
