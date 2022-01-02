@@ -74,210 +74,210 @@ asIs result =
 -   [x] Lists `[ 1, 2, 3 ]`, `[ "hello", "world" ]`
 -   [x] List ranges `[ 1..5 ]`, `[ start..end ]`
 
-```elm
-add : number -> number -> number
-add x y = x + y
-```
+    ```elm
+    add : number -> number -> number
+    add x y = x + y
+    ```
 
 -   [x] Function calls
 
-```elm
-three = add 1 2
-```
+    ```elm
+    three = add 1 2
+    ```
 
 -   [x] Module references
 
-```elm
-three = List.map identity [ 1, 2, 3 ]
-```
+    ```elm
+    three = List.map identity [ 1, 2, 3 ]
+    ```
 
 -   [x] Union types
 
-```elm
-type Result a b
-    = Err { error: a }
-    | Ok { value: b }
-```
+    ```elm
+    type Result a b
+        = Err { error: a }
+        | Ok { value: b }
+    ```
 
 -   [x] Type variables
 
-```
-type Thing a = Thing a
-```
+    ```
+    type Thing a = Thing a
+    ```
 
 -   [x] Type aliases
 
-```elm
-type User =
-    { name: string }
-```
+    ```elm
+    type User =
+        { name: string }
+    ```
 
 -   [x] Object literals
 
-```elm
-user: User
-user = { name: string }
-```
+    ```elm
+    user: User
+    user = { name: string }
+    ```
 
 -   [x] Imports
 
-```elm
-import List
-import Result exposing ( map )
-import something as banana
-```
+    ```elm
+    import List
+    import Result exposing ( map )
+    import something as banana
+    ```
 
 -   [x] Exports
 
-```elm
-exposing ( map )
-```
+    ```elm
+    exposing ( map )
+    ```
 
 -   [x] Let statements
 
-```elm
-sayHiTo : User -> string
-sayHiTo user =
-    let
-        name = user.name
-    in
-        "Hello " + name
+    ```elm
+    sayHiTo : User -> string
+    sayHiTo user =
+        let
+            name = user.name
+        in
+            "Hello " + name
 
-sayHelloTo : User -> string
-sayHelloTo user =
-    let
-        getName: User -> string
-        getName user = user.name
-    in
-        "Hello" + getName user
-```
+    sayHelloTo : User -> string
+    sayHelloTo user =
+        let
+            getName: User -> string
+            getName user = user.name
+        in
+            "Hello" + getName user
+    ```
 
 -   [x] If statements
 
-```elm
-type Animal = Animal { age: number }
-sayHiTo : Animal -> string
-sayHiTo animal =
-    if animal.age == 1 of
-        "Hello little one!"
-    else
-        "You're old"
-```
+    ```elm
+    type Animal = Animal { age: number }
+    sayHiTo : Animal -> string
+    sayHiTo animal =
+        if animal.age == 1 of
+            "Hello little one!"
+        else
+            "You're old"
+    ```
 
 -   [x] Case..of
 
-```elm
-type Animal = Dog | Cat
-sayHiTo : Animal -> string
-sayHiTo animal =
-    case animal of
-        Dog -> "Hi dog!"
-        Cat -> "Hi cat!"
-```
+    ```elm
+    type Animal = Dog | Cat
+    sayHiTo : Animal -> string
+    sayHiTo animal =
+        case animal of
+            Dog -> "Hi dog!"
+            Cat -> "Hi cat!"
+    ```
 
 -   [x] Destructing in case..of
 
-```elm
-type User = User { name: string }
+    ```elm
+    type User = User { name: string }
 
-sayHiTo : User -> string
-sayHiTo user =
-    case user of
-        User { name } -> "Hi " + name + !"
-```
+    sayHiTo : User -> string
+    sayHiTo user =
+        case user of
+            User { name } -> "Hi " + name + !"
+    ```
 
 -   [x] strings in case..of
 -   [x] defaults in case..of
 
-```elm
-sayHiTo : string -> string
-sayHiTo name =
-    case name of
-        "Noah" -> "Hi " + name + !"
-        default: "I don't know you"
-```
+    ```elm
+    sayHiTo : string -> string
+    sayHiTo name =
+        case name of
+            "Noah" -> "Hi " + name + !"
+            default: "I don't know you"
+    ```
 
 -   [ ] List destructing
 
-```elm
+    ```elm
 
-sayHiTo : List number -> string
-sayHiTo xs =
-    case xs of
-        [] -> "Empty"
-        x::ys -> "Hello " + x + (sayHiTo ys)
-```
+    sayHiTo : List number -> string
+    sayHiTo xs =
+        case xs of
+            [] -> "Empty"
+            x::ys -> "Hello " + x + (sayHiTo ys)
+    ```
 
 -   [x] Constructing union types
 
-```elm
-type User = User { name: string }
-noah = User { name: "Noah" }
-```
+    ```elm
+    type User = User { name: string }
+    noah = User { name: "Noah" }
+    ```
 
 -   [x] Errors on type name collison
 
-````markdown
-The name `Person` has been used for different things.
-8 - 10:
+    ````markdown
+    The name `Person` has been used for different things.
+    8 - 10:
 
-```
-type Person =
-    Person { name: string }
-```
+    ```
+    type Person =
+        Person { name: string }
+    ```
 
-11 - 14:
+    11 - 14:
 
-```
-type alias Person = {
-    name: string
-}
-```
-````
+    ```
+    type alias Person = {
+        name: string
+    }
+    ```
+    ````
 
 -   [x] Errors on function name collison
 
-````markdown
-The name `isTrue` has been used for different things.
-0 - 3:
+    ````markdown
+    The name `isTrue` has been used for different things.
+    0 - 3:
 
-```
-isTrue: boolean -> boolean
-isTrue x =
-    x == true
-```
+    ```
+    isTrue: boolean -> boolean
+    isTrue x =
+        x == true
+    ```
 
-4 - 7:
+    4 - 7:
 
-```
-isTrue: boolean -> boolean
-isTrue x =
-    x != true
-```
-````
+    ```
+    isTrue: boolean -> boolean
+    isTrue x =
+        x != true
+    ```
+    ````
 
 -   [x] Some form of basic type errors
 
-````markdown
-Failed to parse examples/errors/mismatching_types.derw due to:
-Error on lines 0 - 3
-Expected `boolean` but got `number` in the body of the function:
+    ````markdown
+    Failed to parse examples/errors/mismatching_types.derw due to:
+    Error on lines 0 - 3
+    Expected `boolean` but got `number` in the body of the function:
 
-```
-isTrue: boolean -> boolean
-isTrue x =
-    1 + 2
-```
+    ```
+    isTrue: boolean -> boolean
+    isTrue x =
+        1 + 2
+    ```
 
-Error on lines 4 - 7
-Expected `List string` but got `List number`:
+    Error on lines 4 - 7
+    Expected `List string` but got `List number`:
 
-```
-names: List string
-names =
-    [1..2]
-```
-````
+    ```
+    names: List string
+    names =
+        [1..2]
+    ```
+    ````
 
 -   [x] lambdas `\x -> x + 1`, `\x y -> x + y`
 -   [x] Typescript output
@@ -291,55 +291,55 @@ names =
 -   [x] Collision detection for names in a module
 -   [x] Importing of Derw files
 
-```elm
-import "./other"
-import "./something" as banana
-import "./another" exposing ( isTrue, isFalse )
-```
+    ```elm
+    import "./other"
+    import "./something" as banana
+    import "./another" exposing ( isTrue, isFalse )
+    ```
 
 -   [x] Errors when failing to find relative import
 
-```
-Warning! Failed to find `examples/derw_imports/banana` as either derw, ts or js
-```
+    ```
+    Warning! Failed to find `examples/derw_imports/banana` as either derw, ts or js
+    ```
 
 -   [x] Single line comments
 
-```elm
--- hello
-isTrue: boolean -> boolean
-isTrue x =
-    x
-```
+    ```elm
+    -- hello
+    isTrue: boolean -> boolean
+    isTrue x =
+        x
+    ```
 
 -   [x] Single line comments in function or const bodies
 
-```elm
-isTrue: boolean -> boolean
-isTrue x =
-    -- hello
-    x
-```
+    ```elm
+    isTrue: boolean -> boolean
+    isTrue x =
+        -- hello
+        x
+    ```
 
 -   [x] Multiline comments
 
-```elm
-{-
-hello
-world
--}
-isTrue: boolean -> boolean
-isTrue x =
-    x
-```
+    ```elm
+    {-
+    hello
+    world
+    -}
+    isTrue: boolean -> boolean
+    isTrue x =
+        x
+    ```
 
 -   [x] Function arguments
 
-```elm
-map: (a -> b) -> a -> b
-map fn value =
-    fn value
-```
+    ```elm
+    map: (a -> b) -> a -> b
+    map fn value =
+        fn value
+    ```
 
 ## 1.0.0
 
@@ -347,21 +347,21 @@ map fn value =
 -   [ ] A standard library
 -   [x] Support for [Coed](https://github.com/eeue56/coed)
 
-Use [html](https://github.com/derw-lang/html)
+    Use [html](https://github.com/derw-lang/html)
 
 -   [x] Testing support via [Bach](https://github.com/eeue56/bach)
 
-Write a file with `_test` as an extension (e.g `List_test.derw`).
+    Write a file with `_test` as an extension (e.g `List_test.derw`).
 
-```elm
-import Test exposing (equals)
+    ```elm
+    import Test exposing (equals)
 
-testMath: boolean -> void
-testMath a? =
-    equals 1 1
-```
+    testMath: boolean -> void
+    testMath a? =
+        equals 1 1
+    ```
 
-Compile it, then run bach via `npx @eeue56/bach`
+    Compile it, then run bach via `npx @eeue56/bach`
 
 -   [ ] Type checking
 -   [ ] Benchmarking support via [Mainc](https://github.com/eeue56/mainc)
@@ -369,28 +369,28 @@ Compile it, then run bach via `npx @eeue56/bach`
 -   [x] Packaging
 -   [x] Package init
 
-```
-derw init
-```
+    ```
+    derw init
+    ```
 
 -   [x] Package testing
 
-```
-# inside a package directory
-derw test
-```
+    ```
+    # inside a package directory
+    derw test
+    ```
 
 -   [x] Compile a package
 
-```
-derw compile
-```
+    ```
+    derw compile
+    ```
 
 -   [x] An info command to find out stats about modules
 
-```
-derw init
-```
+    ```
+    derw init
+    ```
 
 # 2.0.0
 
