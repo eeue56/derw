@@ -17,6 +17,7 @@ import { readdir, writeFile } from "fs/promises";
 import path from "path";
 import * as util from "util";
 import { compileTypescript } from "../compile";
+import { addMissingNamesSuggestions } from "../errors/names";
 import { generate, Target } from "../generator";
 import { loadPackageFile } from "../package";
 import * as derwParser from "../parser";
@@ -40,6 +41,7 @@ const compileParser = parser([
     longFlag("only", "Only show a particular object", string()),
     longFlag("run", "Should be run via ts-node/node", empty()),
     longFlag("format", "Format the files given in-place", empty()),
+    longFlag("names", "Check for missing names out of scope", empty()),
     longFlag("quiet", "Keep it short and sweet", empty()),
     bothFlag("h", "help", "This help text", empty()),
 ]);
@@ -223,10 +225,14 @@ export async function compileFiles(
             const derwContents = (await promises.readFile(fileName)).toString();
 
             const isMain = files.indexOf(fileName) > -1;
-            const parsed = derwParser.parse(
+            let parsed = derwParser.parse(
                 derwContents,
                 isMain ? "Main" : fileName
             );
+
+            if (program.flags.names.isPresent) {
+                parsed = addMissingNamesSuggestions(parsed);
+            }
 
             if (parsed.errors.length > 0) {
                 console.log(`Failed to parse ${fileName} due to:`);
