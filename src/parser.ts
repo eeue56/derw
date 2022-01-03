@@ -1445,6 +1445,7 @@ function parseFunctionCall(
 
     const args: string[] = [ ];
     let currentArg: string[] = [ ];
+    let bracketDepth = 0;
 
     for (var i = index; i < tokens.length; i++) {
         const token = tokens[i];
@@ -1457,22 +1458,37 @@ function parseFunctionCall(
                 if (currentArg.join().trim().length > 0) {
                     currentArg.push(token.body);
                 } else {
-                    args.push(currentArg.join(""));
-                    args.push(token.body);
-                    currentArg = [ ];
+                    if (bracketDepth === 0) {
+                        args.push(currentArg.join(""));
+                        args.push(token.body);
+                        currentArg = [ ];
+                    } else {
+                        currentArg.push(token.body);
+                    }
                 }
                 break;
             }
             case "OpenBracketToken": {
-                if (currentArg.join().trim().length > 0) {
-                    args.push(currentArg.join(""));
+                if (bracketDepth === 0) {
+                    if (currentArg.join().trim().length > 0) {
+                        args.push(currentArg.join(""));
+                    }
+                    currentArg = [ ];
+                } else {
+                    currentArg.push("(");
                 }
-                currentArg = [ ];
+
+                bracketDepth++;
                 break;
             }
             case "CloseBracketToken": {
-                args.push(currentArg.join(""));
-                currentArg = [ ];
+                bracketDepth--;
+                if (bracketDepth === 0) {
+                    args.push(currentArg.join(""));
+                    currentArg = [ ];
+                } else {
+                    currentArg.push(")");
+                }
                 break;
             }
             case "OpenCurlyBracesToken": {
