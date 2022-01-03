@@ -1,10 +1,10 @@
 import * as assert from "@eeue56/ts-assert";
-import { readdir, readFile, rm } from "fs/promises";
+import { access, readdir, readFile, rm } from "fs/promises";
 import path from "path";
 import { main } from "../cli";
+import { ensureDirectoryExists } from "../cli/utils";
 
 const adventOfCodePath = "./examples/advent_of_code";
-const emptyLineAtEndOfFile = "\n";
 
 async function adventOfCodeFiles(): Promise<string[]> {
     const days = await readdir(adventOfCodePath);
@@ -23,7 +23,35 @@ async function adventOfCodeFiles(): Promise<string[]> {
     return aocFiles;
 }
 
-export async function testExamples() {
+async function fileExists(path: string): Promise<boolean> {
+    try {
+        await access(path);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+export async function testInit() {
+    await rm("test/package", { force: true, recursive: true });
+
+    await ensureDirectoryExists("test/package");
+    process.argv = [ "", "", "init", "--dir", "test/package" ];
+    await main();
+
+    const doesDerwPackageExist = await fileExists(
+        "test/package/derw-package.json"
+    );
+    assert.deepStrictEqual(doesDerwPackageExist, true);
+
+    const doesTsConfigExist = await fileExists("test/package/tsconfig.json");
+    assert.deepStrictEqual(doesTsConfigExist, true);
+
+    const doesSrcExist = await fileExists("test/package/src");
+    assert.deepStrictEqual(doesSrcExist, true);
+}
+
+export async function testCompileExamples() {
     const exampleFiles: string[] = await (
         await readdir("./examples")
     ).map((file) => path.join("examples", file));
