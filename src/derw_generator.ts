@@ -329,40 +329,40 @@ function generateLambdaCall(lambdaCall: LambdaCall): string {
 }
 
 function generateEquality(equality: Equality): string {
-    const left = generateExpression(equality.leftHand);
-    const right = generateExpression(equality.rightHand);
+    const left = generateExpression(equality.left);
+    const right = generateExpression(equality.right);
     return `${left} == ${right}`;
 }
 
 function generateInEquality(inEquality: InEquality): string {
-    const left = generateExpression(inEquality.leftHand);
-    const right = generateExpression(inEquality.rightHand);
+    const left = generateExpression(inEquality.left);
+    const right = generateExpression(inEquality.right);
     return `${left} != ${right}`;
 }
 
 function generateLessThan(lessThan: LessThan): string {
-    const left = generateExpression(lessThan.leftHand);
-    const right = generateExpression(lessThan.rightHand);
+    const left = generateExpression(lessThan.left);
+    const right = generateExpression(lessThan.right);
     return `${left} < ${right}`;
 }
 
 function generateLessThanOrEqual(lessThanOrEqual: LessThanOrEqual): string {
-    const left = generateExpression(lessThanOrEqual.leftHand);
-    const right = generateExpression(lessThanOrEqual.rightHand);
+    const left = generateExpression(lessThanOrEqual.left);
+    const right = generateExpression(lessThanOrEqual.right);
     return `${left} <= ${right}`;
 }
 
 function generateGreaterThan(greaterThan: GreaterThan): string {
-    const left = generateExpression(greaterThan.leftHand);
-    const right = generateExpression(greaterThan.rightHand);
+    const left = generateExpression(greaterThan.left);
+    const right = generateExpression(greaterThan.right);
     return `${left} > ${right}`;
 }
 
 function generateGreaterThanOrEqual(
     greaterThanOrEqual: GreaterThanOrEqual
 ): string {
-    const left = generateExpression(greaterThanOrEqual.leftHand);
-    const right = generateExpression(greaterThanOrEqual.rightHand);
+    const left = generateExpression(greaterThanOrEqual.left);
+    const right = generateExpression(greaterThanOrEqual.right);
     return `${left} >= ${right}`;
 }
 

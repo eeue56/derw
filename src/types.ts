@@ -501,103 +501,91 @@ export function CaseStatement(
 
 export type Equality = {
     kind: "Equality";
-    leftHand: Expression;
-    rightHand: Expression;
+    left: Expression;
+    right: Expression;
 };
 
-export function Equality(
-    leftHand: Expression,
-    rightHand: Expression
-): Equality {
+export function Equality(left: Expression, right: Expression): Equality {
     return {
         kind: "Equality",
-        leftHand,
-        rightHand,
+        left: left,
+        right,
     };
 }
 
 export type InEquality = {
     kind: "InEquality";
-    leftHand: Expression;
-    rightHand: Expression;
+    left: Expression;
+    right: Expression;
 };
 
-export function InEquality(
-    leftHand: Expression,
-    rightHand: Expression
-): InEquality {
+export function InEquality(left: Expression, right: Expression): InEquality {
     return {
         kind: "InEquality",
-        leftHand,
-        rightHand,
+        left,
+        right,
     };
 }
 
 export type LessThan = {
     kind: "LessThan";
-    leftHand: Expression;
-    rightHand: Expression;
+    left: Expression;
+    right: Expression;
 };
 
-export function LessThan(
-    leftHand: Expression,
-    rightHand: Expression
-): LessThan {
+export function LessThan(left: Expression, right: Expression): LessThan {
     return {
         kind: "LessThan",
-        leftHand,
-        rightHand,
+        left,
+        right,
     };
 }
 
 export type LessThanOrEqual = {
     kind: "LessThanOrEqual";
-    leftHand: Expression;
-    rightHand: Expression;
+    left: Expression;
+    right: Expression;
 };
 
 export function LessThanOrEqual(
-    leftHand: Expression,
-    rightHand: Expression
+    left: Expression,
+    right: Expression
 ): LessThanOrEqual {
     return {
         kind: "LessThanOrEqual",
-        leftHand,
-        rightHand,
+        left,
+        right,
     };
 }
 
 export type GreaterThan = {
     kind: "GreaterThan";
-    leftHand: Expression;
-    rightHand: Expression;
+    left: Expression;
+    right: Expression;
 };
 
-export function GreaterThan(
-    leftHand: Expression,
-    rightHand: Expression
-): GreaterThan {
+export function GreaterThan(left: Expression, right: Expression): GreaterThan {
     return {
         kind: "GreaterThan",
-        leftHand,
-        rightHand,
+        left,
+        right,
     };
 }
 
 export type GreaterThanOrEqual = {
     kind: "GreaterThanOrEqual";
-    leftHand: Expression;
-    rightHand: Expression;
+    left: Expression;
+    right: Expression;
 };
 
 export function GreaterThanOrEqual(
-    leftHand: Expression,
-    rightHand: Expression
+    left: Expression,
+    right: Expression
 ): GreaterThanOrEqual {
     return {
         kind: "GreaterThanOrEqual",
-        leftHand,
-        rightHand,
+        left,
+        right,
     };
 }
 
