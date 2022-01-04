@@ -77,7 +77,7 @@ parseLine str =
 
         right: Float
         right =
-            parseInt piece[1]
+            globalThis.parseInt piece[1]
     in
         {
             command = left,
@@ -100,7 +100,7 @@ exampleMain =
     ]
         |> parseLines
         |> runAll
-        |> Debug.log ""
+        |> globalThis.console.log
 
 adventInput: List Command
 adventInput =
@@ -122,4 +122,4 @@ main =
     adventInput
         |> runAll
         |> getMulti
-        |> Debug.log ""
+        |> globalThis.console.log

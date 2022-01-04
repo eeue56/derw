@@ -43,7 +43,7 @@ adventInput =
 
 toInt: string -> number
 toInt str =
-    parseInt str 10
+    globalThis.parseInt str 10
 
 toNumbers: List string -> List number
 toNumbers list =
@@ -71,9 +71,9 @@ exampleMain =
         260,
         263
     ]
-        |> console.log
+        |> globalThis.console.log
 
 main: void
 main =
     countIncreases adventInput
-        |> console.log
+        |> globalThis.console.log

@@ -241,6 +241,14 @@ export function namesPerBlock(block: Block): string[] {
     }
 }
 
+function isGlobal(str: string) {
+    if (str.split(".")[0] === "globalThis") {
+        return true;
+    }
+
+    return false;
+}
+
 export function addMissingNamesSuggestions(module: Module): Module {
     let topLevelNames: string[] = [ ];
     for (const names of module.body.map(topLevelNamesPerBlock)) {
@@ -254,6 +262,10 @@ export function addMissingNamesSuggestions(module: Module): Module {
             (block.kind === "Function" && block.name) ||
             (block.kind === "Const" && block.name);
         namesPerBlock(block).forEach((name) => {
+            if (isGlobal(name)) {
+                return;
+            }
+
             const knownNames = [
                 ...topLevelNames,
                 ...definedNamesPerBlock(block),

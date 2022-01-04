@@ -88,11 +88,11 @@ function calc(xs: string[]): number {
     const common: Common[] = commonBits(xs);
     const gamma: number = getNumber(join(allGammaToString(common)));
     const epsilon: number = getNumber(join(allEpsilonToString(common)));
-    const nothing: void = console.log(gamma);
+    const nothing: void = globalThis.console.log(gamma);
     return gamma * epsilon;
 }
 
-const exampleMain: void = console.log(calc([ "00100", "11110", "10110", "10111", "10101", "01111", "00111", "11100", "10000", "11001", "00010", "01010" ]));
+const exampleMain: void = globalThis.console.log(calc([ "00100", "11110", "10110", "10111", "10101", "01111", "00111", "11100", "10000", "11001", "00010", "01010" ]));
 
 const adventInput: string[] = split(toString(fs.readFileSync("input.txt")));
 
@@ -104,4 +104,4 @@ function toString(buffer: Buffer): string {
     return buffer.toString();
 }
 
-const main: void = console.log(calc(adventInput));
+const main: void = globalThis.console.log(calc(adventInput));

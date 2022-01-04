@@ -110,7 +110,7 @@ calc xs =
 
         nothing: String
         nothing =
-            console.log gamma
+            globalThis.console.log gamma
     in
         gamma * epsilon
 
@@ -131,7 +131,7 @@ exampleMain =
         "01010"
     ]
         |> calc
-        |> Debug.log ""
+        |> globalThis.console.log
 
 adventInput: List String
 adventInput =
@@ -151,4 +151,4 @@ main: String
 main =
     adventInput
         |> calc
-        |> Debug.log ""
+        |> globalThis.console.log

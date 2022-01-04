@@ -104,3 +104,15 @@ hello age =
 
     deepStrictEqual(parsed.errors, [ ]);
 }
+
+export function testGlobalName() {
+    const str = `
+hello: boolean
+hello =
+    globalThis.isNaN 10
+`.trim();
+    let parsed = parse(str, "Main");
+    parsed = addMissingNamesSuggestions(parsed);
+
+    deepStrictEqual(parsed.errors, [ ]);
+}

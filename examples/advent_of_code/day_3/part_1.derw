@@ -108,7 +108,7 @@ calc xs =
 
         nothing: void
         nothing =
-            console.log gamma
+            globalThis.console.log gamma
     in
         gamma * epsilon
 
@@ -129,7 +129,7 @@ exampleMain =
         "01010"
     ]
         |> calc
-        |> console.log
+        |> globalThis.console.log
 
 adventInput: List string
 adventInput =
@@ -149,4 +149,4 @@ main: void
 main =
     adventInput
         |> calc
-        |> console.log
+        |> globalThis.console.log

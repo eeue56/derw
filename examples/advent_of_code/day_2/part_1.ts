@@ -69,7 +69,7 @@ function Command(args: { command: string, amount: number }): Command {
 function parseLine(str: string): Command {
     const piece: string[] = str.split(" ");
     const left: string = piece[0];
-    const right: number = parseInt(piece[1]);
+    const right: number = globalThis.parseInt(piece[1]);
     return {
         command: left,
         amount: right
@@ -80,7 +80,7 @@ function parseLines(lines: string[]): Command[] {
     return lines.map(parseLine);
 }
 
-const exampleMain: void = console.log(runAll(parseLines([ "forward 5", "down 5", "forward 8", "up 3", "down 8", "forward 2" ])));
+const exampleMain: void = globalThis.console.log(runAll(parseLines([ "forward 5", "down 5", "forward 8", "up 3", "down 8", "forward 2" ])));
 
 const adventInput: Command[] = parseLines(split(toString(fs.readFileSync("input.txt"))));
 
@@ -92,4 +92,4 @@ function toString(buffer: Buffer): string {
     return buffer.toString();
 }
 
-const main: void = console.log(runAll(adventInput));
+const main: void = globalThis.console.log(runAll(adventInput));

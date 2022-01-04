@@ -45,7 +45,7 @@ adventInput =
 
 toInt: String -> Float
 toInt str =
-    parseInt str 10
+    globalThis.parseInt str 10
 
 toNumbers: List String -> List Float
 toNumbers list =
@@ -73,9 +73,9 @@ exampleMain =
         260,
         263
     ]
-        |> Debug.log ""
+        |> globalThis.console.log
 
 main: String
 main =
     countIncreases adventInput
-        |> Debug.log ""
+        |> globalThis.console.log

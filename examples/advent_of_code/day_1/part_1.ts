@@ -43,7 +43,7 @@ function countIncreases(xs: number[]): number {
 const adventInput: number[] = toNumbers(split(toString(fs.readFileSync("input.txt"))));
 
 function toInt(str: string): number {
-    return parseInt(str, 10);
+    return globalThis.parseInt(str, 10);
 }
 
 function toNumbers(list: string[]): number[] {
@@ -58,6 +58,6 @@ function toString(buffer: Buffer): string {
     return buffer.toString();
 }
 
-const exampleMain: void = console.log(countIncreases([ 199, 200, 208, 210, 200, 207, 240, 269, 260, 263 ]));
+const exampleMain: void = globalThis.console.log(countIncreases([ 199, 200, 208, 210, 200, 207, 240, 269, 260, 263 ]));
 
-const main: void = console.log(countIncreases(adventInput));
+const main: void = globalThis.console.log(countIncreases(adventInput));

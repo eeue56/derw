@@ -83,7 +83,7 @@ function countIncreases(xs) {
 const adventInput = toNumbers(split(toString(fs.readFileSync("input.txt"))));
 
 function toInt(str) {
-    return parseInt(str, 10);
+    return globalThis.parseInt(str, 10);
 }
 
 function toNumbers(list) {
@@ -100,4 +100,4 @@ function toString(buffer) {
 
 const exampleMain = console.log(countIncreases([ 199, 200, 208, 210, 200, 207, 240, 269, 260, 263 ]));
 
-const main = console.log(countIncreases(adventInput));
+const main = globalThis.console.log(countIncreases(adventInput));

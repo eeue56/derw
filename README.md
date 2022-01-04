@@ -342,6 +342,10 @@ asIs result =
         fn value
     ```
 
+-   [x] Globals
+
+    Globals can be accessed through the `globalThis` module which is imported into every namespace. E.g `globalThis.console.log`
+
 ## 1.0.0
 
 -   [x] An automatic formatter with no options
