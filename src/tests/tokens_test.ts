@@ -545,3 +545,46 @@ toString buffer =
     ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
+
+export function testNestedObjectLiteral() {
+    const str = `
+toString: Buffer -> string
+toString buffer =
+    { name: { }, buffer: buffer }
+`.trim();
+
+    assert.deepStrictEqual(tokenize(str), [
+        IdentifierToken("toString"),
+        ColonToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("Buffer"),
+        WhitespaceToken(" "),
+        ArrowToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("string"),
+        WhitespaceToken("\n"),
+        IdentifierToken("toString"),
+        WhitespaceToken(" "),
+        IdentifierToken("buffer"),
+        WhitespaceToken(" "),
+        AssignToken(),
+        WhitespaceToken("\n    "),
+        OpenCurlyBracesToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("name"),
+        ColonToken(),
+        WhitespaceToken(" "),
+        OpenCurlyBracesToken(),
+        WhitespaceToken(" "),
+        CloseCurlyBracesToken(),
+        CommaToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("buffer"),
+        ColonToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("buffer"),
+        WhitespaceToken(" "),
+        CloseCurlyBracesToken(),
+    ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
+}

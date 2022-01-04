@@ -482,6 +482,12 @@ export function tokenize(body: string): Token[] {
                         break;
                     }
 
+                    case "}": {
+                        tokens.push(CloseCurlyBracesToken());
+                        currentToken = "";
+                        break;
+                    }
+
                     default: {
                         state = Keyword();
                         currentToken += char;

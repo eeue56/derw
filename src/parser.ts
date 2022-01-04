@@ -719,15 +719,31 @@ function parseObjectLiteral(tokens: Token[]): Result<string, ObjectLiteral> {
     while (index < tokens.length) {
         const token = tokens[index];
 
+        if (token.kind === "WhitespaceToken") {
+            index++;
+            continue;
+        }
+        break;
+    }
+
+    while (index < tokens.length) {
+        const token = tokens[index];
+
         switch (token.kind) {
             case "OpenCurlyBracesToken": {
                 objectDepth++;
-                isInName = true;
+                if (objectDepth === 1) {
+                    isInName = true;
+                } else {
+                    innermostBuffer += "{";
+                }
                 break;
             }
 
             case "CloseCurlyBracesToken": {
-                if (objectDepth === 1) {
+                objectDepth--;
+                if (objectDepth === 0) {
+                    if (innermostBuffer.trim().length === 0) continue;
                     const innerLiteral = parseExpression(innermostBuffer);
 
                     if (innerLiteral.kind === "err") return innerLiteral;
@@ -737,13 +753,18 @@ function parseObjectLiteral(tokens: Token[]): Result<string, ObjectLiteral> {
                     fields.push(Field(currentName.trim(), currentValue));
                     currentName = "";
                     currentValue = null;
+                } else {
+                    innermostBuffer += "}";
                 }
-                objectDepth--;
                 break;
             }
 
             case "ColonToken": {
-                isInName = false;
+                if (objectDepth === 1) {
+                    isInName = false;
+                } else {
+                    innermostBuffer += ":";
+                }
                 break;
             }
 

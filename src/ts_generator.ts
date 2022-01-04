@@ -171,6 +171,8 @@ function generateField(field: Field): string {
 }
 
 function generateObjectLiteral(literal: ObjectLiteral): string {
+    if (literal.fields.length === 0) return `{ }`;
+
     let fields = literal.fields.map(generateField).join(",\n    ");
 
     if (literal.fields.length === 1) return `{ ${fields} }`;
