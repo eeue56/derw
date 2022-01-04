@@ -137,16 +137,22 @@ function generateProperty(syntax: Property): string {
 
 function generateTypeAlias(syntax: TypeAlias): string {
     const generatedProperties = syntax.properties.map(generateProperty);
-    const properties = generatedProperties.join(";\n    ") + ";";
+    const properties =
+        generatedProperties.length === 0
+            ? ""
+            : "    " + generatedProperties.join(";\n    ") + ";";
     const type = generateType(syntax.type);
-    const args = generatedProperties.join(", ");
+    const args =
+        generatedProperties.length === 0
+            ? " "
+            : " " + generatedProperties.join(", ") + " ";
 
     return `
 type ${type} = {
-    ${properties}
+${properties}
 }
 
-function ${type}(args: { ${args} }): ${type} {
+function ${type}(args: {${args}}): ${type} {
     return {
         ...args,
     };

@@ -629,8 +629,13 @@ function parseTypeAlias(tokens: Token[]): Result<string, TypeAlias> {
     lines.forEach((line, i) => {
         const isOpeningBrace = line.trim() === "{" && i === 0;
         const isClosingBrace = line.trim() === "}" && i === lines.length - 1;
+        const otherThanWhitespace = line
+            .split("")
+            .filter((x) => x.trim().length > 0)
+            .join("");
+        const isEmptyBody = otherThanWhitespace === "{}";
 
-        if (isOpeningBrace || isClosingBrace) {
+        if (isOpeningBrace || isClosingBrace || isEmptyBody) {
             return;
         }
 
