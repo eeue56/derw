@@ -80,9 +80,24 @@ function runFile(target: Target, fullName: string): void {
 }
 
 async function getDerwFiles(dir: string): Promise<string[]> {
-    return await (await readdir(path.join(dir, "src")))
-        .map((file) => path.join(dir, "src", file))
-        .filter((file) => file.endsWith("derw"));
+    let files: string[] = [ ];
+
+    for (const file of await readdir(dir, { withFileTypes: true })) {
+        if (file.isFile()) {
+            if (file.name.endsWith("derw")) {
+                files.push(path.join(dir, file.name));
+            }
+        } else if (file.isDirectory()) {
+            if (file.name === "node_modules") {
+            } else {
+                files = files.concat(
+                    await getDerwFiles(path.join(dir, file.name))
+                );
+            }
+        }
+    }
+
+    return files;
 }
 
 function filterBodyForName(module: Module, name: string): Block[] {
@@ -150,7 +165,7 @@ export async function compileFiles(
         isInPackageDirectory && !program.flags.files.isPresent;
 
     const files = isPackageDirectoryAndNoFilesPassed
-        ? await getDerwFiles("./")
+        ? await getDerwFiles("./src")
         : (program.flags.files.arguments as Ok<string[]>).value;
 
     if (isPackageDirectoryAndNoFilesPassed) {
@@ -165,7 +180,7 @@ export async function compileFiles(
         const validPackage = packageFile.value;
         for (const dep of validPackage.dependencies) {
             for (const file of await getDerwFiles(
-                `derw-packages/${dep.name}`
+                `derw-packages/${dep.name}/src`
             )) {
                 files.push(file);
             }
