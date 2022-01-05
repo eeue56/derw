@@ -45,7 +45,9 @@ function isSameGenericType(
     topLevel: boolean
 ): boolean {
     if (topLevel) return true;
-    return first.name === second.name;
+    // todo: figure this out
+    //return first.name === second.name;
+    return true;
 }
 
 function isSameFixedType(
@@ -192,19 +194,24 @@ function reduceTypes(types: Type[]): Type[] {
     }, [ ]);
 }
 
-function inferListValue(value: ListValue): Type {
+function inferListValue(
+    value: ListValue,
+    typedBlocks: TypedBlock[]
+): Result<string, Type> {
     if (value.items.length === 0)
-        return FixedType("List", [ FixedType("any", [ ]) ]);
+        return Ok(FixedType("List", [ FixedType("any", [ ]) ]));
 
     let types: Type[] = [ ];
 
-    value.items.forEach((item: Expression) => {
-        types.push(inferType(item));
-    });
+    for (const item of value.items) {
+        const inferred = inferType(item, typedBlocks);
+        if (inferred.kind === "err") return inferred;
+        types.push(inferred.value);
+    }
 
     const uniqueTypes = reduceTypes(types);
 
-    return FixedType("List", uniqueTypes);
+    return Ok(FixedType("List", uniqueTypes));
 }
 
 function inferListRange(value: ListRange): Type {
@@ -215,73 +222,150 @@ function inferObjectLiteral(value: ObjectLiteral): Type {
     return FixedType("any", [ ]);
 }
 
-function inferIfStatement(value: IfStatement): Type {
-    const ifBranch = inferType(value.ifBody);
-    const elseBranch = inferType(value.elseBody);
+function inferIfStatement(
+    value: IfStatement,
+    typedBlocks: TypedBlock[]
+): Result<string, Type> {
+    const ifBranch = inferType(value.ifBody, typedBlocks);
+    const elseBranch = inferType(value.elseBody, typedBlocks);
 
-    if (isSameType(ifBranch, elseBranch, false)) return ifBranch;
+    if (ifBranch.kind === "err") return ifBranch;
+    if (elseBranch.kind === "err") return elseBranch;
 
-    return FixedType("any", [ ]);
+    if (isSameType(ifBranch.value, elseBranch.value, false))
+        return Ok(ifBranch.value);
+
+    return Err(
+        `Conflicting types: ${typeToString(ifBranch.value)}, ${typeToString(
+            elseBranch.value
+        )}`
+    );
 }
 
-function inferBranch(value: Branch): Type {
-    return inferType(value.body);
+function inferBranch(
+    value: Branch,
+    typedBlocks: TypedBlock[]
+): Result<string, Type> {
+    return inferType(value.body, typedBlocks);
 }
 
-function inferCaseStatement(value: CaseStatement): Type {
-    const branches = reduceTypes(value.branches.map(inferBranch));
+function inferCaseStatement(
+    value: CaseStatement,
+    typedBlocks: TypedBlock[]
+): Result<string, Type> {
+    const typesToReduce = [ ];
 
-    if (branches.length === 1) return branches[0];
+    for (const branch of value.branches) {
+        const inf = inferBranch(branch, typedBlocks);
+        if (inf.kind === "err") return inf;
+        typesToReduce.push(inf.value);
+    }
+    const branches = reduceTypes(typesToReduce);
 
-    return FixedType("any", [ ]);
+    if (branches.length === 1) return Ok(branches[0]);
+
+    return Err(`Conflicting types: ${branches.map(typeToString).join(", ")}`);
 }
 
-function inferAddition(value: Addition): Type {
-    const left = inferType(value.left);
-    const right = inferType(value.right);
+function inferAddition(
+    value: Addition,
+    typedBlocks: TypedBlock[]
+): Result<string, Type> {
+    const left = inferType(value.left, typedBlocks);
+    const right = inferType(value.right, typedBlocks);
 
-    if (!isSameType(left, right, false)) return FixedType("any", [ ]);
+    if (left.kind === "err") return left;
+    if (right.kind === "err") return right;
+
+    if (!isSameType(left.value, right.value, false))
+        return Err(
+            `Mismatching types between ${typeToString(
+                left.value
+            )} and ${typeToString(right.value)}`
+        );
     return left;
 }
 
-function inferSubtraction(value: Subtraction): Type {
-    const left = inferType(value.left);
-    const right = inferType(value.right);
+function inferSubtraction(
+    value: Subtraction,
+    typedBlocks: TypedBlock[]
+): Result<string, Type> {
+    const left = inferType(value.left, typedBlocks);
+    const right = inferType(value.right, typedBlocks);
 
-    if (!isSameType(left, right, false)) return FixedType("any", [ ]);
+    if (left.kind === "err") return left;
+    if (right.kind === "err") return right;
+
+    if (!isSameType(left.value, right.value, false))
+        return Err(
+            `Mismatching types between ${typeToString(
+                left.value
+            )} and ${typeToString(right.value)}`
+        );
     return left;
 }
 
-function inferMultiplication(value: Multiplication): Type {
-    const left = inferType(value.left);
-    const right = inferType(value.right);
+function inferMultiplication(
+    value: Multiplication,
+    typedBlocks: TypedBlock[]
+): Result<string, Type> {
+    const left = inferType(value.left, typedBlocks);
+    const right = inferType(value.right, typedBlocks);
 
-    if (!isSameType(left, right, false)) return FixedType("any", [ ]);
+    if (left.kind === "err") return left;
+    if (right.kind === "err") return right;
+
+    if (!isSameType(left.value, right.value, false))
+        return Err(
+            `Mismatching types between ${typeToString(
+                left.value
+            )} and ${typeToString(right.value)}`
+        );
     return left;
 }
 
-function inferDivision(value: Division): Type {
-    const left = inferType(value.left);
-    const right = inferType(value.right);
+function inferDivision(
+    value: Division,
+    typedBlocks: TypedBlock[]
+): Result<string, Type> {
+    const left = inferType(value.left, typedBlocks);
+    const right = inferType(value.right, typedBlocks);
 
-    if (!isSameType(left, right, false)) return FixedType("any", [ ]);
+    if (left.kind === "err") return left;
+    if (right.kind === "err") return right;
+
+    if (!isSameType(left.value, right.value, false))
+        return Err(
+            `Mismatching types between ${typeToString(
+                left.value
+            )} and ${typeToString(right.value)}`
+        );
     return left;
 }
 
-function inferLeftPipe(value: LeftPipe): Type {
-    const right = inferType(value.right);
+function inferLeftPipe(
+    value: LeftPipe,
+    typedBlocks: TypedBlock[]
+): Result<string, Type> {
+    const right = inferType(value.right, typedBlocks);
 
     return right;
 }
 
-function inferRightPipe(value: RightPipe): Type {
-    const left = inferType(value.left);
+function inferRightPipe(
+    value: RightPipe,
+    typedBlocks: TypedBlock[]
+): Result<string, Type> {
+    const left = inferType(value.left, typedBlocks);
 
     return left;
 }
 
-function inferModuleReference(value: ModuleReference): Type {
-    return inferType(value.value);
+function inferModuleReference(
+    value: ModuleReference,
+    typedBlocks: TypedBlock[]
+): Result<string, Type> {
+    return inferType(value.value, typedBlocks);
 }
 
 function inferFunctionCall(value: FunctionCall): Type {
@@ -296,7 +380,16 @@ function inferLambdaCall(value: LambdaCall): Type {
     return FixedType("any", [ ]);
 }
 
-function inferConstructor(value: Constructor): Type {
+function inferConstructor(value: Constructor, typedBlocks: TypedBlock[]): Type {
+    for (const block of typedBlocks) {
+        if (block.kind === "UnionType") {
+            for (const tag of block.tags) {
+                if (value.constructor === tag.name) {
+                    return block.type;
+                }
+            }
+        }
+    }
     return FixedType("any", [ ]);
 }
 
@@ -332,62 +425,65 @@ function inferOr(value: Or): Type {
     return FixedType("boolean", [ ]);
 }
 
-export function inferType(expression: Expression): Type {
+export function inferType(
+    expression: Expression,
+    typedBlocks: TypedBlock[]
+): Result<string, Type> {
     switch (expression.kind) {
         case "Value":
-            return inferValue(expression);
+            return Ok(inferValue(expression));
         case "StringValue":
-            return inferStringValue(expression);
+            return Ok(inferStringValue(expression));
         case "FormatStringValue":
-            return inferFormatStringValue(expression);
+            return Ok(inferFormatStringValue(expression));
         case "ListValue":
-            return inferListValue(expression);
+            return inferListValue(expression, typedBlocks);
         case "ListRange":
-            return inferListRange(expression);
+            return Ok(inferListRange(expression));
         case "ObjectLiteral":
-            return inferObjectLiteral(expression);
+            return Ok(inferObjectLiteral(expression));
         case "IfStatement":
-            return inferIfStatement(expression);
+            return inferIfStatement(expression, typedBlocks);
         case "CaseStatement":
-            return inferCaseStatement(expression);
+            return inferCaseStatement(expression, typedBlocks);
         case "Addition":
-            return inferAddition(expression);
+            return inferAddition(expression, typedBlocks);
         case "Subtraction":
-            return inferSubtraction(expression);
+            return inferSubtraction(expression, typedBlocks);
         case "Multiplication":
-            return inferMultiplication(expression);
+            return inferMultiplication(expression, typedBlocks);
         case "Division":
-            return inferDivision(expression);
+            return inferDivision(expression, typedBlocks);
         case "And":
-            return inferAnd(expression);
+            return Ok(inferAnd(expression));
         case "Or":
-            return inferOr(expression);
+            return Ok(inferOr(expression));
         case "LeftPipe":
-            return inferLeftPipe(expression);
+            return inferLeftPipe(expression, typedBlocks);
         case "RightPipe":
-            return inferRightPipe(expression);
+            return inferRightPipe(expression, typedBlocks);
         case "ModuleReference":
-            return inferModuleReference(expression);
+            return inferModuleReference(expression, typedBlocks);
         case "FunctionCall":
-            return inferFunctionCall(expression);
+            return Ok(inferFunctionCall(expression));
         case "Lambda":
-            return inferLambda(expression);
+            return Ok(inferLambda(expression));
         case "LambdaCall":
-            return inferLambdaCall(expression);
+            return Ok(inferLambdaCall(expression));
         case "Constructor":
-            return inferConstructor(expression);
+            return Ok(inferConstructor(expression, typedBlocks));
         case "Equality":
-            return inferEquality(expression);
+            return Ok(inferEquality(expression));
         case "InEquality":
-            return inferInEquality(expression);
+            return Ok(inferInEquality(expression));
         case "LessThan":
-            return inferLessThan(expression);
+            return Ok(inferLessThan(expression));
         case "LessThanOrEqual":
-            return inferLessThanOrEqual(expression);
+            return Ok(inferLessThanOrEqual(expression));
         case "GreaterThan":
-            return inferGreaterThan(expression);
+            return Ok(inferGreaterThan(expression));
         case "GreaterThanOrEqual":
-            return inferGreaterThanOrEqual(expression);
+            return Ok(inferGreaterThanOrEqual(expression));
     }
 }
 
@@ -449,7 +545,9 @@ export function validateType(
                 );
             }
 
-            const inferred = inferType(block.value);
+            const inferredRes = inferType(block.value, typedBlocks);
+            if (inferredRes.kind === "err") return inferredRes;
+            const inferred = inferredRes.value;
             if (isSameType(block.type, inferred, false)) {
                 return Ok(block.type);
             }
@@ -472,7 +570,9 @@ export function validateType(
                 );
             }
 
-            const inferred = inferType(block.body);
+            const inferredRes = inferType(block.body, typedBlocks);
+            if (inferredRes.kind === "err") return inferredRes;
+            const inferred = inferredRes.value;
 
             if (isSameType(block.returnType, inferred, false)) {
                 return Ok(block.returnType);

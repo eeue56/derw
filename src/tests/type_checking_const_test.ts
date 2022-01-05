@@ -1,6 +1,6 @@
 import * as assert from "@eeue56/ts-assert";
 import { Nothing } from "@eeue56/ts-core/build/main/lib/maybe";
-import { Ok } from "@eeue56/ts-core/build/main/lib/result";
+import { Err, Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { parseBlock } from "../parser";
 import {
     Block,
@@ -206,7 +206,7 @@ value =
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
         validateType(value, [ ], [ ]),
-        Ok(GenericType("any"))
+        Err("Conflicting types: string, number")
     );
 }
 
@@ -246,7 +246,7 @@ value =
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
         validateType(value, [ ], [ ]),
-        Ok(GenericType("any"))
+        Err("Conflicting types: string, number")
     );
 }
 
@@ -282,7 +282,7 @@ value =
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
         validateType(value, [ ], [ ]),
-        Ok(GenericType("any"))
+        Err("Mismatching types between number and string")
     );
 }
 
@@ -318,7 +318,7 @@ value =
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
         validateType(value, [ ], [ ]),
-        Ok(GenericType("any"))
+        Err("Mismatching types between number and string")
     );
 }
 
@@ -354,7 +354,7 @@ value =
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
         validateType(value, [ ], [ ]),
-        Ok(GenericType("any"))
+        Err("Mismatching types between number and string")
     );
 }
 
@@ -390,7 +390,7 @@ value =
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
         validateType(value, [ ], [ ]),
-        Ok(GenericType("any"))
+        Err("Mismatching types between number and string")
     );
 }
 

@@ -1,6 +1,6 @@
 import * as assert from "@eeue56/ts-assert";
 import { Nothing } from "@eeue56/ts-core/build/main/lib/maybe";
-import { Ok } from "@eeue56/ts-core/build/main/lib/result";
+import { Err, Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { parseBlock } from "../parser";
 import {
     Block,
@@ -8,6 +8,7 @@ import {
     GenericType,
     Import,
     ImportModule,
+    TypedBlock,
     UnparsedBlock,
 } from "../types";
 import { validateType } from "../type_checking";
@@ -222,7 +223,7 @@ value a =
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
         validateType(value, [ ], [ ]),
-        Ok(GenericType("any"))
+        Err("Conflicting types: string, number")
     );
 }
 
@@ -278,7 +279,7 @@ value x =
                 ]),
             ]
         ),
-        Ok(GenericType("any"))
+        Err("Conflicting types: string, number")
     );
 }
 
@@ -314,7 +315,7 @@ value a =
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
         validateType(value, [ ], [ ]),
-        Ok(GenericType("any"))
+        Err("Mismatching types between number and string")
     );
 }
 
@@ -350,7 +351,7 @@ value a =
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
         validateType(value, [ ], [ ]),
-        Ok(GenericType("any"))
+        Err("Mismatching types between number and string")
     );
 }
 
@@ -386,7 +387,7 @@ value a =
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
         validateType(value, [ ], [ ]),
-        Ok(GenericType("any"))
+        Err("Mismatching types between number and string")
     );
 }
 
@@ -422,7 +423,7 @@ value a =
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
         validateType(value, [ ], [ ]),
-        Ok(GenericType("any"))
+        Err("Mismatching types between number and string")
     );
 }
 
@@ -531,5 +532,39 @@ value a =
     assert.deepStrictEqual(
         validateType(value, [ ], [ ]),
         Ok(FixedType("boolean", [ ]))
+    );
+}
+
+export async function testFunctionCallWithCase() {
+    const exampleType = `
+type Maybe a =
+    Just { value: a }
+    | Nothing
+`.trim();
+    const exampleInput = `
+value: boolean -> Maybe boolean
+value x =
+    if x == true then
+        Just x
+    else
+        Nothing
+`.trim();
+    const block = UnparsedBlock("FunctionBlock", 0, exampleInput.split("\n"));
+    const parsed = parseBlock(block);
+
+    const typeBlock = UnparsedBlock(
+        "UnionTypeBlock",
+        0,
+        exampleType.split("\n")
+    );
+    const parsedType = parseBlock(typeBlock);
+
+    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsedType.kind, "ok");
+
+    const value = (parsed as Ok<Block>).value;
+    assert.deepStrictEqual(
+        validateType(value, [ (parsedType as Ok<TypedBlock>).value ], [ ]),
+        Ok(FixedType("Maybe", [ FixedType("boolean", [ ]) ]))
     );
 }
