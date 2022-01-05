@@ -874,3 +874,30 @@ export function Module(name: string, body: Block[], errors: string[]): Module {
         errors,
     };
 }
+
+export type ContextModule = {
+    kind: "ContextModule";
+    name: string;
+    body: Block[];
+    unparsedBody: UnparsedBlock[];
+    errors: string[];
+};
+
+export function ContextModule(
+    name: string,
+    body: Block[],
+    unparsedBody: UnparsedBlock[],
+    errors: string[]
+): ContextModule {
+    return {
+        kind: "ContextModule",
+        name,
+        body,
+        unparsedBody,
+        errors,
+    };
+}
+
+export function contextModuleToModule(module: ContextModule): Module {
+    return Module(module.name, module.body, module.errors);
+}

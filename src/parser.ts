@@ -29,6 +29,7 @@ import {
     Comment,
     Const,
     Constructor,
+    ContextModule,
     Default,
     Destructure,
     Division,
@@ -71,6 +72,7 @@ import {
     TagArg,
     Type,
     TypeAlias,
+    TypedBlock,
     UnionType,
     UnparsedBlock,
     Value,
@@ -2474,5 +2476,88 @@ ${definitions.join("\n\n")}
             .filter((syn) => syn.kind === "ok")
             .map((syn) => (syn as Ok<any>).value),
         [ ...errors, ...typeErrors, ...collidingNames ]
+    );
+}
+
+export function addTypeErrors(
+    module: ContextModule,
+    otherModules: ContextModule[]
+): ContextModule {
+    const imports: Import[] = module.body.filter(
+        (syn) => syn.kind === "Import"
+    ) as Import[];
+
+    let allOtherTypeBlocks: TypedBlock[] = [ ];
+
+    for (const other of otherModules) {
+        allOtherTypeBlocks = allOtherTypeBlocks.concat(typeBlocks(other.body));
+    }
+
+    const typeErrors = module.body
+        .map((block, index) => {
+            const validatedType = validateType(
+                block,
+                [
+                    ...typeBlocks([
+                        ...module.body.slice(0, index),
+                        ...module.body.slice(index),
+                    ]),
+                    ...allOtherTypeBlocks,
+                ],
+
+                imports
+            );
+            const gap = getGap(module.unparsedBody, index);
+
+            return mapError(
+                (error) =>
+                    `Error on lines ${gap}\n${error}:
+${reportBlock(module.unparsedBody[index])}`,
+                validatedType
+            );
+        })
+        .filter((type) => type && type.kind === "err")
+        .map((type) => (type as Err<string>).error);
+
+    module.errors = module.errors.concat(typeErrors);
+    return module;
+}
+
+export function parseWithContext(
+    body: string,
+    filename: string = "main"
+): ContextModule {
+    const blocks = intoBlocks(body);
+    const syntax = blocks.map(parseBlock);
+    const errors = syntax
+        .filter((syn) => syn.kind === "err")
+        .map((syn) => (syn as Err<string>).error);
+    const successes = syntax
+        .filter((syn) => syn.kind === "ok")
+        .map((syn) => (syn as Ok<Block>).value);
+
+    const collidingNames = collisions(successes).map(({ indexes, name }) => {
+        const definitions = indexes.map((index) => {
+            const gap = getGap(blocks, index);
+
+            return `${gap}:
+${reportBlock(blocks[index])}`;
+        });
+
+        return `
+The name \`${name}\` has been used for different things.
+${definitions.join("\n\n")}
+        `.trim();
+    });
+
+    const moduleName = filename;
+
+    return ContextModule(
+        moduleName,
+        syntax
+            .filter((syn) => syn.kind === "ok")
+            .map((syn) => (syn as Ok<any>).value),
+        blocks,
+        [ ...errors, ...collidingNames ]
     );
 }

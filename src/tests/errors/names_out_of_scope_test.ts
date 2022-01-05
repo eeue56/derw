@@ -1,6 +1,6 @@
 import { deepStrictEqual } from "@eeue56/ts-assert";
 import { addMissingNamesSuggestions } from "../../errors/names";
-import { parse } from "../../parser";
+import { parseWithContext } from "../../parser";
 
 export function testSingleName() {
     const str = `
@@ -8,7 +8,7 @@ hello: string
 hello =
     world
 `.trim();
-    let parsed = parse(str, "Main");
+    let parsed = parseWithContext(str, "Main");
     parsed = addMissingNamesSuggestions(parsed);
 
     deepStrictEqual(parsed.errors, [
@@ -22,7 +22,7 @@ hello: string
 hello =
     fn world
 `.trim();
-    let parsed = parse(str, "Main");
+    let parsed = parseWithContext(str, "Main");
     parsed = addMissingNamesSuggestions(parsed);
 
     deepStrictEqual(parsed.errors, [
@@ -37,7 +37,7 @@ hello: string
 hello =
     one (two world)
 `.trim();
-    let parsed = parse(str, "Main");
+    let parsed = parseWithContext(str, "Main");
     parsed = addMissingNamesSuggestions(parsed);
 
     deepStrictEqual(parsed.errors, [
@@ -53,7 +53,7 @@ hello: string -> string
 hello name =
     fn name
 `.trim();
-    let parsed = parse(str, "Main");
+    let parsed = parseWithContext(str, "Main");
     parsed = addMissingNamesSuggestions(parsed);
 
     deepStrictEqual(parsed.errors, [
@@ -67,7 +67,7 @@ hello: string -> number -> string
 hello name age =
     name + (fromNumber age)
 `.trim();
-    let parsed = parse(str, "Main");
+    let parsed = parseWithContext(str, "Main");
     parsed = addMissingNamesSuggestions(parsed);
 
     deepStrictEqual(parsed.errors, [

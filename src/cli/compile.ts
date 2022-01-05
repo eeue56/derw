@@ -21,7 +21,7 @@ import { addMissingNamesSuggestions } from "../errors/names";
 import { generate, Target } from "../generator";
 import { loadPackageFile } from "../package";
 import * as derwParser from "../parser";
-import { Block, Import, Module } from "../types";
+import { Block, ContextModule, contextModuleToModule, Import } from "../types";
 import { ensureDirectoryExists, fileExists } from "./utils";
 
 const compileParser = parser([
@@ -55,7 +55,7 @@ function showCompileHelp(): void {
     console.log(help(compileParser));
 }
 
-function getImports(module: Module): Block[] {
+function getImports(module: ContextModule): Block[] {
     return module.body.filter((block) => block.kind === "Import");
 }
 
@@ -100,7 +100,7 @@ async function getDerwFiles(dir: string): Promise<string[]> {
     return files;
 }
 
-function filterBodyForName(module: Module, name: string): Block[] {
+function filterBodyForName(module: ContextModule, name: string): Block[] {
     const blocks = [ ];
     for (var element of module.body) {
         switch (element.kind) {
@@ -133,7 +133,7 @@ function filterBodyForName(module: Module, name: string): Block[] {
     return blocks;
 }
 
-export type ProcessedFiles = Record<string, Module>;
+export type ProcessedFiles = Record<string, ContextModule>;
 
 export async function compileFiles(
     isInPackageDirectory: boolean,
@@ -216,7 +216,8 @@ export async function compileFiles(
     }
 
     const processedFiles: string[] = [ ];
-    const parsedFiles: Record<string, Module> = {};
+    const parsedFiles: Record<string, ContextModule> = {};
+    const parsedImports: Record<string, string[]> = {};
 
     for (const fileName of files) {
         await (async function compile(fileName: string): Promise<void> {
@@ -240,7 +241,7 @@ export async function compileFiles(
             const derwContents = (await promises.readFile(fileName)).toString();
 
             const isMain = files.indexOf(fileName) > -1;
-            let parsed = derwParser.parse(
+            let parsed = derwParser.parseWithContext(
                 derwContents,
                 isMain ? "Main" : fileName
             );
@@ -278,11 +279,15 @@ export async function compileFiles(
                 });
             });
 
+            parsedImports[fileName] = [ ];
+
             for (const import_ of imports) {
                 const fileWithDerwExtension = import_ + `.derw`;
                 const isDerw = await fileExists(fileWithDerwExtension);
 
                 if (isDerw) {
+                    parsedImports[fileName].push(fileWithDerwExtension);
+
                     await compile(fileWithDerwExtension);
                     continue;
                 }
@@ -323,7 +328,18 @@ export async function compileFiles(
                 return;
             }
 
-            const generated = generate(target, parsed);
+            const importedContextModules = [ ];
+            for (const import_ of parsedImports[fileName]) {
+                importedContextModules.push(parsedFiles[import_]);
+            }
+            parsed = derwParser.addTypeErrors(parsed, importedContextModules);
+            if (parsed.errors.length > 0) {
+                console.log(`Failed to parse ${fileName} due to:`);
+                console.log(parsed.errors.join("\n"));
+                return;
+            }
+
+            const generated = generate(target, contextModuleToModule(parsed));
 
             if (program.flags.verify.isPresent && target === "ts") {
                 const output = compileTypescript(generated);

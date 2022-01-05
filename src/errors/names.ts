@@ -1,4 +1,4 @@
-import { Block, Expression, Module, Value } from "../types";
+import { Block, ContextModule, Expression, Value } from "../types";
 import { suggestName } from "./distance";
 
 function isNumberLiteral(value: Value): boolean {
@@ -249,7 +249,9 @@ function isGlobal(str: string) {
     return false;
 }
 
-export function addMissingNamesSuggestions(module: Module): Module {
+export function addMissingNamesSuggestions(
+    module: ContextModule
+): ContextModule {
     let topLevelNames: string[] = [ ];
     for (const names of module.body.map(topLevelNamesPerBlock)) {
         topLevelNames = topLevelNames.concat(names);

@@ -10,11 +10,11 @@ import {
 import { withDefault } from "@eeue56/ts-core/build/main/lib/maybe";
 import {
     Const,
+    ContextModule,
     Export,
     Function,
     Import,
     ImportModule,
-    Module,
     TypeAlias,
     UnionType,
 } from "../types";
@@ -41,7 +41,7 @@ function importModuleInfo(module: ImportModule): void {
     }
 }
 
-function moduleInfo(fileName: string, module: Module): void {
+function moduleInfo(fileName: string, module: ContextModule): void {
     console.log(`Analyizing ${fileName}...`);
 
     const imports = module.body.filter((b) => b.kind === "Import") as Import[];
