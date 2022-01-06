@@ -306,7 +306,20 @@ function generateTopLevelType(type_: Type): string {
         }
         case "FixedType": {
             if (type_.name === "List") {
-                return generateType(type_);
+                if (type_.args[0] && type_.args[0].kind === "GenericType") {
+                    return generateTopLevelType(type_.args[0]) + "[]";
+                }
+                const fixedArgs = type_.args.filter(
+                    (type_) => type_.kind === "FixedType"
+                );
+
+                if (fixedArgs.length === 0) {
+                    return "any[]";
+                } else if (fixedArgs.length === 1) {
+                    return `${generateTopLevelType(fixedArgs[0])}[]`;
+                }
+
+                return `(${fixedArgs.map(generateTopLevelType).join(" | ")})[]`;
             }
 
             const args = type_.args.filter(
