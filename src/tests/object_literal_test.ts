@@ -10,6 +10,7 @@ import {
     Const,
     Field,
     FixedType,
+    ListValue,
     Module,
     ObjectLiteral,
     Property,
@@ -22,23 +23,26 @@ import {
 const oneLine = `
 type alias Person = {
     name: string,
-    age: number
+    age: number,
+    people: List string
 }
 
 person: Person
-person = { name: "hello", age: 28 }
+person = { name: "hello", age: 28, people: [] }
 `.trim();
 
 const multiLine = `
 type alias Person = {
     name: string,
-    age: number
+    age: number,
+    people: List string
 }
 
 person: Person
 person = {
     name: "hello",
-    age: 28
+    age: 28,
+    people: []
 }
 `.trim();
 
@@ -46,9 +50,10 @@ const expectedOutput = `
 type Person = {
     name: string;
     age: number;
+    people: string[];
 }
 
-function Person(args: { name: string, age: number }): Person {
+function Person(args: { name: string, age: number, people: string[] }): Person {
     return {
         ...args,
     };
@@ -56,7 +61,8 @@ function Person(args: { name: string, age: number }): Person {
 
 const person: Person = {
     name: "hello",
-    age: 28
+    age: 28,
+    people: [ ]
 };
 `.trim();
 
@@ -69,21 +75,22 @@ function Person(args) {
 
 const person = {
     name: "hello",
-    age: 28
+    age: 28,
+    people: [ ]
 };
 `.trim();
 
 export function testIntoBlocks() {
     assert.deepStrictEqual(intoBlocks(oneLine), [
-        UnparsedBlock("TypeAliasBlock", 0, oneLine.split("\n").slice(0, 4)),
-        UnparsedBlock("ConstBlock", 5, oneLine.split("\n").slice(5)),
+        UnparsedBlock("TypeAliasBlock", 0, oneLine.split("\n").slice(0, 5)),
+        UnparsedBlock("ConstBlock", 6, oneLine.split("\n").slice(6)),
     ]);
 }
 
 export function testIntoBlocksMultiLine() {
     assert.deepStrictEqual(intoBlocks(multiLine), [
-        UnparsedBlock("TypeAliasBlock", 0, multiLine.split("\n").slice(0, 4)),
-        UnparsedBlock("ConstBlock", 5, multiLine.split("\n").slice(5)),
+        UnparsedBlock("TypeAliasBlock", 0, multiLine.split("\n").slice(0, 5)),
+        UnparsedBlock("ConstBlock", 6, multiLine.split("\n").slice(6)),
     ]);
 }
 
@@ -110,6 +117,10 @@ export function testParse() {
                 TypeAlias(FixedType("Person", [ ]), [
                     Property("name", FixedType("string", [ ])),
                     Property("age", FixedType("number", [ ])),
+                    Property(
+                        "people",
+                        FixedType("List", [ FixedType("string", [ ]) ])
+                    ),
                 ]),
                 Const(
                     "person",
@@ -117,6 +128,7 @@ export function testParse() {
                     ObjectLiteral([
                         Field("name", StringValue("hello")),
                         Field("age", Value("28")),
+                        Field("people", ListValue([ ])),
                     ])
                 ),
             ],
@@ -134,6 +146,10 @@ export function testParseMultiLine() {
                 TypeAlias(FixedType("Person", [ ]), [
                     Property("name", FixedType("string", [ ])),
                     Property("age", FixedType("number", [ ])),
+                    Property(
+                        "people",
+                        FixedType("List", [ FixedType("string", [ ]) ])
+                    ),
                 ]),
                 Const(
                     "person",
@@ -141,6 +157,7 @@ export function testParseMultiLine() {
                     ObjectLiteral([
                         Field("name", StringValue("hello")),
                         Field("age", Value("28")),
+                        Field("people", ListValue([ ])),
                     ])
                 ),
             ],

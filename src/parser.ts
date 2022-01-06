@@ -540,6 +540,7 @@ function parseTypeAlias(tokens: Token[]): Result<string, TypeAlias> {
     let typeLine: Token[] = [ ];
     let isInDefinition = false;
     let currentDefinition = [ ];
+    let braceDepth = 0;
 
     for (var i = index; i < tokens.length; i++) {
         const token = tokens[i];
@@ -573,17 +574,22 @@ function parseTypeAlias(tokens: Token[]): Result<string, TypeAlias> {
 
             case "OpenCurlyBracesToken": {
                 if (isInDefinition) {
+                    braceDepth += 1;
                     currentDefinition.push("{");
                     break;
                 }
+                break;
             }
 
-            case "OpenCurlyBracesToken":
             case "CloseCurlyBracesToken": {
                 if (isInDefinition) {
-                    currentDefinition.push(" }");
+                    if (braceDepth > 0) {
+                        currentDefinition.push(" }");
+                    }
                     break;
                 }
+                braceDepth -= 1;
+                break;
             }
 
             case "AssignToken": {
@@ -648,10 +654,10 @@ function parseTypeAlias(tokens: Token[]): Result<string, TypeAlias> {
         }
 
         const hasInlineClosingBrace =
-            line.trim().endsWith("}") && i === line.length - 1;
+            line.trim().endsWith("}") && i === lines.length - 1;
 
         if (hasInlineClosingBrace) {
-            line = line.trim().slice(0, -1);
+            line = line.slice(0, -1);
         }
 
         if (isRootProperty(line)) {
