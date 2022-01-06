@@ -355,6 +355,9 @@ function checkKeywordToken(currentToken: string, tokens: Token[]): void {
         tokens.push(OpenCurlyBracesToken());
     } else if (currentToken === "}") {
         tokens.push(CloseCurlyBracesToken());
+    } else if (currentToken === "{}") {
+        tokens.push(OpenCurlyBracesToken());
+        tokens.push(CloseCurlyBracesToken());
     } else if (keywords.indexOf(currentToken) > -1) {
         tokens.push(KeywordToken(currentToken));
     } else if (currentToken === "--") {

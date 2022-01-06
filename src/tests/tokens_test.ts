@@ -546,6 +546,18 @@ toString buffer =
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
+export function testEmptyObjectLiteral() {
+    const str = `
+{}
+`.trim();
+
+    assert.deepStrictEqual(tokenize(str), [
+        OpenCurlyBracesToken(),
+        CloseCurlyBracesToken(),
+    ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
+}
+
 export function testNestedObjectLiteral() {
     const str = `
 toString: Buffer -> string
