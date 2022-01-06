@@ -668,9 +668,11 @@ function generateFunction(function_: Function): string {
         .map((arg) => {
             switch (arg.kind) {
                 case "FunctionArg":
-                    return arg.name + ": " + generateType(arg.type);
+                    return arg.name + ": " + generateTopLevelType(arg.type);
                 case "AnonFunctionArg":
-                    return "_" + arg.index + ": " + generateType(arg.type);
+                    return (
+                        "_" + arg.index + ": " + generateTopLevelType(arg.type)
+                    );
             }
         })
         .join(", ");
