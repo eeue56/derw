@@ -282,7 +282,9 @@ export async function compileFiles(
             parsedImports[fileName] = [ ];
 
             for (const import_ of imports) {
-                const fileWithDerwExtension = import_ + `.derw`;
+                const fileWithDerwExtension = import_.endsWith(".derw")
+                    ? import_
+                    : import_ + `.derw`;
                 const isDerw = await fileExists(fileWithDerwExtension);
 
                 if (isDerw) {
