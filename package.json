@@ -1,5 +1,5 @@
 {
-    "name": "@eeue56/derw",
+    "name": "derw",
     "version": "0.0.3-7",
     "description": "An Elm-inspired language that transpiles to TypeScript",
     "main": "index.js",
