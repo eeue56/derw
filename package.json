@@ -1,6 +1,6 @@
 {
     "name": "derw",
-    "version": "0.0.3-10",
+    "version": "0.0.3-11",
     "description": "An Elm-inspired language that transpiles to TypeScript",
     "main": "index.js",
     "bin": "build/cli.js",
