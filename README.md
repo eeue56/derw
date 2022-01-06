@@ -2,10 +2,22 @@
 
 An Elm-inspired language that transpiles to TypeScript
 
+# Install
+
+```bash
+npm install --save-dev derw
+```
+
+or
+
+```bash
+npm install -g derw
+```
+
 # Usage
 
 ```bash
-npx @eeue56/derw
+npx derw
 
 To get started:
 Start a package via `derw init`
@@ -17,7 +29,7 @@ Or find out info via `derw info`
 You can run the derw compiler via npx. You must provide files via `--files` or be in a package directory.
 
 ```bash
-npx @eeue56/derw
+npx derw
 
 Let\'s write some Derw code
 To get started:
