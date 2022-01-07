@@ -84,7 +84,8 @@ export function testParseMultiLine() {
                     CaseStatement(Value("pet"), [
                         Branch(
                             Destructure("Dog", "{ name }"),
-                            FormatStringValue("Good boy ${name}!")
+                            FormatStringValue("Good boy ${name}!"),
+                            [ ]
                         ),
                         Branch(
                             Destructure("Cat", "{ lives }"),
@@ -94,7 +95,8 @@ export function testParseMultiLine() {
                                     Value("lives"),
                                     StringValue(" lives remaining.")
                                 )
-                            )
+                            ),
+                            [ ]
                         ),
                     ])
                 ),

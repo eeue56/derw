@@ -472,13 +472,19 @@ export type Branch = {
     kind: "Branch";
     pattern: BranchPattern;
     body: Expression;
+    letBody: Block[];
 };
 
-export function Branch(pattern: BranchPattern, body: Expression): Branch {
+export function Branch(
+    pattern: BranchPattern,
+    body: Expression,
+    letBody: Block[]
+): Branch {
     return {
         kind: "Branch",
         pattern,
         body,
+        letBody,
     };
 }
 

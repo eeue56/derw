@@ -157,23 +157,29 @@ function generateConstructor(constructor: Constructor): string {
 function generateBranch(predicate: string, branch: Branch): string {
     const body = generateExpression(branch.body);
     const returnWrapper = isSimpleValue(branch.body.kind) ? "return " : "";
+    const maybeLetBody =
+        branch.letBody.length > 0
+            ? "\n" +
+              prefixLines(branch.letBody.map(generateBlock).join("\n"), 4)
+            : "";
+
     switch (branch.pattern.kind) {
         case "Destructure": {
             const pattern =
                 branch.pattern.pattern.trim().length > 0
                     ? `\n    const ${branch.pattern.pattern} = ${predicate};`
                     : "";
-            return `case "${branch.pattern.constructor}": {${pattern}
+            return `case "${branch.pattern.constructor}": {${pattern}${maybeLetBody}
     ${returnWrapper}${body};
 }`;
         }
         case "StringValue": {
-            return `case "${branch.pattern.body}": {
+            return `case "${branch.pattern.body}": {${maybeLetBody}
     ${returnWrapper}${body};
 }`;
         }
         case "Default": {
-            return `default: {
+            return `default: {${maybeLetBody}
     ${returnWrapper}${body};
 }`;
         }

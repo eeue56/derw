@@ -1274,7 +1274,32 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
             if (!branchLines.join("").trim()) {
                 continue;
             }
-            const branchExpression = parseExpression(branchLines.join("\n"));
+
+            const spaces = " ".repeat(indent + rootIndentLevel);
+            const letStart = branchLines.findIndex((line) =>
+                line.startsWith(spaces + "let")
+            );
+            const letEnd = branchLines.findIndex((line) =>
+                line.startsWith(spaces + "in")
+            );
+
+            let letBlock: Block[] = [ ];
+
+            if (letStart > -1 && letEnd > -1) {
+                const letLines = branchLines
+                    .slice(letStart + 1, letEnd)
+                    .map((line) => line.slice(8 + rootIndentLevel + 4));
+                const letBlocks = intoBlocks(letLines.join("\n"));
+
+                letBlock = letBlocks
+                    .map(parseBlock)
+                    .filter((block) => block.kind === "ok")
+                    .map((block) => (block as Ok<Block>).value);
+            }
+
+            const branchExpression = parseExpression(
+                branchLines.slice(letEnd + 1).join("\n")
+            );
 
             const parsedBranchPattern = parseBranchPattern(
                 tokenize(branchPattern)
@@ -1293,7 +1318,8 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
                     Ok(
                         Branch(
                             (parsedBranchPattern as Ok<BranchPattern>).value,
-                            (branchExpression as Ok<Expression>).value
+                            (branchExpression as Ok<Expression>).value,
+                            letBlock
                         )
                     )
                 );
@@ -1312,7 +1338,32 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
     }
 
     if (branchLines.length > 0) {
-        const branchExpression = parseExpression(branchLines.join("\n"));
+        const indent = 8;
+        const spaces = " ".repeat(indent + rootIndentLevel);
+        const letStart = branchLines.findIndex((line) =>
+            line.startsWith(spaces + "let")
+        );
+        const letEnd = branchLines.findIndex((line) =>
+            line.startsWith(spaces + "in")
+        );
+
+        let letBlock: Block[] = [ ];
+
+        if (letStart > -1 && letEnd > -1) {
+            const letLines = branchLines
+                .slice(letStart + 1, letEnd)
+                .map((line) => line.slice(8 + rootIndentLevel + 4));
+            const letBlocks = intoBlocks(letLines.join("\n"));
+
+            letBlock = letBlocks
+                .map(parseBlock)
+                .filter((block) => block.kind === "ok")
+                .map((block) => (block as Ok<Block>).value);
+        }
+
+        const branchExpression = parseExpression(
+            branchLines.slice(letEnd + 1).join("\n")
+        );
 
         const parsedBranchPattern = parseBranchPattern(tokenize(branchPattern));
 
@@ -1329,7 +1380,8 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
                 Ok(
                     Branch(
                         (parsedBranchPattern as Ok<BranchPattern>).value,
-                        (branchExpression as Ok<Expression>).value
+                        (branchExpression as Ok<Expression>).value,
+                        letBlock
                     )
                 )
             );
@@ -2072,9 +2124,6 @@ function parseFunction(tokens: Token[]): Result<string, Function> {
             .map(parseBlock)
             .filter((block) => block.kind === "ok")
             .map((block) => (block as Ok<Block>).value);
-    }
-
-    if (letBlock.length > 0) {
     }
 
     const argumentLine = lines[0];

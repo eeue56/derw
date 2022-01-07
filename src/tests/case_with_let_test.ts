@@ -6,66 +6,91 @@ import { generateJavascript } from "../js_generator";
 import { parse } from "../parser";
 import { generateTypescript } from "../ts_generator";
 import {
+    Addition,
     Branch,
     CaseStatement,
-    Destructure,
+    Const,
+    Default,
     FixedType,
     Function,
     FunctionArg,
-    FunctionCall,
-    FunctionType,
-    GenericType,
-    ListValue,
     Module,
+    StringValue,
     UnparsedBlock,
     Value,
 } from "../types";
 
 const oneLine = `
-filterMapHelp: (a -> Maybe b) -> a -> List b -> List b
-filterMapHelp fn a xs =
-    case fn a of
-        Just { value } ->
-            append xs [ value ]
-        Nothing ->
-            xs
+sayHello: string -> string
+sayHello name =
+    case name of
+        "Noah" ->
+            let
+                x: number
+                x = 1 + 2
+            in
+                "Hi Noah"
+        "James" -> "Greetings"
+        default ->
+            let
+                x: number
+                x = 2 + 3
+            in
+                "I don't know you"
 `.trim();
 
 const multiLine = `
-filterMapHelp: (a -> Maybe b) -> a -> List b -> List b
-filterMapHelp fn a xs =
-    case fn a of
-        Just { value } ->
-            append xs [ value ]
-        Nothing ->
-            xs
+sayHello: string -> string
+sayHello name =
+    case name of
+        "Noah" ->
+            let
+                x: number
+                x = 1 + 2
+            in
+                "Hi Noah"
+        "James" -> "Greetings"
+        default ->
+            let
+                x: number
+                x = 2 + 3
+            in
+                "I don't know you"
 `.trim();
 
 const expectedOutput = `
-function filterMapHelp<a, b>(fn: (arg0: a) => Maybe<b>, a: a, xs: b[]): b[] {
-    const _res = fn(a);
-    switch (_res.kind) {
-        case "Just": {
-            const { value } = _res;
-            return append(xs, [ value ]);
+function sayHello(name: string): string {
+    const _res = name;
+    switch (_res) {
+        case "Noah": {
+            const x: number = 1 + 2;
+            return "Hi Noah";
         }
-        case "Nothing": {
-            return xs;
+        case "James": {
+            return "Greetings";
+        }
+        default: {
+            const x: number = 2 + 3;
+            return "I don't know you";
         }
     }
 }
 `.trim();
 
 const expectedOutputJS = `
-function filterMapHelp(fn, a, xs) {
-    const _res = fn(a);
-    switch (_res.kind) {
-        case "Just": {
-            const { value } = _res;
-            return append(xs, [ value ]);
+function sayHello(name) {
+    const _res = name;
+    switch (_res) {
+        case "Noah": {
+            const x = 1 + 2;
+            return "Hi Noah";
         }
-        case "Nothing": {
-            return xs;
+        case "James": {
+            return "Greetings";
+        }
+        default: {
+            const x = 2 + 3;
+            return "I don't know you";
         }
     }
 }
@@ -108,33 +133,30 @@ export function testParse() {
             "main",
             [
                 Function(
-                    "filterMapHelp",
-                    FixedType("List", [ GenericType("b") ]),
-                    [
-                        FunctionArg(
-                            "fn",
-                            FunctionType([
-                                GenericType("a"),
-                                FixedType("Maybe", [ GenericType("b") ]),
-                            ])
-                        ),
-                        FunctionArg("a", GenericType("a")),
-                        FunctionArg(
-                            "xs",
-                            FixedType("List", [ GenericType("b") ])
-                        ),
-                    ],
+                    "sayHello",
+                    FixedType("string", [ ]),
+                    [ FunctionArg("name", FixedType("string", [ ])) ],
                     [ ],
-                    CaseStatement(FunctionCall("fn", [ Value("a") ]), [
+                    CaseStatement(Value("name"), [
+                        Branch(StringValue("Noah"), StringValue("Hi Noah"), [
+                            Const(
+                                "x",
+                                FixedType("number", [ ]),
+                                Addition(Value("1"), Value("2"))
+                            ),
+                        ]),
                         Branch(
-                            Destructure("Just", "{ value }"),
-                            FunctionCall("append", [
-                                Value("xs"),
-                                ListValue([ Value("value") ]),
-                            ]),
+                            StringValue("James"),
+                            StringValue("Greetings"),
                             [ ]
                         ),
-                        Branch(Destructure("Nothing", ""), Value("xs"), [ ]),
+                        Branch(Default(), StringValue("I don't know you"), [
+                            Const(
+                                "x",
+                                FixedType("number", [ ]),
+                                Addition(Value("2"), Value("3"))
+                            ),
+                        ]),
                     ])
                 ),
             ],
@@ -150,33 +172,30 @@ export function testParseMultiLine() {
             "main",
             [
                 Function(
-                    "filterMapHelp",
-                    FixedType("List", [ GenericType("b") ]),
-                    [
-                        FunctionArg(
-                            "fn",
-                            FunctionType([
-                                GenericType("a"),
-                                FixedType("Maybe", [ GenericType("b") ]),
-                            ])
-                        ),
-                        FunctionArg("a", GenericType("a")),
-                        FunctionArg(
-                            "xs",
-                            FixedType("List", [ GenericType("b") ])
-                        ),
-                    ],
+                    "sayHello",
+                    FixedType("string", [ ]),
+                    [ FunctionArg("name", FixedType("string", [ ])) ],
                     [ ],
-                    CaseStatement(FunctionCall("fn", [ Value("a") ]), [
+                    CaseStatement(Value("name"), [
+                        Branch(StringValue("Noah"), StringValue("Hi Noah"), [
+                            Const(
+                                "x",
+                                FixedType("number", [ ]),
+                                Addition(Value("1"), Value("2"))
+                            ),
+                        ]),
                         Branch(
-                            Destructure("Just", "{ value }"),
-                            FunctionCall("append", [
-                                Value("xs"),
-                                ListValue([ Value("value") ]),
-                            ]),
+                            StringValue("James"),
+                            StringValue("Greetings"),
                             [ ]
                         ),
-                        Branch(Destructure("Nothing", ""), Value("xs"), [ ]),
+                        Branch(Default(), StringValue("I don't know you"), [
+                            Const(
+                                "x",
+                                FixedType("number", [ ]),
+                                Addition(Value("2"), Value("3"))
+                            ),
+                        ]),
                     ])
                 ),
             ],

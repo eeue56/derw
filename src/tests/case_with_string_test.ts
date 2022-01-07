@@ -112,9 +112,17 @@ export function testParse() {
                     [ FunctionArg("name", FixedType("string", [ ])) ],
                     [ ],
                     CaseStatement(Value("name"), [
-                        Branch(StringValue("Noah"), StringValue("Hi Noah")),
-                        Branch(StringValue("James"), StringValue("Greetings")),
-                        Branch(Default(), StringValue("I don't know you")),
+                        Branch(
+                            StringValue("Noah"),
+                            StringValue("Hi Noah"),
+                            [ ]
+                        ),
+                        Branch(
+                            StringValue("James"),
+                            StringValue("Greetings"),
+                            [ ]
+                        ),
+                        Branch(Default(), StringValue("I don't know you"), [ ]),
                     ])
                 ),
             ],
@@ -135,9 +143,17 @@ export function testParseMultiLine() {
                     [ FunctionArg("name", FixedType("string", [ ])) ],
                     [ ],
                     CaseStatement(Value("name"), [
-                        Branch(StringValue("Noah"), StringValue("Hi Noah")),
-                        Branch(StringValue("James"), StringValue("Greetings")),
-                        Branch(Default(), StringValue("I don't know you")),
+                        Branch(
+                            StringValue("Noah"),
+                            StringValue("Hi Noah"),
+                            [ ]
+                        ),
+                        Branch(
+                            StringValue("James"),
+                            StringValue("Greetings"),
+                            [ ]
+                        ),
+                        Branch(Default(), StringValue("I don't know you"), [ ]),
                     ])
                 ),
             ],

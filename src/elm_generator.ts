@@ -167,7 +167,14 @@ function generateBranchPattern(branchPattern: BranchPattern): string {
 }
 
 function generateBranch(branch: Branch): string {
-    return `${generateBranchPattern(branch.pattern)} ->
+    const maybeLetBody =
+        branch.letBody.length > 0
+            ? prefixLines("\nlet", 4) +
+              "\n" +
+              prefixLines(branch.letBody.map(generateBlock).join("\n\n"), 8) +
+              prefixLines("\nin", 4)
+            : "";
+    return `${generateBranchPattern(branch.pattern)} ->${maybeLetBody}
     ${generateExpression(branch.body)}
 `.trim();
 }

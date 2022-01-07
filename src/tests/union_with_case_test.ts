@@ -196,7 +196,8 @@ export function testParse() {
                                 ObjectLiteral([
                                     Field("error", Value("error")),
                                 ])
-                            )
+                            ),
+                            [ ]
                         ),
                         Branch(
                             Destructure("Ok", "{ value }"),
@@ -205,7 +206,8 @@ export function testParse() {
                                 ObjectLiteral([
                                     Field("value", Value("value")),
                                 ])
-                            )
+                            ),
+                            [ ]
                         ),
                     ])
                 ),
@@ -243,7 +245,8 @@ export function testParseMultiLine() {
                                 ObjectLiteral([
                                     Field("error", Value("error")),
                                 ])
-                            )
+                            ),
+                            [ ]
                         ),
                         Branch(
                             Destructure("Ok", "{ value }"),
@@ -252,7 +255,8 @@ export function testParseMultiLine() {
                                 ObjectLiteral([
                                     Field("value", Value("value")),
                                 ])
-                            )
+                            ),
+                            [ ]
                         ),
                     ])
                 ),
