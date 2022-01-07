@@ -1276,11 +1276,12 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
             }
 
             const spaces = " ".repeat(indent + rootIndentLevel);
-            const letStart = branchLines.findIndex((line) =>
-                line.startsWith(spaces + "let")
+            const letStart = branchLines.findIndex(
+                (line) =>
+                    line.startsWith(spaces + "let") && line.endsWith("let")
             );
-            const letEnd = branchLines.findIndex((line) =>
-                line.startsWith(spaces + "in")
+            const letEnd = branchLines.findIndex(
+                (line) => line.startsWith(spaces + "in") && line.endsWith("in")
             );
 
             let letBlock: Block[] = [ ];
@@ -1340,11 +1341,11 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
     if (branchLines.length > 0) {
         const indent = 8;
         const spaces = " ".repeat(indent + rootIndentLevel);
-        const letStart = branchLines.findIndex((line) =>
-            line.startsWith(spaces + "let")
+        const letStart = branchLines.findIndex(
+            (line) => line.startsWith(spaces + "let") && line.endsWith("let")
         );
-        const letEnd = branchLines.findIndex((line) =>
-            line.startsWith(spaces + "in")
+        const letEnd = branchLines.findIndex(
+            (line) => line.startsWith(spaces + "in") && line.endsWith("in")
         );
 
         let letBlock: Block[] = [ ];
@@ -2109,8 +2110,12 @@ function parseFunction(tokens: Token[]): Result<string, Function> {
 
     const lines = block.split("\n");
 
-    const letStart = lines.findIndex((line) => line.startsWith("    let"));
-    const letEnd = lines.findIndex((line) => line.startsWith("    in"));
+    const letStart = lines.findIndex(
+        (line) => line.startsWith("    let") && line.endsWith("let")
+    );
+    const letEnd = lines.findIndex(
+        (line) => line.startsWith("    in") && line.endsWith("in")
+    );
 
     let letBlock: Block[] = [ ];
 
