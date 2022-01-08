@@ -4,10 +4,11 @@ import { compileFiles } from "./cli/compile";
 import { info } from "./cli/info";
 import { init } from "./cli/init";
 import { install } from "./cli/install";
+import { repl } from "./cli/repl";
 import { runTests } from "./cli/testing";
 import { fileExists } from "./cli/utils";
 
-type CliCommand = "init" | "compile" | "test" | "install" | "info";
+type CliCommand = "init" | "compile" | "test" | "install" | "info" | "repl";
 
 function parseCliCommand(): Result<string, CliCommand> {
     if (typeof process.argv[2] === "undefined") {
@@ -25,6 +26,8 @@ function parseCliCommand(): Result<string, CliCommand> {
             return Ok("install");
         case "info":
             return Ok("info");
+        case "repl":
+            return Ok("repl");
         default: {
             return Err(`Unknown command \`${process.argv[2]}\``);
         }
@@ -71,6 +74,10 @@ export async function main(): Promise<number> {
         }
         case "info": {
             await info(isInPackageDirectory, argv);
+            return 0;
+        }
+        case "repl": {
+            await repl(isInPackageDirectory, argv);
             return 0;
         }
     }
