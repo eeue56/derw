@@ -415,9 +415,15 @@ asIs result =
     derw repl
     ```
 
+-   [x] Bundling
+
+    ```
+    derw bundle --entry src/Main.derw --output dist/index.js --watch --quiet
+    ```
+
 # 2.0.0
 
--   [ ] Time travelling debugger
+-   [ ] Time travelling d ebugger
 -   [ ] Type checking with interop with TypeScript
 -   [ ] Derw compiler is written in Derw
 

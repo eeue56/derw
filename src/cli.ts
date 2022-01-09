@@ -1,5 +1,6 @@
 #!/usr/bin/env ts-node
 import { Err, Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
+import { bundle } from "./cli/bundle";
 import { compileFiles } from "./cli/compile";
 import { info } from "./cli/info";
 import { init } from "./cli/init";
@@ -8,7 +9,14 @@ import { repl } from "./cli/repl";
 import { runTests } from "./cli/testing";
 import { fileExists } from "./cli/utils";
 
-type CliCommand = "init" | "compile" | "test" | "install" | "info" | "repl";
+type CliCommand =
+    | "init"
+    | "compile"
+    | "test"
+    | "install"
+    | "info"
+    | "repl"
+    | "bundle";
 
 function parseCliCommand(): Result<string, CliCommand> {
     if (typeof process.argv[2] === "undefined") {
@@ -28,6 +36,8 @@ function parseCliCommand(): Result<string, CliCommand> {
             return Ok("info");
         case "repl":
             return Ok("repl");
+        case "bundle":
+            return Ok("bundle");
         default: {
             return Err(`Unknown command \`${process.argv[2]}\``);
         }
@@ -78,6 +88,10 @@ export async function main(): Promise<number> {
         }
         case "repl": {
             await repl(isInPackageDirectory, argv);
+            return 0;
+        }
+        case "bundle": {
+            await bundle(isInPackageDirectory, argv);
             return 0;
         }
     }
