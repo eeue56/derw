@@ -409,8 +409,15 @@ asIs result =
     derw init
     ```
 
+-   [x] A repl
+
+    ```
+    derw repl
+    ```
+
 # 2.0.0
 
+-   [ ] Time travelling debugger
 -   [ ] Type checking with interop with TypeScript
 -   [ ] Derw compiler is written in Derw
 

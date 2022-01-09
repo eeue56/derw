@@ -38,6 +38,7 @@ export async function repl(
         const identifiers = tokens.filter(
             (token) => token.kind === "IdentifierToken"
         );
+
         return [
             [
                 ...new Set(
