@@ -86,11 +86,17 @@ export async function bundle(
 
     if (program.flags.watch.isPresent) {
         console.log("Watching src...");
+        let timer: any;
         chokidar
             .watch(path.join(process.cwd(), "src"))
-            .on("all", async (event: Event, path: string) => {
+            .on("all", async (event: Event, path: string): Promise<any> => {
                 if (path.endsWith(".derw")) {
-                    await build();
+                    if (timer !== null) {
+                        clearTimeout(timer);
+                    }
+                    timer = setTimeout(async () => {
+                        await build();
+                    }, 300);
                 }
             });
     } else {
