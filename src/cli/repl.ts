@@ -2,6 +2,7 @@ import { writeFile } from "fs/promises";
 import { stdin as input, stdout as output } from "process";
 import * as readline from "readline";
 import { addTypeErrors, parseWithContext } from "../parser";
+import { IdentifierToken, tokenize } from "../tokens";
 import { generateTypescript } from "../ts_generator";
 import { ContextModule, contextModuleToModule, Export } from "../types";
 import { ensureDirectoryExists } from "./utils";
@@ -30,19 +31,42 @@ export async function repl(
     isInPackageDirectory: boolean,
     argv: string[]
 ): Promise<void> {
-    const rl = readline.createInterface({ input, output });
+    let currentBuffer: string[] = [ ];
+
+    function completer(text: string): readline.CompleterResult {
+        const tokens = tokenize(currentBuffer.join("\n"));
+        const identifiers = tokens.filter(
+            (token) => token.kind === "IdentifierToken"
+        );
+        return [
+            [
+                ...new Set(
+                    identifiers.map((token) => (token as IdentifierToken).body)
+                ),
+            ],
+            text,
+        ];
+    }
+
+    const rl = readline.createInterface({
+        input,
+        output,
+        completer,
+        tabSize: 4,
+    });
 
     rl.prompt();
 
-    let currentBuffer: string[] = [ ];
     rl.on("close", () => {});
 
-    let currentModule = null;
+    let currentlyImportedModule = null;
+    let module = null;
+    await ensureDirectoryExists("derw-packages/.cli/");
 
     for await (const line of rl) {
         if (line.trim() === "") {
             currentBuffer.push("");
-            let module = parseWithContext(currentBuffer.join("\n"), "Main");
+            module = parseWithContext(currentBuffer.join("\n"), "Main");
             module = addTypeErrors(module, [ ]);
 
             if (module.errors.length > 0) {
@@ -53,12 +77,7 @@ export async function repl(
                 console.log("Parsed successfully");
             }
         } else if (line.trim() === ":run") {
-            await ensureDirectoryExists("derw-packages/.cli/");
-
-            let module = parseWithContext(
-                [ ...currentBuffer ].join("\n"),
-                "Main"
-            );
+            module = parseWithContext([ ...currentBuffer ].join("\n"), "Main");
             module = exportEverything(module);
 
             const generated = generateTypescript(contextModuleToModule(module));
@@ -66,16 +85,47 @@ export async function repl(
             const fileTimestamp = new Date().getTime();
             const filename = `${process.cwd()}/derw-packages/.cli/${fileTimestamp}.ts`;
             await writeFile(filename, generated);
-            currentModule = await import(filename);
+            currentlyImportedModule = await import(filename);
         } else if (line.startsWith(":show")) {
             const name = line.split(" ")[1].trim();
-            console.log(currentModule[name]);
+            console.log(currentlyImportedModule[name]);
         } else if (line.trim() === ":help") {
             console.log("Enter some code, followed by a blank newline.");
             console.log("Run the current namespace via :run");
             console.log(
                 "And check the values of code via :show <name> after using :run"
             );
+            console.log(
+                "Or evaluate a constant or function with :eval <function> <args>"
+            );
+        } else if (line.startsWith(":eval")) {
+            const expression = `
+_cli: any
+_cli = ${line.split(" ").slice(1).join(" ")}
+`;
+
+            module = parseWithContext(
+                [ ...currentBuffer, "", expression ].join("\n"),
+                "Main"
+            );
+            module = exportEverything(module);
+
+            if (module.errors.length > 0) {
+                console.log(
+                    `Errors while parsing: ${module.errors.join("\n")}`
+                );
+                continue;
+            } else {
+                console.log("Parsed successfully");
+            }
+
+            const generated = generateTypescript(contextModuleToModule(module));
+
+            const fileTimestamp = new Date().getTime();
+            const filename = `${process.cwd()}/derw-packages/.cli/${fileTimestamp}.ts`;
+            await writeFile(filename, generated);
+            currentlyImportedModule = await import(filename);
+            console.log(currentlyImportedModule["_cli"]);
         } else {
             currentBuffer.push(line.split("\t").join("    "));
         }
