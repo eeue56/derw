@@ -78,7 +78,6 @@ export async function main(): Promise<number> {
             return 0;
         }
         case "test": {
-            await compileFiles(isInPackageDirectory, argv);
             await runTests(isInPackageDirectory, argv);
             return 0;
         }
