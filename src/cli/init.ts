@@ -7,7 +7,7 @@ import {
     parser,
     string,
 } from "@eeue56/baner";
-import { writeFile } from "fs/promises";
+import { readFile, writeFile } from "fs/promises";
 import path from "path";
 import { exportPackage, Package } from "../package";
 import { ensureDirectoryExists, fileExists } from "./utils";
@@ -55,6 +55,26 @@ async function copyTSconfig(dir: string): Promise<void> {
     );
 }
 
+async function appendGitIgnore(): Promise<void> {
+    let gitIgnore = "";
+
+    try {
+        gitIgnore = await (await readFile(".gitignore")).toString();
+    } catch (e) {}
+
+    gitIgnore =
+        gitIgnore +
+        `
+
+# derw
+
+derw-packages/
+src/**/*.ts
+`;
+
+    await writeFile(".gitignore", gitIgnore);
+}
+
 export async function init(
     isInPackageDirectory: boolean,
     argv: string[]
@@ -85,6 +105,7 @@ export async function init(
         exportPackage(package_)
     );
     await copyTSconfig(dir);
+    await appendGitIgnore();
     await ensureDirectoryExists(path.join(dir, "src"));
 
     console.log("Project initialized!");
