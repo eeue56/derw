@@ -12,6 +12,7 @@ import {
 } from "@eeue56/baner";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { spawnSync } from "child_process";
+import * as chokidar from "chokidar";
 import { promises } from "fs";
 import { readdir, writeFile } from "fs/promises";
 import path from "path";
@@ -42,6 +43,7 @@ const compileParser = parser([
     longFlag("run", "Should be run via ts-node/node", empty()),
     longFlag("format", "Format the files given in-place", empty()),
     longFlag("names", "Check for missing names out of scope", empty()),
+    longFlag("watch", "Watch the files for changes", empty()),
     longFlag("quiet", "Keep it short and sweet", empty()),
     bothFlag("h", "help", "This help text", empty()),
 ]);
@@ -215,170 +217,213 @@ export async function compileFiles(
         console.log(`Generating ${files.length} files...`);
     }
 
-    const processedFiles: string[] = [ ];
-    const parsedFiles: Record<string, ContextModule> = {};
-    const parsedImports: Record<string, string[]> = {};
+    async function rawCompile() {
+        const processedFiles: string[] = [ ];
+        const parsedFiles: Record<string, ContextModule> = {};
+        const parsedImports: Record<string, string[]> = {};
 
-    for (const fileName of files) {
-        await (async function compile(fileName: string): Promise<void> {
-            if (processedFiles.indexOf(fileName) > -1) {
-                return;
-            }
-            const isPackageFile = fileName.startsWith("derw-packages");
-            processedFiles.push(fileName);
-            const dotParts = fileName.split(".");
-            const extension = dotParts[dotParts.length - 1];
-
-            if (extension !== "derw") {
-                console.log("Warning: Derw files should be called .derw");
-                console.log(
-                    `Try renaming ${fileName} to ${dotParts
-                        .slice(0, -1)
-                        .join(".")}.derw`
-                );
-            }
-
-            const derwContents = (await promises.readFile(fileName)).toString();
-
-            const isMain = files.indexOf(fileName) > -1;
-            let parsed = derwParser.parseWithContext(
-                derwContents,
-                isMain ? "Main" : fileName
-            );
-
-            if (program.flags.names.isPresent) {
-                parsed = addMissingNamesSuggestions(parsed);
-            }
-
-            if (parsed.errors.length > 0) {
-                console.log(`Failed to parse ${fileName} due to:`);
-                console.log(parsed.errors.join("\n"));
-                return;
-            }
-
-            parsedFiles[fileName] = parsed;
-
-            const dir = path.dirname(fileName);
-            const imports: string[] = [ ];
-
-            getImports(parsed).forEach((import_: Block) => {
-                import_ = import_ as Import;
-
-                import_.modules.forEach((module) => {
-                    if (isPackageFile) {
-                        if (module.name.startsWith('"../derw-packages')) {
-                            module.name = module.name.replace(
-                                "../derw-packages",
-                                "../../.."
-                            );
-                        }
-                    }
-                    if (module.namespace === "Global") return;
-                    const moduleName = module.name.slice(1, -1);
-                    imports.push(path.normalize(path.join(dir, moduleName)));
-                });
-            });
-
-            parsedImports[fileName] = [ ];
-
-            for (const import_ of imports) {
-                const fileWithDerwExtension = import_.endsWith(".derw")
-                    ? import_
-                    : import_ + `.derw`;
-                const isDerw = await fileExists(fileWithDerwExtension);
-
-                if (isDerw) {
-                    parsedImports[fileName].push(fileWithDerwExtension);
-
-                    await compile(fileWithDerwExtension);
-                    continue;
-                }
-
-                // check if ts/js versions of the file exist
-                const fileWithTsExtension = import_ + `.ts`;
-                const fileWithJsExtension = import_ + `.js`;
-                let doesFileExist = false;
-
-                if (await fileExists(fileWithTsExtension)) {
-                    doesFileExist = true;
-                } else if (await fileExists(fileWithJsExtension)) {
-                    doesFileExist = true;
-                }
-
-                if (!doesFileExist) {
-                    console.log(
-                        `Warning! Failed to find \`${import_}\` as either derw, ts or js`
-                    );
-                }
-            }
-
-            if (debugMode) {
-                if (program.flags["only"].isPresent) {
-                    if (program.flags["only"].arguments.kind === "err") {
-                        console.log(program.flags.only.arguments.error);
-                    } else {
-                        const name = (
-                            program.flags["only"].arguments as Ok<string>
-                        ).value;
-                        const blocks = filterBodyForName(parsed, name);
-                        console.log(`Filtering for ${name}...`);
-                        console.log(util.inspect(blocks, true, null, true));
-                    }
+        for (const fileName of files) {
+            await (async function compile(fileName: string): Promise<void> {
+                if (processedFiles.indexOf(fileName) > -1) {
                     return;
                 }
-                console.log(util.inspect(parsed, true, null, true));
-                return;
-            }
+                const isPackageFile = fileName.startsWith("derw-packages");
+                processedFiles.push(fileName);
+                const dotParts = fileName.split(".");
+                const extension = dotParts[dotParts.length - 1];
 
-            const importedContextModules = [ ];
-            for (const import_ of parsedImports[fileName]) {
-                importedContextModules.push(parsedFiles[import_]);
-            }
-            parsed = derwParser.addTypeErrors(parsed, importedContextModules);
-            if (parsed.errors.length > 0) {
-                console.log(`Failed to parse ${fileName} due to:`);
-                console.log(parsed.errors.join("\n"));
-                return;
-            }
-
-            const generated = generate(target, contextModuleToModule(parsed));
-
-            if (program.flags.verify.isPresent && target === "ts") {
-                const output = compileTypescript(generated);
-
-                if (output.kind === "err") {
+                if (extension !== "derw") {
+                    console.log("Warning: Derw files should be called .derw");
                     console.log(
-                        `Failed to compile ${fileName} due to`,
-                        output.error.map((e) => e.messageText).join("\n")
+                        `Try renaming ${fileName} to ${dotParts
+                            .slice(0, -1)
+                            .join(".")}.derw`
                     );
-                } else {
-                    console.log(`Successfully compiled ${fileName}`);
                 }
-            }
 
-            if (isStdout) {
-                console.log(generated);
-                return;
-            }
+                const derwContents = (
+                    await promises.readFile(fileName)
+                ).toString();
 
-            if (fileName.indexOf("/") > -1) {
-                const dirName = fileName.split("/").slice(0, -1).join("/");
-                await ensureDirectoryExists(path.join(outputDir, dirName));
-            }
+                const isMain = files.indexOf(fileName) > -1;
+                let parsed = derwParser.parseWithContext(
+                    derwContents,
+                    isMain ? "Main" : fileName
+                );
 
-            const outputName = dotParts.slice(0, -1).join(".") + "." + target;
-            const fullName = path.join(outputDir, outputName);
-            await writeFile(fullName, generated);
+                if (program.flags.names.isPresent) {
+                    parsed = addMissingNamesSuggestions(parsed);
+                }
 
-            if (shouldRun) {
-                runFile(target, fullName);
-            }
-        })(fileName);
+                if (parsed.errors.length > 0) {
+                    console.log(`Failed to parse ${fileName} due to:`);
+                    console.log(parsed.errors.join("\n"));
+                    return;
+                }
+
+                parsedFiles[fileName] = parsed;
+
+                const dir = path.dirname(fileName);
+                const imports: string[] = [ ];
+
+                getImports(parsed).forEach((import_: Block) => {
+                    import_ = import_ as Import;
+
+                    import_.modules.forEach((module) => {
+                        if (isPackageFile) {
+                            if (module.name.startsWith('"../derw-packages')) {
+                                module.name = module.name.replace(
+                                    "../derw-packages",
+                                    "../../.."
+                                );
+                            }
+                        }
+                        if (module.namespace === "Global") return;
+                        const moduleName = module.name.slice(1, -1);
+                        imports.push(
+                            path.normalize(path.join(dir, moduleName))
+                        );
+                    });
+                });
+
+                parsedImports[fileName] = [ ];
+
+                for (const import_ of imports) {
+                    const fileWithDerwExtension = import_.endsWith(".derw")
+                        ? import_
+                        : import_ + `.derw`;
+                    const isDerw = await fileExists(fileWithDerwExtension);
+
+                    if (isDerw) {
+                        parsedImports[fileName].push(fileWithDerwExtension);
+
+                        await compile(fileWithDerwExtension);
+                        continue;
+                    }
+
+                    // check if ts/js versions of the file exist
+                    const fileWithTsExtension = import_ + `.ts`;
+                    const fileWithJsExtension = import_ + `.js`;
+                    let doesFileExist = false;
+
+                    if (await fileExists(fileWithTsExtension)) {
+                        doesFileExist = true;
+                    } else if (await fileExists(fileWithJsExtension)) {
+                        doesFileExist = true;
+                    }
+
+                    if (!doesFileExist) {
+                        console.log(
+                            `Warning! Failed to find \`${import_}\` as either derw, ts or js`
+                        );
+                    }
+                }
+
+                if (debugMode) {
+                    if (program.flags["only"].isPresent) {
+                        if (program.flags["only"].arguments.kind === "err") {
+                            console.log(program.flags.only.arguments.error);
+                        } else {
+                            const name = (
+                                program.flags["only"].arguments as Ok<string>
+                            ).value;
+                            const blocks = filterBodyForName(parsed, name);
+                            console.log(`Filtering for ${name}...`);
+                            console.log(util.inspect(blocks, true, null, true));
+                        }
+                        return;
+                    }
+                    console.log(util.inspect(parsed, true, null, true));
+                    return;
+                }
+
+                const importedContextModules = [ ];
+                for (const import_ of parsedImports[fileName]) {
+                    importedContextModules.push(parsedFiles[import_]);
+                }
+                parsed = derwParser.addTypeErrors(
+                    parsed,
+                    importedContextModules
+                );
+                if (parsed.errors.length > 0) {
+                    console.log(`Failed to parse ${fileName} due to:`);
+                    console.log(parsed.errors.join("\n"));
+                    return;
+                }
+
+                const generated = generate(
+                    target,
+                    contextModuleToModule(parsed)
+                );
+
+                if (program.flags.verify.isPresent && target === "ts") {
+                    const output = compileTypescript(generated);
+
+                    if (output.kind === "err") {
+                        console.log(
+                            `Failed to compile ${fileName} due to`,
+                            output.error.map((e) => e.messageText).join("\n")
+                        );
+                    } else {
+                        console.log(`Successfully compiled ${fileName}`);
+                    }
+                }
+
+                if (isStdout) {
+                    console.log(generated);
+                    return;
+                }
+
+                if (fileName.indexOf("/") > -1) {
+                    const dirName = fileName.split("/").slice(0, -1).join("/");
+                    await ensureDirectoryExists(path.join(outputDir, dirName));
+                }
+
+                const outputName =
+                    dotParts.slice(0, -1).join(".") + "." + target;
+                const fullName = path.join(outputDir, outputName);
+                await writeFile(fullName, generated);
+
+                if (shouldRun) {
+                    const isFileToRun =
+                        program.flags.files.isPresent &&
+                        program.flags.files.arguments.kind === "ok" &&
+                        (
+                            program.flags.files.arguments as Ok<string[]>
+                        ).value.indexOf(fileName) > -1;
+
+                    if (isFileToRun) {
+                        if (!isQuiet) console.log(`Running... ${fullName}`);
+                        runFile(target, fullName);
+                    }
+                }
+            })(fileName);
+        }
+
+        if (!isQuiet) {
+            console.log("Processed:", processedFiles);
+        }
+
+        return parsedFiles;
     }
 
-    if (!isQuiet) {
-        console.log("Processed:", processedFiles);
+    if (program.flags.watch.isPresent) {
+        if (!isQuiet) console.log("Watching...");
+        let timer: any;
+        chokidar
+            .watch(path.join(process.cwd(), "src"))
+            .on("all", async (event: Event, path: string): Promise<any> => {
+                if (path.endsWith(".derw")) {
+                    if (timer !== null) {
+                        clearTimeout(timer);
+                    }
+                    timer = setTimeout(async () => {
+                        await rawCompile();
+                    }, 300);
+                }
+            });
+        return {};
+    } else {
+        return await rawCompile();
     }
-
-    return parsedFiles;
 }

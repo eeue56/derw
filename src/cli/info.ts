@@ -154,12 +154,12 @@ export async function info(
         return;
     }
 
-    const fileName =
+    const fileNameToParse =
         program.flags.file.isPresent &&
         program.flags.file.arguments.kind === "ok" &&
         (program.flags.file.arguments.value as string);
 
-    if (!isInPackageDirectory && !fileName) {
+    if (!isInPackageDirectory && !fileNameToParse) {
         console.log(
             "No derw-package.json found. Maybe you need to run `derw init` first?"
         );
@@ -169,10 +169,10 @@ export async function info(
 
     let parsedFiles;
 
-    if (fileName) {
+    if (fileNameToParse) {
         parsedFiles = await compileFiles(isInPackageDirectory, [
             "--files",
-            fileName,
+            fileNameToParse,
             "--quiet",
         ]);
     } else {
@@ -180,6 +180,9 @@ export async function info(
     }
 
     for (const fileName of Object.keys(parsedFiles)) {
+        if (fileNameToParse && fileNameToParse !== fileName) {
+            continue;
+        }
         moduleInfo(fileName, parsedFiles[fileName]);
     }
 }

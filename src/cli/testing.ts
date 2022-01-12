@@ -40,7 +40,7 @@ export async function runTests(
                         clearTimeout(timer);
                     }
                     timer = setTimeout(async () => {
-                        await compileFiles(isInPackageDirectory, argv);
+                        await compileFiles(isInPackageDirectory, [ ]);
                         await runner();
                     }, 300);
                 }
