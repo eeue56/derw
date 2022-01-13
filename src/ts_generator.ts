@@ -1,4 +1,3 @@
-import path from "path";
 import { isBuiltinType } from "./builtins";
 import {
     Addition,
@@ -44,6 +43,7 @@ import {
     UnionType,
     Value,
 } from "./types";
+import { getNameFromPath } from "./utils";
 
 function prefixLines(body: string, indent: number): string {
     return body
@@ -742,7 +742,7 @@ function generateImportBlock(imports: Import): string {
                 const name =
                     module.alias.kind === "just"
                         ? module.alias.value
-                        : path.parse(withoutQuotes).name;
+                        : getNameFromPath(withoutQuotes);
 
                 if (module.exposing.length === 0) {
                     return `import * as ${name} from ${module.name};`;
