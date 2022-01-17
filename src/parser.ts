@@ -10,7 +10,9 @@ import { isBuiltinType, isReservedName } from "./builtins";
 import { collisions } from "./collisions";
 import {
     BaseTypeToken,
+    CloseBracketToken,
     IdentifierToken,
+    OpenBracketToken,
     RootTypeTokens,
     Token,
     tokenize,
@@ -500,8 +502,25 @@ function parseProperty(tokens: Token[]): Result<string, Property> {
         return Err("Expected identifier for property name but found nothing");
     }
 
-    const bitsAfterName = tokens.slice(index);
-    const type = parseType(bitsAfterName);
+    let bitsAfterName = tokens.slice(index);
+
+    if (tokens.find((token) => token.kind === "ArrowToken")) {
+        bitsAfterName = [
+            OpenBracketToken(),
+            ...bitsAfterName,
+            CloseBracketToken(),
+        ];
+    }
+
+    const tokenizedTypes = tokenizeType(bitsAfterName);
+
+    if (tokenizedTypes.kind === "err") return tokenizedTypes;
+    const types = tokenizedTypes.value;
+    if (types.length > 1) {
+        return Err("Too many types found in property");
+    }
+
+    const type = parseRootTypeTokens(types[0]);
 
     if (type.kind === "err") return type;
     return Ok(Property(name, type.value));
@@ -597,9 +616,14 @@ function parseTypeAlias(tokens: Token[]): Result<string, TypeAlias> {
                 break;
             }
 
+            case "ArrowToken": {
+                currentDefinition.push("->");
+                break;
+            }
+
             default: {
                 return Err(
-                    "Unexpected token parsing a union type. Got " + token.kind
+                    "Unexpected token parsing a type alias. Got " + token.kind
                 );
             }
         }

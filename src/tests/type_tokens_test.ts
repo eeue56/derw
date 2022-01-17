@@ -215,3 +215,53 @@ export function testListFilterMap() {
     const rootTypeString = rootTypeTokensToString((tokenizedType as any).value);
     assert.deepStrictEqual(rootTypeString, str);
 }
+
+export function testListFilterMapWithSpaces() {
+    const str = ` ( a -> Maybe b ) -> List a -> List b `;
+    const tokenized = tokenize(str);
+    assert.deepStrictEqual(tokenized, [
+        WhitespaceToken(" "),
+        OpenBracketToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("a"),
+        WhitespaceToken(" "),
+        ArrowToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("Maybe"),
+        WhitespaceToken(" "),
+        IdentifierToken("b"),
+        WhitespaceToken(" "),
+        CloseBracketToken(),
+        WhitespaceToken(" "),
+        ArrowToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("List"),
+        WhitespaceToken(" "),
+        IdentifierToken("a"),
+        WhitespaceToken(" "),
+        ArrowToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("List"),
+        WhitespaceToken(" "),
+        IdentifierToken("b"),
+        WhitespaceToken(" "),
+    ]);
+
+    const tokenizedType = tokenizeType(tokenized);
+    assert.deepStrictEqual(
+        tokenizedType,
+        Ok([
+            FunctionTypeToken([
+                IdentifierToken("a"),
+                ArrowToken(),
+                IdentifierToken("Maybe"),
+                IdentifierToken("b"),
+            ]),
+            BaseTypeToken([ IdentifierToken("List"), IdentifierToken("a") ]),
+            BaseTypeToken([ IdentifierToken("List"), IdentifierToken("b") ]),
+        ])
+    );
+
+    const rootTypeString = rootTypeTokensToString((tokenizedType as any).value);
+    assert.deepStrictEqual(rootTypeString, str.trim());
+}
