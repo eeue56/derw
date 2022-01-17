@@ -55,11 +55,12 @@ async function copyTSconfig(dir: string): Promise<void> {
     );
 }
 
-async function appendGitIgnore(): Promise<void> {
+async function appendGitIgnore(dir: string): Promise<void> {
     let gitIgnore = "";
+    const gitIgnorePath = path.join(dir, ".gitignore");
 
     try {
-        gitIgnore = await (await readFile(".gitignore")).toString();
+        gitIgnore = await (await readFile(gitIgnorePath)).toString();
     } catch (e) {}
 
     gitIgnore =
@@ -72,7 +73,7 @@ derw-packages/
 src/**/*.ts
 `;
 
-    await writeFile(".gitignore", gitIgnore);
+    await writeFile(gitIgnorePath, gitIgnore);
 }
 
 export async function init(
@@ -105,7 +106,7 @@ export async function init(
         exportPackage(package_)
     );
     await copyTSconfig(dir);
-    await appendGitIgnore();
+    await appendGitIgnore(dir);
     await ensureDirectoryExists(path.join(dir, "src"));
 
     console.log("Project initialized!");
