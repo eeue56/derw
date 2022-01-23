@@ -17,21 +17,21 @@ import {
 } from "../types";
 
 const oneLine = `
-type alias Program msg model = { update: msg -> model -> model }
+type alias Program msg model = { update: msg -> model -> (msg -> void) -> model }
 `.trim();
 
 const multiLine = `
 type alias Program msg model = {
-    update: msg -> model -> model
+    update: msg -> model -> (msg -> void) -> model
 }
 `.trim();
 
 const expectedOutput = `
 type Program<msg, model> = {
-    update: (arg0: msg, arg1: model) => model;
+    update: (arg0: msg, arg1: model, arg2: (arg0: msg) => void) => model;
 }
 
-function Program<msg, model>(args: { update: (arg0: msg, arg1: model) => model }): Program<msg, model> {
+function Program<msg, model>(args: { update: (arg0: msg, arg1: model, arg2: (arg0: msg) => void) => model }): Program<msg, model> {
     return {
         ...args,
     };
@@ -89,6 +89,10 @@ export function testParse() {
                             FunctionType([
                                 GenericType("msg"),
                                 GenericType("model"),
+                                FunctionType([
+                                    GenericType("msg"),
+                                    FixedType("void", [ ]),
+                                ]),
                                 GenericType("model"),
                             ])
                         ),
@@ -117,6 +121,10 @@ export function testParseMultiLine() {
                             FunctionType([
                                 GenericType("msg"),
                                 GenericType("model"),
+                                FunctionType([
+                                    GenericType("msg"),
+                                    FixedType("void", [ ]),
+                                ]),
                                 GenericType("model"),
                             ])
                         ),

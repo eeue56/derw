@@ -41,9 +41,8 @@ export function testPlainMap() {
         tokenizedType,
         Ok([
             FunctionTypeToken([
-                IdentifierToken("a"),
-                ArrowToken(),
-                IdentifierToken("b"),
+                BaseTypeToken([ IdentifierToken("a") ]),
+                BaseTypeToken([ IdentifierToken("b") ]),
             ]),
             BaseTypeToken([ IdentifierToken("a") ]),
             BaseTypeToken([ IdentifierToken("b") ]),
@@ -86,12 +85,50 @@ export function testListMap() {
         tokenizedType,
         Ok([
             FunctionTypeToken([
-                IdentifierToken("a"),
-                ArrowToken(),
-                IdentifierToken("b"),
+                BaseTypeToken([ IdentifierToken("a") ]),
+                BaseTypeToken([ IdentifierToken("b") ]),
             ]),
-            BaseTypeToken([ IdentifierToken("List"), IdentifierToken("a") ]),
-            BaseTypeToken([ IdentifierToken("List"), IdentifierToken("b") ]),
+            BaseTypeToken([
+                IdentifierToken("List"),
+                BaseTypeToken([ IdentifierToken("a") ]),
+            ]),
+            BaseTypeToken([
+                IdentifierToken("List"),
+                BaseTypeToken([ IdentifierToken("b") ]),
+            ]),
+        ])
+    );
+
+    const rootTypeString = rootTypeTokensToString((tokenizedType as any).value);
+    assert.deepStrictEqual(rootTypeString, str);
+}
+
+export function testSimpleNestedList() {
+    const str = `List ( List a )`.trim();
+    const tokenized = tokenize(str);
+    assert.deepStrictEqual(tokenized, [
+        IdentifierToken("List"),
+        WhitespaceToken(" "),
+        OpenBracketToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("List"),
+        WhitespaceToken(" "),
+        IdentifierToken("a"),
+        WhitespaceToken(" "),
+        CloseBracketToken(),
+    ]);
+
+    const tokenizedType = tokenizeType(tokenized);
+    assert.deepStrictEqual(
+        tokenizedType,
+        Ok([
+            BaseTypeToken([
+                IdentifierToken("List"),
+                BaseTypeToken([
+                    IdentifierToken("List"),
+                    BaseTypeToken([ IdentifierToken("a") ]),
+                ]),
+            ]),
         ])
     );
 
@@ -143,22 +180,21 @@ export function testNextedListMap() {
         tokenizedType,
         Ok([
             FunctionTypeToken([
-                IdentifierToken("a"),
-                ArrowToken(),
-                IdentifierToken("b"),
+                BaseTypeToken([ IdentifierToken("a") ]),
+                BaseTypeToken([ IdentifierToken("b") ]),
             ]),
             BaseTypeToken([
                 IdentifierToken("List"),
                 BaseTypeToken([
                     IdentifierToken("List"),
-                    IdentifierToken("a"),
+                    BaseTypeToken([ IdentifierToken("a") ]),
                 ]),
             ]),
             BaseTypeToken([
                 IdentifierToken("List"),
                 BaseTypeToken([
                     IdentifierToken("List"),
-                    IdentifierToken("b"),
+                    BaseTypeToken([ IdentifierToken("b") ]),
                 ]),
             ]),
         ])
@@ -202,13 +238,21 @@ export function testListFilterMap() {
         tokenizedType,
         Ok([
             FunctionTypeToken([
-                IdentifierToken("a"),
-                ArrowToken(),
-                IdentifierToken("Maybe"),
-                IdentifierToken("b"),
+                BaseTypeToken([ IdentifierToken("a") ]),
+
+                BaseTypeToken([
+                    IdentifierToken("Maybe"),
+                    BaseTypeToken([ IdentifierToken("b") ]),
+                ]),
             ]),
-            BaseTypeToken([ IdentifierToken("List"), IdentifierToken("a") ]),
-            BaseTypeToken([ IdentifierToken("List"), IdentifierToken("b") ]),
+            BaseTypeToken([
+                IdentifierToken("List"),
+                BaseTypeToken([ IdentifierToken("a") ]),
+            ]),
+            BaseTypeToken([
+                IdentifierToken("List"),
+                BaseTypeToken([ IdentifierToken("b") ]),
+            ]),
         ])
     );
 
@@ -252,13 +296,111 @@ export function testListFilterMapWithSpaces() {
         tokenizedType,
         Ok([
             FunctionTypeToken([
-                IdentifierToken("a"),
-                ArrowToken(),
-                IdentifierToken("Maybe"),
-                IdentifierToken("b"),
+                BaseTypeToken([ IdentifierToken("a") ]),
+
+                BaseTypeToken([
+                    IdentifierToken("Maybe"),
+                    BaseTypeToken([ IdentifierToken("b") ]),
+                ]),
             ]),
-            BaseTypeToken([ IdentifierToken("List"), IdentifierToken("a") ]),
-            BaseTypeToken([ IdentifierToken("List"), IdentifierToken("b") ]),
+            BaseTypeToken([
+                IdentifierToken("List"),
+                BaseTypeToken([ IdentifierToken("a") ]),
+            ]),
+            BaseTypeToken([
+                IdentifierToken("List"),
+                BaseTypeToken([ IdentifierToken("b") ]),
+            ]),
+        ])
+    );
+
+    const rootTypeString = rootTypeTokensToString((tokenizedType as any).value);
+    assert.deepStrictEqual(rootTypeString, str.trim());
+}
+
+export function testListFilterMapWithNesting() {
+    const str = `( List a -> ( a -> Maybe b ) -> List b )`;
+
+    const tokenized = tokenize(str);
+    assert.deepStrictEqual(tokenized, [
+        OpenBracketToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("List"),
+        WhitespaceToken(" "),
+        IdentifierToken("a"),
+        WhitespaceToken(" "),
+        ArrowToken(),
+        WhitespaceToken(" "),
+        OpenBracketToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("a"),
+        WhitespaceToken(" "),
+        ArrowToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("Maybe"),
+        WhitespaceToken(" "),
+        IdentifierToken("b"),
+        WhitespaceToken(" "),
+        CloseBracketToken(),
+        WhitespaceToken(" "),
+        ArrowToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("List"),
+        WhitespaceToken(" "),
+        IdentifierToken("b"),
+        WhitespaceToken(" "),
+        CloseBracketToken(),
+    ]);
+
+    const tokenizedType = tokenizeType(tokenized);
+    assert.deepStrictEqual(
+        tokenizedType,
+        Ok([
+            FunctionTypeToken([
+                BaseTypeToken([
+                    IdentifierToken("List"),
+                    BaseTypeToken([ IdentifierToken("a") ]),
+                ]),
+                FunctionTypeToken([
+                    BaseTypeToken([ IdentifierToken("a") ]),
+                    BaseTypeToken([
+                        IdentifierToken("Maybe"),
+                        BaseTypeToken([ IdentifierToken("b") ]),
+                    ]),
+                ]),
+                BaseTypeToken([
+                    IdentifierToken("List"),
+                    BaseTypeToken([ IdentifierToken("b") ]),
+                ]),
+            ]),
+        ])
+    );
+
+    const rootTypeString = rootTypeTokensToString((tokenizedType as any).value);
+    assert.deepStrictEqual(rootTypeString, str.trim());
+}
+
+export function testEither() {
+    const str = `Either a b`;
+
+    const tokenized = tokenize(str);
+    assert.deepStrictEqual(tokenized, [
+        IdentifierToken("Either"),
+        WhitespaceToken(" "),
+        IdentifierToken("a"),
+        WhitespaceToken(" "),
+        IdentifierToken("b"),
+    ]);
+
+    const tokenizedType = tokenizeType(tokenized);
+    assert.deepStrictEqual(
+        tokenizedType,
+        Ok([
+            BaseTypeToken([
+                IdentifierToken("Either"),
+                BaseTypeToken([ IdentifierToken("a") ]),
+                BaseTypeToken([ IdentifierToken("b") ]),
+            ]),
         ])
     );
 

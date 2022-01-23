@@ -9,7 +9,6 @@ import { intoBlocks, typeBlocks } from "./blocks";
 import { isBuiltinType, isReservedName } from "./builtins";
 import { collisions } from "./collisions";
 import {
-    BaseTypeToken,
     CloseBracketToken,
     IdentifierToken,
     OpenBracketToken,
@@ -157,9 +156,9 @@ function parseTypeToken(token: TypeToken): Result<string, Type> {
             return Err("Unexpected close bracket in type");
         }
         case "FunctionTypeToken": {
-            const parsedTypes = splitOnArrow(token.body).map((x) =>
-                parseTypeToken(BaseTypeToken(x))
-            );
+            const parsedTypes = token.body.map((x) => {
+                return parseTypeToken(x);
+            });
             const errors = [ ];
             const correct = [ ];
 
@@ -575,10 +574,17 @@ function parseTypeAlias(tokens: Token[]): Result<string, TypeAlias> {
                 break;
             }
 
-            case "WhitespaceToken":
-            case "OpenBracketToken":
-            case "CloseBracketToken": {
+            case "WhitespaceToken": {
                 continue;
+            }
+
+            case "OpenBracketToken": {
+                currentDefinition.push("(");
+                break;
+            }
+            case "CloseBracketToken": {
+                currentDefinition.push(")");
+                break;
             }
 
             case "CommaToken": {

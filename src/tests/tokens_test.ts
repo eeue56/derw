@@ -424,9 +424,8 @@ map fn x =
         tokenizeType(typeParts),
         Ok([
             FunctionTypeToken([
-                IdentifierToken("a"),
-                ArrowToken(),
-                IdentifierToken("b"),
+                BaseTypeToken([ IdentifierToken("a") ]),
+                BaseTypeToken([ IdentifierToken("b") ]),
             ]),
             BaseTypeToken([ IdentifierToken("a") ]),
             BaseTypeToken([ IdentifierToken("b") ]),
