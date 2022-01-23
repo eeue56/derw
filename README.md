@@ -403,6 +403,12 @@ asIs result =
     derw compile
     ```
 
+-   [x] Install a package
+
+    ```
+    derw install --name derw-lang/stdlib --version main
+    ```
+
 -   [x] An info command to find out stats about modules
 
     ```
