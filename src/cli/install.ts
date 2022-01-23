@@ -23,7 +23,7 @@ import { ensureDirectoryExists, fileExists } from "./utils";
 
 const installParser = parser([
     longFlag("name", "name of the package e.g derw-lang/stdlib", string()),
-    longFlag("version", "name of the package e.g derw-lang/stdlib", string()),
+    longFlag("version", "name of the package e.g main or master", string()),
     longFlag("quiet", "Keep it short and sweet", empty()),
     bothFlag("h", "help", "This help text", empty()),
 ]);
