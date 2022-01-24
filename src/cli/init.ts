@@ -15,7 +15,7 @@ import { ensureDirectoryExists, fileExists } from "./utils";
 const initParser = parser([
     longFlag(
         "dir",
-        "name of a directory to get info about e.g stdlib",
+        "name of a directory to use as package name e.g stdlib",
         string()
     ),
     bothFlag("h", "help", "This help text", empty()),
