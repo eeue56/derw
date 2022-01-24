@@ -2,6 +2,10 @@
 
 An Elm-inspired language that transpiles to TypeScript
 
+Homepage: https://derw-lang.github.io/
+
+Follow Derw on Twitter: https://twitter.com/derwlang
+
 # Install
 
 ```bash
