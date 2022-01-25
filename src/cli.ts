@@ -2,6 +2,7 @@
 import { Err, Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
 import { bundle } from "./cli/bundle";
 import { compileFiles } from "./cli/compile";
+import { format } from "./cli/format";
 import { info } from "./cli/info";
 import { init } from "./cli/init";
 import { install } from "./cli/install";
@@ -16,7 +17,8 @@ type CliCommand =
     | "install"
     | "info"
     | "repl"
-    | "bundle";
+    | "bundle"
+    | "format";
 
 function parseCliCommand(): Result<string, CliCommand> {
     if (typeof process.argv[2] === "undefined") {
@@ -38,6 +40,8 @@ function parseCliCommand(): Result<string, CliCommand> {
             return Ok("repl");
         case "bundle":
             return Ok("bundle");
+        case "format":
+            return Ok("format");
         default: {
             return Err(`Unknown command \`${process.argv[2]}\``);
         }
@@ -91,6 +95,10 @@ export async function main(): Promise<number> {
         }
         case "bundle": {
             await bundle(isInPackageDirectory, argv);
+            return 0;
+        }
+        case "format": {
+            await format(isInPackageDirectory, argv);
             return 0;
         }
     }

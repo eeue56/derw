@@ -14,7 +14,7 @@ import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { spawnSync } from "child_process";
 import * as chokidar from "chokidar";
 import { promises } from "fs";
-import { readdir, writeFile } from "fs/promises";
+import { writeFile } from "fs/promises";
 import path from "path";
 import * as util from "util";
 import { compileTypescript } from "../compile";
@@ -23,7 +23,7 @@ import { generate, Target } from "../generator";
 import { loadPackageFile } from "../package";
 import * as derwParser from "../parser";
 import { Block, ContextModule, contextModuleToModule, Import } from "../types";
-import { ensureDirectoryExists, fileExists } from "./utils";
+import { ensureDirectoryExists, fileExists, getDerwFiles } from "./utils";
 
 const compileParser = parser([
     longFlag("files", "File names to be compiled", variableList(string())),
@@ -79,27 +79,6 @@ function runFile(target: Target, fullName: string): void {
             break;
         }
     }
-}
-
-async function getDerwFiles(dir: string): Promise<string[]> {
-    let files: string[] = [ ];
-
-    for (const file of await readdir(dir, { withFileTypes: true })) {
-        if (file.isFile()) {
-            if (file.name.endsWith("derw")) {
-                files.push(path.join(dir, file.name));
-            }
-        } else if (file.isDirectory()) {
-            if (file.name === "node_modules") {
-            } else {
-                files = files.concat(
-                    await getDerwFiles(path.join(dir, file.name))
-                );
-            }
-        }
-    }
-
-    return files;
 }
 
 function filterBodyForName(module: ContextModule, name: string): Block[] {
