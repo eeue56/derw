@@ -341,7 +341,35 @@ function generateModuleReference(moduleReference: ModuleReference): string {
 
 function generateFunctionCall(functionCall: FunctionCall): string {
     if (functionCall.args.length === 0) return `${functionCall.name}`;
-    const right = functionCall.args.map(generateExpression).join(" ");
+    let output: string[] = [ ];
+
+    for (const arg of functionCall.args) {
+        switch (arg.kind) {
+            case "Constructor":
+            case "FunctionCall": {
+                output.push("(" + generateExpression(arg) + ")");
+                break;
+            }
+            case "ModuleReference": {
+                switch (arg.value.kind) {
+                    case "Constructor":
+                    case "FunctionCall": {
+                        output.push("(" + generateExpression(arg) + ")");
+                        break;
+                    }
+                    default: {
+                        output.push(generateExpression(arg));
+                        break;
+                    }
+                }
+                break;
+            }
+            default: {
+                output.push(generateExpression(arg));
+            }
+        }
+    }
+    const right = output.join(" ");
 
     return `${functionCall.name} ${right}`;
 }
