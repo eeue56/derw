@@ -48,7 +48,6 @@ Or run me without args inside a package directory
   --only string:            Only show a particular object
   --run :                   Should be run via ts-node/node
   --names :                 Check for missing names out of scope
-  --format :                Format the files given in-place
   --quiet :                 Keep it short and sweet
   -h, --help :              This help text
 ```
@@ -365,6 +364,11 @@ asIs result =
 ## 1.0.0
 
 -   [x] An automatic formatter with no options
+
+    ```
+    derw format
+    ```
+
 -   [ ] A standard library
 -   [x] Support for [Coed](https://github.com/eeue56/coed)
 

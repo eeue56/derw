@@ -41,7 +41,6 @@ const compileParser = parser([
     longFlag("debug", "Show a parsed object tree", empty()),
     longFlag("only", "Only show a particular object", string()),
     longFlag("run", "Should be run via ts-node/node", empty()),
-    longFlag("format", "Format the files given in-place", empty()),
     longFlag("names", "Check for missing names out of scope", empty()),
     longFlag("watch", "Watch the files for changes", empty()),
     longFlag("quiet", "Keep it short and sweet", empty()),
@@ -168,8 +167,6 @@ export async function compileFiles(
         }
     }
 
-    const isFormat = program.flags.format.isPresent;
-
     const outputDir = program.flags.output.isPresent
         ? (program.flags.output.arguments as Ok<string>).value
         : "./";
@@ -179,9 +176,7 @@ export async function compileFiles(
         await ensureDirectoryExists(outputDir);
     }
 
-    const target = isFormat
-        ? "derw"
-        : program.flags.target.isPresent
+    const target = program.flags.target.isPresent
         ? (program.flags.target.arguments as Ok<Target>).value
         : "ts";
 
