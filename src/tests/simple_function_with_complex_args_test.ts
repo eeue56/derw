@@ -78,7 +78,7 @@ export function testParse() {
                     FunctionCall("fn", [
                         Value("something"),
                         Value("x"),
-                        ObjectLiteral([
+                        ObjectLiteral(null, [
                             Field("x", Addition(Value("x"), Value("1"))),
                         ]),
                     ])
@@ -103,7 +103,7 @@ export function testParseMultiLine() {
                     FunctionCall("fn", [
                         Value("something"),
                         Value("x"),
-                        ObjectLiteral([
+                        ObjectLiteral(null, [
                             Field("x", Addition(Value("x"), Value("1"))),
                         ]),
                     ])

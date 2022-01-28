@@ -743,7 +743,8 @@ function parseObjectLiteral(tokens: Token[]): Result<string, ObjectLiteral> {
     let currentValue: Expression | null = null;
     let objectDepth = 0;
     let innermostBuffer = "";
-
+    let base = null;
+    let previousWasBase = false;
     let isInName = false;
 
     let index = 0;
@@ -801,6 +802,11 @@ function parseObjectLiteral(tokens: Token[]): Result<string, ObjectLiteral> {
             }
 
             case "CommaToken": {
+                if (previousWasBase) {
+                    previousWasBase = false;
+                    break;
+                }
+
                 if (objectDepth > 1) {
                     innermostBuffer += ",";
                 } else {
@@ -819,6 +825,13 @@ function parseObjectLiteral(tokens: Token[]): Result<string, ObjectLiteral> {
             case "LiteralToken":
             case "IdentifierToken": {
                 if (isInName) {
+                    if (token.kind === "IdentifierToken") {
+                        if (token.body.startsWith("...")) {
+                            base = Value(token.body);
+                            previousWasBase = true;
+                            break;
+                        }
+                    }
                     currentName += token.body;
                 } else {
                     innermostBuffer += token.body;
@@ -844,7 +857,7 @@ function parseObjectLiteral(tokens: Token[]): Result<string, ObjectLiteral> {
         index++;
     }
 
-    return Ok(ObjectLiteral(fields));
+    return Ok(ObjectLiteral(base, fields));
 }
 
 function parseValue(tokens: Token[]): Result<string, Value | Constructor> {

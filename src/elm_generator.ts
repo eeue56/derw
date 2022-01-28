@@ -96,7 +96,22 @@ function generateField(field: Field): string {
     return `${field.name} = ${value}`;
 }
 
+function generateObjectLiteralWithBase(literal: ObjectLiteral): string {
+    const base = (literal.base as Value).body;
+    const baseWithoutDots = base.split("...")[1];
+    let fields = literal.fields.map(generateField).join(",\n    ");
+
+    if (literal.fields.length === 1)
+        return `{ ${baseWithoutDots} | ${fields} }`;
+
+    return `{
+    ${baseWithoutDots} |
+    ${fields}
+}`;
+}
+
 function generateObjectLiteral(literal: ObjectLiteral): string {
+    if (literal.base) return generateObjectLiteralWithBase(literal);
     let fields = literal.fields.map(generateField).join(",\n    ");
 
     if (literal.fields.length === 1) return `{ ${fields} }`;

@@ -152,6 +152,8 @@ export function Value(body: string): Value {
     };
 }
 
+export type ObjectLiteralBase = Value | null;
+
 export type Field = {
     kind: "Field";
     name: string;
@@ -168,12 +170,17 @@ export function Field(name: string, value: Expression): Field {
 
 export type ObjectLiteral = {
     kind: "ObjectLiteral";
+    base: ObjectLiteralBase;
     fields: Field[];
 };
 
-export function ObjectLiteral(fields: Field[]): ObjectLiteral {
+export function ObjectLiteral(
+    base: ObjectLiteralBase,
+    fields: Field[]
+): ObjectLiteral {
     return {
         kind: "ObjectLiteral",
+        base,
         fields,
     };
 }

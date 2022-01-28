@@ -150,7 +150,7 @@ export function testParse() {
                     ]),
                     Constructor(
                         "Left",
-                        ObjectLiteral([ Field("value", Value("1")) ])
+                        ObjectLiteral(null, [ Field("value", Value("1")) ])
                     )
                 ),
                 Function(
@@ -163,7 +163,9 @@ export function testParse() {
                     [ ],
                     Constructor(
                         "Right",
-                        ObjectLiteral([ Field("value", StringValue("hello")) ])
+                        ObjectLiteral(null, [
+                            Field("value", StringValue("hello")),
+                        ])
                     )
                 ),
             ],
@@ -193,7 +195,7 @@ export function testParseMultiLine() {
                     ]),
                     Constructor(
                         "Left",
-                        ObjectLiteral([ Field("value", Value("1")) ])
+                        ObjectLiteral(null, [ Field("value", Value("1")) ])
                     )
                 ),
                 Function(
@@ -206,7 +208,9 @@ export function testParseMultiLine() {
                     [ ],
                     Constructor(
                         "Right",
-                        ObjectLiteral([ Field("value", StringValue("hello")) ])
+                        ObjectLiteral(null, [
+                            Field("value", StringValue("hello")),
+                        ])
                     )
                 ),
             ],

@@ -132,7 +132,14 @@ asIs result =
 
     ```elm
     user: User
-    user = { name: string }
+    user = { name: "Noah" }
+    ```
+
+-   [x] Object literals updates
+
+    ```elm
+    user: User
+    user = { ...noah, name: "Noah" }
     ```
 
 -   [x] Imports

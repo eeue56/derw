@@ -2,6 +2,8 @@ import * as assert from "@eeue56/ts-assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { blockKind, intoBlocks } from "../blocks";
 import { compileTypescript } from "../compile";
+import { generateDerw } from "../derw_generator";
+import { generateElm } from "../elm_generator";
 import { generateJavascript } from "../js_generator";
 import { parse } from "../parser";
 import { generateTypescript } from "../ts_generator";
@@ -28,7 +30,7 @@ type alias Person = {
 }
 
 person: Person
-person = { name: "hello", age: 28, people: [] }
+person = { ...noah, name: "hello", age: 28, people: [] }
 `.trim();
 
 const multiLine = `
@@ -40,6 +42,7 @@ type alias Person = {
 
 person: Person
 person = {
+    ...noah,
     name: "hello",
     age: 28,
     people: []
@@ -60,6 +63,7 @@ function Person(args: { name: string, age: number, people: string[] }): Person {
 }
 
 const person: Person = {
+    ...noah,
     name: "hello",
     age: 28,
     people: [ ]
@@ -74,10 +78,47 @@ function Person(args) {
 }
 
 const person = {
+    ...noah,
     name: "hello",
     age: 28,
     people: [ ]
 };
+`.trim();
+
+const expectedOutputDerw = `
+type alias Person = {
+    name: string,
+    age: number,
+    people: List string
+}
+
+person: Person
+person =
+    {
+        ...noah,
+        name: "hello",
+        age: 28,
+        people: [ ]
+    }
+`.trim();
+
+const expectedOutputElm = `
+module Main exposing (..)
+
+type alias Person = {
+    name: String,
+    age: Float,
+    people: List String
+}
+
+person: Person
+person =
+    {
+        noah |
+        name = "hello",
+        age = 28,
+        people = [ ]
+    }
 `.trim();
 
 export function testIntoBlocks() {
@@ -125,7 +166,7 @@ export function testParse() {
                 Const(
                     "person",
                     FixedType("Person", [ ]),
-                    ObjectLiteral(null, [
+                    ObjectLiteral(Value("...noah"), [
                         Field("name", StringValue("hello")),
                         Field("age", Value("28")),
                         Field("people", ListValue([ ])),
@@ -154,7 +195,7 @@ export function testParseMultiLine() {
                 Const(
                     "person",
                     FixedType("Person", [ ]),
-                    ObjectLiteral(null, [
+                    ObjectLiteral(Value("...noah"), [
                         Field("name", StringValue("hello")),
                         Field("age", Value("28")),
                         Field("people", ListValue([ ])),
@@ -210,4 +251,24 @@ export function testGenerateOneLineJS() {
     const parsed = parse(oneLine);
     const generated = generateJavascript(parsed);
     assert.strictEqual(generated, expectedOutputJS);
+}
+
+export function testGenerateDerw() {
+    const parsed = parse(oneLine);
+    assert.strictEqual(generateDerw(parsed), expectedOutputDerw);
+}
+
+export function testGenerateDerwMultiLine() {
+    const parsed = parse(multiLine);
+    assert.deepStrictEqual(generateDerw(parsed), expectedOutputDerw);
+}
+
+export function testGenerateElm() {
+    const parsed = parse(oneLine);
+    assert.strictEqual(generateElm(parsed), expectedOutputElm);
+}
+
+export function testGenerateElmMultiLine() {
+    const parsed = parse(multiLine);
+    assert.deepStrictEqual(generateElm(parsed), expectedOutputElm);
 }

@@ -193,7 +193,7 @@ export function testParse() {
                             Destructure("Err", "{ error }"),
                             Constructor(
                                 "Err",
-                                ObjectLiteral([
+                                ObjectLiteral(null, [
                                     Field("error", Value("error")),
                                 ])
                             ),
@@ -203,7 +203,7 @@ export function testParse() {
                             Destructure("Ok", "{ value }"),
                             Constructor(
                                 "Ok",
-                                ObjectLiteral([
+                                ObjectLiteral(null, [
                                     Field("value", Value("value")),
                                 ])
                             ),
@@ -242,7 +242,7 @@ export function testParseMultiLine() {
                             Destructure("Err", "{ error }"),
                             Constructor(
                                 "Err",
-                                ObjectLiteral([
+                                ObjectLiteral(null, [
                                     Field("error", Value("error")),
                                 ])
                             ),
@@ -252,7 +252,7 @@ export function testParseMultiLine() {
                             Destructure("Ok", "{ value }"),
                             Constructor(
                                 "Ok",
-                                ObjectLiteral([
+                                ObjectLiteral(null, [
                                     Field("value", Value("value")),
                                 ])
                             ),
