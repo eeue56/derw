@@ -368,6 +368,17 @@ asIs result =
 
     Globals can be accessed through the `globalThis` module which is imported into every namespace. E.g `globalThis.console.log`
 
+-   [x] Constant if statements
+
+    ```elm
+    name: string
+    name =
+        if 1 == 1 then
+            "Noah"
+        else
+            "James"
+    ```
+
 ## 1.0.0
 
 -   [x] An automatic formatter with no options

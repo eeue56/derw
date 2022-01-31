@@ -741,8 +741,27 @@ ${prefixedBody}
 }`.trim();
 }
 
+function generateInlineIf(expression: IfStatement): string {
+    const ifBody =
+        expression.ifBody.kind === "IfStatement"
+            ? "( " + generateInlineIf(expression.ifBody) + " )"
+            : generateExpression(expression.ifBody);
+
+    const elseBody =
+        expression.elseBody.kind === "IfStatement"
+            ? "( " + generateInlineIf(expression.elseBody) + " )"
+            : generateExpression(expression.elseBody);
+
+    return `${generateExpression(
+        expression.predicate
+    )} ? ${ifBody} : ${elseBody}`;
+}
+
 function generateConst(constDef: Const): string {
-    const body = generateExpression(constDef.value);
+    const body =
+        constDef.value.kind === "IfStatement"
+            ? generateInlineIf(constDef.value)
+            : generateExpression(constDef.value);
     const typeDef = generateTopLevelType(constDef.type);
     return `
 const ${constDef.name}: ${typeDef} = ${body};
