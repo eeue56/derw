@@ -13,6 +13,36 @@ import {
     WhitespaceToken,
 } from "../tokens";
 
+export function testPlainFn() {
+    const str = `( a -> b )`.trim();
+    const tokenized = tokenize(str);
+    assert.deepStrictEqual(tokenized, [
+        OpenBracketToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("a"),
+        WhitespaceToken(" "),
+        ArrowToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("b"),
+        WhitespaceToken(" "),
+        CloseBracketToken(),
+    ]);
+
+    const tokenizedType = tokenizeType(tokenized);
+    assert.deepStrictEqual(
+        tokenizedType,
+        Ok([
+            FunctionTypeToken([
+                BaseTypeToken([ IdentifierToken("a") ]),
+                BaseTypeToken([ IdentifierToken("b") ]),
+            ]),
+        ])
+    );
+
+    const rootTypeString = rootTypeTokensToString((tokenizedType as any).value);
+    assert.deepStrictEqual(rootTypeString, str);
+}
+
 export function testPlainMap() {
     const str = `( a -> b ) -> a -> b`.trim();
     const tokenized = tokenize(str);

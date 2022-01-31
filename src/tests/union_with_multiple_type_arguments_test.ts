@@ -130,8 +130,6 @@ export function testBlockKindMultiLine() {
 }
 
 export function testParse() {
-    console.log("par", JSON.stringify(parse(oneLine), null, 4));
-    return;
     assert.deepStrictEqual(
         parse(oneLine),
         Module(

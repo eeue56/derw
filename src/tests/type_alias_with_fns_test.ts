@@ -17,21 +17,23 @@ import {
 } from "../types";
 
 const oneLine = `
-type alias Program msg model = { update: msg -> model -> (msg -> void) -> model }
+type alias Program msg model = { update: msg -> model -> (msg -> void) -> model, view: model -> HtmlNode msg }
 `.trim();
 
 const multiLine = `
 type alias Program msg model = {
-    update: msg -> model -> (msg -> void) -> model
+    update: msg -> model -> (msg -> void) -> model,
+    view: model -> HtmlNode msg
 }
 `.trim();
 
 const expectedOutput = `
 type Program<msg, model> = {
     update: (arg0: msg, arg1: model, arg2: (arg0: msg) => void) => model;
+    view: (arg0: model) => HtmlNode<msg>;
 }
 
-function Program<msg, model>(args: { update: (arg0: msg, arg1: model, arg2: (arg0: msg) => void) => model }): Program<msg, model> {
+function Program<msg, model>(args: { update: (arg0: msg, arg1: model, arg2: (arg0: msg) => void) => model, view: (arg0: model) => HtmlNode<msg> }): Program<msg, model> {
     return {
         ...args,
     };
@@ -96,6 +98,13 @@ export function testParse() {
                                 GenericType("model"),
                             ])
                         ),
+                        Property(
+                            "view",
+                            FunctionType([
+                                GenericType("model"),
+                                FixedType("HtmlNode", [ GenericType("msg") ]),
+                            ])
+                        ),
                     ]
                 ),
             ],
@@ -126,6 +135,13 @@ export function testParseMultiLine() {
                                     FixedType("void", [ ]),
                                 ]),
                                 GenericType("model"),
+                            ])
+                        ),
+                        Property(
+                            "view",
+                            FunctionType([
+                                GenericType("model"),
+                                FixedType("HtmlNode", [ GenericType("msg") ]),
                             ])
                         ),
                     ]

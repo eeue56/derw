@@ -852,7 +852,10 @@ export function tokenizeType(
                 }
             }
         } else if (currentBuffer.find((t) => t.kind === "ArrowToken")) {
-            rootTypeTokens.push(FunctionTypeToken(currentBuffer));
+            const tokenized = tokenizeType(currentBuffer);
+            if (tokenized.kind === "err") return tokenized;
+
+            rootTypeTokens.push(FunctionTypeToken(tokenized.value));
         } else {
             let inner: TypeToken[] = [ ];
             if (currentBuffer.length > 1) {
