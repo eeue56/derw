@@ -189,8 +189,13 @@ function generateBranch(branch: Branch): string {
               prefixLines(branch.letBody.map(generateBlock).join("\n\n"), 8) +
               prefixLines("\nin", 4)
             : "";
+
+    const body = prefixLines(
+        generateExpression(branch.body),
+        branch.letBody.length === 0 ? 4 : 8
+    );
     return `${generateBranchPattern(branch.pattern)} ->${maybeLetBody}
-    ${generateExpression(branch.body)}
+${body}
 `.trim();
 }
 
