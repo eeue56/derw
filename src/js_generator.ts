@@ -543,11 +543,30 @@ function generateInlineIf(expression: IfStatement): string {
     )} ? ${ifBody} : ${elseBody}`;
 }
 
+function generateInlineCase(expression: CaseStatement): string {
+    return `(function () {
+${prefixLines(generateExpression(expression), 4)}
+})()`;
+}
+
 function generateConst(constDef: Const): string {
-    const body =
-        constDef.value.kind === "IfStatement"
-            ? generateInlineIf(constDef.value)
-            : generateExpression(constDef.value);
+    let body = "";
+
+    switch (constDef.value.kind) {
+        case "IfStatement": {
+            body = generateInlineIf(constDef.value);
+            break;
+        }
+        case "CaseStatement": {
+            body = generateInlineCase(constDef.value);
+            break;
+        }
+        default: {
+            body = generateExpression(constDef.value);
+            break;
+        }
+    }
+
     return `
 const ${constDef.name} = ${body};
 `.trim();

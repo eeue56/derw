@@ -379,6 +379,17 @@ asIs result =
             "James"
     ```
 
+-   [x] Constant case statements
+
+    ```elm
+    name: string
+    name =
+        case person of
+            "n" -> "Noah"
+            "j" -> "James"
+            default -> "Other"
+    ```
+
 ## 1.0.0
 
 -   [x] An automatic formatter with no options
