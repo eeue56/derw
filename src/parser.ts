@@ -1613,7 +1613,7 @@ function parseFunctionCall(
             }
             case "CloseBracketToken": {
                 bracketDepth--;
-                if (bracketDepth === 0) {
+                if (bracketDepth <= 0) {
                     args.push(currentArg.join(""));
                     currentArg = [ ];
                 } else {
@@ -1747,6 +1747,28 @@ function parseOperator(
     return { left, right };
 }
 
+function hasTopLevelOperator(operator: string, tokens: Token[]): boolean {
+    let bracketDepth = 0;
+    for (const token of tokens) {
+        switch (token.kind) {
+            case "OpenBracketToken": {
+                bracketDepth++;
+                break;
+            }
+            case "CloseBracketToken": {
+                bracketDepth--;
+                break;
+            }
+            case "OperatorToken": {
+                if (bracketDepth === 0 && token.body === operator) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 function parseEquality(tokens: Token[]): Result<string, Equality> {
     const operator = "==";
     const { left, right } = parseOperator(operator, tokens);
@@ -1878,17 +1900,11 @@ export function parseExpression(body: string): Result<string, Expression> {
         return Err(`Expected a token but got "${tokens}"`);
     }
 
-    if (
-        tokens.filter(
-            (token) => token.kind === "OperatorToken" && token.body === "|>"
-        ).length > 0
-    ) {
+    if (firstToken.kind === "OperatorToken" && firstToken.body === "\\") {
+        return parseLambda(tokens);
+    } else if (hasTopLevelOperator("|>", tokens)) {
         return parseLeftPipe(tokens);
-    } else if (
-        tokens.filter(
-            (token) => token.kind === "OperatorToken" && token.body === "<|"
-        ).length > 0
-    ) {
+    } else if (hasTopLevelOperator("<|", tokens)) {
         return parseRightPipe(tokens);
     }
 
