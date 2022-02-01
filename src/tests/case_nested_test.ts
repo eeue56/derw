@@ -8,6 +8,7 @@ import { generateTypescript } from "../ts_generator";
 import {
     Branch,
     CaseStatement,
+    Default,
     Destructure,
     FixedType,
     Function,
@@ -17,6 +18,7 @@ import {
     GenericType,
     ListValue,
     Module,
+    StringValue,
     UnparsedBlock,
     Value,
 } from "../types";
@@ -26,7 +28,11 @@ filterMapHelp: (a -> Maybe b) -> a -> List b -> List b
 filterMapHelp fn a xs =
     case fn a of
         Just { value } ->
-            append xs [ value ]
+            case "hello" of
+                "hello" ->
+                    append xs [ value ]
+                default ->
+                    append xs [ value ]
         Nothing ->
             xs
 `.trim();
@@ -36,7 +42,11 @@ filterMapHelp: (a -> Maybe b) -> a -> List b -> List b
 filterMapHelp fn a xs =
     case fn a of
         Just { value } ->
-            append xs [ value ]
+            case "hello" of
+                "hello" ->
+                    append xs [ value ]
+                default ->
+                    append xs [ value ]
         Nothing ->
             xs
 `.trim();
@@ -47,7 +57,15 @@ function filterMapHelp<a, b>(fn: (arg0: a) => Maybe<b>, a: a, xs: b[]): b[] {
     switch (_res97517640.kind) {
         case "Just": {
             const { value } = _res97517640;
-            return append(xs, [ value ]);
+            const _res1110581198 = "hello";
+        switch (_res1110581198) {
+            case "hello": {
+                return append(xs, [ value ]);
+            }
+            default: {
+                return append(xs, [ value ]);
+            }
+        };
         }
         case "Nothing": {
             return xs;
@@ -62,7 +80,15 @@ function filterMapHelp(fn, a, xs) {
     switch (_res97517640.kind) {
         case "Just": {
             const { value } = _res97517640;
-            return append(xs, [ value ]);
+            const _res1110581198 = "hello";
+        switch (_res1110581198) {
+            case "hello": {
+                return append(xs, [ value ]);
+            }
+            default: {
+                return append(xs, [ value ]);
+            }
+        };
         }
         case "Nothing": {
             return xs;
@@ -128,9 +154,23 @@ export function testParse() {
                     CaseStatement(FunctionCall("fn", [ Value("a") ]), [
                         Branch(
                             Destructure("Just", "{ value }"),
-                            FunctionCall("append", [
-                                Value("xs"),
-                                ListValue([ Value("value") ]),
+                            CaseStatement(StringValue("hello"), [
+                                Branch(
+                                    StringValue("hello"),
+                                    FunctionCall("append", [
+                                        Value("xs"),
+                                        ListValue([ Value("value") ]),
+                                    ]),
+                                    [ ]
+                                ),
+                                Branch(
+                                    Default(),
+                                    FunctionCall("append", [
+                                        Value("xs"),
+                                        ListValue([ Value("value") ]),
+                                    ]),
+                                    [ ]
+                                ),
                             ]),
                             [ ]
                         ),
@@ -170,9 +210,23 @@ export function testParseMultiLine() {
                     CaseStatement(FunctionCall("fn", [ Value("a") ]), [
                         Branch(
                             Destructure("Just", "{ value }"),
-                            FunctionCall("append", [
-                                Value("xs"),
-                                ListValue([ Value("value") ]),
+                            CaseStatement(StringValue("hello"), [
+                                Branch(
+                                    StringValue("hello"),
+                                    FunctionCall("append", [
+                                        Value("xs"),
+                                        ListValue([ Value("value") ]),
+                                    ]),
+                                    [ ]
+                                ),
+                                Branch(
+                                    Default(),
+                                    FunctionCall("append", [
+                                        Value("xs"),
+                                        ListValue([ Value("value") ]),
+                                    ]),
+                                    [ ]
+                                ),
                             ]),
                             [ ]
                         ),

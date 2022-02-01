@@ -39,7 +39,7 @@ import {
     UnionType,
     Value,
 } from "./types";
-import { getNameFromPath } from "./utils";
+import { getNameFromPath, hashCode } from "./utils";
 
 function prefixLines(body: string, indent: number): string {
     return body
@@ -203,8 +203,9 @@ function generateBranch(predicate: string, branch: Branch): string {
 
 function generateCaseStatement(caseStatement: CaseStatement): string {
     const predicate = generateExpression(caseStatement.predicate);
+    const name = `_res${hashCode(predicate)}`;
     const branches = caseStatement.branches.map((branch) =>
-        generateBranch("_res", branch)
+        generateBranch(name, branch)
     );
 
     const isString =
@@ -214,15 +215,15 @@ function generateCaseStatement(caseStatement: CaseStatement): string {
 
     if (isString) {
         return `
-const _res = ${predicate};
-switch (_res) {
+const ${name} = ${predicate};
+switch (${name}) {
 ${prefixLines(branches.join("\n"), 4)}
 }`.trim();
     }
 
     return `
-const _res = ${predicate};
-switch (_res.kind) {
+const ${name} = ${predicate};
+switch (${name}.kind) {
 ${prefixLines(branches.join("\n"), 4)}
 }`.trim();
 }

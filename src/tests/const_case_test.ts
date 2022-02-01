@@ -37,8 +37,8 @@ name =
 
 const expectedOutput = `
 const name: string = (function (): any {
-    const _res = person;
-    switch (_res) {
+    const _res991716523 = person;
+    switch (_res991716523) {
         case "noah": {
             return "Noah";
         }
@@ -54,8 +54,8 @@ const name: string = (function (): any {
 
 const expectedOutputJS = `
 const name = (function () {
-    const _res = person;
-    switch (_res) {
+    const _res991716523 = person;
+    switch (_res991716523) {
         case "noah": {
             return "Noah";
         }
