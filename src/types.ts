@@ -373,6 +373,20 @@ export function Or(left: Expression, right: Expression): Or {
     };
 }
 
+export type ListPrepend = {
+    kind: "ListPrepend";
+    left: Expression;
+    right: Expression;
+};
+
+export function ListPrepend(left: Expression, right: Expression): ListPrepend {
+    return {
+        kind: "ListPrepend",
+        left,
+        right,
+    };
+}
+
 export type LeftPipe = {
     kind: "LeftPipe";
     left: Expression;
@@ -611,6 +625,7 @@ export type Expression =
     | Division
     | And
     | Or
+    | ListPrepend
     | LeftPipe
     | RightPipe
     | ModuleReference
@@ -650,6 +665,7 @@ export type SimpleValue =
     | "GreaterThanOrEqual"
     | "And"
     | "Or"
+    | "ListPrepend"
     | "ModuleReference"
     | "FunctionCall"
     | "LeftPipe"
@@ -677,6 +693,7 @@ export function isSimpleValue(kind: string): kind is SimpleValue {
             "GreaterThanOrEqual",
             "And",
             "Or",
+            "ListPrepend",
             "ModuleReference",
             "FunctionCall",
             "LeftPipe",

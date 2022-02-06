@@ -25,6 +25,7 @@ import {
     LeftPipe,
     LessThan,
     LessThanOrEqual,
+    ListPrepend,
     ListRange,
     ListValue,
     ModuleReference,
@@ -425,6 +426,10 @@ function inferOr(value: Or): Type {
     return FixedType("boolean", [ ]);
 }
 
+function inferListPrepend(value: ListPrepend): Type {
+    return FixedType("List", [ GenericType("any") ]);
+}
+
 export function inferType(
     expression: Expression,
     typedBlocks: TypedBlock[]
@@ -458,6 +463,8 @@ export function inferType(
             return Ok(inferAnd(expression));
         case "Or":
             return Ok(inferOr(expression));
+        case "ListPrepend":
+            return Ok(inferListPrepend(expression));
         case "LeftPipe":
             return inferLeftPipe(expression, typedBlocks);
         case "RightPipe":

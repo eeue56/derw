@@ -430,7 +430,12 @@ export function tokenize(body: string): Token[] {
                     }
 
                     case ":": {
-                        tokens.push(ColonToken());
+                        if (body[i + 1] === ":") {
+                            tokens.push(OperatorToken("::"));
+                            i++;
+                        } else {
+                            tokens.push(ColonToken());
+                        }
                         break;
                     }
 

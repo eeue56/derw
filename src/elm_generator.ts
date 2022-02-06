@@ -26,6 +26,7 @@ import {
     LeftPipe,
     LessThan,
     LessThanOrEqual,
+    ListPrepend,
     ListRange,
     ListValue,
     Module,
@@ -465,6 +466,12 @@ function generateOr(or: Or): string {
     return `${left} || ${right}`;
 }
 
+function generateListPrepend(prepend: ListPrepend): string {
+    const left = generateExpression(prepend.left);
+    const right = generateExpression(prepend.right);
+    return `${left} :: ${right}`;
+}
+
 function generateExpression(expression: Expression): string {
     switch (expression.kind) {
         case "Value":
@@ -495,6 +502,8 @@ function generateExpression(expression: Expression): string {
             return generateAnd(expression);
         case "Or":
             return generateOr(expression);
+        case "ListPrepend":
+            return generateListPrepend(expression);
         case "LeftPipe":
             return generateLeftPipe(expression);
         case "RightPipe":

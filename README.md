@@ -390,6 +390,14 @@ asIs result =
             default -> "Other"
     ```
 
+-   [x] List prepend
+
+    ```elm
+    numbers: List number
+    numbers =
+        1 :: [ 2, 3 ]
+    ```
+
 ## 1.0.0
 
 -   [x] An automatic formatter with no options

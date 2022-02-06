@@ -57,6 +57,7 @@ import {
     LeftPipe,
     LessThan,
     LessThanOrEqual,
+    ListPrepend,
     ListRange,
     ListValue,
     Module,
@@ -1852,6 +1853,16 @@ function parseOr(tokens: Token[]): Result<string, Or> {
     return Ok(Or(left.value, right.value));
 }
 
+function parseListPrepend(tokens: Token[]): Result<string, ListPrepend> {
+    const operator = "::";
+    const { left, right } = parseOperator(operator, tokens);
+
+    if (left.kind === "err") return left;
+    if (right.kind === "err") return right;
+
+    return Ok(ListPrepend(left.value, right.value));
+}
+
 function dropSurroundingBrackets(tokens: Token[]): Token[] {
     let start = 0;
     let end = tokens.length - 1;
@@ -1915,11 +1926,13 @@ export function parseExpression(body: string): Result<string, Expression> {
             } else if (firstToken.body === "case") {
                 return parseCaseStatement(body);
             }
+            break;
         }
         case "OperatorToken": {
             if (firstToken.body === "\\") {
                 return parseLambda(tokens);
             }
+            break;
         }
         case "OpenCurlyBracesToken": {
             const tokensOtherThanWhitespace = tokens
@@ -2002,6 +2015,8 @@ export function parseExpression(body: string): Result<string, Expression> {
         return parseAnd(tokens);
     } else if (body.indexOf(" || ") > 0) {
         return parseOr(tokens);
+    } else if (body.indexOf(" :: ") > 0) {
+        return parseListPrepend(tokens);
     } else if (body.indexOf(" + ") > 0) {
         return parseAddition(tokens);
     } else if (body.indexOf(" - ") > 0) {

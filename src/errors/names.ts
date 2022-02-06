@@ -70,6 +70,11 @@ function namesPerExpression(expression: Expression): string[] {
                 ...namesPerExpression(expression.left),
                 ...namesPerExpression(expression.right),
             ];
+        case "ListPrepend":
+            return [
+                ...namesPerExpression(expression.left),
+                ...namesPerExpression(expression.right),
+            ];
         case "LeftPipe":
             return [
                 ...namesPerExpression(expression.left),
