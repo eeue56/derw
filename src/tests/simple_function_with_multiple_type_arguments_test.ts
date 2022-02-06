@@ -142,7 +142,13 @@ export function testParse() {
                         ),
                     ],
                     [ ],
-                    IfStatement(Value("value"), Value("value"), Value("value"))
+                    IfStatement(
+                        Value("value"),
+                        Value("value"),
+                        [ ],
+                        Value("value"),
+                        [ ]
+                    )
                 ),
             ],
             [ ]
@@ -170,7 +176,13 @@ export function testParseMultiLine() {
                         ),
                     ],
                     [ ],
-                    IfStatement(Value("value"), Value("value"), Value("value"))
+                    IfStatement(
+                        Value("value"),
+                        Value("value"),
+                        [ ],
+                        Value("value"),
+                        [ ]
+                    )
                 ),
             ],
             [ ]

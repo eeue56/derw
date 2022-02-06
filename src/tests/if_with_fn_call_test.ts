@@ -100,7 +100,9 @@ export function testParse() {
                             )
                         ),
                         Value("true"),
-                        Value("false")
+                        [ ],
+                        Value("false"),
+                        [ ]
                     )
                 ),
             ],
@@ -132,7 +134,9 @@ export function testParseMultiLine() {
                             )
                         ),
                         Value("true"),
-                        Value("false")
+                        [ ],
+                        Value("false"),
+                        [ ]
                     )
                 ),
             ],

@@ -270,19 +270,25 @@ export type IfStatement = {
     kind: "IfStatement";
     predicate: Expression;
     ifBody: Expression;
+    ifLetBody: Block[];
     elseBody: Expression;
+    elseLetBody: Block[];
 };
 
 export function IfStatement(
     predicate: Expression,
     ifBody: Expression,
-    elseBody: Expression
+    ifLetBody: Block[],
+    elseBody: Expression,
+    elseLetBody: Block[]
 ): IfStatement {
     return {
         kind: "IfStatement",
         predicate,
         ifBody,
+        ifLetBody,
         elseBody,
+        elseLetBody,
     };
 }
 

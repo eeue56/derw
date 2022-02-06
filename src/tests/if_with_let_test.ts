@@ -6,45 +6,73 @@ import { generateJavascript } from "../js_generator";
 import { parse } from "../parser";
 import { generateTypescript } from "../ts_generator";
 import {
+    Const,
+    Equality,
     FixedType,
     Function,
     FunctionArg,
-    GenericType,
+    FunctionCall,
     IfStatement,
     Module,
+    ModuleReference,
+    StringValue,
     UnparsedBlock,
     Value,
 } from "../types";
 
 const oneLine = `
-isTrue: Maybe a -> boolean
-isTrue value = if value then true else false
+reducer: number -> string -> boolean
+reducer index line =
+    if line.charAt index == "0" then
+        let
+            x: string
+            x = "hello"
+        in
+            true
+    else
+        let
+            y: string
+            y = "world"
+        in
+            false
 `.trim();
 
 const multiLine = `
-isTrue: Maybe a -> boolean
-isTrue value =
-    if value then
-        true
+reducer: number -> string -> boolean
+reducer index line =
+    if line.charAt index == "0" then
+        let
+            x: string
+            x = "hello"
+        in
+            true
     else
-        false
+        let
+            y: string
+            y = "world"
+        in
+            false
 `.trim();
 
 const expectedOutput = `
-function isTrue<a>(value: Maybe<a>): boolean {
-    if (value) {
+function reducer(index: number, line: string): boolean {
+    if (line.charAt(index) === "0") {
+        const x: string = "hello";
         return true;
     } else {
+        const y: string = "world";
         return false;
     }
 }
 `.trim();
 
 const expectedOutputJS = `
-function isTrue(value) {
-    if (value) {
+function reducer(index, line) {
+    if (line.charAt(index) === "0") {
+        const x = "hello";
         return true;
     } else {
+        const y = "world";
         return false;
     }
 }
@@ -61,6 +89,7 @@ export function testIntoBlocksMultiLine() {
         UnparsedBlock("FunctionBlock", 0, multiLine.split("\n")),
     ]);
 }
+
 export function testBlockKind() {
     assert.deepStrictEqual(blockKind(oneLine), Ok("Function"));
 }
@@ -76,21 +105,37 @@ export function testParse() {
             "main",
             [
                 Function(
-                    "isTrue",
+                    "reducer",
                     FixedType("boolean", [ ]),
                     [
-                        FunctionArg(
-                            "value",
-                            FixedType("Maybe", [ GenericType("a") ])
-                        ),
+                        FunctionArg("index", FixedType("number", [ ])),
+                        FunctionArg("line", FixedType("string", [ ])),
                     ],
                     [ ],
                     IfStatement(
-                        Value("value"),
+                        ModuleReference(
+                            [ "line" ],
+                            Equality(
+                                FunctionCall("charAt", [ Value("index") ]),
+                                StringValue("0")
+                            )
+                        ),
                         Value("true"),
-                        [ ],
+                        [
+                            Const(
+                                "x",
+                                FixedType("string", [ ]),
+                                StringValue("hello")
+                            ),
+                        ],
                         Value("false"),
-                        [ ]
+                        [
+                            Const(
+                                "y",
+                                FixedType("string", [ ]),
+                                StringValue("world")
+                            ),
+                        ]
                     )
                 ),
             ],
@@ -106,21 +151,37 @@ export function testParseMultiLine() {
             "main",
             [
                 Function(
-                    "isTrue",
+                    "reducer",
                     FixedType("boolean", [ ]),
                     [
-                        FunctionArg(
-                            "value",
-                            FixedType("Maybe", [ GenericType("a") ])
-                        ),
+                        FunctionArg("index", FixedType("number", [ ])),
+                        FunctionArg("line", FixedType("string", [ ])),
                     ],
                     [ ],
                     IfStatement(
-                        Value("value"),
+                        ModuleReference(
+                            [ "line" ],
+                            Equality(
+                                FunctionCall("charAt", [ Value("index") ]),
+                                StringValue("0")
+                            )
+                        ),
                         Value("true"),
-                        [ ],
+                        [
+                            Const(
+                                "x",
+                                FixedType("string", [ ]),
+                                StringValue("hello")
+                            ),
+                        ],
                         Value("false"),
-                        [ ]
+                        [
+                            Const(
+                                "y",
+                                FixedType("string", [ ]),
+                                StringValue("world")
+                            ),
+                        ]
                     )
                 ),
             ],
@@ -130,13 +191,13 @@ export function testParseMultiLine() {
 }
 
 export function testGenerate() {
-    const parsed = parse(oneLine);
+    const parsed = parse(multiLine);
     const generated = generateTypescript(parsed);
     assert.strictEqual(generated, expectedOutput);
 }
 
-export function testGenerateMultiLine() {
-    const parsed = parse(multiLine);
+export function testGenerateOneLine() {
+    const parsed = parse(oneLine);
     const generated = generateTypescript(parsed);
     assert.strictEqual(generated, expectedOutput);
 }

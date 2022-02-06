@@ -231,6 +231,15 @@ function generateIfStatement(ifStatement: IfStatement): string {
     const ifBodyPrefix = isSimpleIfBody ? "return " : "";
     const elseBodyPrefix = isSimpleElseBody ? "return " : "";
 
+    const maybeIfLetBody =
+        ifStatement.ifLetBody.length > 0
+            ? "\n" +
+              prefixLines(
+                  ifStatement.ifLetBody.map(generateBlock).join("\n"),
+                  4
+              )
+            : "";
+
     const ifBody = generateExpression(ifStatement.ifBody);
     const indentedIfBody =
         ifBody.split("\n").length === 1
@@ -239,6 +248,15 @@ function generateIfStatement(ifStatement: IfStatement): string {
                   ifBody.split("\n")[0],
                   prefixLines(ifBody.split("\n").slice(1).join("\n"), 4),
               ].join("\n");
+
+    const maybeElseLetBody =
+        ifStatement.elseLetBody.length > 0
+            ? "\n" +
+              prefixLines(
+                  ifStatement.elseLetBody.map(generateBlock).join("\n"),
+                  4
+              )
+            : "";
 
     const elseBody = generateExpression(ifStatement.elseBody);
     const indentedElseBody =
@@ -249,9 +267,9 @@ function generateIfStatement(ifStatement: IfStatement): string {
                   prefixLines(elseBody.split("\n").slice(1).join("\n"), 4),
               ].join("\n");
 
-    return `if (${generateExpression(ifStatement.predicate)}) {
+    return `if (${generateExpression(ifStatement.predicate)}) {${maybeIfLetBody}
     ${ifBodyPrefix}${indentedIfBody};
-} else {
+} else {${maybeElseLetBody}
     ${elseBodyPrefix}${indentedElseBody};
 }`;
 }

@@ -80,7 +80,13 @@ export function testParse() {
                     FixedType("boolean", [ ]),
                     [ FunctionArg("value", FixedType("boolean", [ ])) ],
                     [ ],
-                    IfStatement(Value("value"), Value("true"), Value("false"))
+                    IfStatement(
+                        Value("value"),
+                        Value("true"),
+                        [ ],
+                        Value("false"),
+                        [ ]
+                    )
                 ),
             ],
             [ ]
@@ -99,7 +105,13 @@ export function testParseMultiLine() {
                     FixedType("boolean", [ ]),
                     [ FunctionArg("value", FixedType("boolean", [ ])) ],
                     [ ],
-                    IfStatement(Value("value"), Value("true"), Value("false"))
+                    IfStatement(
+                        Value("value"),
+                        Value("true"),
+                        [ ],
+                        Value("false"),
+                        [ ]
+                    )
                 ),
             ],
             [ ]

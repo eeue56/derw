@@ -147,10 +147,39 @@ function generateListRange(list: ListRange): string {
 }
 
 function generateIfStatement(ifStatement: IfStatement): string {
-    return `if ${generateExpression(ifStatement.predicate)} then
-${prefixLines(generateExpression(ifStatement.ifBody), 4)}
-else
-${prefixLines(generateExpression(ifStatement.elseBody), 4)}
+    const maybeIfLetBody =
+        ifStatement.ifLetBody.length > 0
+            ? prefixLines("\nlet", 4) +
+              "\n" +
+              prefixLines(
+                  ifStatement.ifLetBody.map(generateBlock).join("\n\n"),
+                  8
+              ) +
+              prefixLines("\nin", 4) +
+              prefixLines("", 8)
+            : "";
+
+    const maybeElseLetBody =
+        ifStatement.elseLetBody.length > 0
+            ? prefixLines("\nlet", 4) +
+              "\n" +
+              prefixLines(
+                  ifStatement.elseLetBody.map(generateBlock).join("\n\n"),
+                  8
+              ) +
+              prefixLines("\nin", 4) +
+              prefixLines("", 8)
+            : "";
+
+    return `if ${generateExpression(
+        ifStatement.predicate
+    )} then${maybeIfLetBody}
+${prefixLines(generateExpression(ifStatement.ifBody), maybeIfLetBody ? 8 : 4)}
+else${maybeElseLetBody}
+${prefixLines(
+    generateExpression(ifStatement.elseBody),
+    maybeElseLetBody ? 8 : 4
+)}
 `;
 }
 

@@ -1165,7 +1165,9 @@ function parseIfStatementSingleLine(body: string): Result<string, IfStatement> {
         IfStatement(
             (parsedPredicate as Ok<Expression>).value,
             (parsedIfBody as Ok<Expression>).value,
-            (parsedElseBody as Ok<Expression>).value
+            [ ],
+            (parsedElseBody as Ok<Expression>).value,
+            [ ]
         )
     );
 }
@@ -1224,10 +1226,66 @@ function parseIfStatement(body: string): Result<string, IfStatement> {
     }
 
     const ifBody = lines.slice(1, elseIndex);
+
+    const ifLetStart = ifBody.findIndex(
+        (line) =>
+            line.startsWith(" ".repeat(indentLevel + 4) + "let") &&
+            line.endsWith("let")
+    );
+    const ifLetEnd = ifBody.findIndex(
+        (line) =>
+            line.startsWith(" ".repeat(indentLevel + 4) + "in") &&
+            line.endsWith("in")
+    );
+
+    let ifLetBlock: Block[] = [ ];
+
+    if (ifLetStart > -1 && ifLetEnd > -1) {
+        const letLines = ifBody
+            .slice(ifLetStart + 1, ifLetEnd)
+            .map((line) => line.slice(indentLevel + 8));
+        const letBlocks = intoBlocks(letLines.join("\n"));
+
+        ifLetBlock = letBlocks
+            .map(parseBlock)
+            .filter((block) => block.kind === "ok")
+            .map((block) => (block as Ok<Block>).value);
+    }
+
     const elseBody = lines.slice(elseIndex + 1);
 
-    const parsedIfBody = parseExpression(ifBody.join("\n"));
-    const parsedElseBody = parseExpression(elseBody.join("\n"));
+    const elseLetStart = elseBody.findIndex(
+        (line) =>
+            line.startsWith(" ".repeat(indentLevel + 4) + "let") &&
+            line.endsWith("let")
+    );
+    const elseLetEnd = elseBody.findIndex(
+        (line) =>
+            line.startsWith(" ".repeat(indentLevel + 4) + "in") &&
+            line.endsWith("in")
+    );
+
+    let elseLetBlock: Block[] = [ ];
+
+    if (elseLetStart > -1 && elseLetEnd > -1) {
+        const letLines = elseBody
+            .slice(elseLetStart + 1, elseLetEnd)
+            .map((line) => line.slice(indentLevel + 8));
+        const letBlocks = intoBlocks(letLines.join("\n"));
+
+        elseLetBlock = letBlocks
+            .map(parseBlock)
+            .filter((block) => block.kind === "ok")
+            .map((block) => (block as Ok<Block>).value);
+    }
+
+    const parsedIfBody = parseExpression(
+        ifBody.slice(ifLetEnd === -1 ? 0 : ifLetEnd + 1).join("\n")
+    );
+
+    const parsedElseBody = parseExpression(
+        elseBody.slice(elseLetEnd === -1 ? 0 : elseLetEnd + 1).join("\n")
+    );
 
     const errors = [ ];
     if (parsedPredicate.kind === "err") errors.push(parsedPredicate.error);
@@ -1242,7 +1300,9 @@ function parseIfStatement(body: string): Result<string, IfStatement> {
         IfStatement(
             (parsedPredicate as Ok<Expression>).value,
             (parsedIfBody as Ok<Expression>).value,
-            (parsedElseBody as Ok<Expression>).value
+            ifLetBlock,
+            (parsedElseBody as Ok<Expression>).value,
+            elseLetBlock
         )
     );
 }

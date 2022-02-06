@@ -82,9 +82,13 @@ export function testParse() {
                         IfStatement(
                             Equality(Value("2"), Value("2")),
                             StringValue("Noah"),
-                            StringValue("Mary")
+                            [ ],
+                            StringValue("Mary"),
+                            [ ]
                         ),
-                        StringValue("James")
+                        [ ],
+                        StringValue("James"),
+                        [ ]
                     )
                 ),
             ],
@@ -107,9 +111,13 @@ export function testParseMultiLine() {
                         IfStatement(
                             Equality(Value("2"), Value("2")),
                             StringValue("Noah"),
-                            StringValue("Mary")
+                            [ ],
+                            StringValue("Mary"),
+                            [ ]
                         ),
-                        StringValue("James")
+                        [ ],
+                        StringValue("James"),
+                        [ ]
                     )
                 ),
             ],
