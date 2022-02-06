@@ -487,7 +487,11 @@ export function Default(): Default {
     };
 }
 
-export type BranchPattern = Default | Destructure | StringValue;
+export type BranchPattern =
+    | Default
+    | Destructure
+    | StringValue
+    | FormatStringValue;
 
 export type Branch = {
     kind: "Branch";

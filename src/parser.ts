@@ -1281,6 +1281,9 @@ function parseBranchPattern(tokens: Token[]): Result<string, BranchPattern> {
         case "StringToken": {
             return parseStringValue(tokens.slice(index));
         }
+        case "FormatStringToken": {
+            return parseFormatStringValue(tokens.slice(index));
+        }
     }
     return Err(`Expected destructure or string but got ${firstToken.kind}`);
 }

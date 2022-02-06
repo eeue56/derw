@@ -194,6 +194,11 @@ function generateBranch(predicate: string, branch: Branch): string {
     ${returnWrapper}${body};
 }`;
         }
+        case "FormatStringValue": {
+            return `case \`${branch.pattern.body}\`: {${maybeLetBody}
+    ${returnWrapper}${body};
+}`;
+        }
         case "Default": {
             return `default: {${maybeLetBody}
     ${returnWrapper}${body};

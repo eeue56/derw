@@ -176,6 +176,9 @@ function generateBranchPattern(branchPattern: BranchPattern): string {
         case "StringValue": {
             return `"` + branchPattern.body + `"`;
         }
+        case "FormatStringValue": {
+            return "`" + branchPattern.body + "`";
+        }
         case "Default": {
             return "default";
         }

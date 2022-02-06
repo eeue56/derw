@@ -10,6 +10,7 @@ import {
     CaseStatement,
     Default,
     FixedType,
+    FormatStringValue,
     Function,
     FunctionArg,
     Module,
@@ -23,7 +24,7 @@ sayHello: string -> string
 sayHello name =
     case name of
         "Noah" -> "Hi Noah"
-        "James" -> "Greetings"
+        \`James\` -> "Greetings"
         default -> "I don't know you"
 `.trim();
 
@@ -32,7 +33,7 @@ sayHello: string -> string
 sayHello name =
     case name of
         "Noah" -> "Hi Noah"
-        "James" -> "Greetings"
+        \`James\` -> "Greetings"
         default -> "I don't know you"
 `.trim();
 
@@ -43,7 +44,7 @@ function sayHello(name: string): string {
         case "Noah": {
             return "Hi Noah";
         }
-        case "James": {
+        case \`James\`: {
             return "Greetings";
         }
         default: {
@@ -60,7 +61,7 @@ function sayHello(name) {
         case "Noah": {
             return "Hi Noah";
         }
-        case "James": {
+        case \`James\`: {
             return "Greetings";
         }
         default: {
@@ -118,7 +119,7 @@ export function testParse() {
                             [ ]
                         ),
                         Branch(
-                            StringValue("James"),
+                            FormatStringValue("James"),
                             StringValue("Greetings"),
                             [ ]
                         ),
@@ -149,7 +150,7 @@ export function testParseMultiLine() {
                             [ ]
                         ),
                         Branch(
-                            StringValue("James"),
+                            FormatStringValue("James"),
                             StringValue("Greetings"),
                             [ ]
                         ),
