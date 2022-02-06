@@ -220,15 +220,17 @@ asIs result =
             default: "I don't know you"
     ```
 
--   [ ] List destructing
+-   [x] List destructing
 
     ```elm
 
-    sayHiTo : List number -> string
-    sayHiTo xs =
+    sum: List number -> number
+    sum xs =
         case xs of
-            [] -> "Empty"
-            x::ys -> "Hello " + x + (sayHiTo ys)
+            [] -> 0
+            y :: ys :: [] -> y + ys
+            z :: zs -> z + sum zs
+            default -> 0
     ```
 
 -   [x] Constructing union types
@@ -305,7 +307,7 @@ asIs result =
 -   [x] lambdas `\x -> x + 1`, `\x y -> x + y`
 -   [x] Typescript output
 -   [x] Javscript output
--   [ ] Elm output
+-   [x] Elm output
 -   [x] Module resolution
 -   [x] CLI
 -   [x] Basic type checking
@@ -474,7 +476,7 @@ asIs result =
 
 # 2.0.0
 
--   [ ] Time travelling d ebugger
+-   [ ] Time travelling debugger
 -   [ ] Type checking with interop with TypeScript
 -   [ ] Derw compiler is written in Derw
 

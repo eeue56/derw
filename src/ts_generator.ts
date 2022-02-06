@@ -292,6 +292,30 @@ function generateBranch(predicate: string, branch: Branch): string {
     ${returnWrapper}${body};
 }`;
         }
+        case "EmptyList": {
+            return `case 0: {${maybeLetBody}
+    ${returnWrapper}${body};
+}`;
+        }
+        case "ListDestructure": {
+            const length = branch.pattern.parts.length;
+            const isFinalEmptyList = branch.pattern.parts[length - 1] === "[]";
+            const parts = isFinalEmptyList
+                ? branch.pattern.parts.slice(0, -1).join(", ")
+                : branch.pattern.parts.slice(0, -1).join(", ") +
+                  ", ..." +
+                  branch.pattern.parts[length - 1];
+            const conditional = isFinalEmptyList
+                ? `${predicate}.length === ${length - 1}`
+                : `${predicate}.length >= ${length}`;
+
+            return `case ${predicate}.length: {${maybeLetBody}
+    if (${conditional}) {
+        const [ ${parts} ] = ${predicate};
+        ${returnWrapper}${body};
+    }
+}`;
+        }
         case "Default": {
             return `default: {${maybeLetBody}
     ${returnWrapper}${body};
@@ -316,6 +340,21 @@ function generateCaseStatement(caseStatement: CaseStatement): string {
         return `
 const ${name} = ${predicate};
 switch (${name}) {
+${prefixLines(branches.join("\n"), 4)}
+}`.trim();
+    }
+
+    const isList =
+        caseStatement.branches.filter(
+            (branch) =>
+                branch.pattern.kind === "EmptyList" ||
+                branch.pattern.kind === "ListDestructure"
+        ).length > 0;
+
+    if (isList) {
+        return `
+const ${name} = ${predicate};
+switch (${name}.length) {
 ${prefixLines(branches.join("\n"), 4)}
 }`.trim();
     }

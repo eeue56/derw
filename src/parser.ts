@@ -34,6 +34,7 @@ import {
     Default,
     Destructure,
     Division,
+    EmptyList,
     Equality,
     Export,
     Expression,
@@ -57,6 +58,7 @@ import {
     LeftPipe,
     LessThan,
     LessThanOrEqual,
+    ListDestructure,
     ListPrepend,
     ListRange,
     ListValue,
@@ -1249,6 +1251,58 @@ function isConstructor(str: string): boolean {
     return str[0].toUpperCase() === str[0] && isNaN(parseInt(str, 10));
 }
 
+function parseEmptyList(tokens: Token[]): Result<string, EmptyList> {
+    const withoutWhitespace = tokens.filter(
+        (t) => t.kind !== "WhitespaceToken"
+    );
+    if (withoutWhitespace.length > 1) {
+        return Err("Too many values for empty list.");
+    } else if (withoutWhitespace.length === 0) {
+        return Err("Expected [] but didn't find one.");
+    }
+
+    if (
+        withoutWhitespace[0].kind === "LiteralToken" &&
+        withoutWhitespace[0].body === "[]"
+    ) {
+        return Ok(EmptyList());
+    }
+
+    return Err(`Expected empty list [] but got ${withoutWhitespace[0].kind}`);
+}
+
+function parseListDestructure(
+    tokens: Token[]
+): Result<string, ListDestructure> {
+    const parts = [ ];
+
+    for (const token of tokens) {
+        switch (token.kind) {
+            case "WhitespaceToken": {
+                break;
+            }
+            case "LiteralToken": {
+                parts.push(token.body);
+                break;
+            }
+            case "OperatorToken": {
+                if (token.body !== "::") {
+                    return Err(
+                        `Expected ::, [], or identifier but got ${token.body}`
+                    );
+                }
+                break;
+            }
+            case "IdentifierToken": {
+                parts.push(token.body);
+                break;
+            }
+        }
+    }
+
+    return Ok(ListDestructure(parts));
+}
+
 function parseBranchPattern(tokens: Token[]): Result<string, BranchPattern> {
     let index = 0;
 
@@ -1268,12 +1322,13 @@ function parseBranchPattern(tokens: Token[]): Result<string, BranchPattern> {
             }
             if (firstToken.body === "default") {
                 return Ok(Default());
+            } else if (hasTopLevelOperator("::", tokens)) {
+                return parseListDestructure(tokens);
             } else {
                 return Err(
                     "Expected a string or a destructure, but got an identifier. Try using an if statement instead"
                 );
             }
-            break;
         }
         case "OpenCurlyBracesToken": {
             return parseDestructure(tokens);
@@ -1283,6 +1338,10 @@ function parseBranchPattern(tokens: Token[]): Result<string, BranchPattern> {
         }
         case "FormatStringToken": {
             return parseFormatStringValue(tokens.slice(index));
+        }
+        case "LiteralToken": {
+            const emptyList = parseEmptyList(tokens);
+            if (emptyList.kind === "ok") return emptyList;
         }
     }
     return Err(`Expected destructure or string but got ${firstToken.kind}`);
@@ -1449,6 +1508,19 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
     }
 
     const validBranches = branches.map((value) => (value as Ok<Branch>).value);
+
+    if (
+        validBranches.filter(
+            (t) =>
+                t.pattern.kind === "ListDestructure" ||
+                t.pattern.kind === "EmptyList"
+        ).length > 0 &&
+        validBranches.filter((t) => t.pattern.kind === "Default").length === 0
+    ) {
+        return Err(
+            "You must provide a default case when using list destructoring"
+        );
+    }
 
     return Ok(
         CaseStatement((casePredicate as Ok<Expression>).value, validBranches)

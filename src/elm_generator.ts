@@ -179,6 +179,12 @@ function generateBranchPattern(branchPattern: BranchPattern): string {
         case "FormatStringValue": {
             return "`" + branchPattern.body + "`";
         }
+        case "EmptyList": {
+            return "case []";
+        }
+        case "ListDestructure": {
+            return branchPattern.parts.join(" :: ");
+        }
         case "Default": {
             return "default";
         }

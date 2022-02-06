@@ -487,11 +487,35 @@ export function Default(): Default {
     };
 }
 
+export type EmptyList = {
+    kind: "EmptyList";
+};
+
+export function EmptyList(): EmptyList {
+    return {
+        kind: "EmptyList",
+    };
+}
+
+export type ListDestructure = {
+    kind: "ListDestructure";
+    parts: string[];
+};
+
+export function ListDestructure(parts: string[]): ListDestructure {
+    return {
+        kind: "ListDestructure",
+        parts,
+    };
+}
+
 export type BranchPattern =
     | Default
     | Destructure
     | StringValue
-    | FormatStringValue;
+    | FormatStringValue
+    | EmptyList
+    | ListDestructure;
 
 export type Branch = {
     kind: "Branch";
