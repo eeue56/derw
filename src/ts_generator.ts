@@ -27,6 +27,7 @@ import {
     LeftPipe,
     LessThan,
     LessThanOrEqual,
+    ListDestructurePart,
     ListPrepend,
     ListRange,
     ListValue,
@@ -263,6 +264,23 @@ function generateConstructor(constructor: Constructor): string {
     )})`;
 }
 
+function generateListDestructurePart(part: ListDestructurePart): string {
+    switch (part.kind) {
+        case "EmptyList": {
+            return "[]";
+        }
+        case "StringValue": {
+            return part.body;
+        }
+        case "FormatStringValue": {
+            return part.body;
+        }
+        case "Value": {
+            return part.body;
+        }
+    }
+}
+
 function generateBranch(predicate: string, branch: Branch): string {
     const body = generateExpression(branch.body);
     const returnWrapper = isSimpleValue(branch.body.kind) ? "return " : "";
@@ -299,22 +317,57 @@ function generateBranch(predicate: string, branch: Branch): string {
         }
         case "ListDestructure": {
             const length = branch.pattern.parts.length;
-            const isFinalEmptyList = branch.pattern.parts[length - 1] === "[]";
+            const isFinalEmptyList =
+                branch.pattern.parts[length - 1].kind === "EmptyList";
+
+            const firstPart = branch.pattern.parts[0];
+
+            const isFirstValue =
+                firstPart.kind === "StringValue" ||
+                firstPart.kind === "FormatStringValue";
+
+            const partsToGenerate = isFirstValue
+                ? [ Value("_temp"), ...branch.pattern.parts.slice(1, -1) ]
+                : branch.pattern.parts.slice(0, -1);
+
+            const generatedParts = partsToGenerate.map(
+                generateListDestructurePart
+            );
+
             const parts = isFinalEmptyList
-                ? branch.pattern.parts.slice(0, -1).join(", ")
-                : branch.pattern.parts.slice(0, -1).join(", ") +
+                ? generatedParts.join(", ")
+                : generatedParts.join(", ") +
                   ", ..." +
-                  branch.pattern.parts[length - 1];
+                  generateListDestructurePart(branch.pattern.parts[length - 1]);
+
             const conditional = isFinalEmptyList
                 ? `${predicate}.length === ${length - 1}`
                 : `${predicate}.length >= ${length}`;
 
-            return `case ${predicate}.length: {${maybeLetBody}
+            if (isFirstValue) {
+                const typeCheckedFirstPart = firstPart as
+                    | StringValue
+                    | FormatStringValue;
+                const tempConditional =
+                    typeCheckedFirstPart.kind === "StringValue"
+                        ? `"${typeCheckedFirstPart.body}"`
+                        : `\`${typeCheckedFirstPart.body}\``;
+                return `case ${predicate}.length: {${maybeLetBody}
+    if (${conditional}) {
+        const [ ${parts} ] = ${predicate};
+        if (_temp === ${tempConditional}) {
+            ${returnWrapper}${body};
+        }
+    }
+}`;
+            } else {
+                return `case ${predicate}.length: {${maybeLetBody}
     if (${conditional}) {
         const [ ${parts} ] = ${predicate};
         ${returnWrapper}${body};
     }
 }`;
+            }
         }
         case "Default": {
             return `default: {${maybeLetBody}

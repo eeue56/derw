@@ -497,12 +497,18 @@ export function EmptyList(): EmptyList {
     };
 }
 
+export type ListDestructurePart =
+    | Value
+    | StringValue
+    | FormatStringValue
+    | EmptyList;
+
 export type ListDestructure = {
     kind: "ListDestructure";
-    parts: string[];
+    parts: ListDestructurePart[];
 };
 
-export function ListDestructure(parts: string[]): ListDestructure {
+export function ListDestructure(parts: ListDestructurePart[]): ListDestructure {
     return {
         kind: "ListDestructure",
         parts,

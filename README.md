@@ -223,13 +223,24 @@ asIs result =
 -   [x] List destructing
 
     ```elm
-
     sum: List number -> number
     sum xs =
         case xs of
             [] -> 0
             y :: ys :: [] -> y + ys
             z :: zs -> z + sum zs
+            default -> 0
+    ```
+
+-   [x] List destructing with string values
+
+    ```elm
+    sum: List string -> number
+    sum xs =
+        case xs of
+            [] -> 0
+            "1" :: ys :: [] -> 1 + 2
+            "2" :: zs -> 2 + sum zs
             default -> 0
     ```
 

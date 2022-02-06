@@ -26,6 +26,7 @@ import {
     LeftPipe,
     LessThan,
     LessThanOrEqual,
+    ListDestructurePart,
     ListPrepend,
     ListRange,
     ListValue,
@@ -161,6 +162,23 @@ function generateConstructor(constructor: Constructor): string {
     )}`;
 }
 
+function generateListDestructurePart(part: ListDestructurePart): string {
+    switch (part.kind) {
+        case "EmptyList": {
+            return "[]";
+        }
+        case "StringValue": {
+            return `"` + part.body + `"`;
+        }
+        case "FormatStringValue": {
+            return "`" + part.body + "`";
+        }
+        case "Value": {
+            return part.body;
+        }
+    }
+}
+
 function generateBranchPattern(branchPattern: BranchPattern): string {
     switch (branchPattern.kind) {
         case "Destructure": {
@@ -179,7 +197,9 @@ function generateBranchPattern(branchPattern: BranchPattern): string {
             return "[]";
         }
         case "ListDestructure": {
-            return branchPattern.parts.join(" :: ");
+            return branchPattern.parts
+                .map(generateListDestructurePart)
+                .join(" :: ");
         }
         case "Default": {
             return "default";

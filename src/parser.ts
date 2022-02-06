@@ -1282,7 +1282,7 @@ function parseListDestructure(
                 break;
             }
             case "LiteralToken": {
-                parts.push(token.body);
+                parts.push(EmptyList());
                 break;
             }
             case "OperatorToken": {
@@ -1294,7 +1294,15 @@ function parseListDestructure(
                 break;
             }
             case "IdentifierToken": {
-                parts.push(token.body);
+                parts.push(Value(token.body));
+                break;
+            }
+            case "StringToken": {
+                parts.push(StringValue(token.body.slice(1, -1)));
+                break;
+            }
+            case "FormatStringToken": {
+                parts.push(FormatStringValue(token.body.slice(1, -1)));
                 break;
             }
         }
@@ -1315,6 +1323,10 @@ function parseBranchPattern(tokens: Token[]): Result<string, BranchPattern> {
 
     if (!firstToken) return Err("Failed to find token in branch.");
 
+    if (hasTopLevelOperator("::", tokens)) {
+        return parseListDestructure(tokens);
+    }
+
     switch (firstToken.kind) {
         case "IdentifierToken": {
             if (isConstructor(firstToken.body)) {
@@ -1322,8 +1334,6 @@ function parseBranchPattern(tokens: Token[]): Result<string, BranchPattern> {
             }
             if (firstToken.body === "default") {
                 return Ok(Default());
-            } else if (hasTopLevelOperator("::", tokens)) {
-                return parseListDestructure(tokens);
             } else {
                 return Err(
                     "Expected a string or a destructure, but got an identifier. Try using an if statement instead"

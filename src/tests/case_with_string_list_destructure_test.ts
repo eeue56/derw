@@ -17,36 +17,37 @@ import {
     FunctionCall,
     ListDestructure,
     Module,
+    StringValue,
     UnparsedBlock,
     Value,
 } from "../types";
 
 const oneLine = `
-sum: List number -> number
+sum: List string -> number
 sum xs =
     case xs of
         [] -> 0
-        y :: ys :: [] -> y + ys
-        z :: zs -> z + sum zs
+        "1" :: ys :: [] -> 1 + 2
+        "2" :: zs -> 2 + sum zs
         default -> 0
 `.trim();
 
 const multiLine = `
-sum: List number -> number
+sum: List string -> number
 sum xs =
     case xs of
         [] ->
             0
-        y :: ys :: [] ->
-            y + ys
-        z :: zs ->
-            z + sum zs
+        "1" :: ys :: [] ->
+            1 + 2
+        "2" :: zs ->
+            2 + sum zs
         default ->
             0
 `.trim();
 
 const expectedOutput = `
-function sum(xs: number[]): number {
+function sum(xs: string[]): number {
     const _res3835 = xs;
     switch (_res3835.length) {
         case 0: {
@@ -54,14 +55,18 @@ function sum(xs: number[]): number {
         }
         case _res3835.length: {
             if (_res3835.length === 2) {
-                const [ y, ys ] = _res3835;
-                return y + ys;
+                const [ _temp, ys ] = _res3835;
+                if (_temp === "1") {
+                    return 1 + 2;
+                }
             }
         }
         case _res3835.length: {
             if (_res3835.length >= 2) {
-                const [ z, ...zs ] = _res3835;
-                return z + sum(zs);
+                const [ _temp, ...zs ] = _res3835;
+                if (_temp === "2") {
+                    return 2 + sum(zs);
+                }
             }
         }
         default: {
@@ -80,14 +85,18 @@ function sum(xs) {
         }
         case _res3835.length: {
             if (_res3835.length === 2) {
-                const [ y, ys ] = _res3835;
-                return y + ys;
+                const [ _temp, ys ] = _res3835;
+                if (_temp === "1") {
+                    return 1 + 2;
+                }
             }
         }
         case _res3835.length: {
             if (_res3835.length >= 2) {
-                const [ z, ...zs ] = _res3835;
-                return z + sum(zs);
+                const [ _temp, ...zs ] = _res3835;
+                if (_temp === "2") {
+                    return 2 + sum(zs);
+                }
             }
         }
         default: {
@@ -139,7 +148,7 @@ export function testParse() {
                     [
                         FunctionArg(
                             "xs",
-                            FixedType("List", [ FixedType("number", [ ]) ])
+                            FixedType("List", [ FixedType("string", [ ]) ])
                         ),
                     ],
                     [ ],
@@ -147,17 +156,17 @@ export function testParse() {
                         Branch(EmptyList(), Value("0"), [ ]),
                         Branch(
                             ListDestructure([
-                                Value("y"),
+                                StringValue("1"),
                                 Value("ys"),
                                 EmptyList(),
                             ]),
-                            Addition(Value("y"), Value("ys")),
+                            Addition(Value("1"), Value("2")),
                             [ ]
                         ),
                         Branch(
-                            ListDestructure([ Value("z"), Value("zs") ]),
+                            ListDestructure([ StringValue("2"), Value("zs") ]),
                             Addition(
-                                Value("z"),
+                                Value("2"),
                                 FunctionCall("sum", [ Value("zs") ])
                             ),
                             [ ]
@@ -183,7 +192,7 @@ export function testParseMultiLine() {
                     [
                         FunctionArg(
                             "xs",
-                            FixedType("List", [ FixedType("number", [ ]) ])
+                            FixedType("List", [ FixedType("string", [ ]) ])
                         ),
                     ],
                     [ ],
@@ -191,17 +200,17 @@ export function testParseMultiLine() {
                         Branch(EmptyList(), Value("0"), [ ]),
                         Branch(
                             ListDestructure([
-                                Value("y"),
+                                StringValue("1"),
                                 Value("ys"),
                                 EmptyList(),
                             ]),
-                            Addition(Value("y"), Value("ys")),
+                            Addition(Value("1"), Value("2")),
                             [ ]
                         ),
                         Branch(
-                            ListDestructure([ Value("z"), Value("zs") ]),
+                            ListDestructure([ StringValue("2"), Value("zs") ]),
                             Addition(
-                                Value("z"),
+                                Value("2"),
                                 FunctionCall("sum", [ Value("zs") ])
                             ),
                             [ ]
