@@ -277,18 +277,22 @@ function generateBranch(predicate: string, branch: Branch): string {
                     typeCheckedFirstPart.kind === "StringValue"
                         ? `"${typeCheckedFirstPart.body}"`
                         : `\`${typeCheckedFirstPart.body}\``;
-                return `case ${predicate}.length: {${maybeLetBody}
+                return `case ${predicate}.length: {
     if (${conditional}) {
-        const [ ${parts} ] = ${predicate};
+        const [ ${parts} ] = ${predicate};${
+                    maybeLetBody ? prefixLines(maybeLetBody, 4) : ""
+                }
         if (_temp === ${tempConditional}) {
             ${returnWrapper}${body};
         }
     }
 }`;
             } else {
-                return `case ${predicate}.length: {${maybeLetBody}
+                return `case ${predicate}.length: {
     if (${conditional}) {
-        const [ ${parts} ] = ${predicate};
+        const [ ${parts} ] = ${predicate};${
+                    maybeLetBody ? prefixLines(maybeLetBody, 4) : ""
+                }
         ${returnWrapper}${body};
     }
 }`;
