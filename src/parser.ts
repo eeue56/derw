@@ -2160,7 +2160,7 @@ export function parseExpression(body: string): Result<string, Expression> {
         return parseAnd(tokens);
     } else if (body.indexOf(" || ") > 0) {
         return parseOr(tokens);
-    } else if (body.indexOf(" :: ") > 0) {
+    } else if (hasTopLevelOperator("::", tokens)) {
         return parseListPrepend(tokens);
     } else if (body.indexOf(" + ") > 0) {
         return parseAddition(tokens);
