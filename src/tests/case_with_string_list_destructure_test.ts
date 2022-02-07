@@ -62,7 +62,7 @@ function sum(xs: string[]): number {
             }
         }
         case _res3835.length: {
-            if (_res3835.length >= 2) {
+            if (_res3835.length >= 1) {
                 const [ _temp, ...zs ] = _res3835;
                 if (_temp === "2") {
                     return 2 + sum(zs);
@@ -92,7 +92,7 @@ function sum(xs) {
             }
         }
         case _res3835.length: {
-            if (_res3835.length >= 2) {
+            if (_res3835.length >= 1) {
                 const [ _temp, ...zs ] = _res3835;
                 if (_temp === "2") {
                     return 2 + sum(zs);

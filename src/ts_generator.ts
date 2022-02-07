@@ -360,7 +360,7 @@ function generateBranch(predicate: string, branch: Branch): string {
 
             const conditional = isFinalEmptyList
                 ? `${predicate}.length === ${length - 1}`
-                : `${predicate}.length >= ${length}`;
+                : `${predicate}.length >= ${length - 1}`;
 
             if (isFirstValue) {
                 const typeCheckedFirstPart = firstPart as
