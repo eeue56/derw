@@ -182,6 +182,12 @@ export async function compileFiles(
 
     const shouldRun = program.flags.run.isPresent;
 
+    if (shouldRun && !program.flags.files.isPresent) {
+        console.log(
+            `Warning: not running files. Provide files via --files to run them`
+        );
+    }
+
     const isQuiet = program.flags.quiet.isPresent;
 
     if (!isQuiet) {
