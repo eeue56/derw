@@ -437,3 +437,37 @@ export function testEither() {
     const rootTypeString = rootTypeTokensToString((tokenizedType as any).value);
     assert.deepStrictEqual(rootTypeString, str.trim());
 }
+
+export function testListToList() {
+    const str = `List string -> List Person`.trim();
+    const tokenized = tokenize(str);
+    assert.deepStrictEqual(tokenized, [
+        IdentifierToken("List"),
+        WhitespaceToken(" "),
+        IdentifierToken("string"),
+        WhitespaceToken(" "),
+        ArrowToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("List"),
+        WhitespaceToken(" "),
+        IdentifierToken("Person"),
+    ]);
+
+    const tokenizedType = tokenizeType(tokenized);
+    assert.deepStrictEqual(
+        tokenizedType,
+        Ok([
+            BaseTypeToken([
+                IdentifierToken("List"),
+                BaseTypeToken([ IdentifierToken("string") ]),
+            ]),
+            BaseTypeToken([
+                IdentifierToken("List"),
+                BaseTypeToken([ IdentifierToken("Person") ]),
+            ]),
+        ])
+    );
+
+    const rootTypeString = rootTypeTokensToString((tokenizedType as any).value);
+    assert.deepStrictEqual(rootTypeString, str);
+}

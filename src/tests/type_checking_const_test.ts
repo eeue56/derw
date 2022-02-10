@@ -8,6 +8,8 @@ import {
     GenericType,
     Import,
     ImportModule,
+    Property,
+    TypeAlias,
     UnparsedBlock,
 } from "../types";
 import { validateType } from "../type_checking";
@@ -499,5 +501,157 @@ value =
     assert.deepStrictEqual(
         validateType(value, [ ], [ ]),
         Ok(FixedType("boolean", [ ]))
+    );
+}
+
+export async function testListPrepend() {
+    const exampleInput = `
+value: List number
+value =
+    1 :: []
+`.trim();
+    const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
+    const parsed = parseBlock(block);
+
+    assert.deepStrictEqual(parsed.kind, "ok");
+
+    const value = (parsed as Ok<Block>).value;
+    assert.deepStrictEqual(
+        validateType(value, [ ], [ ]),
+        Ok(FixedType("List", [ FixedType("number", [ ]) ]))
+    );
+}
+
+export async function testListPrependWithValues() {
+    const exampleInput = `
+value: List string
+value =
+    "hello" :: [ "world" ]
+`.trim();
+    const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
+    const parsed = parseBlock(block);
+
+    assert.deepStrictEqual(parsed.kind, "ok");
+
+    const value = (parsed as Ok<Block>).value;
+    assert.deepStrictEqual(
+        validateType(value, [ ], [ ]),
+        Ok(FixedType("List", [ FixedType("string", [ ]) ]))
+    );
+}
+
+export async function testListPrependWithConstructor() {
+    const exampleInput = `
+value: List Person
+value =
+    Person { name: "hello" } :: [ ]
+`.trim();
+    const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
+    const parsed = parseBlock(block);
+
+    assert.deepStrictEqual(parsed.kind, "ok");
+
+    const value = (parsed as Ok<Block>).value;
+    assert.deepStrictEqual(
+        validateType(
+            value,
+            [
+                TypeAlias(FixedType("Person", [ ]), [
+                    Property("name", FixedType("string", [ ])),
+                ]),
+            ],
+            [ ]
+        ),
+        Ok(FixedType("List", [ FixedType("Person", [ ]) ]))
+    );
+}
+
+export async function testListPrependWithinCaseWithConstructor() {
+    const exampleInput = `
+value: List Person
+value =
+    case "hello" of
+        "hello" ->
+            Person { name: "hello" } :: [ ]
+        default ->
+            [ ]
+`.trim();
+    const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
+    const parsed = parseBlock(block);
+
+    assert.deepStrictEqual(parsed.kind, "ok");
+
+    const value = (parsed as Ok<Block>).value;
+    assert.deepStrictEqual(
+        validateType(
+            value,
+            [
+                TypeAlias(FixedType("Person", [ ]), [
+                    Property("name", FixedType("string", [ ])),
+                ]),
+            ],
+            [ ]
+        ),
+        Ok(FixedType("List", [ FixedType("Person", [ ]) ]))
+    );
+}
+
+export async function testListPrependWithinCaseListWithConstructor() {
+    const exampleInput = `
+value: List Person
+value =
+    case [ "hello" ] of
+        "hello" :: [] ->
+            Person { name: "hello" } :: [ ]
+        default ->
+            [ ]
+`.trim();
+    const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
+    const parsed = parseBlock(block);
+
+    assert.deepStrictEqual(parsed.kind, "ok");
+
+    const value = (parsed as Ok<Block>).value;
+    assert.deepStrictEqual(
+        validateType(
+            value,
+            [
+                TypeAlias(FixedType("Person", [ ]), [
+                    Property("name", FixedType("string", [ ])),
+                ]),
+            ],
+            [ ]
+        ),
+        Ok(FixedType("List", [ FixedType("Person", [ ]) ]))
+    );
+}
+
+export async function testListPrependWithinCaseGeneralListWithConstructor() {
+    const exampleInput = `
+value: List Person
+value =
+    case [ "hello" ] of
+        x :: [] ->
+            Person { name: "hello" } :: [ ]
+        default ->
+            [ ]
+`.trim();
+    const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
+    const parsed = parseBlock(block);
+
+    assert.deepStrictEqual(parsed.kind, "ok");
+
+    const value = (parsed as Ok<Block>).value;
+    assert.deepStrictEqual(
+        validateType(
+            value,
+            [
+                TypeAlias(FixedType("Person", [ ]), [
+                    Property("name", FixedType("string", [ ])),
+                ]),
+            ],
+            [ ]
+        ),
+        Ok(FixedType("List", [ FixedType("Person", [ ]) ]))
     );
 }

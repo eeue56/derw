@@ -2137,6 +2137,9 @@ export function parseExpression(body: string): Result<string, Expression> {
                 }
             }
             if (tokensOtherThanWhitespace.length > 0) {
+                if (hasTopLevelOperator("::", tokens)) {
+                    return parseListPrepend(tokens);
+                }
                 return parseFunctionCall(tokens.slice(index));
             }
 

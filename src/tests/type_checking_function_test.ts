@@ -8,7 +8,12 @@ import {
     GenericType,
     Import,
     ImportModule,
+    Property,
+    Tag,
+    TagArg,
+    TypeAlias,
     TypedBlock,
+    UnionType,
     UnparsedBlock,
 } from "../types";
 import { validateType } from "../type_checking";
@@ -566,5 +571,74 @@ value x =
     assert.deepStrictEqual(
         validateType(value, [ (parsedType as Ok<TypedBlock>).value ], [ ]),
         Ok(FixedType("Maybe", [ FixedType("boolean", [ ]) ]))
+    );
+}
+
+export async function testListPrependWithinCaseListWithConstructor() {
+    const exampleInput = `
+reduce: List string -> List Person
+reduce xs =
+    case xs of
+        x :: [] ->
+            Person { name: [ "hello" ] } :: reduce [ ]
+        default ->
+            [ ]
+`.trim();
+    const block = UnparsedBlock("FunctionBlock", 0, exampleInput.split("\n"));
+    const parsed = parseBlock(block);
+
+    assert.deepStrictEqual(parsed.kind, "ok");
+
+    const value = (parsed as Ok<Block>).value;
+    assert.deepStrictEqual(
+        validateType(
+            value,
+            [
+                TypeAlias(FixedType("Person", [ ]), [
+                    Property(
+                        "name",
+                        FixedType("List", [ FixedType("string", [ ]) ])
+                    ),
+                ]),
+            ],
+            [ ]
+        ),
+        Ok(FixedType("List", [ FixedType("Person", [ ]) ]))
+    );
+}
+
+export async function testListPrependWithinCaseListWithUnionType() {
+    const exampleInput = `
+basic: List string -> List (Maybe string)
+basic xs =
+    case xs of
+        anything :: [] ->
+            Just { value: "hello" } :: basic [ ]
+
+        default ->
+            []
+`.trim();
+    const block = UnparsedBlock("FunctionBlock", 0, exampleInput.split("\n"));
+    const parsed = parseBlock(block);
+
+    assert.deepStrictEqual(parsed.kind, "ok");
+
+    const value = (parsed as Ok<Block>).value;
+    assert.deepStrictEqual(
+        validateType(
+            value,
+            [
+                UnionType(FixedType("Maybe", [ GenericType("a") ]), [
+                    Tag("Just", [ TagArg("value", GenericType("a")) ]),
+                    Tag("Nothing", [ ]),
+                ]),
+            ],
+            [ ]
+        ),
+        Ok(
+            FixedType("List", [
+                FixedType("Maybe", [ FixedType("string", [ ]) ]),
+            ])
+        )
     );
 }
