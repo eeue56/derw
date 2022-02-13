@@ -426,8 +426,41 @@ function inferOr(value: Or): Type {
     return FixedType("boolean", [ ]);
 }
 
-function inferListPrepend(value: ListPrepend): Type {
-    return FixedType("List", [ GenericType("any") ]);
+function inferListPrepend(
+    value: ListPrepend,
+    typedBlocks: TypedBlock[]
+): Result<string, Type> {
+    const leftInfer = inferType(value.left, typedBlocks);
+    const rightInfer = inferType(value.right, typedBlocks);
+
+    if (leftInfer.kind === "err") return leftInfer;
+    if (rightInfer.kind === "err") return rightInfer;
+
+    if (
+        rightInfer.value.kind === "GenericType" ||
+        (rightInfer.value.kind === "FixedType" &&
+            rightInfer.value.name === "any")
+    )
+        return Ok(FixedType("List", [ GenericType("any") ]));
+    if (rightInfer.value.kind === "FunctionType")
+        return Err(
+            "Inferred list on right hand side of :: to be a function, not a list"
+        );
+
+    if (rightInfer.value.name === "List" && rightInfer.value.args.length > 0) {
+        if (isSameType(leftInfer.value, rightInfer.value.args[0], false)) {
+            return Ok(rightInfer.value);
+        }
+        return Err(
+            "Invalid types in :: - lefthand must match elements of righthand"
+        );
+    }
+
+    return Err(
+        `Expected list on righthand side of :: but got ${typeToString(
+            rightInfer.value
+        )}.`
+    );
 }
 
 export function inferType(
@@ -464,7 +497,7 @@ export function inferType(
         case "Or":
             return Ok(inferOr(expression));
         case "ListPrepend":
-            return Ok(inferListPrepend(expression));
+            return inferListPrepend(expression, typedBlocks);
         case "LeftPipe":
             return inferLeftPipe(expression, typedBlocks);
         case "RightPipe":
