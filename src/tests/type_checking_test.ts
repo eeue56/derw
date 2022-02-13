@@ -1,7 +1,7 @@
 import * as assert from "@eeue56/ts-assert";
 import { Err, Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { parseExpression } from "../parser";
-import { Expression, FixedType } from "../types";
+import { Expression, FixedType, Tag, TagArg, UnionType } from "../types";
 import { inferType } from "../type_checking";
 
 export async function testEmptyList() {
@@ -337,5 +337,61 @@ export async function testGreaterThanOrEqual() {
     assert.deepStrictEqual(
         inferType(value, [ ]),
         Ok(FixedType("boolean", [ ]))
+    );
+}
+
+export async function testListPrepend() {
+    const exampleInput = `
+1 :: 2 :: [ ]
+`.trim();
+    const parsed = parseExpression(exampleInput);
+
+    assert.deepStrictEqual(parsed.kind, "ok");
+
+    const value = (parsed as Ok<Expression>).value;
+    assert.deepStrictEqual(
+        inferType(value, [ ]),
+        Ok(FixedType("List", [ FixedType("number", [ ]) ]))
+    );
+}
+
+export async function testListPrependWithMixedTypes() {
+    const exampleInput = `
+1 :: "hello" :: [ ]
+`.trim();
+    const parsed = parseExpression(exampleInput);
+
+    assert.deepStrictEqual(parsed.kind, "ok");
+
+    const value = (parsed as Ok<Expression>).value;
+    assert.deepStrictEqual(
+        inferType(value, [ ]),
+        Err(
+            "Invalid types in :: - lefthand (number) must match elements of righthand (string)"
+        )
+    );
+}
+
+export async function testListPrependMismatchingConstructor() {
+    const exampleInput = `
+Person { name: "hello" } :: [ Animal { name: "Frodo" } ]
+`.trim();
+    const parsed = parseExpression(exampleInput);
+
+    assert.deepStrictEqual(parsed.kind, "ok");
+
+    const value = (parsed as Ok<Expression>).value;
+    assert.deepStrictEqual(
+        inferType(value, [
+            UnionType(FixedType("Person", [ ]), [
+                Tag("Person", [ TagArg("name", FixedType("string", [ ])) ]),
+            ]),
+            UnionType(FixedType("Animal", [ ]), [
+                Tag("Animal", [ TagArg("name", FixedType("string", [ ])) ]),
+            ]),
+        ]),
+        Err(
+            "Invalid types in :: - lefthand (Person) must match elements of righthand (Animal)"
+        )
     );
 }

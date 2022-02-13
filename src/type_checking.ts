@@ -448,11 +448,24 @@ function inferListPrepend(
         );
 
     if (rightInfer.value.name === "List" && rightInfer.value.args.length > 0) {
-        if (isSameType(leftInfer.value, rightInfer.value.args[0], false)) {
+        const isEmptyList =
+            value.right.kind === "ListValue" && value.right.items.length === 0;
+
+        if (isEmptyList) {
+            return Ok(FixedType("List", [ leftInfer.value ]));
+        }
+
+        const listElementType = rightInfer.value.args[0];
+
+        if (isSameType(leftInfer.value, listElementType, false)) {
             return Ok(rightInfer.value);
         }
         return Err(
-            "Invalid types in :: - lefthand must match elements of righthand"
+            `Invalid types in :: - lefthand (${typeToString(
+                leftInfer.value
+            )}) must match elements of righthand (${typeToString(
+                listElementType
+            )})`
         );
     }
 

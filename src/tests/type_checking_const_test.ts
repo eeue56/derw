@@ -9,7 +9,10 @@ import {
     Import,
     ImportModule,
     Property,
+    Tag,
+    TagArg,
     TypeAlias,
+    UnionType,
     UnparsedBlock,
 } from "../types";
 import { validateType } from "../type_checking";
@@ -646,8 +649,8 @@ value =
         validateType(
             value,
             [
-                TypeAlias(FixedType("Person", [ ]), [
-                    Property("name", FixedType("string", [ ])),
+                UnionType(FixedType("Person", [ ]), [
+                    Tag("Person", [ TagArg("name", FixedType("string", [ ])) ]),
                 ]),
             ],
             [ ]
