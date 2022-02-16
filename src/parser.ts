@@ -2128,6 +2128,9 @@ export function parseExpression(body: string): Result<string, Expression> {
                 const possibleModuleParts = firstToken.body.split(".");
 
                 if (possibleModuleParts.length > 1) {
+                    if (hasTopLevelOperator("::", tokens)) {
+                        return parseListPrepend(tokens);
+                    }
                     return parseModuleReference(tokens.slice(index));
                 }
             }
