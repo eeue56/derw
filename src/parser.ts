@@ -1335,12 +1335,20 @@ function parseListDestructure(
     tokens: Token[]
 ): Result<string, ListDestructure> {
     const parts = [ ];
+    let isInDestructor = false;
+    let destructorParts = [ ];
 
     for (const token of tokens) {
         switch (token.kind) {
-            case "WhitespaceToken": {
+            case "WhitespaceToken":
+            case "OpenCurlyBracesToken":
+            case "CloseCurlyBracesToken": {
+                if (isInDestructor) {
+                    destructorParts.push(token);
+                }
                 break;
             }
+
             case "LiteralToken": {
                 parts.push(EmptyList());
                 break;
@@ -1351,10 +1359,26 @@ function parseListDestructure(
                         `Expected ::, [], or identifier but got ${token.body}`
                     );
                 }
+
+                if (isInDestructor) {
+                    const destructure = parseDestructure(destructorParts);
+                    if (destructure.kind === "err") return destructure;
+
+                    parts.push(destructure.value);
+                    isInDestructor = false;
+                    destructorParts = [ ];
+                }
                 break;
             }
             case "IdentifierToken": {
-                parts.push(Value(token.body));
+                if (isConstructor(token.body)) {
+                    isInDestructor = true;
+                    destructorParts.push(token);
+                } else if (isInDestructor) {
+                    destructorParts.push(token);
+                } else {
+                    parts.push(Value(token.body));
+                }
                 break;
             }
             case "StringToken": {

@@ -6,6 +6,7 @@ import {
     CaseStatement,
     Const,
     Constructor,
+    Destructure,
     Division,
     Equality,
     Export,
@@ -203,6 +204,10 @@ function generateListDestructurePart(part: ListDestructurePart): string {
         case "Value": {
             return part.body;
         }
+        case "Destructure": {
+            const pattern = part.pattern ? ` ${part.pattern}` : "";
+            return `${part.constructor}${pattern}`;
+        }
     }
 }
 
@@ -244,9 +249,54 @@ function generateBranch(predicate: string, branch: Branch): string {
             const length = branch.pattern.parts.length;
             const isFinalEmptyList =
                 branch.pattern.parts[length - 1].kind === "EmptyList";
+            const conditional = isFinalEmptyList
+                ? `${predicate}.length === ${length - 1}`
+                : `${predicate}.length >= ${length - 1}`;
 
             const firstPart = branch.pattern.parts[0];
 
+            const isFirstDestructor = firstPart.kind === "Destructure";
+
+            if (isFirstDestructor) {
+                const generatedParts = [
+                    "_first",
+                    ...branch.pattern.parts
+                        .slice(1, -1)
+                        .map(generateListDestructurePart),
+                ];
+
+                const parts = isFinalEmptyList
+                    ? generatedParts.join(", ")
+                    : generatedParts.join(", ") +
+                      ", ..." +
+                      generateListDestructurePart(
+                          branch.pattern.parts[length - 1]
+                      );
+
+                const firstConditional = (
+                    branch.pattern.parts[0] as Destructure
+                ).constructor;
+
+                const pattern = (branch.pattern.parts[0] as Destructure)
+                    .pattern;
+
+                const needsUnpacking = pattern.length > 0;
+
+                const unpacked = needsUnpacking
+                    ? `\n            const ${pattern} = _first;`
+                    : "";
+
+                return `case ${predicate}.length: {
+    if (${conditional}) {
+        const [ ${parts} ] = ${predicate};
+        if (_first.kind === "${firstConditional}") {${unpacked}${
+                    maybeLetBody ? prefixLines(maybeLetBody, 8) : ""
+                }
+            ${returnWrapper}${body};
+        }
+    }
+}`;
+            }
             const isFirstValue =
                 firstPart.kind === "StringValue" ||
                 firstPart.kind === "FormatStringValue";
@@ -264,10 +314,6 @@ function generateBranch(predicate: string, branch: Branch): string {
                 : generatedParts.join(", ") +
                   ", ..." +
                   generateListDestructurePart(branch.pattern.parts[length - 1]);
-
-            const conditional = isFinalEmptyList
-                ? `${predicate}.length === ${length - 1}`
-                : `${predicate}.length >= ${length - 1}`;
 
             if (isFirstValue) {
                 const typeCheckedFirstPart = firstPart as

@@ -10,7 +10,7 @@ import {
     CaseStatement,
     Constructor,
     Default,
-    EmptyList,
+    Destructure,
     Field,
     FixedType,
     Function,
@@ -21,39 +21,52 @@ import {
     ListValue,
     Module,
     ObjectLiteral,
-    StringValue,
     UnparsedBlock,
     Value,
 } from "../types";
 
 const oneLine = `
-basic: List string -> List (Maybe string)
+basic: List (Maybe string) -> List (Maybe string)
 basic xs =
     case xs of
-        anything :: [] -> Just { value: "hello" } :: basic [ ]
-
+        Just { value } :: rest -> Just { value: value } :: basic rest
+        Nothing :: rest -> basic rest
         default -> []
 `.trim();
 
 const multiLine = `
-basic: List string -> List (Maybe string)
+basic: List (Maybe string) -> List (Maybe string)
 basic xs =
     case xs of
-        anything :: [] ->
-            Just { value: "hello" } :: basic [ ]
+        Just { value } :: rest ->
+            Just { value: value } :: basic rest
+
+        Nothing :: rest ->
+            basic rest
 
         default ->
             []
 `.trim();
 
 const expectedOutput = `
-function basic(xs: string[]): Maybe<string>[] {
+function basic(xs: Maybe<string>[]): Maybe<string>[] {
     const _res3835 = xs;
     switch (_res3835.length) {
         case _res3835.length: {
-            if (_res3835.length === 1) {
-                const [ anything ] = _res3835;
-                return [ Just({ value: "hello" }), ...basic([ ]) ];
+            if (_res3835.length >= 1) {
+                const [ _first, ...rest ] = _res3835;
+                if (_first.kind === "Just") {
+                    const { value } = _first;
+                    return [ Just({ value }), ...basic(rest) ];
+                }
+            }
+        }
+        case _res3835.length: {
+            if (_res3835.length >= 1) {
+                const [ _first, ...rest ] = _res3835;
+                if (_first.kind === "Nothing") {
+                    return basic(rest);
+                }
             }
         }
         default: {
@@ -68,9 +81,20 @@ function basic(xs) {
     const _res3835 = xs;
     switch (_res3835.length) {
         case _res3835.length: {
-            if (_res3835.length === 1) {
-                const [ anything ] = _res3835;
-                return [ Just({ value: "hello" }), ...basic([ ]) ];
+            if (_res3835.length >= 1) {
+                const [ _first, ...rest ] = _res3835;
+                if (_first.kind === "Just") {
+                    const { value } = _first;
+                    return [ Just({ value }), ...basic(rest) ];
+                }
+            }
+        }
+        case _res3835.length: {
+            if (_res3835.length >= 1) {
+                const [ _first, ...rest ] = _res3835;
+                if (_first.kind === "Nothing") {
+                    return basic(rest);
+                }
             }
         }
         default: {
@@ -124,22 +148,37 @@ export function testParse() {
                     [
                         FunctionArg(
                             "xs",
-                            FixedType("List", [ FixedType("string", [ ]) ])
+                            FixedType("List", [
+                                FixedType("Maybe", [
+                                    FixedType("string", [ ]),
+                                ]),
+                            ])
                         ),
                     ],
                     [ ],
                     CaseStatement(Value("xs"), [
                         Branch(
-                            ListDestructure([ Value("anything"), EmptyList() ]),
+                            ListDestructure([
+                                Destructure("Just", "{ value }"),
+                                Value("rest"),
+                            ]),
                             ListPrepend(
                                 Constructor(
                                     "Just",
                                     ObjectLiteral(null, [
-                                        Field("value", StringValue("hello")),
+                                        Field("value", Value("value")),
                                     ])
                                 ),
-                                FunctionCall("basic", [ ListValue([ ]) ])
+                                FunctionCall("basic", [ Value("rest") ])
                             ),
+                            [ ]
+                        ),
+                        Branch(
+                            ListDestructure([
+                                Destructure("Nothing", ""),
+                                Value("rest"),
+                            ]),
+                            FunctionCall("basic", [ Value("rest") ]),
                             [ ]
                         ),
                         Branch(Default(), ListValue([ ]), [ ]),
@@ -165,22 +204,37 @@ export function testParseMultiLine() {
                     [
                         FunctionArg(
                             "xs",
-                            FixedType("List", [ FixedType("string", [ ]) ])
+                            FixedType("List", [
+                                FixedType("Maybe", [
+                                    FixedType("string", [ ]),
+                                ]),
+                            ])
                         ),
                     ],
                     [ ],
                     CaseStatement(Value("xs"), [
                         Branch(
-                            ListDestructure([ Value("anything"), EmptyList() ]),
+                            ListDestructure([
+                                Destructure("Just", "{ value }"),
+                                Value("rest"),
+                            ]),
                             ListPrepend(
                                 Constructor(
                                     "Just",
                                     ObjectLiteral(null, [
-                                        Field("value", StringValue("hello")),
+                                        Field("value", Value("value")),
                                     ])
                                 ),
-                                FunctionCall("basic", [ ListValue([ ]) ])
+                                FunctionCall("basic", [ Value("rest") ])
                             ),
+                            [ ]
+                        ),
+                        Branch(
+                            ListDestructure([
+                                Destructure("Nothing", ""),
+                                Value("rest"),
+                            ]),
+                            FunctionCall("basic", [ Value("rest") ]),
                             [ ]
                         ),
                         Branch(Default(), ListValue([ ]), [ ]),

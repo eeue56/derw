@@ -244,6 +244,19 @@ asIs result =
             default -> 0
     ```
 
+
+-   [x] List destructing with union types values
+
+    ```elm
+    sum: List (Maybe number) -> number
+    sum xs =
+        case xs of
+            [] -> 0
+            Just { value } :: rest -> value + sum rest
+            Nothing :: rest -> sum rest
+            default -> 0
+    ```
+
 -   [x] Constructing union types
 
     ```elm

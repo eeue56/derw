@@ -507,7 +507,8 @@ export type ListDestructurePart =
     | Value
     | StringValue
     | FormatStringValue
-    | EmptyList;
+    | EmptyList
+    | Destructure;
 
 export type ListDestructure = {
     kind: "ListDestructure";

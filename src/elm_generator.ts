@@ -182,6 +182,10 @@ function generateListDestructurePart(part: ListDestructurePart): string {
         case "Value": {
             return part.body;
         }
+        case "Destructure": {
+            const pattern = part.pattern ? ` ${part.pattern}` : "";
+            return `${part.constructor}${pattern}`;
+        }
     }
 }
 
