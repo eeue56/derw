@@ -258,10 +258,16 @@ function generateBranch(predicate: string, branch: Branch): string {
             const isFirstDestructor = firstPart.kind === "Destructure";
 
             if (isFirstDestructor) {
+                const destructors = branch.pattern.parts.filter(
+                    (t) => t.kind === "Destructure"
+                ) as Destructure[];
+
+                const destructorParts = destructors.map((_, i) => `_${i}`);
+
                 const generatedParts = [
-                    "_first",
+                    ...destructorParts,
                     ...branch.pattern.parts
-                        .slice(1, -1)
+                        .slice(destructorParts.length, -1)
                         .map(generateListDestructurePart),
                 ];
 
@@ -273,23 +279,25 @@ function generateBranch(predicate: string, branch: Branch): string {
                           branch.pattern.parts[length - 1]
                       );
 
-                const firstConditional = (
-                    branch.pattern.parts[0] as Destructure
-                ).constructor;
+                const conditionals = destructors.map((destructor, i) => {
+                    return `_${i}.kind === "${destructor.constructor}"`;
+                });
 
-                const pattern = (branch.pattern.parts[0] as Destructure)
-                    .pattern;
+                const joinedConditionals = conditionals.join(" && ");
 
-                const needsUnpacking = pattern.length > 0;
+                const unpacked = destructors.map((destructor, i) => {
+                    return destructor.pattern.length > 0
+                        ? `\n            const ${destructor.pattern} = _${i};`
+                        : "";
+                });
 
-                const unpacked = needsUnpacking
-                    ? `\n            const ${pattern} = _first;`
-                    : "";
+                const joinedUnpacked =
+                    unpacked.length === 0 ? "" : unpacked.join("");
 
                 return `case ${predicate}.length: {
     if (${conditional}) {
         const [ ${parts} ] = ${predicate};
-        if (_first.kind === "${firstConditional}") {${unpacked}${
+        if (${joinedConditionals}) {${joinedUnpacked}${
                     maybeLetBody ? prefixLines(maybeLetBody, 8) : ""
                 }
             ${returnWrapper}${body};

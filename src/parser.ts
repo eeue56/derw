@@ -1342,7 +1342,8 @@ function parseListDestructure(
         switch (token.kind) {
             case "WhitespaceToken":
             case "OpenCurlyBracesToken":
-            case "CloseCurlyBracesToken": {
+            case "CloseCurlyBracesToken":
+            case "ColonToken": {
                 if (isInDestructor) {
                     destructorParts.push(token);
                 }

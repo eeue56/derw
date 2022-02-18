@@ -29,8 +29,8 @@ const oneLine = `
 basic: List (Maybe string) -> List (Maybe string)
 basic xs =
     case xs of
-        Just { value } :: rest -> Just { value: value } :: basic rest
-        Nothing :: rest -> basic rest
+        Just { value } :: Just { value: otherValue } :: rest -> Just { value: value } :: Just { value: otherValue } :: basic rest
+        Nothing :: Just { value } :: rest -> Just { value: value } :: basic rest
         default -> []
 `.trim();
 
@@ -38,11 +38,11 @@ const multiLine = `
 basic: List (Maybe string) -> List (Maybe string)
 basic xs =
     case xs of
-        Just { value } :: rest ->
-            Just { value: value } :: basic rest
+        Just { value } :: Just { value: otherValue } :: rest ->
+            Just { value: value } :: Just { value: otherValue } :: basic rest
 
-        Nothing :: rest ->
-            basic rest
+        Nothing :: Just { value } :: rest ->
+            Just { value: value } :: basic rest
 
         default ->
             []
@@ -53,19 +53,21 @@ function basic(xs: Maybe<string>[]): Maybe<string>[] {
     const _res3835 = xs;
     switch (_res3835.length) {
         case _res3835.length: {
-            if (_res3835.length >= 1) {
-                const [ _0, ...rest ] = _res3835;
-                if (_0.kind === "Just") {
+            if (_res3835.length >= 2) {
+                const [ _0, _1, ...rest ] = _res3835;
+                if (_0.kind === "Just" && _1.kind === "Just") {
                     const { value } = _0;
-                    return [ Just({ value }), ...basic(rest) ];
+                    const { value: otherValue } = _1;
+                    return [ Just({ value }), ...[ Just({ value: otherValue }), ...basic(rest) ] ];
                 }
             }
         }
         case _res3835.length: {
-            if (_res3835.length >= 1) {
-                const [ _0, ...rest ] = _res3835;
-                if (_0.kind === "Nothing") {
-                    return basic(rest);
+            if (_res3835.length >= 2) {
+                const [ _0, _1, ...rest ] = _res3835;
+                if (_0.kind === "Nothing" && _1.kind === "Just") {
+                    const { value } = _1;
+                    return [ Just({ value }), ...basic(rest) ];
                 }
             }
         }
@@ -81,19 +83,21 @@ function basic(xs) {
     const _res3835 = xs;
     switch (_res3835.length) {
         case _res3835.length: {
-            if (_res3835.length >= 1) {
-                const [ _0, ...rest ] = _res3835;
-                if (_0.kind === "Just") {
+            if (_res3835.length >= 2) {
+                const [ _0, _1, ...rest ] = _res3835;
+                if (_0.kind === "Just" && _1.kind === "Just") {
                     const { value } = _0;
-                    return [ Just({ value }), ...basic(rest) ];
+                    const { value: otherValue } = _1;
+                    return [ Just({ value }), ...[ Just({ value: otherValue }), ...basic(rest) ] ];
                 }
             }
         }
         case _res3835.length: {
-            if (_res3835.length >= 1) {
-                const [ _0, ...rest ] = _res3835;
-                if (_0.kind === "Nothing") {
-                    return basic(rest);
+            if (_res3835.length >= 2) {
+                const [ _0, _1, ...rest ] = _res3835;
+                if (_0.kind === "Nothing" && _1.kind === "Just") {
+                    const { value } = _1;
+                    return [ Just({ value }), ...basic(rest) ];
                 }
             }
         }
@@ -160,6 +164,32 @@ export function testParse() {
                         Branch(
                             ListDestructure([
                                 Destructure("Just", "{ value }"),
+                                Destructure("Just", "{ value: otherValue }"),
+                                Value("rest"),
+                            ]),
+                            ListPrepend(
+                                Constructor(
+                                    "Just",
+                                    ObjectLiteral(null, [
+                                        Field("value", Value("value")),
+                                    ])
+                                ),
+                                ListPrepend(
+                                    Constructor(
+                                        "Just",
+                                        ObjectLiteral(null, [
+                                            Field("value", Value("otherValue")),
+                                        ])
+                                    ),
+                                    FunctionCall("basic", [ Value("rest") ])
+                                )
+                            ),
+                            [ ]
+                        ),
+                        Branch(
+                            ListDestructure([
+                                Destructure("Nothing", ""),
+                                Destructure("Just", "{ value }"),
                                 Value("rest"),
                             ]),
                             ListPrepend(
@@ -171,14 +201,6 @@ export function testParse() {
                                 ),
                                 FunctionCall("basic", [ Value("rest") ])
                             ),
-                            [ ]
-                        ),
-                        Branch(
-                            ListDestructure([
-                                Destructure("Nothing", ""),
-                                Value("rest"),
-                            ]),
-                            FunctionCall("basic", [ Value("rest") ]),
                             [ ]
                         ),
                         Branch(Default(), ListValue([ ]), [ ]),
@@ -216,6 +238,32 @@ export function testParseMultiLine() {
                         Branch(
                             ListDestructure([
                                 Destructure("Just", "{ value }"),
+                                Destructure("Just", "{ value: otherValue }"),
+                                Value("rest"),
+                            ]),
+                            ListPrepend(
+                                Constructor(
+                                    "Just",
+                                    ObjectLiteral(null, [
+                                        Field("value", Value("value")),
+                                    ])
+                                ),
+                                ListPrepend(
+                                    Constructor(
+                                        "Just",
+                                        ObjectLiteral(null, [
+                                            Field("value", Value("otherValue")),
+                                        ])
+                                    ),
+                                    FunctionCall("basic", [ Value("rest") ])
+                                )
+                            ),
+                            [ ]
+                        ),
+                        Branch(
+                            ListDestructure([
+                                Destructure("Nothing", ""),
+                                Destructure("Just", "{ value }"),
                                 Value("rest"),
                             ]),
                             ListPrepend(
@@ -227,14 +275,6 @@ export function testParseMultiLine() {
                                 ),
                                 FunctionCall("basic", [ Value("rest") ])
                             ),
-                            [ ]
-                        ),
-                        Branch(
-                            ListDestructure([
-                                Destructure("Nothing", ""),
-                                Value("rest"),
-                            ]),
-                            FunctionCall("basic", [ Value("rest") ]),
                             [ ]
                         ),
                         Branch(Default(), ListValue([ ]), [ ]),
