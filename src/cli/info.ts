@@ -1,4 +1,5 @@
 import {
+    allErrors,
     bothFlag,
     empty,
     help,
@@ -152,6 +153,13 @@ export async function info(
     if (program.flags["h/help"].isPresent) {
         showInfoHelp();
         return;
+    }
+
+    const errors = allErrors(program);
+    if (errors.length > 0) {
+        console.log("Errors:");
+        console.log(errors.join("\n"));
+        process.exit(1);
     }
 
     const fileNameToParse =
