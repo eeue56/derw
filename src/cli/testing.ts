@@ -1,11 +1,22 @@
 import { runner } from "@eeue56/bach/build/bach";
-import { bothFlag, empty, help, longFlag, parse, parser } from "@eeue56/baner";
+import {
+    allErrors,
+    bothFlag,
+    empty,
+    help,
+    longFlag,
+    parse,
+    parser,
+    string,
+} from "@eeue56/baner";
 import * as chokidar from "chokidar";
 import path from "path";
 import { compileFiles } from "./compile";
 
 const testingParser = parser([
     longFlag("watch", "Watch Derw files for changes", empty()),
+    longFlag("function", "A particular function name to run", string()),
+    longFlag("file", "A particular file name to run", string()),
     bothFlag("h", "help", "This help text", empty()),
 ]);
 
@@ -23,6 +34,13 @@ export async function runTests(
     if (program.flags["h/help"].isPresent) {
         showTestingHelp();
         return;
+    }
+
+    const errors = allErrors(program);
+    if (errors.length > 0) {
+        console.log("Errors:");
+        console.log(errors.join("\n"));
+        process.exit(1);
     }
 
     if (!isInPackageDirectory) {
