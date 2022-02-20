@@ -1476,7 +1476,7 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
                 continue;
             }
 
-            const spaces = " ".repeat(indent + rootIndentLevel);
+            const spaces = " ".repeat(8 + rootIndentLevel);
             const letStart = branchLines.findIndex(
                 (line) =>
                     line.startsWith(spaces + "let") && line.endsWith("let")
@@ -1722,7 +1722,11 @@ function parseFunctionCall(
             functionName = token.body;
             break;
         } else {
-            return Err(`Expected identifier but got ${token.kind}`);
+            return Err(
+                `Expected identifier but got ${token.kind}: ${tokensToString([
+                    token,
+                ])}`
+            );
         }
         index++;
     }

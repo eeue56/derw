@@ -58,14 +58,14 @@ function filterMapHelp<a, b>(fn: (arg0: a) => Maybe<b>, a: a, xs: b[]): b[] {
         case "Just": {
             const { value } = _res97517640;
             const _res1110581198 = "hello";
-        switch (_res1110581198) {
-            case "hello": {
-                return append(xs, [ value ]);
-            }
-            default: {
-                return append(xs, [ value ]);
-            }
-        };
+            switch (_res1110581198) {
+                case "hello": {
+                    return append(xs, [ value ]);
+                }
+                default: {
+                    return append(xs, [ value ]);
+                }
+            };
         }
         case "Nothing": {
             return xs;
@@ -81,14 +81,14 @@ function filterMapHelp(fn, a, xs) {
         case "Just": {
             const { value } = _res97517640;
             const _res1110581198 = "hello";
-        switch (_res1110581198) {
-            case "hello": {
-                return append(xs, [ value ]);
-            }
-            default: {
-                return append(xs, [ value ]);
-            }
-        };
+            switch (_res1110581198) {
+                case "hello": {
+                    return append(xs, [ value ]);
+                }
+                default: {
+                    return append(xs, [ value ]);
+                }
+            };
         }
         case "Nothing": {
             return xs;

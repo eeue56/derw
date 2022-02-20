@@ -212,8 +212,11 @@ function generateListDestructurePart(part: ListDestructurePart): string {
 }
 
 function generateBranch(predicate: string, branch: Branch): string {
-    const body = generateExpression(branch.body);
-    const returnWrapper = isSimpleValue(branch.body.kind) ? "return " : "";
+    const returnWrapper = isSimpleValue(branch.body.kind) ? "    return " : "";
+    const body = prefixLines(
+        generateExpression(branch.body),
+        isSimpleValue(branch.body.kind) ? 0 : 4
+    );
     const maybeLetBody =
         branch.letBody.length > 0
             ? "\n" +
@@ -227,22 +230,22 @@ function generateBranch(predicate: string, branch: Branch): string {
                     ? `\n    const ${branch.pattern.pattern} = ${predicate};`
                     : "";
             return `case "${branch.pattern.constructor}": {${pattern}${maybeLetBody}
-    ${returnWrapper}${body};
+${returnWrapper}${body};
 }`;
         }
         case "StringValue": {
             return `case "${branch.pattern.body}": {${maybeLetBody}
-    ${returnWrapper}${body};
+${returnWrapper}${body};
 }`;
         }
         case "FormatStringValue": {
             return `case \`${branch.pattern.body}\`: {${maybeLetBody}
-    ${returnWrapper}${body};
+${returnWrapper}${body};
 }`;
         }
         case "EmptyList": {
             return `case 0: {${maybeLetBody}
-    ${returnWrapper}${body};
+${returnWrapper}${body};
 }`;
         }
         case "ListDestructure": {
@@ -300,7 +303,7 @@ function generateBranch(predicate: string, branch: Branch): string {
         if (${joinedConditionals}) {${joinedUnpacked}${
                     maybeLetBody ? prefixLines(maybeLetBody, 8) : ""
                 }
-            ${returnWrapper}${body};
+        ${returnWrapper}${body};
         }
     }
 }`;
@@ -337,7 +340,7 @@ function generateBranch(predicate: string, branch: Branch): string {
                     maybeLetBody ? prefixLines(maybeLetBody, 4) : ""
                 }
         if (_temp === ${tempConditional}) {
-            ${returnWrapper}${body};
+        ${returnWrapper}${body};
         }
     }
 }`;
@@ -347,14 +350,14 @@ function generateBranch(predicate: string, branch: Branch): string {
         const [ ${parts} ] = ${predicate};${
                     maybeLetBody ? prefixLines(maybeLetBody, 4) : ""
                 }
-        ${returnWrapper}${body};
+    ${returnWrapper}${body};
     }
 }`;
             }
         }
         case "Default": {
             return `default: {${maybeLetBody}
-    ${returnWrapper}${body};
+${returnWrapper}${body};
 }`;
         }
     }
