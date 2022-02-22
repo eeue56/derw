@@ -49,9 +49,13 @@ export async function runTests(
     }
 
     if (program.flags.watch.isPresent) {
+        process.argv.push("--clean-exit");
         let timer: any;
         chokidar
             .watch(path.join(process.cwd(), "src"))
+            .on("error", () => {
+                console.log("Got an error");
+            })
             .on("all", async (event: Event, path: string): Promise<any> => {
                 if (path.endsWith(".derw")) {
                     if (timer !== null) {
