@@ -2073,6 +2073,7 @@ function dropSurroundingBrackets(tokens: Token[]): Token[] {
 
 export function parseExpression(body: string): Result<string, Expression> {
     const tokens = dropSurroundingBrackets(tokenize(body));
+
     let index = 0;
 
     while (index < tokens.length) {
@@ -2085,11 +2086,13 @@ export function parseExpression(body: string): Result<string, Expression> {
         return Err(`Expected a token but got "${tokens}"`);
     }
 
+    const isKeyword = firstToken.kind === "KeywordToken";
+
     if (firstToken.kind === "OperatorToken" && firstToken.body === "\\") {
         return parseLambda(tokens);
-    } else if (hasTopLevelOperator("|>", tokens)) {
+    } else if (!isKeyword && hasTopLevelOperator("|>", tokens)) {
         return parseLeftPipe(tokens);
-    } else if (hasTopLevelOperator("<|", tokens)) {
+    } else if (!isKeyword && hasTopLevelOperator("<|", tokens)) {
         return parseRightPipe(tokens);
     }
 
