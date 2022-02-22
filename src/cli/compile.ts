@@ -23,6 +23,7 @@ import { generate, Target } from "../generator";
 import { loadPackageFile } from "../package";
 import * as derwParser from "../parser";
 import { Block, ContextModule, contextModuleToModule, Import } from "../types";
+import { isTestFile } from "../utils";
 import { ensureDirectoryExists, fileExists, getDerwFiles } from "./utils";
 
 const compileParser = parser([
@@ -225,7 +226,8 @@ export async function compileFiles(
                     await promises.readFile(fileName)
                 ).toString();
 
-                const isMain = files.indexOf(fileName) > -1;
+                const isMain =
+                    files.indexOf(fileName) > -1 && !isTestFile(fileName);
                 let parsed = derwParser.parseWithContext(
                     derwContents,
                     isMain ? "Main" : fileName

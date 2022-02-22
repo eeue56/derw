@@ -1,5 +1,15 @@
 import { Err, Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
-import { Block, BlockKinds, TypedBlock, UnparsedBlock } from "./types";
+import {
+    Block,
+    BlockKinds,
+    Const,
+    Export,
+    Function,
+    Module,
+    TypedBlock,
+    UnparsedBlock,
+} from "./types";
+import { isTestFile } from "./utils";
 
 export function blockKind(block: string): Result<string, BlockKinds> {
     if (block.startsWith("--")) {
@@ -212,4 +222,31 @@ export function typeBlocks(blocks: Block[]): TypedBlock[] {
         (block: Block) =>
             block.kind === "UnionType" || block.kind === "TypeAlias"
     ) as TypedBlock[];
+}
+
+export function exportTests(module: Module): Export {
+    const isTest = isTestFile(module.name);
+    const namesToExpose = isTest
+        ? module.body
+              .filter((block) => {
+                  return block.kind === "Function" || block.kind === "Const";
+              })
+              .map((block) => (block as Function | Const).name)
+              .filter((name) => name.startsWith("test"))
+        : [ ];
+
+    const exports = module.body.filter(
+        (block) => block.kind === "Export"
+    ) as Export[];
+
+    const exposeWithoutDuplicates = namesToExpose.filter((name) => {
+        for (const export_ of exports) {
+            if (export_.names.includes(name)) {
+                return false;
+            }
+        }
+        return true;
+    });
+
+    return Export(exposeWithoutDuplicates);
 }

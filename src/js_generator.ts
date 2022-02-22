@@ -1,3 +1,4 @@
+import { exportTests } from "./blocks";
 import {
     Addition,
     And,
@@ -829,7 +830,7 @@ function generateBlock(syntax: Block): string {
 }
 
 export function generateJavascript(module: Module): string {
-    return module.body
+    return [ exportTests(module), ...module.body ]
         .map(generateBlock)
         .filter((line) => line.length > 0)
         .join("\n\n");

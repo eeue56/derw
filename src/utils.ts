@@ -15,3 +15,7 @@ export function hashCode(str: string): number {
     }
     return Math.abs(hash);
 }
+
+export function isTestFile(name: string): boolean {
+    return name.endsWith("_test.derw");
+}

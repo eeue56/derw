@@ -1,3 +1,4 @@
+import { exportTests } from "./blocks";
 import { isBuiltinType } from "./builtins";
 import {
     Addition,
@@ -1035,7 +1036,7 @@ function generateBlock(syntax: Block): string {
 }
 
 export function generateTypescript(module: Module): string {
-    return module.body
+    return [ exportTests(module), ...module.body ]
         .map(generateBlock)
         .filter((line) => line.length > 0)
         .join("\n\n");
