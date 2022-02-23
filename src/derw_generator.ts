@@ -267,7 +267,7 @@ function generateCaseStatement(caseStatement: CaseStatement): string {
     );
 
     return `case ${predicate} of
-${prefixLines(branches.join("\n"), 4)}
+${prefixLines(branches.join("\n\n"), 4)}
 `.trim();
 }
 
