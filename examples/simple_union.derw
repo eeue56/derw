@@ -7,5 +7,6 @@ isTruthy binary =
     case binary of
         One ->
             true
+
         Zero ->
             false

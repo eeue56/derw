@@ -422,6 +422,10 @@ function generateFunctionCall(functionCall: FunctionCall): string {
                 }
                 break;
             }
+            case "ListPrepend": {
+                output.push("(" + generateExpression(arg) + ")");
+                break;
+            }
             default: {
                 output.push(generateExpression(arg));
             }
