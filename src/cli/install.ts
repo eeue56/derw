@@ -166,7 +166,11 @@ async function cloneRepo(dependency: Dependency): Promise<void> {
     await ensureDirectoryExists(`derw-packages/${dependency.name}`);
     const res = spawnSync(
         "git",
-        [ "clone", `git@github.com:${dependency.name}.git`, dependency.name ],
+        [
+            "clone",
+            `https://github.com/${dependency.name}.git`,
+            dependency.name,
+        ],
         { cwd: "derw-packages", encoding: "utf-8" }
     );
 
