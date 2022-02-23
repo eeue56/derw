@@ -316,6 +316,12 @@ function generateType(type_: Type): string {
                 if (fixedArgs.length === 0) {
                     return "List any";
                 } else if (fixedArgs.length === 1) {
+                    if (
+                        fixedArgs[0].kind === "FixedType" &&
+                        fixedArgs[0].args.length > 0
+                    ) {
+                        return `List (${generateType(fixedArgs[0])})`;
+                    }
                     return `List ${generateType(fixedArgs[0])}`;
                 }
 
