@@ -768,28 +768,40 @@ function generateImportBlock(imports: Import): string {
                     module.alias.kind === "just"
                         ? module.alias.value
                         : getNameFromPath(withoutQuotes);
+                const exposing = `import { ${module.exposing.join(
+                    ", "
+                )} } from ${module.name};`;
 
                 if (module.exposing.length === 0) {
                     return `import * as ${name} from ${module.name};`;
                 } else {
-                    return `import { ${module.exposing.join(", ")} } from ${
-                        module.name
-                    };`;
+                    if (module.alias.kind === "just") {
+                        return `import * as ${name} from ${module.name};
+${exposing}`;
+                    }
+                    return exposing;
                 }
             }
             const name =
                 module.alias.kind === "just" ? module.alias.value : module.name;
+            const exposing = `import { ${module.exposing.join(", ")} } from "${
+                module.name
+            }";`;
 
             if (module.exposing.length === 0) {
                 return `import * as ${name} from "${module.name}";`;
             } else {
-                return `import { ${module.exposing.join(", ")} } from "${
-                    module.name
-                }";`;
+                if (module.alias.kind === "just") {
+                    return `import * as ${name} from "${module.name}";
+${exposing}`;
+                }
+
+                return exposing;
             }
         })
         .join("\n");
 }
+
 function generateExportBlock(exports: Export): string {
     return exports.names
         .map((name) => {

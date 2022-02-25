@@ -637,14 +637,15 @@ function generateImportBlock(imports: Import): string {
                           .split(`"`)
                           .join("");
 
-            if (module.alias.kind === "just")
-                return `import ${moduleName} as ${module.alias.value}`;
+            const exposingPart =
+                module.exposing.length > 0
+                    ? ` exposing ( ${module.exposing.join(", ")} )`
+                    : "";
 
-            if (module.exposing.length > 0)
-                return `import ${moduleName} exposing ( ${module.exposing.join(
-                    ", "
-                )} )`;
-            return `import ${moduleName}`;
+            if (module.alias.kind === "just")
+                return `import ${moduleName} as ${module.alias.value}${exposingPart}`;
+
+            return `import ${moduleName}${exposingPart}`;
         })
         .join("\n");
 }
