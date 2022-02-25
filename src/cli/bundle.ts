@@ -89,6 +89,7 @@ export async function bundle(
             entryPoints: [ entry as string ],
             bundle: true,
             outfile: output as string,
+            logLevel: "error",
         });
     }
 
