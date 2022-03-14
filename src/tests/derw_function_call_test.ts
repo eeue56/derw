@@ -1,5 +1,5 @@
 import * as assert from "@eeue56/ts-assert";
-import { generateDerw } from "../derw_generator";
+import { generateDerw } from "../generators/derw";
 import { parse } from "../parser";
 
 export function testBase() {

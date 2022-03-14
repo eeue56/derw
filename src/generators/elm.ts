@@ -43,7 +43,7 @@ import {
     TypeAlias,
     UnionType,
     Value,
-} from "./types";
+} from "../types";
 
 function prefixLines(body: string, indent: number): string {
     return body
@@ -92,20 +92,22 @@ function generateField(field: Field): string {
     const value = generateExpression(field.value);
 
     if (field.name === value) {
-        return `${field.name}: ${value}`;
+        return `${field.name} = ${value}`;
     }
 
-    return `${field.name}: ${value}`;
+    return `${field.name} = ${value}`;
 }
 
 function generateObjectLiteralWithBase(literal: ObjectLiteral): string {
     const base = (literal.base as Value).body;
+    const baseWithoutDots = base.split("...")[1];
     let fields = literal.fields.map(generateField).join(",\n    ");
 
-    if (literal.fields.length === 1) return `{ ${base}, ${fields} }`;
+    if (literal.fields.length === 1)
+        return `{ ${baseWithoutDots} | ${fields} }`;
 
     return `{
-    ${base},
+    ${baseWithoutDots} |
     ${fields}
 }`;
 }
@@ -122,6 +124,9 @@ function generateObjectLiteral(literal: ObjectLiteral): string {
 }
 
 function generateValue(value: Value): string {
+    if (value.body === `true`) return "True";
+    if (value.body === "false") return "False";
+
     return value.body;
 }
 
@@ -129,8 +134,9 @@ function generateStringValue(string: StringValue): string {
     return `"${string.body}"`;
 }
 
+// TODO: properly convert string interpolation
 function generateFormatStringValue(string: FormatStringValue): string {
-    return `\`${string.body}\``;
+    return `"${string.body}"`;
 }
 
 function generateListValue(list: ListValue): string {
@@ -147,39 +153,10 @@ function generateListRange(list: ListRange): string {
 }
 
 function generateIfStatement(ifStatement: IfStatement): string {
-    const maybeIfLetBody =
-        ifStatement.ifLetBody.length > 0
-            ? prefixLines("\nlet", 4) +
-              "\n" +
-              prefixLines(
-                  ifStatement.ifLetBody.map(generateBlock).join("\n\n"),
-                  8
-              ) +
-              prefixLines("\nin", 4) +
-              prefixLines("", 8)
-            : "";
-
-    const maybeElseLetBody =
-        ifStatement.elseLetBody.length > 0
-            ? prefixLines("\nlet", 4) +
-              "\n" +
-              prefixLines(
-                  ifStatement.elseLetBody.map(generateBlock).join("\n\n"),
-                  8
-              ) +
-              prefixLines("\nin", 4) +
-              prefixLines("", 8)
-            : "";
-
-    return `if ${generateExpression(
-        ifStatement.predicate
-    )} then${maybeIfLetBody}
-${prefixLines(generateExpression(ifStatement.ifBody), maybeIfLetBody ? 8 : 4)}
-else${maybeElseLetBody}
-${prefixLines(
-    generateExpression(ifStatement.elseBody),
-    maybeElseLetBody ? 8 : 4
-)}
+    return `if ${generateExpression(ifStatement.predicate)} then
+${prefixLines(generateExpression(ifStatement.ifBody), 4)}
+else
+${prefixLines(generateExpression(ifStatement.elseBody), 4)}
 `;
 }
 
@@ -227,7 +204,7 @@ function generateBranchPattern(branchPattern: BranchPattern): string {
             return "`" + branchPattern.body + "`";
         }
         case "EmptyList": {
-            return "[]";
+            return "case []";
         }
         case "ListDestructure": {
             return branchPattern.parts
@@ -246,15 +223,13 @@ function generateBranch(branch: Branch): string {
             ? prefixLines("\nlet", 4) +
               "\n" +
               prefixLines(branch.letBody.map(generateBlock).join("\n\n"), 8) +
-              prefixLines("\nin", 4) +
-              prefixLines("", 8)
+              prefixLines("\nin", 4)
             : "";
 
     const body = prefixLines(
         generateExpression(branch.body),
         branch.letBody.length === 0 ? 4 : 8
     );
-
     return `${generateBranchPattern(branch.pattern)} ->${maybeLetBody}
 ${body}
 `.trim();
@@ -267,8 +242,23 @@ function generateCaseStatement(caseStatement: CaseStatement): string {
     );
 
     return `case ${predicate} of
-${prefixLines(branches.join("\n\n"), 4)}
+${prefixLines(branches.join("\n"), 4)}
 `.trim();
+}
+
+const typeMap: Record<string, string> = {
+    boolean: "Bool",
+    number: "Float",
+    string: "String",
+    void: "String",
+};
+
+function typeMapNameLookup(name: string): string {
+    if (Object.keys(typeMap).indexOf(name) === -1) {
+        return name;
+    }
+
+    return typeMap[name];
 }
 
 function generateTopLevelType(type_: Type): string {
@@ -287,7 +277,7 @@ function generateTopLevelType(type_: Type): string {
             );
 
             if (args.length === 0) {
-                return type_.name;
+                return typeMapNameLookup(type_.name);
             }
 
             return `${type_.name} ${args.map(generateType).join(" ")}`;
@@ -301,7 +291,7 @@ function generateTopLevelType(type_: Type): string {
 function generateType(type_: Type): string {
     switch (type_.kind) {
         case "GenericType": {
-            return type_.name;
+            return typeMapNameLookup(type_.name);
         }
         case "FixedType": {
             if (type_.name === "List") {
@@ -316,12 +306,6 @@ function generateType(type_: Type): string {
                 if (fixedArgs.length === 0) {
                     return "List any";
                 } else if (fixedArgs.length === 1) {
-                    if (
-                        fixedArgs[0].kind === "FixedType" &&
-                        fixedArgs[0].args.length > 0
-                    ) {
-                        return `List (${generateType(fixedArgs[0])})`;
-                    }
                     return `List ${generateType(fixedArgs[0])}`;
                 }
 
@@ -332,7 +316,7 @@ function generateType(type_: Type): string {
                 (type_) => type_.kind === "GenericType"
             );
             if (args.length === 0) {
-                return type_.name;
+                return typeMapNameLookup(type_.name);
             }
 
             return `${type_.name} ${args.map(generateType).join(" ")}`;
@@ -348,6 +332,13 @@ function generateType(type_: Type): string {
 function generateAddition(addition: Addition): string {
     const left = generateExpression(addition.left);
     const right = generateExpression(addition.right);
+
+    if (
+        addition.left.kind === "StringValue" ||
+        addition.right.kind === "StringValue"
+    ) {
+        return `${left} ++ ${right}`;
+    }
 
     return `${left} + ${right}`;
 }
@@ -389,16 +380,23 @@ function generateRightPipe(rightPipe: RightPipe): string {
     <| ${right}`;
 }
 
+const moduleLookup: Record<string, string> = {
+    "console.log": `Debug.log ""`,
+};
+
 function generateModuleReference(moduleReference: ModuleReference): string {
     const left = moduleReference.path.join(".");
     const right = generateExpression(moduleReference.value);
+    const value = `${left}.${right}`;
 
-    return `${left}.${right}`;
+    if (Object.keys(moduleLookup).indexOf(value) === -1) {
+        return value;
+    }
+    return moduleLookup[value];
 }
 
 function generateFunctionCall(functionCall: FunctionCall): string {
-    if (functionCall.args.length === 0) return `${functionCall.name}()`;
-
+    if (functionCall.args.length === 0) return `${functionCall.name}`;
     let output: string[] = [ ];
 
     for (const arg of functionCall.args) {
@@ -422,10 +420,6 @@ function generateFunctionCall(functionCall: FunctionCall): string {
                 }
                 break;
             }
-            case "ListPrepend": {
-                output.push("(" + generateExpression(arg) + ")");
-                break;
-            }
             default: {
                 output.push(generateExpression(arg));
             }
@@ -440,7 +434,7 @@ function generateLambda(lambda: Lambda): string {
     const args = lambda.args.map((arg: any) => `${arg}`).join(" ");
     const body = generateExpression(lambda.body);
     return `
-(\\${args} -> ${body})
+\\${args} -> ${body}
 `.trim();
 }
 
@@ -633,21 +627,35 @@ ${body}
 function generateImportBlock(imports: Import): string {
     return imports.modules
         .map((module) => {
+            const moduleName =
+                module.namespace === "Global"
+                    ? module.name
+                    : module.name
+                          .replace("./", "")
+                          .split("/")
+                          .join(".")
+                          .split(`"`)
+                          .join("");
+
             const exposingPart =
                 module.exposing.length > 0
                     ? ` exposing ( ${module.exposing.join(", ")} )`
                     : "";
 
             if (module.alias.kind === "just")
-                return `import ${module.name} as ${module.alias.value}${exposingPart}`;
+                return `import ${moduleName} as ${module.alias.value}${exposingPart}`;
 
-            return `import ${module.name}${exposingPart}`;
+            return `import ${moduleName}${exposingPart}`;
         })
         .join("\n");
 }
 
-function generateExportBlock(exports: Export): string {
-    return `exposing (${exports.names.join(", ")})`;
+function generateExportBlock(moduleName: string, names: string[]): string {
+    moduleName = moduleName.toUpperCase()[0] + moduleName.slice(1);
+
+    if (names.length === 0) return `module ${moduleName} exposing (..)`;
+
+    return `module ${moduleName} exposing (${names.join(", ")})`;
 }
 
 function generateBlock(syntax: Block): string {
@@ -655,7 +663,7 @@ function generateBlock(syntax: Block): string {
         case "Import":
             return generateImportBlock(syntax);
         case "Export":
-            return generateExportBlock(syntax);
+            return "";
         case "UnionType":
             return generateUnionType(syntax);
         case "TypeAlias":
@@ -670,9 +678,16 @@ function generateBlock(syntax: Block): string {
     }
 }
 
-export function generateDerw(module: Module): string {
-    return module.body
-        .map(generateBlock)
-        .filter((line) => line.length > 0)
+export function generateElm(module: Module): string {
+    const exports: string[] = [ ];
+    module.body
+        .filter((block) => block.kind === "Export")
+        .forEach((block) => exports.push(...(block as Export).names));
+
+    return [
+        generateExportBlock(module.name, exports),
+        ...module.body.map(generateBlock),
+    ]
+        .filter((line) => line.trim().length > 0)
         .join("\n\n");
 }

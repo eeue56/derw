@@ -1,9 +1,9 @@
 import { writeFile } from "fs/promises";
 import { stdin as input, stdout as output } from "process";
 import * as readline from "readline";
+import { generateTypescript } from "../generators/ts";
 import { addTypeErrors, parseWithContext } from "../parser";
 import { IdentifierToken, tokenize } from "../tokens";
-import { generateTypescript } from "../ts_generator";
 import { ContextModule, contextModuleToModule, Export } from "../types";
 import { ensureDirectoryExists } from "./utils";
 

@@ -1,5 +1,5 @@
-import { exportTests } from "./blocks";
-import { isBuiltinType } from "./builtins";
+import { exportTests } from "../blocks";
+import { isBuiltinType } from "../builtins";
 import {
     Addition,
     And,
@@ -47,8 +47,8 @@ import {
     TypeAlias,
     UnionType,
     Value,
-} from "./types";
-import { getNameFromPath, hashCode } from "./utils";
+} from "../types";
+import { getNameFromPath, hashCode } from "../utils";
 
 function prefixLines(body: string, indent: number): string {
     return body

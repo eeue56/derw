@@ -1,10 +1,10 @@
 import { readdir, readFile } from "fs/promises";
 import path from "path";
-import { generateDerw } from "../derw_generator";
-import { generateElm } from "../elm_generator";
-import { generateJavascript } from "../js_generator";
+import { generateDerw } from "../generators/derw";
+import { generateElm } from "../generators/elm";
+import { generateJavascript } from "../generators/js";
+import { generateTypescript } from "../generators/ts";
 import { parse } from "../parser";
-import { generateTypescript } from "../ts_generator";
 
 const adventOfCodePath = "./examples/advent_of_code";
 

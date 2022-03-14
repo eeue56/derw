@@ -1,7 +1,7 @@
 import * as assert from "@eeue56/ts-assert";
 import { readdir, readFile } from "fs/promises";
 import path from "path";
-import { generateDerw } from "../derw_generator";
+import { generateDerw } from "../generators/derw";
 import { parse } from "../parser";
 
 const emptyLineAtEndOfFile = "\n";

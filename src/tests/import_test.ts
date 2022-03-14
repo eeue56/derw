@@ -3,9 +3,9 @@ import { Just, Nothing } from "@eeue56/ts-core/build/main/lib/maybe";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { blockKind, intoBlocks } from "../blocks";
 import { compileTypescript } from "../compile";
-import { generateJavascript } from "../js_generator";
+import { generateJavascript } from "../generators/js";
+import { generateTypescript } from "../generators/ts";
 import { parse } from "../parser";
-import { generateTypescript } from "../ts_generator";
 import {
     BlockKinds,
     Import,

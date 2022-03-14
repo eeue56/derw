@@ -1,7 +1,7 @@
-import { generateDerw } from "./derw_generator";
-import { generateElm } from "./elm_generator";
-import { generateJavascript } from "./js_generator";
-import { generateTypescript } from "./ts_generator";
+import { generateDerw } from "./generators/derw";
+import { generateElm } from "./generators/elm";
+import { generateJavascript } from "./generators/js";
+import { generateTypescript } from "./generators/ts";
 import { Module } from "./types";
 
 const emptyLineAtEndOfFile = "\n";
