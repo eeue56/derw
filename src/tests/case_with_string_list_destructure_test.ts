@@ -27,7 +27,7 @@ sum: List string -> number
 sum xs =
     case xs of
         [] -> 0
-        "1" :: ys :: [] -> 1 + 2
+        "1" :: [] -> 1 + 2
         "2" :: zs -> 2 + sum zs
         default -> 0
 `.trim();
@@ -38,7 +38,7 @@ sum xs =
     case xs of
         [] ->
             0
-        "1" :: ys :: [] ->
+        "1" :: [] ->
             1 + 2
         "2" :: zs ->
             2 + sum zs
@@ -54,8 +54,8 @@ function sum(xs: string[]): number {
             return 0;
         }
         case _res3835.length: {
-            if (_res3835.length === 2) {
-                const [ _temp, ys ] = _res3835;
+            if (_res3835.length === 1) {
+                const [ _temp ] = _res3835;
                 if (_temp === "1") {
                     return 1 + 2;
                 }
@@ -84,8 +84,8 @@ function sum(xs) {
             return 0;
         }
         case _res3835.length: {
-            if (_res3835.length === 2) {
-                const [ _temp, ys ] = _res3835;
+            if (_res3835.length === 1) {
+                const [ _temp ] = _res3835;
                 if (_temp === "1") {
                     return 1 + 2;
                 }
@@ -155,11 +155,7 @@ export function testParse() {
                     CaseStatement(Value("xs"), [
                         Branch(EmptyList(), Value("0"), [ ]),
                         Branch(
-                            ListDestructure([
-                                StringValue("1"),
-                                Value("ys"),
-                                EmptyList(),
-                            ]),
+                            ListDestructure([ StringValue("1"), EmptyList() ]),
                             Addition(Value("1"), Value("2")),
                             [ ]
                         ),
@@ -199,11 +195,7 @@ export function testParseMultiLine() {
                     CaseStatement(Value("xs"), [
                         Branch(EmptyList(), Value("0"), [ ]),
                         Branch(
-                            ListDestructure([
-                                StringValue("1"),
-                                Value("ys"),
-                                EmptyList(),
-                            ]),
+                            ListDestructure([ StringValue("1"), EmptyList() ]),
                             Addition(Value("1"), Value("2")),
                             [ ]
                         ),

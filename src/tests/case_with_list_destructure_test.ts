@@ -26,7 +26,7 @@ sum: List number -> number
 sum xs =
     case xs of
         [] -> 0
-        y :: ys :: [] -> y + ys
+        y :: [] -> y
         z :: zs -> z + sum zs
         default -> 0
 `.trim();
@@ -37,8 +37,8 @@ sum xs =
     case xs of
         [] ->
             0
-        y :: ys :: [] ->
-            y + ys
+        y :: [] ->
+            y
         z :: zs ->
             z + sum zs
         default ->
@@ -53,9 +53,9 @@ function sum(xs: number[]): number {
             return 0;
         }
         case _res3835.length: {
-            if (_res3835.length === 2) {
-                const [ y, ys ] = _res3835;
-                return y + ys;
+            if (_res3835.length === 1) {
+                const [ y ] = _res3835;
+                return y;
             }
         }
         case _res3835.length: {
@@ -79,9 +79,9 @@ function sum(xs) {
             return 0;
         }
         case _res3835.length: {
-            if (_res3835.length === 2) {
-                const [ y, ys ] = _res3835;
-                return y + ys;
+            if (_res3835.length === 1) {
+                const [ y ] = _res3835;
+                return y;
             }
         }
         case _res3835.length: {
@@ -146,12 +146,8 @@ export function testParse() {
                     CaseStatement(Value("xs"), [
                         Branch(EmptyList(), Value("0"), [ ]),
                         Branch(
-                            ListDestructure([
-                                Value("y"),
-                                Value("ys"),
-                                EmptyList(),
-                            ]),
-                            Addition(Value("y"), Value("ys")),
+                            ListDestructure([ Value("y"), EmptyList() ]),
+                            Value("y"),
                             [ ]
                         ),
                         Branch(
@@ -190,12 +186,8 @@ export function testParseMultiLine() {
                     CaseStatement(Value("xs"), [
                         Branch(EmptyList(), Value("0"), [ ]),
                         Branch(
-                            ListDestructure([
-                                Value("y"),
-                                Value("ys"),
-                                EmptyList(),
-                            ]),
-                            Addition(Value("y"), Value("ys")),
+                            ListDestructure([ Value("y"), EmptyList() ]),
+                            Value("y"),
                             [ ]
                         ),
                         Branch(

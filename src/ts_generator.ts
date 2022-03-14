@@ -29,6 +29,7 @@ import {
     LeftPipe,
     LessThan,
     LessThanOrEqual,
+    ListDestructure,
     ListDestructurePart,
     ListPrepend,
     ListRange,
@@ -52,7 +53,9 @@ import { getNameFromPath, hashCode } from "./utils";
 function prefixLines(body: string, indent: number): string {
     return body
         .split("\n")
-        .map((line) => " ".repeat(indent) + line)
+        .map((line) =>
+            line.trim().length === 0 ? line : " ".repeat(indent) + line
+        )
         .join("\n");
 }
 
@@ -305,6 +308,171 @@ function generateListDestructurePart(part: ListDestructurePart): string {
     }
 }
 
+/*
+
+Takes something like Speech :: middle :: Speech :: rest
+
+*/
+function generateListDestructureWithGaps(
+    predicate: string,
+    branch: Branch,
+    pattern: ListDestructure
+): string {
+    const isFinalEmptyList =
+        pattern.parts[pattern.parts.length - 1].kind === "EmptyList";
+
+    const partsWithLength = destructureLength(pattern);
+
+    let output = "";
+    const REPLACE_KEY = "$REPLACE_ME";
+    let indent = 0;
+
+    for (let i = 0; i < pattern.parts.length; i++) {
+        const part = pattern.parts[i];
+        const isLastValue = i === pattern.parts.length - 1;
+
+        switch (part.kind) {
+            case "Destructure": {
+                const isNextAValue = isLastValue
+                    ? false
+                    : pattern.parts[i + 1].kind === "Value";
+                const hasADestructureAfter =
+                    i < pattern.parts.length - 2
+                        ? pattern.parts[i + 2].kind === "Destructure"
+                        : false;
+                if (isNextAValue && hasADestructureAfter) {
+                    const nextValue = pattern.parts[i + 1] as Value;
+                    const destructorAfter = pattern.parts[i + 2] as Destructure;
+                    output += prefixLines(
+                        `
+const [ _0, ..._rest ] = _res868186726;
+if (_0.kind === "${part.constructor}") {
+    let _foundIndex: number = -1;
+    for (let _i = 0; _i < _rest.length; _i++) {
+        if (_rest[_i].kind === "${destructorAfter.constructor}") {
+            _foundIndex = _i;
+            break;
+        }
+    }
+
+    if (_foundIndex > -1) {
+        const ${nextValue.body} = _rest.slice(0, _foundIndex);
+        ${REPLACE_KEY}
+    }
+}`,
+                        8
+                    ).trim();
+                    i += 1;
+                }
+                break;
+            }
+            case "Value": {
+                if (output.length > 0) {
+                    if (pattern.parts[i - 1].kind === "Destructure") {
+                        output = output.replace(
+                            REPLACE_KEY,
+                            `const ${part.body} = _rest.slice(_foundIndex, _rest.length);
+${REPLACE_KEY}
+    `.trim()
+                        );
+                    } else {
+                        output = output.replace(
+                            REPLACE_KEY,
+                            `const ${part.body} = _rest;
+${REPLACE_KEY}
+    `.trim()
+                        );
+                    }
+                } else {
+                    output += `
+const ${part.body} = _rest;
+                    `;
+                }
+                break;
+            }
+        }
+        i++;
+    }
+
+    const conditional = isFinalEmptyList
+        ? `${predicate}.length === ${partsWithLength}`
+        : `${predicate}.length >= ${partsWithLength}`;
+
+    const returnWrapper = isSimpleValue(branch.body.kind) ? "    return " : "";
+    const body = prefixLines(
+        generateExpression(branch.body),
+        isSimpleValue(branch.body.kind) ? 0 : 4
+    );
+
+    const inner = prefixLines(`${returnWrapper}${body};`, 12);
+
+    return `
+case ${predicate}.length: {
+    if (${conditional}) {
+        ${output.replace(REPLACE_KEY, inner)}
+    }
+}`.trim();
+}
+
+function destructureLength(pattern: ListDestructure): number {
+    let length = 0;
+
+    for (let i = 0; i < pattern.parts.length; i++) {
+        const part = pattern.parts[i];
+
+        if (
+            part.kind === "Destructure" ||
+            part.kind === "StringValue" ||
+            part.kind === "FormatStringValue"
+        ) {
+            length++;
+        } else if (part.kind === "EmptyList") {
+            // ignore empty lists
+        } else if (part.kind === "Value") {
+            // values can have either no elements or some elements
+            // so we don't count it towards the total
+            // a value is a gap if it's not the first element
+            if (i === 0) length++;
+        }
+    }
+    return length;
+}
+
+function patternGapPositions(pattern: ListDestructure): number[] {
+    const positions = [ ];
+    for (let i = 0; i < pattern.parts.length; i++) {
+        const part = pattern.parts[i];
+        if (
+            part.kind === "Destructure" ||
+            part.kind === "StringValue" ||
+            part.kind === "FormatStringValue"
+        ) {
+        } else if (part.kind === "EmptyList") {
+        } else if (part.kind === "Value") {
+            // a value is a gap if it's not the first element
+            if (i > 0) positions.push(i);
+        }
+    }
+    return positions;
+}
+
+function patternHasGaps(pattern: ListDestructure): boolean {
+    for (let i = 0; i < pattern.parts.length; i++) {
+        const part = pattern.parts[i];
+        if (
+            part.kind === "Destructure" ||
+            part.kind === "StringValue" ||
+            part.kind === "FormatStringValue"
+        ) {
+        } else if (part.kind === "EmptyList") {
+        } else if (part.kind === "Value") {
+            // a value is a gap if it's not the first element
+            if (i > 0) return true;
+        }
+    }
+    return false;
+}
+
 function generateBranch(predicate: string, branch: Branch): string {
     const returnWrapper = isSimpleValue(branch.body.kind) ? "    return " : "";
     const body = prefixLines(
@@ -346,15 +514,30 @@ ${returnWrapper}${body};
             const length = branch.pattern.parts.length;
             const isFinalEmptyList =
                 branch.pattern.parts[length - 1].kind === "EmptyList";
-            const conditional = isFinalEmptyList
-                ? `${predicate}.length === ${length - 1}`
-                : `${predicate}.length >= ${length - 1}`;
+
+            const partsWithLength = destructureLength(branch.pattern);
+            const hasGaps = patternHasGaps(branch.pattern);
+            const gapPositions = patternGapPositions(branch.pattern);
+            const isOnlyFinalGap =
+                gapPositions.length === 1 &&
+                gapPositions[0] === branch.pattern.parts.length - 1;
+
+            const conditional =
+                isFinalEmptyList && !hasGaps
+                    ? `${predicate}.length === ${partsWithLength}`
+                    : `${predicate}.length >= ${partsWithLength}`;
 
             const firstPart = branch.pattern.parts[0];
 
             const isFirstDestructor = firstPart.kind === "Destructure";
 
-            if (isFirstDestructor) {
+            if (hasGaps && !isOnlyFinalGap) {
+                return generateListDestructureWithGaps(
+                    predicate,
+                    branch,
+                    branch.pattern
+                );
+            } else if (isFirstDestructor) {
                 const destructors = branch.pattern.parts.filter(
                     (t) => t.kind === "Destructure"
                 ) as Destructure[];
