@@ -44,13 +44,7 @@ import {
     UnionType,
     Value,
 } from "../types";
-
-function prefixLines(body: string, indent: number): string {
-    return body
-        .split("\n")
-        .map((line) => (line.trim() === "" ? "" : " ".repeat(indent) + line))
-        .join("\n");
-}
+import { prefixLines } from "./common";
 
 function generateUnionType(syntax: UnionType): string {
     const tags = syntax.tags
