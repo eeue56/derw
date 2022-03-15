@@ -11,7 +11,6 @@ import {
     Destructure,
     Division,
     Equality,
-    Export,
     Expression,
     Field,
     FixedType,
@@ -21,7 +20,6 @@ import {
     GreaterThan,
     GreaterThanOrEqual,
     IfStatement,
-    Import,
     InEquality,
     isSimpleValue,
     Lambda,
@@ -30,9 +28,7 @@ import {
     LessThan,
     LessThanOrEqual,
     ListDestructure,
-    ListDestructurePart,
     ListPrepend,
-    ListRange,
     ListValue,
     Module,
     ModuleReference,
@@ -48,13 +44,23 @@ import {
     UnionType,
     Value,
 } from "../types";
-import { getNameFromPath, hashCode } from "../utils";
+import { hashCode } from "../utils";
 import {
     destructureLength,
     patternGapPositions,
     patternHasGaps,
     prefixLines,
 } from "./common";
+import {
+    flattenLeftPipe,
+    generateExportBlock,
+    generateFormatStringValue,
+    generateImportBlock,
+    generateListDestructurePart,
+    generateListRange,
+    generateStringValue,
+    generateValue,
+} from "./common_to_ecma";
 
 function generateUnionType(syntax: UnionType): string {
     const tagCreators = syntax.tags
@@ -201,29 +207,11 @@ function generateObjectLiteral(literal: ObjectLiteral): string {
 }`;
 }
 
-function generateValue(value: Value): string {
-    return value.body;
-}
-
-function generateStringValue(string: StringValue): string {
-    return `"${string.body}"`;
-}
-
-function generateFormatStringValue(string: FormatStringValue): string {
-    return `\`${string.body}\``;
-}
-
 function generateListValue(list: ListValue): string {
     if (list.items.length === 0) return `[ ]`;
     if (list.items.length === 1)
         return `[ ${generateExpression(list.items[0])} ]`;
     return `[ ${list.items.map(generateExpression).join(", ")} ]`;
-}
-
-function generateListRange(list: ListRange): string {
-    const gap = `${list.end.body} - ${list.start.body} + 1`;
-
-    return `Array.from({ length: ${gap} }, (x, i) => i + ${list.start.body})`;
 }
 
 function generateIfStatement(ifStatement: IfStatement): string {
@@ -282,27 +270,6 @@ function generateConstructor(constructor: Constructor): string {
     return `${constructor.constructor}(${generateObjectLiteral(
         constructor.pattern
     )})`;
-}
-
-function generateListDestructurePart(part: ListDestructurePart): string {
-    switch (part.kind) {
-        case "EmptyList": {
-            return "[]";
-        }
-        case "StringValue": {
-            return part.body;
-        }
-        case "FormatStringValue": {
-            return part.body;
-        }
-        case "Value": {
-            return part.body;
-        }
-        case "Destructure": {
-            const pattern = part.pattern ? ` ${part.pattern}` : "";
-            return `${part.constructor}${pattern}`;
-        }
-    }
 }
 
 /*
@@ -740,91 +707,6 @@ function generateDivision(division: Division): string {
     return `${left} / ${right}`;
 }
 
-function addArgsToModuleReference(
-    moduleReference: ModuleReference,
-    newArgs: Expression[]
-): ModuleReference {
-    switch (moduleReference.value.kind) {
-        case "FunctionCall": {
-            const args = [ ...moduleReference.value.args, ...newArgs ];
-            const innerFunction = FunctionCall(
-                moduleReference.value.name,
-                args
-            );
-
-            return ModuleReference(moduleReference.path, innerFunction);
-        }
-
-        case "Value": {
-            const args = [ ...newArgs ];
-            const innerFunction = FunctionCall(
-                moduleReference.value.body,
-                args
-            );
-
-            return ModuleReference(moduleReference.path, innerFunction);
-        }
-    }
-
-    return moduleReference;
-}
-
-function flattenLeftPipe(leftPipe: LeftPipe): Expression {
-    const left = leftPipe.left;
-    const right = leftPipe.right;
-
-    switch (right.kind) {
-        case "FunctionCall": {
-            const args = [ ...right.args, left ];
-            return FunctionCall(right.name, args);
-        }
-
-        case "Value": {
-            const args = [ left ];
-            return FunctionCall(right.body, args);
-        }
-
-        case "ModuleReference": {
-            return addArgsToModuleReference(right, [ left ]);
-        }
-
-        case "Lambda": {
-            return LambdaCall(right, [ left ]);
-        }
-
-        case "LeftPipe": {
-            let innerFunction = null;
-            switch (right.left.kind) {
-                case "FunctionCall": {
-                    const args = [ ...right.left.args, left ];
-                    innerFunction = FunctionCall(right.left.name, args);
-                    break;
-                }
-
-                case "Value": {
-                    const args = [ left ];
-                    innerFunction = FunctionCall(right.left.body, args);
-                    break;
-                }
-
-                case "ModuleReference": {
-                    innerFunction = addArgsToModuleReference(right.left, [
-                        left,
-                    ]);
-                    break;
-                }
-
-                case "LeftPipe": {
-                    return right;
-                }
-            }
-
-            if (innerFunction === null) return right.left;
-            return flattenLeftPipe(LeftPipe(innerFunction, right.right));
-        }
-    }
-}
-
 function generateLeftPipe(leftPipe: LeftPipe): string {
     return generateExpression(flattenLeftPipe(leftPipe));
 }
@@ -1094,57 +976,6 @@ function generateConst(constDef: Const): string {
     return `
 const ${constDef.name}: ${typeDef} = ${body};
 `.trim();
-}
-
-function generateImportBlock(imports: Import): string {
-    return imports.modules
-        .map((module) => {
-            if (module.namespace === "Relative") {
-                const withoutQuotes = module.name.slice(1, -1);
-                const name =
-                    module.alias.kind === "just"
-                        ? module.alias.value
-                        : getNameFromPath(withoutQuotes);
-                const exposing = `import { ${module.exposing.join(
-                    ", "
-                )} } from ${module.name};`;
-
-                if (module.exposing.length === 0) {
-                    return `import * as ${name} from ${module.name};`;
-                } else {
-                    if (module.alias.kind === "just") {
-                        return `import * as ${name} from ${module.name};
-${exposing}`;
-                    }
-                    return exposing;
-                }
-            }
-            const name =
-                module.alias.kind === "just" ? module.alias.value : module.name;
-            const exposing = `import { ${module.exposing.join(", ")} } from "${
-                module.name
-            }";`;
-
-            if (module.exposing.length === 0) {
-                return `import * as ${name} from "${module.name}";`;
-            } else {
-                if (module.alias.kind === "just") {
-                    return `import * as ${name} from "${module.name}";
-${exposing}`;
-                }
-
-                return exposing;
-            }
-        })
-        .join("\n");
-}
-
-function generateExportBlock(exports: Export): string {
-    return exports.names
-        .map((name) => {
-            return `export { ${name} };`;
-        })
-        .join("\n");
 }
 
 function generateBlock(syntax: Block): string {
