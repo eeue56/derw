@@ -1,12 +1,13 @@
 import { generateDerw } from "./generators/derw";
 import { generateElm } from "./generators/elm";
+import { generateEnglish } from "./generators/english";
 import { generateJavascript } from "./generators/js";
 import { generateTypescript } from "./generators/ts";
 import { Module } from "./types";
 
 const emptyLineAtEndOfFile = "\n";
 
-export type Target = "js" | "ts" | "derw" | "elm";
+export type Target = "js" | "ts" | "derw" | "elm" | "english";
 
 export function generate(target: Target, parsed: Module): string {
     switch (target) {
@@ -21,6 +22,9 @@ export function generate(target: Target, parsed: Module): string {
         }
         case "elm": {
             return generateElm(parsed) + emptyLineAtEndOfFile;
+        }
+        case "english": {
+            return generateEnglish(parsed) + emptyLineAtEndOfFile;
         }
     }
 }

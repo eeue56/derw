@@ -41,7 +41,7 @@ Provide entry files via --files
 Or run me without args inside a package directory
   --files [string...]:      Filenames to be given
   --test :                  Test the project
-  --target ts | js | derw:  Target TS, JS or Derw output
+  --target ts | js | derw | elm | english :  Target TS, JS, Derw, or Elm output
   --output string:          Output directory name
   --verify :                Run typescript compiler on generated files to ensure valid output
   --debug :                 Show a parsed object tree
@@ -496,6 +496,12 @@ asIs result =
 
     ```
     derw bundle --entry src/Main.derw --output dist/index.js --watch --quiet
+    ```
+
+-   [x] English output
+
+    ```
+    derw compile --target english
     ```
 
 # 2.0.0

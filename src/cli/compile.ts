@@ -30,8 +30,8 @@ const compileParser = parser([
     longFlag("files", "File names to be compiled", variableList(string())),
     longFlag(
         "target",
-        "Target TS, JS or Derw output",
-        oneOf([ "ts", "js", "derw", "elm" ])
+        "Target TS, JS, Derw, Elm, or English output",
+        oneOf([ "ts", "js", "derw", "elm", "english" ])
     ),
     longFlag("output", "Output directory name", string()),
     longFlag(
