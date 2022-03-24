@@ -594,7 +594,7 @@ export function validateType(
                 return Err(
                     `Type ${typeToString(
                         block.type
-                    )} did not exist in the namespace.`
+                    )} did not exist in the namespace`
                 );
             }
 
@@ -613,31 +613,47 @@ export function validateType(
         }
 
         case "Function": {
+            const notExistingErrors = [ ];
+
             if (
                 !typeExistsInNamespace(block.returnType, typedBlocks, imports)
             ) {
-                return Err(
+                notExistingErrors.push(
                     `Type ${typeToString(
                         block.returnType
-                    )} did not exist in the namespace.`
+                    )} did not exist in the namespace`
                 );
+            }
+
+            for (const arg of block.args) {
+                if (!typeExistsInNamespace(arg.type, typedBlocks, imports)) {
+                    notExistingErrors.push(
+                        `Type ${typeToString(
+                            arg.type
+                        )} did not exist in the namespace`
+                    );
+                }
+            }
+
+            if (notExistingErrors.length > 0) {
+                return Err(notExistingErrors.join("\n"));
             }
 
             const inferredRes = inferType(block.body, typedBlocks);
             if (inferredRes.kind === "err") return inferredRes;
             const inferred = inferredRes.value;
 
-            if (isSameType(block.returnType, inferred, false)) {
-                return Ok(block.returnType);
+            if (!isSameType(block.returnType, inferred, false)) {
+                return Err(
+                    `Expected \`${typeToString(
+                        block.returnType
+                    )}\` but got \`${typeToString(
+                        inferred
+                    )}\` in the body of the function`
+                );
             }
 
-            return Err(
-                `Expected \`${typeToString(
-                    block.returnType
-                )}\` but got \`${typeToString(
-                    inferred
-                )}\` in the body of the function`
-            );
+            return Ok(block.returnType);
         }
 
         case "UnionType":
