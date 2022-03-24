@@ -2,6 +2,8 @@ module Main exposing (..)
 
 import fs
 
+import globalThis exposing ( Buffer )
+
 type alias Boat = {
     horizontal: Float,
     depth: Float,

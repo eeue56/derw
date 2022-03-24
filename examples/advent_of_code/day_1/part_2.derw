@@ -1,5 +1,7 @@
 import fs
 
+import globalThis exposing ( Buffer )
+
 type alias Iteration = {
     a: number,
     b: number,

@@ -94,7 +94,14 @@ export function testParse() {
                     )
                 ),
             ],
-            [ ]
+            [
+                "Error on lines 0 - 2\n" +
+                    "Type Maybe (a) did not exist in the namespace:\n" +
+                    "```\n" +
+                    "isTrue: Maybe a -> boolean\n" +
+                    "isTrue value = if value then true else false\n" +
+                    "```",
+            ]
         )
     );
 }
@@ -124,7 +131,18 @@ export function testParseMultiLine() {
                     )
                 ),
             ],
-            [ ]
+            [
+                "Error on lines 0 - 6\n" +
+                    "Type Maybe (a) did not exist in the namespace:\n" +
+                    "```\n" +
+                    "isTrue: Maybe a -> boolean\n" +
+                    "isTrue value =\n" +
+                    "    if value then\n" +
+                    "        true\n" +
+                    "    else\n" +
+                    "        false\n" +
+                    "```",
+            ]
         )
     );
 }

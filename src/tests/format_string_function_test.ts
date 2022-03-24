@@ -101,7 +101,17 @@ export function testParseMultiLine() {
                     ])
                 ),
             ],
-            [ ]
+            [
+                "Error on lines 0 - 5\n" +
+                    "Type Animal did not exist in the namespace:\n" +
+                    "```\n" +
+                    "sayHiToPet : Animal -> string\n" +
+                    "sayHiToPet pet =\n" +
+                    "    case pet of\n" +
+                    "        Dog { name } -> `Good boy ${name}!`\n" +
+                    '        Cat { lives } -> "You have " + lives + " lives remaining."\n' +
+                    "```",
+            ]
         )
     );
 }

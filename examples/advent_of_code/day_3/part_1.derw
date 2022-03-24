@@ -1,5 +1,7 @@
 import fs
 
+import globalThis exposing ( Buffer )
+
 type alias Common = {
     zero: number,
     one: number

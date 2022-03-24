@@ -2,6 +2,8 @@ module Main exposing (..)
 
 import fs
 
+import globalThis exposing ( Buffer )
+
 type alias Iteration = {
     value: Float,
     count: Float

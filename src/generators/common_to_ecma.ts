@@ -140,6 +140,7 @@ export function flattenLeftPipe(leftPipe: LeftPipe): Expression {
 
 export function generateImportBlock(imports: Import): string {
     return imports.modules
+        .filter((module) => module.name !== "globalThis")
         .map((module) => {
             if (module.namespace === "Relative") {
                 const withoutQuotes = module.name.slice(1, -1);
