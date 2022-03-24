@@ -524,8 +524,17 @@ Instead, you can do:
 
 ```
 
-git clone https://github.com/eeue56/derw-syntax
+git clone https://github.com/derw-lang/derw-syntax
 cp -r derw-syntax ~/.vscode/extensions/derw-syntax-0.0.1
+
+```
+
+# VScode Language server
+
+```
+
+git clone https://github.com/derw-lang/derw-language-server
+cp -r derw-language-server ~/.vscode/extensions/derw-language-server-0.0.1
 
 ```
 
