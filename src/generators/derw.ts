@@ -665,8 +665,20 @@ function generateBlock(syntax: Block): string {
 }
 
 export function generateDerw(module: Module): string {
-    return module.body
-        .map(generateBlock)
-        .filter((line) => line.length > 0)
-        .join("\n\n");
+    const importBlocks = module.body.filter((block) => block.kind === "Import");
+    const nonImportBlocks = module.body.filter(
+        (block) => block.kind !== "Import"
+    );
+
+    return [
+        ...importBlocks
+            .map(generateBlock)
+            .filter((line) => line.length > 0)
+            .join("\n"),
+        importBlocks.length > 0 ? "\n\n" : "",
+        ...nonImportBlocks
+            .map(generateBlock)
+            .filter((line) => line.length > 0)
+            .join("\n\n"),
+    ].join("");
 }
