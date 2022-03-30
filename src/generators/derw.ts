@@ -271,8 +271,14 @@ function generateTopLevelType(type_: Type): string {
             return generateType(type_);
         }
         case "FixedType": {
-            if (type_.name === "List") {
-                return generateType(type_);
+            if (
+                type_.args.length > 0 &&
+                type_.args[0].kind === "FixedType" &&
+                type_.args[0].args.length > 0
+            ) {
+                return `${type_.name} (${type_.args
+                    .map(generateTopLevelType)
+                    .join(" ")})`;
             }
 
             const args = type_.args.filter(
@@ -573,9 +579,9 @@ function generateFunction(function_: Function): string {
         .map((arg) => {
             switch (arg.kind) {
                 case "FunctionArg":
-                    return generateType(arg.type);
+                    return generateTopLevelType(arg.type);
                 case "AnonFunctionArg":
-                    return generateType(arg.type);
+                    return generateTopLevelType(arg.type);
             }
         })
         .join(" -> ");

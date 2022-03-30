@@ -1,0 +1,11 @@
+type Maybe a =
+    Just { value: a }
+    | nothing
+
+something: Maybe string -> Maybe string
+something x =
+    x
+
+other: List (Maybe Binary)
+other =
+    [ ]
