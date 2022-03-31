@@ -10,8 +10,10 @@ import { isBuiltinType, isReservedName } from "./builtins";
 import { collisions } from "./collisions";
 import {
     CloseBracketToken,
+    CloseCurlyBracesToken,
     IdentifierToken,
     OpenBracketToken,
+    OpenCurlyBracesToken,
     RootTypeTokens,
     Token,
     tokenize,
@@ -985,16 +987,29 @@ function parseListValue(tokens: Token[]): Result<string, ListValue> {
     const innerTokens = tokenize(innerBody);
     let innerIndex = 0;
     let currentBuffer = [ ];
+    let depth = 0;
 
     while (innerIndex < innerTokens.length) {
         const token = innerTokens[innerIndex];
         switch (token.kind) {
-            case "CommaToken": {
-                parsedValues.push(
-                    parseExpression(tokensToString(currentBuffer))
-                );
-                currentBuffer = [ ];
+            case "OpenCurlyBracesToken": {
+                currentBuffer.push(OpenCurlyBracesToken());
+                depth++;
                 break;
+            }
+            case "CloseCurlyBracesToken": {
+                currentBuffer.push(CloseCurlyBracesToken());
+                depth--;
+                break;
+            }
+            case "CommaToken": {
+                if (depth === 0) {
+                    parsedValues.push(
+                        parseExpression(tokensToString(currentBuffer))
+                    );
+                    currentBuffer = [ ];
+                    break;
+                }
             }
             default: {
                 currentBuffer.push(token);
