@@ -524,6 +524,7 @@ function parseProperty(tokens: Token[]): Result<string, Property> {
         return Err("Too many types found in property");
     }
 
+    if (types.length < 1) return Err("Failed to find type");
     const type = parseRootTypeTokens(types[0]);
 
     if (type.kind === "err") return type;
