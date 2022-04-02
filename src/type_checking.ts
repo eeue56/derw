@@ -32,10 +32,12 @@ import {
     Multiplication,
     ObjectLiteral,
     Or,
+    Property,
     RightPipe,
     StringValue,
     Subtraction,
     Type,
+    TypeAlias,
     TypedBlock,
     Value,
 } from "./types";
@@ -219,8 +221,52 @@ function inferListRange(value: ListRange): Type {
     return FixedType("List", [ FixedType("number", [ ]) ]);
 }
 
-function inferObjectLiteral(value: ObjectLiteral): Type {
-    return FixedType("any", [ ]);
+function inferObjectLiteral(
+    value: ObjectLiteral,
+    typedBlocks: TypedBlock[]
+): Result<string, Type> {
+    const typeAlias = TypeAlias(
+        FixedType("Inferred", [ ]),
+        value.fields.map((field) => {
+            const inferred = inferType(field.value, typedBlocks);
+            if (inferred.kind === "err") {
+                return Property(field.name, GenericType("any"));
+            }
+
+            return Property(field.name, inferred.value);
+        })
+    );
+
+    for (const block of typedBlocks) {
+        if (
+            block.kind != "TypeAlias" ||
+            block.properties.length !== typeAlias.properties.length
+        ) {
+            continue;
+        }
+
+        let blockMatches = true;
+
+        for (const inferredProperty of typeAlias.properties) {
+            const hasMatchingBlockProperty =
+                block.properties.filter((prop) => {
+                    return (
+                        prop.name === inferredProperty.name &&
+                        isSameType(prop.type, inferredProperty.type, false)
+                    );
+                }).length > 0;
+
+            if (!hasMatchingBlockProperty) {
+                blockMatches = false;
+                break;
+            }
+        }
+        if (blockMatches) {
+            return Ok(block.type);
+        }
+    }
+
+    return Ok(FixedType("any", [ ]));
 }
 
 function inferIfStatement(
@@ -492,7 +538,7 @@ export function inferType(
         case "ListRange":
             return Ok(inferListRange(expression));
         case "ObjectLiteral":
-            return Ok(inferObjectLiteral(expression));
+            return inferObjectLiteral(expression, typedBlocks);
         case "IfStatement":
             return inferIfStatement(expression, typedBlocks);
         case "CaseStatement":

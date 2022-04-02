@@ -70,7 +70,7 @@ function generateProperty(syntax: Property): string {
     return `${syntax.name}: ${generateType(syntax.type)}`;
 }
 
-function generateTypeAlias(syntax: TypeAlias): string {
+export function generateTypeAlias(syntax: TypeAlias): string {
     const generatedProperties = syntax.properties.map(generateProperty);
     const properties = generatedProperties.join(",\n    ");
     const type = generateType(syntax.type);
