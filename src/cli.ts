@@ -7,6 +7,7 @@ import { info } from "./cli/info";
 import { init } from "./cli/init";
 import { install } from "./cli/install";
 import { repl } from "./cli/repl";
+import { template } from "./cli/template";
 import { runTests } from "./cli/testing";
 import { fileExists } from "./cli/utils";
 
@@ -18,7 +19,8 @@ type CliCommand =
     | "info"
     | "repl"
     | "bundle"
-    | "format";
+    | "format"
+    | "template";
 
 function parseCliCommand(): Result<string, CliCommand> {
     if (typeof process.argv[2] === "undefined") {
@@ -42,6 +44,8 @@ function parseCliCommand(): Result<string, CliCommand> {
             return Ok("bundle");
         case "format":
             return Ok("format");
+        case "template":
+            return Ok("template");
         default: {
             return Err(`Unknown command \`${process.argv[2]}\``);
         }
@@ -99,6 +103,10 @@ export async function main(): Promise<number> {
         }
         case "format": {
             await format(isInPackageDirectory, argv);
+            return 0;
+        }
+        case "template": {
+            await template(isInPackageDirectory, argv);
             return 0;
         }
     }

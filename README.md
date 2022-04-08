@@ -504,6 +504,12 @@ asIs result =
     derw compile --target english
     ```
 
+-   [x] Template generation
+
+    ```
+    derw template --path src/Main.derw --template web
+    ```
+
 # 2.0.0
 
 -   [ ] Time travelling debugger
