@@ -410,6 +410,57 @@ export function testListFilterMapWithNesting() {
     assert.deepStrictEqual(rootTypeString, str.trim());
 }
 
+export function testListFilterMapWithRow() {
+    const str = `( Maybe Row -> boolean ) -> Maybe Row -> boolean`.trim();
+    const tokenized = tokenize(str);
+    assert.deepStrictEqual(tokenized, [
+        OpenBracketToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("Maybe"),
+        WhitespaceToken(" "),
+        IdentifierToken("Row"),
+        WhitespaceToken(" "),
+        ArrowToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("boolean"),
+        WhitespaceToken(" "),
+        CloseBracketToken(),
+        WhitespaceToken(" "),
+        ArrowToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("Maybe"),
+        WhitespaceToken(" "),
+        IdentifierToken("Row"),
+        WhitespaceToken(" "),
+        ArrowToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("boolean"),
+    ]);
+
+    const tokenizedType = tokenizeType(tokenized);
+    assert.deepStrictEqual(
+        tokenizedType,
+        Ok([
+            FunctionTypeToken([
+                BaseTypeToken([
+                    IdentifierToken("Maybe"),
+                    BaseTypeToken([ IdentifierToken("Row") ]),
+                ]),
+
+                BaseTypeToken([ IdentifierToken("boolean") ]),
+            ]),
+            BaseTypeToken([
+                IdentifierToken("Maybe"),
+                BaseTypeToken([ IdentifierToken("Row") ]),
+            ]),
+            BaseTypeToken([ IdentifierToken("boolean") ]),
+        ])
+    );
+
+    const rootTypeString = rootTypeTokensToString((tokenizedType as any).value);
+    assert.deepStrictEqual(rootTypeString, str);
+}
+
 export function testEither() {
     const str = `Either a b`;
 

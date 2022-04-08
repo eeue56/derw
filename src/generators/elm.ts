@@ -283,7 +283,9 @@ function generateTopLevelType(type_: Type): string {
             return `${type_.name} ${args.map(generateType).join(" ")}`;
         }
         case "FunctionType": {
-            return generateType(type_);
+            return (
+                "(" + type_.args.map(generateTopLevelType).join(" -> ") + ")"
+            );
         }
     }
 }

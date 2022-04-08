@@ -611,6 +611,16 @@ function generateTopLevelType(type_: Type): string {
                 return `(${fixedArgs.map(generateTopLevelType).join(" | ")})[]`;
             }
 
+            if (
+                type_.args.length > 0 &&
+                type_.args[0].kind === "FixedType" &&
+                type_.args[0].args.length > 0
+            ) {
+                return `${type_.name}<${type_.args
+                    .map(generateType)
+                    .join(", ")}>`;
+            }
+
             const args = type_.args.filter(
                 (type_) =>
                     type_.kind === "GenericType" || type_.kind === "FixedType"
@@ -622,7 +632,19 @@ function generateTopLevelType(type_: Type): string {
             return `${type_.name}<${args.map(generateType).join(", ")}>`;
         }
         case "FunctionType": {
-            return generateType(type_);
+            const parts = [ ];
+            let index = 0;
+            for (const typePart of type_.args.slice(0, -1)) {
+                parts.push(`arg${index}: ${generateTopLevelType(typePart)}`);
+                index++;
+            }
+
+            return (
+                "(" +
+                parts.join(", ") +
+                ") => " +
+                generateType(type_.args[type_.args.length - 1])
+            );
         }
     }
 }

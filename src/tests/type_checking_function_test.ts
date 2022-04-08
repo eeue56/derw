@@ -573,6 +573,40 @@ value x =
         Ok(FixedType("Maybe", [ FixedType("boolean", [ ]) ]))
     );
 }
+export async function testFunctionCallWithFnArg() {
+    const exampleType = `
+type Maybe a =
+    Just { value: a }
+    | Nothing
+`.trim();
+
+    const exampleInput = `
+value: Maybe Row -> (Maybe Row -> boolean) -> boolean
+value x fn =
+    if fn x == Nothing then
+        true
+    else
+        false
+`.trim();
+    const block = UnparsedBlock("FunctionBlock", 0, exampleInput.split("\n"));
+    const parsed = parseBlock(block);
+
+    const typeBlock = UnparsedBlock(
+        "UnionTypeBlock",
+        0,
+        exampleType.split("\n")
+    );
+    const parsedType = parseBlock(typeBlock);
+
+    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsedType.kind, "ok");
+
+    const value = (parsed as Ok<Block>).value;
+    assert.deepStrictEqual(
+        validateType(value, [ (parsedType as Ok<TypedBlock>).value ], [ ]),
+        Ok(FixedType("boolean", [ ]))
+    );
+}
 
 export async function testListPrependWithinCaseListWithConstructor() {
     const exampleInput = `
