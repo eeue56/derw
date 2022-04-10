@@ -1469,13 +1469,23 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
     const casePredicate = parseExpression(
         body.split("case ")[1].split(" of")[0]
     );
+
+    let firstIndexOfOf = 0;
+    for (const line of body.split("\n")) {
+        if (line.endsWith(" of")) {
+            break;
+        }
+
+        firstIndexOfOf++;
+    }
+
     const lines = body.split("\n");
 
     let branches = [ ];
     let branchPattern = "";
     let branchLines: string[] = [ ];
 
-    for (var i = 1; i < lines.length; i++) {
+    for (var i = firstIndexOfOf + 1; i < lines.length; i++) {
         const line = lines[i];
         const indent = getIndentLevel(line);
 
