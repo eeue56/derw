@@ -490,6 +490,17 @@ export function tokenize(body: string): Token[] {
                         break;
                     }
 
+                    case "{": {
+                        if (body[i + 1] === "-") {
+                            currentToken += "{";
+                            state = Keyword();
+                            break;
+                        }
+                        tokens.push(OpenCurlyBracesToken());
+                        currentToken = "";
+                        break;
+                    }
+
                     case "}": {
                         tokens.push(CloseCurlyBracesToken());
                         currentToken = "";

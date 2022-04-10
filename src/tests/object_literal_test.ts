@@ -28,7 +28,7 @@ type alias Person = {
 }
 
 person: Person
-person = { name: "hello", age: 28, people: [] }
+person = {name: "hello", age: 28, people: []}
 `.trim();
 
 const multiLine = `
