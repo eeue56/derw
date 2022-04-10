@@ -689,6 +689,7 @@ export function generateDerw(module: Module): string {
         ...importBlocks
             .map(generateBlock)
             .filter((line) => line.length > 0)
+            .sort((a, b) => (a === b ? 0 : a < b ? -1 : 1))
             .join("\n"),
         importBlocks.length > 0 ? "\n\n" : "",
         ...nonImportBlocks
