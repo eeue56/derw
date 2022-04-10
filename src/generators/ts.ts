@@ -142,7 +142,7 @@ type ${generateType(syntax.type)} = ${tags};
 }
 
 function generateProperty(syntax: Property): string {
-    return `${syntax.name}: ${generateType(syntax.type)}`;
+    return `${syntax.name}: ${generateTopLevelType(syntax.type)}`;
 }
 
 function generateTypeAlias(syntax: TypeAlias): string {
