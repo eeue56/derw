@@ -84,7 +84,7 @@ export function testMultipleConstructor() {
     const str = `
 hello: string
 hello =
-    something (Just { value: 5 }) (Nothing)
+    something (Just { value: 5 }) Nothing
     `.trim();
 
     const parsed = parse(str);

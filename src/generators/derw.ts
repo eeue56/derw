@@ -405,7 +405,14 @@ function generateFunctionCall(functionCall: FunctionCall): string {
 
     for (const arg of functionCall.args) {
         switch (arg.kind) {
-            case "Constructor":
+            case "Constructor": {
+                if (arg.pattern.fields.length === 0) {
+                    output.push(generateExpression(arg));
+                } else {
+                    output.push("(" + generateExpression(arg) + ")");
+                }
+                break;
+            }
             case "FunctionCall": {
                 output.push("(" + generateExpression(arg) + ")");
                 break;
