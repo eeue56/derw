@@ -67,7 +67,7 @@ ${prefixLines(tags, 4)}
 }
 
 function generateProperty(syntax: Property): string {
-    return `${syntax.name}: ${generateType(syntax.type)}`;
+    return `${syntax.name}: ${generateTopLevelType(syntax.type)}`;
 }
 
 export function generateTypeAlias(syntax: TypeAlias): string {
