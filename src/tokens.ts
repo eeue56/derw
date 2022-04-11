@@ -614,10 +614,18 @@ export function tokenize(body: string): Token[] {
                     }
                     break;
                 } else if (char === ":") {
-                    tokens.push(IdentifierToken(currentToken));
-                    tokens.push(ColonToken());
-                    currentToken = "";
-                    state = Empty();
+                    if (body[i + 1] === ":") {
+                        tokens.push(IdentifierToken(currentToken));
+                        tokens.push(OperatorToken("::"));
+                        i++;
+                        currentToken = "";
+                        state = Empty();
+                    } else {
+                        tokens.push(IdentifierToken(currentToken));
+                        tokens.push(ColonToken());
+                        currentToken = "";
+                        state = Empty();
+                    }
                     break;
                 } else if (char === ",") {
                     tokens.push(IdentifierToken(currentToken));

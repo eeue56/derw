@@ -634,6 +634,38 @@ prepend x =
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
+export function testListPrependWithoutSpaces() {
+    const str = `
+prepend: number -> List number
+prepend x =
+    x::[ 1, 2 ]
+`.trim();
+
+    assert.deepStrictEqual(tokenize(str), [
+        IdentifierToken("prepend"),
+        ColonToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("number"),
+        WhitespaceToken(" "),
+        ArrowToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("List"),
+        WhitespaceToken(" "),
+        IdentifierToken("number"),
+        WhitespaceToken("\n"),
+        IdentifierToken("prepend"),
+        WhitespaceToken(" "),
+        IdentifierToken("x"),
+        WhitespaceToken(" "),
+        AssignToken(),
+        WhitespaceToken("\n    "),
+        IdentifierToken("x"),
+        OperatorToken("::"),
+        LiteralToken("[ 1, 2 ]"),
+    ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
+}
+
 export function testTypePrefix() {
     const str = `
 typeOfString: number -> List number

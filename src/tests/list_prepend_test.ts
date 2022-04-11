@@ -17,7 +17,7 @@ import {
 
 const oneLine = `
 helloWorld: List number
-helloWorld = 1 :: [ 2..5 ]
+helloWorld = 1::[ 2..5 ]
 `.trim();
 
 const multiLine = `
