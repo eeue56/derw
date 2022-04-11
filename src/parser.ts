@@ -1622,9 +1622,16 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
 
     const errors = [ ];
     if (casePredicate.kind === "err") errors.push(casePredicate.error);
-    branches.forEach((branch) => {
+    branches.forEach((branch, i) => {
         if (branch.kind === "err") {
             errors.push(branch.error);
+        } else {
+            if (
+                branch.value.pattern.kind === "Default" &&
+                i < branches.length - 1
+            ) {
+                errors.push("default case must come last in the case..of");
+            }
         }
     });
 
