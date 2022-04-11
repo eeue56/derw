@@ -633,3 +633,37 @@ prepend x =
     ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
+
+export function testTypePrefix() {
+    const str = `
+typeOfString: number -> List number
+typeOfString x =
+    x :: [ 1, 2 ]
+`.trim();
+
+    assert.deepStrictEqual(tokenize(str), [
+        IdentifierToken("typeOfString"),
+        ColonToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("number"),
+        WhitespaceToken(" "),
+        ArrowToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("List"),
+        WhitespaceToken(" "),
+        IdentifierToken("number"),
+        WhitespaceToken("\n"),
+        IdentifierToken("typeOfString"),
+        WhitespaceToken(" "),
+        IdentifierToken("x"),
+        WhitespaceToken(" "),
+        AssignToken(),
+        WhitespaceToken("\n    "),
+        IdentifierToken("x"),
+        WhitespaceToken(" "),
+        OperatorToken("::"),
+        WhitespaceToken(" "),
+        LiteralToken("[ 1, 2 ]"),
+    ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
+}

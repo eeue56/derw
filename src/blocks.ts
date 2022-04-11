@@ -24,7 +24,7 @@ export function blockKind(block: string): Result<string, BlockKinds> {
         return Ok("TypeAlias");
     }
 
-    if (block.startsWith("type")) {
+    if (block.startsWith("type ")) {
         return Ok("UnionType");
     }
 
