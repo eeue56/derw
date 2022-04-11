@@ -905,7 +905,11 @@ function parseValue(tokens: Token[]): Result<string, Value | Constructor> {
     }
 
     const firstChar = body.join("").slice(0, 1);
-    if (firstChar.toUpperCase() === firstChar && isNaN(parseFloat(firstChar))) {
+    if (
+        firstChar !== "-" &&
+        firstChar.toUpperCase() === firstChar &&
+        isNaN(parseFloat(firstChar))
+    ) {
         return parseConstructor(tokens);
     }
 
