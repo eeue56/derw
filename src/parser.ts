@@ -1961,6 +1961,7 @@ function parseOperator(
 
 function hasTopLevelOperator(operator: string, tokens: Token[]): boolean {
     let bracketDepth = 0;
+    let curlyBracketDepth = 0;
     for (const token of tokens) {
         switch (token.kind) {
             case "OpenBracketToken": {
@@ -1971,8 +1972,20 @@ function hasTopLevelOperator(operator: string, tokens: Token[]): boolean {
                 bracketDepth--;
                 break;
             }
+            case "OpenCurlyBracesToken": {
+                curlyBracketDepth++;
+                break;
+            }
+            case "CloseCurlyBracesToken": {
+                curlyBracketDepth--;
+                break;
+            }
             case "OperatorToken": {
-                if (bracketDepth === 0 && token.body === operator) {
+                if (
+                    bracketDepth === 0 &&
+                    curlyBracketDepth === 0 &&
+                    token.body === operator
+                ) {
                     return true;
                 }
             }
