@@ -139,19 +139,11 @@ export function isSameType(
             return doesFunctionTypeContainType(first, second, topLevel);
         }
 
-        if (
-            first.kind === "FixedType" &&
-            first.args.length === 0 &&
-            second.kind === "GenericType"
-        ) {
+        if (first.kind === "FixedType" && second.kind === "GenericType") {
             return true;
         }
 
-        if (
-            second.kind === "FixedType" &&
-            second.args.length === 0 &&
-            first.kind === "GenericType"
-        ) {
+        if (second.kind === "FixedType" && first.kind === "GenericType") {
             return true;
         }
         return false;
