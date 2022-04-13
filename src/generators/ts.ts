@@ -617,7 +617,7 @@ function generateTopLevelType(type_: Type): string {
                 type_.args[0].args.length > 0
             ) {
                 return `${type_.name}<${type_.args
-                    .map(generateType)
+                    .map(generateTopLevelType)
                     .join(", ")}>`;
             }
 
