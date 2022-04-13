@@ -264,6 +264,20 @@ asIs result =
     noah = User { name: "Noah" }
     ```
 
+-   [x] Accessors
+
+    ```elm
+    type alias User = { name: string }
+    names = List.map .name [ { name: "Noah" }, { name: "Dave" } ]
+    ```
+
+-   [ ] Nested accessors
+
+    ```elm
+    type alias Group = { person: { name: string } }
+    names = List.map .person.name [ { person: { name: "Noah" } }, { person: { name: "Dave" } } ]
+    ```
+
 -   [x] Errors on type name collison
 
     ````markdown

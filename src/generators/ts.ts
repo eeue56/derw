@@ -741,6 +741,10 @@ function generateRightPipe(rightPipe: RightPipe): string {
 }
 
 function generateModuleReference(moduleReference: ModuleReference): string {
+    if (moduleReference.path.length === 0) {
+        const right = generateExpression(moduleReference.value);
+        return `(arg0) => arg0.${right}`;
+    }
     const left = moduleReference.path.join(".");
     const right = generateExpression(moduleReference.value);
 

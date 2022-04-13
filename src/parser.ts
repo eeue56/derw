@@ -1743,7 +1743,14 @@ function parseModuleReference(
 
     if (expression.kind === "err") return expression;
 
-    return Ok(ModuleReference(moduleName, expression.value));
+    return Ok(
+        ModuleReference(
+            moduleName.length === 1 && moduleName[0].trim().length === 0
+                ? [ ]
+                : moduleName,
+            expression.value
+        )
+    );
 }
 
 function parseFunctionCall(
