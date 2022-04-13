@@ -1,5 +1,15 @@
 exposing (isTrue)
 
+exposing (Some, Something, None, Other)
+
+type Some =
+    None
+    | Something { value: string }
+
+type alias Other = {
+    name: string
+}
+
 isTrue: boolean -> boolean
 isTrue bool =
     bool == true

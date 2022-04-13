@@ -1,1 +1,9 @@
-import "./other"
+import "./other" as Other
+
+oneThing: Other.Some
+oneThing =
+    Other.None
+
+dontKnowWhy: Other.Other
+dontKnowWhy =
+    { name: "noah" }

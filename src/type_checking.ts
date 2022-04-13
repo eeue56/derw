@@ -159,7 +159,23 @@ export function isSameType(
 
     switch (first.kind) {
         case "FixedType": {
-            return isSameFixedType(first, second as FixedType, topLevel);
+            if (first.name.indexOf(".") > -1) {
+                const split = first.name.split(".");
+                first = {
+                    ...first,
+                    name: split[split.length - 1],
+                };
+            }
+            second = second as FixedType;
+            if (second.name.indexOf(".") > -1) {
+                const split = second.name.split(".");
+                second = {
+                    ...second,
+                    name: split[split.length - 1],
+                };
+            }
+
+            return isSameFixedType(first, second, topLevel);
         }
         case "GenericType": {
             return isSameGenericType(first, second as GenericType, topLevel);
@@ -622,6 +638,14 @@ function typeExistsInNamespace(
         for (const module of import_.modules) {
             for (const exposed of module.exposing) {
                 if (type.name === exposed) return true;
+            }
+
+            if (
+                type.name.indexOf(".") > -1 &&
+                module.alias.kind === "just" &&
+                type.name.split(".")[0] === module.alias.value
+            ) {
+                return true;
             }
         }
     }
