@@ -237,13 +237,13 @@ export async function compileFiles(
                     parsed = addMissingNamesSuggestions(parsed);
                 }
 
+                parsedFiles[fileName] = parsed;
+
                 if (parsed.errors.length > 0) {
                     console.log(`Failed to parse ${fileName} due to:`);
                     console.log(parsed.errors.join("\n"));
                     return;
                 }
-
-                parsedFiles[fileName] = parsed;
 
                 const dir = path.dirname(fileName);
                 const imports: string[] = [ ];
