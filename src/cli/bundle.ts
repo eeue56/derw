@@ -85,12 +85,14 @@ export async function bundle(
 
     async function build() {
         await compileFiles(isInPackageDirectory, args);
-        await esbuild.build({
-            entryPoints: [ entry as string ],
-            bundle: true,
-            outfile: output as string,
-            logLevel: "error",
-        });
+        try {
+            await esbuild.build({
+                entryPoints: [ entry as string ],
+                bundle: true,
+                outfile: output as string,
+                logLevel: "error",
+            });
+        } catch (e) {}
     }
 
     if (program.flags.watch.isPresent) {
