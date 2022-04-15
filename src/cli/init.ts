@@ -77,6 +77,24 @@ src/**/*.ts
     await writeFile(gitIgnorePath, gitIgnore);
 }
 
+async function appendGitAttributes(dir: string): Promise<void> {
+    let gitAttributes = "";
+    const gitAttributesPath = path.join(dir, ".gitattributes");
+
+    try {
+        gitAttributes = await (await readFile(gitAttributesPath)).toString();
+    } catch (e) {}
+
+    gitAttributes =
+        gitAttributes +
+        `
+*.derw linguist-language=Elm
+*.derw gitlab-language=elm
+`.trim();
+
+    await writeFile(gitAttributesPath, gitAttributes);
+}
+
 export async function init(
     isInPackageDirectory: boolean,
     argv: string[]
@@ -115,6 +133,7 @@ export async function init(
     );
     await copyTSconfig(dir);
     await appendGitIgnore(dir);
+    await appendGitAttributes(dir);
     await ensureDirectoryExists(path.join(dir, "src"));
 
     console.log("Project initialized!");

@@ -44,6 +44,11 @@ export async function testInit() {
     );
     assert.deepStrictEqual(doesDerwPackageExist, true);
 
+    const doesGitAttributesExist = await fileExists(
+        "test/package/.gitattributes"
+    );
+    assert.deepStrictEqual(doesGitAttributesExist, true);
+
     const doesTsConfigExist = await fileExists("test/package/tsconfig.json");
     assert.deepStrictEqual(doesTsConfigExist, true);
 
