@@ -1462,6 +1462,34 @@ function parseBranchPattern(tokens: Token[]): Result<string, BranchPattern> {
     return Err(`Expected destructure or string but got ${firstToken.kind}`);
 }
 
+function getCasePredicate(tokens: Token[]): Result<string, Expression> {
+    const inbetweenTokens = [ ];
+
+    let state: "WaitingForCase" | "BetweenCaseAndOr" | "PastOf" =
+        "WaitingForCase";
+
+    for (const token of tokens) {
+        switch (token.kind) {
+            case "KeywordToken": {
+                if (token.body === "case") {
+                    state = "BetweenCaseAndOr";
+                    break;
+                } else if (token.body === "of") {
+                    state = "PastOf";
+                    break;
+                }
+            }
+            default: {
+                inbetweenTokens.push(token);
+            }
+        }
+
+        if (state === "PastOf") break;
+    }
+
+    return parseExpression(tokensToString(inbetweenTokens));
+}
+
 function parseCaseStatement(body: string): Result<string, CaseStatement> {
     body = body
         .split("\n")
@@ -1470,9 +1498,7 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
 
     const rootIndentLevel = getIndentLevel(body.split("\n")[0]);
 
-    const casePredicate = parseExpression(
-        body.split("case ")[1].split(" of")[0]
-    );
+    const casePredicate = getCasePredicate(tokenize(body));
 
     let firstIndexOfOf = 0;
     for (const line of body.split("\n")) {
