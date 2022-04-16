@@ -1463,7 +1463,7 @@ function parseBranchPattern(tokens: Token[]): Result<string, BranchPattern> {
     return Err(`Expected destructure or string but got ${firstToken.kind}`);
 }
 
-function getCasePredicate(tokens: Token[]): Result<string, Expression> {
+function parseCasePredicate(tokens: Token[]): Result<string, Expression> {
     const inbetweenTokens = [ ];
 
     let state: "WaitingForCase" | "BetweenCaseAndOr" | "PastOf" =
@@ -1499,7 +1499,7 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
 
     const rootIndentLevel = getIndentLevel(body.split("\n")[0]);
 
-    const casePredicate = getCasePredicate(tokenize(body));
+    const casePredicate = parseCasePredicate(tokenize(body));
 
     let firstIndexOfOf = 0;
     for (const line of body.split("\n")) {
