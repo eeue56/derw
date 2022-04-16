@@ -96,8 +96,9 @@ function afterArrow(tokens: TypeToken[]): TypeToken[] {
     return tokens.slice(index);
 }
 
-function splitOnArrow(tokens: TypeToken[]): TypeToken[][] {
+function splitOnArrowTokens(tokens: Token[]): Token[][] {
     const results = [ ];
+
     let lastIndex = 0;
     let index = 0;
     while (index < tokens.length) {
@@ -1511,7 +1512,7 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
 
     const lines = body.split("\n");
 
-    let branches = [ ];
+    let branches: Result<string, Branch>[] = [ ];
     let branchPattern = "";
     let branchLines: string[] = [ ];
 
@@ -1523,9 +1524,16 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
 
         if (rootIndentLevel + 4 === indent) {
             if (branchPattern === "") {
+                const split = splitOnArrowTokens(tokenize(line));
+                if (split.length === 1) {
+                    branchPattern = tokensToString(split[0]);
+                } else if (split.length === 2) {
+                    branchPattern = tokensToString(split[0]);
+                    branchLines.push(tokensToString(split[1]));
+                } else {
+                    branches.push(Err(`Failed to parse branch on line ${i}`));
+                }
                 wasReset = true;
-                branchPattern = line.split("->")[0];
-                branchLines.push(line.split("->")[1]);
             }
 
             if (!branchLines.join("").trim()) {
@@ -1584,8 +1592,16 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
             }
 
             if (!wasReset) {
-                branchPattern = line.split("->")[0];
-                branchLines = [ line.split("->")[1] ];
+                const split = splitOnArrowTokens(tokenize(line));
+                if (split.length === 1) {
+                    branchPattern = tokensToString(split[0]);
+                    branchLines = [ ];
+                } else if (split.length === 2) {
+                    branchPattern = tokensToString(split[0]);
+                    branchLines = [ tokensToString(split[1]) ];
+                } else {
+                    branches.push(Err(`Failed to parse branch on line ${i}`));
+                }
             } else {
                 branchPattern = "";
                 branchLines = [ ];
