@@ -1164,14 +1164,95 @@ function parseConstructor(tokens: Token[]): Result<string, Constructor> {
     return Ok(Constructor(constructor, pattern.value));
 }
 
-function parseIfStatementSingleLine(body: string): Result<string, IfStatement> {
-    const predicate = body.split("then")[0].split("if")[1];
-    const ifBody = body.split("then")[1].split("else")[0];
-    const elseBody = body.split("else")[1];
+function parseIfPredicate(tokens: Token[]): Result<string, Expression> {
+    const inbetweenTokens = [ ];
 
-    const parsedPredicate = parseExpression(predicate);
-    const parsedIfBody = parseExpression(ifBody);
-    const parsedElseBody = parseExpression(elseBody);
+    let state: "WaitingForIf" | "BetweenIfAndThen" | "PastThen" =
+        "WaitingForIf";
+
+    for (const token of tokens) {
+        switch (token.kind) {
+            case "KeywordToken": {
+                if (token.body === "if") {
+                    state = "BetweenIfAndThen";
+                    break;
+                } else if (token.body === "then") {
+                    state = "PastThen";
+                    break;
+                }
+            }
+            default: {
+                if (state === "BetweenIfAndThen") {
+                    inbetweenTokens.push(token);
+                }
+            }
+        }
+
+        if (state === "PastThen") break;
+    }
+
+    return parseExpression(tokensToString(inbetweenTokens));
+}
+
+function parseIfBody(tokens: Token[]): Result<string, Expression> {
+    const inbetweenTokens = [ ];
+
+    let state: "WaitingForThen" | "BetweenThenAndElse" | "PastElse" =
+        "WaitingForThen";
+
+    for (const token of tokens) {
+        switch (token.kind) {
+            case "KeywordToken": {
+                if (token.body === "then") {
+                    state = "BetweenThenAndElse";
+                    break;
+                } else if (token.body === "else") {
+                    state = "PastElse";
+                    break;
+                }
+            }
+            default: {
+                if (state === "BetweenThenAndElse") {
+                    inbetweenTokens.push(token);
+                }
+            }
+        }
+
+        if (state === "PastElse") break;
+    }
+
+    return parseExpression(tokensToString(inbetweenTokens));
+}
+
+function parseElseBody(tokens: Token[]): Result<string, Expression> {
+    const inbetweenTokens = [ ];
+
+    let state: "WaitingForElse" | "BetweenElseAndEnd" | "PastEnd" =
+        "WaitingForElse";
+
+    for (const token of tokens) {
+        switch (token.kind) {
+            case "KeywordToken": {
+                if (token.body === "else") {
+                    state = "BetweenElseAndEnd";
+                    break;
+                }
+            }
+            default: {
+                if (state === "BetweenElseAndEnd") {
+                    inbetweenTokens.push(token);
+                }
+            }
+        }
+    }
+
+    return parseExpression(tokensToString(inbetweenTokens));
+}
+
+function parseIfStatementSingleLine(body: string): Result<string, IfStatement> {
+    const parsedPredicate = parseIfPredicate(tokenize(body));
+    const parsedIfBody = parseIfBody(tokenize(body));
+    const parsedElseBody = parseElseBody(tokenize(body));
 
     const errors = [ ];
     if (parsedPredicate.kind === "err") errors.push(parsedPredicate.error);
@@ -1221,9 +1302,7 @@ function parseIfStatement(body: string): Result<string, IfStatement> {
     }
 
     const lines = body.split("\n").filter((line) => line.trim().length > 0);
-    const predicateWords = lines[0].trim().split(" ");
-    const predicate = predicateWords.slice(1, predicateWords.length - 1);
-    const parsedPredicate = parseExpression(predicate.join(" "));
+    const parsedPredicate = parseIfPredicate(tokenize(body));
 
     const indentLevel = getIndentLevel(lines[0]);
     const elseIndex = lines.reduce(
