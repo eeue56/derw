@@ -1641,14 +1641,32 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
 
     const validBranches = branches.map((value) => (value as Ok<Branch>).value);
 
-    if (
+    const needsDefault =
         validBranches.filter(
             (t) =>
                 t.pattern.kind === "ListDestructure" ||
                 t.pattern.kind === "EmptyList"
-        ).length > 0 &&
-        validBranches.filter((t) => t.pattern.kind === "Default").length === 0
-    ) {
+        ).length > 0;
+
+    const hasDefault =
+        validBranches.filter((t) => t.pattern.kind === "Default").length > 0;
+
+    const hasWildcardDestructure =
+        validBranches.filter(
+            (t) =>
+                t.pattern.kind === "ListDestructure" &&
+                t.pattern.parts.length == 2 &&
+                t.pattern.parts[0].kind === "Value" &&
+                (t.pattern.parts[1].kind === "Value" ||
+                    t.pattern.parts[1].kind === "EmptyList")
+        ).length > 0;
+
+    const hasEmptyList =
+        validBranches.filter((t) => t.pattern.kind === "EmptyList").length > 0;
+
+    const isSimpleDestructure = hasWildcardDestructure && hasEmptyList;
+
+    if (needsDefault && !hasDefault && !isSimpleDestructure) {
         return Err(
             "You must provide a default case when using list destructoring"
         );
