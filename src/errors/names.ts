@@ -5,10 +5,14 @@ function isNumberLiteral(value: Value): boolean {
     return !isNaN(parseInt(value.body, 10));
 }
 
+function isBoolean(value: Value): boolean {
+    return value.body === "true" || value.body === "false";
+}
+
 function namesPerExpression(expression: Expression): string[] {
     switch (expression.kind) {
         case "Value":
-            if (isNumberLiteral(expression)) {
+            if (isNumberLiteral(expression) || isBoolean(expression)) {
                 return [ ];
             }
             return [ expression.body ];
