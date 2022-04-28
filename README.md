@@ -8,20 +8,20 @@ Follow Derw on Twitter: https://twitter.com/derwlang
 
 # Install
 
-```bash
-npm install --save-dev derw
+```console
+$ npm install --save-dev derw
 ```
 
 or
 
-```bash
-npm install -g derw
+```console
+$ npm install -g derw
 ```
 
 # Usage
 
-```bash
-npx derw
+```console
+$ npx derw
 
 To get started:
 Start a package via `derw init`
@@ -32,10 +32,10 @@ Or find out info via `derw info`
 
 You can run the derw compiler via npx. You must provide files via `--files` or be in a package directory.
 
-```bash
-npx derw
+```console
+$ npx derw
 
-Let\'s write some Derw code
+Let’s write some Derw code
 To get started:
 Provide entry files via --files
 Or run me without args inside a package directory
@@ -184,7 +184,7 @@ asIs result =
         if animal.age == 1 of
             "Hello little one!"
         else
-            "You're old"
+            "You’re old"
     ```
 
 -   [x] Case..of
@@ -217,7 +217,7 @@ asIs result =
     sayHiTo name =
         case name of
             "Noah" -> "Hi " + name + !"
-            default: "I don't know you"
+            default: "I don’t know you"
     ```
 
 -   [x] List destructing
@@ -542,22 +542,18 @@ Currently VSCode syntax highlighting is supported by this extension: https://git
 
 Instead, you can do:
 
-```
-
-git clone https://github.com/derw-lang/derw-syntax
-cp -r derw-syntax ~/.vscode/extensions/derw-syntax-0.0.1
-
+```console
+$ git clone https://github.com/derw-lang/derw-syntax
+$ cp -r derw-syntax ~/.vscode/extensions/derw-syntax-0.0.1
 ```
 
 # VScode Language server
 
-```
-
-git clone https://github.com/derw-lang/derw-language-server
-cp -r derw-language-server ~/.vscode/extensions/derw-language-server-0.0.1
-
+```console
+$ git clone https://github.com/derw-lang/derw-language-server
+$ cp -r derw-language-server ~/.vscode/extensions/derw-language-server-0.0.1
 ```
 
 # Name
 
-derw which means oak. Oak is one of the native trees in Wales, famous for it's long life, tall stature, and hard, good quality wood. An English speaker might pronounce it as "deh-ru".
+derw which means oak. Oak is one of the native trees in Wales, famous for it’s long life, tall stature, and hard, good quality wood. An English speaker might pronounce it as “deh-ru”.
