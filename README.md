@@ -547,7 +547,7 @@ $ git clone https://github.com/derw-lang/derw-syntax
 $ cp -r derw-syntax ~/.vscode/extensions/derw-syntax-0.0.1
 ```
 
-# VScode Language server
+# VSCode Language server
 
 ```console
 $ git clone https://github.com/derw-lang/derw-language-server
