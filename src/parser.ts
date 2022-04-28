@@ -1418,7 +1418,7 @@ function parseEmptyList(tokens: Token[]): Result<string, EmptyList> {
     if (withoutWhitespace.length > 1) {
         return Err("Too many values for empty list.");
     } else if (withoutWhitespace.length === 0) {
-        return Err("Expected [] but didn't find one.");
+        return Err("Expected [] but didn’t find one.");
     }
 
     if (
@@ -2872,7 +2872,7 @@ ${block.lines.join("\n")}
             return Err(
                 `Not sure what the block starting on line ${
                     block.lineStart
-                } is. There's something wrong with the lines ${
+                } is. There’s something wrong with the lines ${
                     block.lineStart
                 } - ${block.lineStart + block.lines.length}:
 \`\`\`
