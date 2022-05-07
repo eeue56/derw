@@ -418,13 +418,14 @@ function parseUnionType(tokens: Token[]): Result<string, UnionType> {
             .map((arg) => {
                 // name: type
                 const split = arg.split(":");
+
+                if (split.length < 2) {
+                    return Err(
+                        "Failed to find type definition in type argument (the right hand side of a colon `:`)"
+                    );
+                }
+
                 const splitTypes = split[1].trim().split(" ");
-                const typeName = splitTypes[0];
-                const typeArguments = splitTypes
-                    .slice(1)
-                    .map((name) => parseType(tokenize(name)))
-                    .filter((type_) => type_.kind !== "err")
-                    .map((type_) => (type_ as Ok<Type>).value);
 
                 const type_ = parseType(tokenize(splitTypes.join(" ")));
 
@@ -444,7 +445,12 @@ function parseUnionType(tokens: Token[]): Result<string, UnionType> {
             );
         }
 
-        return Err("Error parsing args");
+        return Err(
+            "Error parsing args due to:\n" +
+                args
+                    .filter((arg) => arg.kind === "err")
+                    .map((err) => (err as Err<string>).error)
+        );
     });
 
     if (tags.length === 0) {
