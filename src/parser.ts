@@ -866,6 +866,10 @@ function parseObjectLiteral(tokens: Token[]): Result<string, ObjectLiteral> {
                 }
                 break;
             }
+
+            case "ArrowToken": {
+                innermostBuffer += "->";
+            }
         }
 
         index++;
