@@ -1994,10 +1994,16 @@ function parseFunctionCall(
             }
             case "ColonToken": {
                 currentArg.push(":");
+                if (bracketDepth === 0) {
+                    bracketDepth++;
+                }
                 break;
             }
             case "CommaToken": {
                 currentArg.push(",");
+                if (bracketDepth === 1) {
+                    bracketDepth--;
+                }
                 break;
             }
             case "OperatorToken": {
