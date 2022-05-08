@@ -17,6 +17,8 @@ import {
     FormatStringValue,
     Function,
     FunctionCall,
+    FunctionType,
+    GenericType,
     GreaterThan,
     GreaterThanOrEqual,
     IfStatement,
@@ -588,6 +590,12 @@ ${prefixLines(branches.join("\n"), 4)}
 }`.trim();
 }
 
+function getGenericTypesFromFunctionType(type_: FunctionType): GenericType[] {
+    return type_.args.filter(
+        (arg) => arg.kind === "GenericType"
+    ) as GenericType[];
+}
+
 function generateTopLevelType(type_: Type): string {
     switch (type_.kind) {
         case "GenericType": {
@@ -621,10 +629,20 @@ function generateTopLevelType(type_: Type): string {
                     .join(", ")}>`;
             }
 
-            const args = type_.args.filter(
-                (type_) =>
-                    type_.kind === "GenericType" || type_.kind === "FixedType"
-            );
+            const args = [ ];
+
+            for (const arg of type_.args) {
+                if (arg.kind === "GenericType" || arg.kind === "FixedType") {
+                    args.push(arg);
+                } else {
+                    for (const generic of getGenericTypesFromFunctionType(
+                        arg
+                    )) {
+                        args.push(generic);
+                    }
+                }
+            }
+
             if (args.length === 0) {
                 return type_.name;
             }
@@ -672,9 +690,20 @@ function generateType(type_: Type): string {
                 return `(${fixedArgs.map(generateType).join(" | ")})[]`;
             }
 
-            const args = type_.args.filter(
-                (type_) => type_.kind === "GenericType"
-            );
+            const args = [ ];
+
+            for (const arg of type_.args) {
+                if (arg.kind === "GenericType") {
+                    args.push(arg);
+                } else if (arg.kind === "FunctionType") {
+                    for (const generic of getGenericTypesFromFunctionType(
+                        arg
+                    )) {
+                        args.push(generic);
+                    }
+                }
+            }
+
             if (args.length === 0) {
                 return type_.name;
             }

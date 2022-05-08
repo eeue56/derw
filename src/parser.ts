@@ -370,6 +370,11 @@ function parseUnionType(tokens: Token[]): Result<string, UnionType> {
                 break;
             }
 
+            case "ArrowToken": {
+                currentBranch.push("->");
+                break;
+            }
+
             default: {
                 return Err(
                     "Unexpected token parsing a union type. Got " + token.kind
@@ -407,6 +412,7 @@ function parseUnionType(tokens: Token[]): Result<string, UnionType> {
         }
 
         let argsAsJson = tag.split(" ").slice(1).join(" ");
+
         const args = argsAsJson
             .split(" ")
             // remove brackets
@@ -416,21 +422,10 @@ function parseUnionType(tokens: Token[]): Result<string, UnionType> {
             .split(",")
             .filter((arg) => arg.trim().length > 0)
             .map((arg) => {
-                // name: type
-                const split = arg.split(":");
+                const property = parseProperty(tokenize(arg));
 
-                if (split.length < 2) {
-                    return Err(
-                        "Failed to find type definition in type argument (the right hand side of a colon `:`)"
-                    );
-                }
-
-                const splitTypes = split[1].trim().split(" ");
-
-                const type_ = parseType(tokenize(splitTypes.join(" ")));
-
-                if (type_.kind === "err") return type_;
-                return Ok(TagArg(split[0].trim(), type_.value));
+                if (property.kind === "err") return property;
+                return Ok(TagArg(property.value.name, property.value.type));
             });
 
         if (
