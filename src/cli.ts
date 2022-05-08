@@ -58,6 +58,20 @@ function showCommandHelp(): void {
     console.log("Compile via `compile`");
     console.log("Or compile and test via `test`");
     console.log("Or get info about a file or package via `info`");
+    console.log("Available commands:");
+    console.log(
+        [
+            "init",
+            "compile",
+            "test",
+            "install",
+            "info",
+            "repl",
+            "bundle",
+            "format",
+            "template",
+        ].join(" | ")
+    );
 }
 
 export async function main(): Promise<number> {
