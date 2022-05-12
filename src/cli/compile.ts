@@ -49,7 +49,7 @@ const compileParser = parser([
 ]);
 
 function showCompileHelp(): void {
-    console.log("Let's write some Derw code");
+    console.log("Let’s write some Derw code");
     console.log("To get started:");
     console.log("Initialize the current directory via `init`");
     console.log("Or provide entry files via `--files`");
