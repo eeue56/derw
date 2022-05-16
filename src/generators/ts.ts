@@ -227,7 +227,9 @@ function generateIfStatement(ifStatement: IfStatement): string {
         ifStatement.ifLetBody.length > 0
             ? "\n" +
               prefixLines(
-                  ifStatement.ifLetBody.map(generateBlock).join("\n"),
+                  ifStatement.ifLetBody
+                      .map((block) => generateBlock(block))
+                      .join("\n"),
                   4
               )
             : "";
@@ -245,7 +247,9 @@ function generateIfStatement(ifStatement: IfStatement): string {
         ifStatement.elseLetBody.length > 0
             ? "\n" +
               prefixLines(
-                  ifStatement.elseLetBody.map(generateBlock).join("\n"),
+                  ifStatement.elseLetBody
+                      .map((block) => generateBlock(block))
+                      .join("\n"),
                   4
               )
             : "";
@@ -389,7 +393,12 @@ function generateBranch(predicate: string, branch: Branch): string {
     const maybeLetBody =
         branch.letBody.length > 0
             ? "\n" +
-              prefixLines(branch.letBody.map(generateBlock).join("\n"), 4)
+              prefixLines(
+                  branch.letBody
+                      .map((block) => generateBlock(block))
+                      .join("\n"),
+                  4
+              )
             : "";
 
     switch (branch.pattern.kind) {
@@ -943,7 +952,7 @@ function collectTypeArguments(type_: Type): string[] {
     }
 }
 
-function generateFunction(function_: Function): string {
+function generateFunction(function_: Function, parentTypes: string[]): string {
     const functionArguments = function_.args
         .map((arg) => {
             switch (arg.kind) {
@@ -957,10 +966,26 @@ function generateFunction(function_: Function): string {
         })
         .join(", ");
 
+    const typeArguments = ([ ] as string[])
+        .concat(
+            ...function_.args.map((arg) => collectTypeArguments(arg.type)),
+            collectTypeArguments(function_.returnType)
+        )
+        .filter(
+            (value, index, arr) =>
+                arr.indexOf(value) === index &&
+                parentTypes.indexOf(value) === -1
+        );
+
     const maybeLetBody =
         function_.letBody.length > 0
             ? "\n" +
-              prefixLines(function_.letBody.map(generateBlock).join("\n"), 4)
+              prefixLines(
+                  function_.letBody
+                      .map((block) => generateBlock(block, typeArguments))
+                      .join("\n"),
+                  4
+              )
             : "";
 
     const returnType = generateTopLevelType(function_.returnType);
@@ -971,12 +996,6 @@ function generateFunction(function_: Function): string {
     const body = bodyPrefix + generateExpression(function_.body) + bodySuffix;
 
     const prefixedBody = prefixLines(body, 4);
-    const typeArguments = ([ ] as string[])
-        .concat(
-            ...function_.args.map((arg) => collectTypeArguments(arg.type)),
-            collectTypeArguments(function_.returnType)
-        )
-        .filter((value, index, arr) => arr.indexOf(value) === index);
 
     const typeArgumentsString =
         typeArguments.length === 0 ? "" : `<${typeArguments.join(", ")}>`;
@@ -1033,7 +1052,7 @@ const ${constDef.name}: ${typeDef} = ${body};
 `.trim();
 }
 
-function generateBlock(syntax: Block): string {
+function generateBlock(syntax: Block, parentTypes?: string[]): string {
     switch (syntax.kind) {
         case "Import":
             return generateImportBlock(syntax);
@@ -1044,7 +1063,7 @@ function generateBlock(syntax: Block): string {
         case "TypeAlias":
             return generateTypeAlias(syntax);
         case "Function":
-            return generateFunction(syntax);
+            return generateFunction(syntax, parentTypes || [ ]);
         case "Const":
             return generateConst(syntax);
         case "Comment":
@@ -1055,7 +1074,7 @@ function generateBlock(syntax: Block): string {
 
 export function generateTypescript(module: Module): string {
     return [ exportTests(module), ...module.body ]
-        .map(generateBlock)
+        .map((block) => generateBlock(block))
         .filter((line) => line.length > 0)
         .join("\n\n");
 }
