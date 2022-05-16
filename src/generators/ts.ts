@@ -213,7 +213,9 @@ function generateListValue(list: ListValue): string {
     if (list.items.length === 0) return `[ ]`;
     if (list.items.length === 1)
         return `[ ${generateExpression(list.items[0])} ]`;
-    return `[ ${list.items.map(generateExpression).join(", ")} ]`;
+    return `[ ${list.items
+        .map((item) => generateExpression(item))
+        .join(", ")} ]`;
 }
 
 function generateIfStatement(ifStatement: IfStatement): string {
@@ -384,7 +386,11 @@ case ${predicate}.length: {
 }`.trim();
 }
 
-function generateBranch(predicate: string, branch: Branch): string {
+function generateBranch(
+    predicate: string,
+    branch: Branch,
+    parentTypes: string[]
+): string {
     const returnWrapper = isSimpleValue(branch.body.kind) ? "    return " : "";
     const body = prefixLines(
         generateExpression(branch.body),
@@ -395,7 +401,7 @@ function generateBranch(predicate: string, branch: Branch): string {
             ? "\n" +
               prefixLines(
                   branch.letBody
-                      .map((block) => generateBlock(block))
+                      .map((block) => generateBlock(block, parentTypes))
                       .join("\n"),
                   4
               )
@@ -557,11 +563,14 @@ ${returnWrapper}${body};
     }
 }
 
-function generateCaseStatement(caseStatement: CaseStatement): string {
+function generateCaseStatement(
+    caseStatement: CaseStatement,
+    parentTypes?: string[]
+): string {
     const predicate = generateExpression(caseStatement.predicate);
     const name = `_res${hashCode(predicate)}`;
     const branches = caseStatement.branches.map((branch) =>
-        generateBranch(name, branch)
+        generateBranch(name, branch, parentTypes || [ ])
     );
 
     const isString =
@@ -790,7 +799,9 @@ function generateModuleReference(moduleReference: ModuleReference): string {
 }
 
 function generateFunctionCall(functionCall: FunctionCall): string {
-    const right = functionCall.args.map(generateExpression).join(", ");
+    const right = functionCall.args
+        .map((item) => generateExpression(item))
+        .join(", ");
 
     return `${functionCall.name}(${right})`;
 }
@@ -809,7 +820,9 @@ function generateLambdaCall(lambdaCall: LambdaCall): string {
     const args = lambdaCall.lambda.args
         .map((arg: any) => `${arg}: any`)
         .join(", ");
-    const argsValues = lambdaCall.args.map(generateExpression).join(", ");
+    const argsValues = lambdaCall.args
+        .map((item) => generateExpression(item))
+        .join(", ");
     const body = generateExpression(lambdaCall.lambda.body);
     return `
 (function(${args}) {
@@ -874,7 +887,10 @@ function generateListPrepend(prepend: ListPrepend): string {
     return `[ ${left}, ...${right} ]`;
 }
 
-function generateExpression(expression: Expression): string {
+function generateExpression(
+    expression: Expression,
+    parentTypes?: string[]
+): string {
     switch (expression.kind) {
         case "Value":
             return generateValue(expression);
@@ -891,7 +907,7 @@ function generateExpression(expression: Expression): string {
         case "IfStatement":
             return generateIfStatement(expression);
         case "CaseStatement":
-            return generateCaseStatement(expression);
+            return generateCaseStatement(expression, parentTypes);
         case "Addition":
             return generateAddition(expression);
         case "Subtraction":
@@ -998,7 +1014,13 @@ function generateFunction(function_: Function, parentTypes: string[]): string {
 
     const bodyPrefix = isSimpleBody ? "return " : "";
     const bodySuffix = isSimpleBody ? ";" : "";
-    const body = bodyPrefix + generateExpression(function_.body) + bodySuffix;
+    const body =
+        bodyPrefix +
+        generateExpression(function_.body, [
+            ...typeArguments,
+            ...parentTypes,
+        ]) +
+        bodySuffix;
 
     const prefixedBody = prefixLines(body, 4);
 
