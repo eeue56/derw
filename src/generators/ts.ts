@@ -239,7 +239,7 @@ function generateIfStatement(
               )
             : "";
 
-    const ifBody = generateExpression(ifStatement.ifBody);
+    const ifBody = generateExpression(ifStatement.ifBody, parentTypes);
     const indentedIfBody =
         ifBody.split("\n").length === 1
             ? ifBody
@@ -259,7 +259,7 @@ function generateIfStatement(
               )
             : "";
 
-    const elseBody = generateExpression(ifStatement.elseBody);
+    const elseBody = generateExpression(ifStatement.elseBody, parentTypes);
     const indentedElseBody =
         elseBody.split("\n").length === 1
             ? elseBody
@@ -396,7 +396,7 @@ function generateBranch(
 ): string {
     const returnWrapper = isSimpleValue(branch.body.kind) ? "    return " : "";
     const body = prefixLines(
-        generateExpression(branch.body),
+        generateExpression(branch.body, parentTypes),
         isSimpleValue(branch.body.kind) ? 0 : 4
     );
     const maybeLetBody =
