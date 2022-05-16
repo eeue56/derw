@@ -124,7 +124,7 @@ asIs result =
 -   [x] Type aliases
 
     ```elm
-    type User =
+    type alias User =
         { name: string }
     ```
 
