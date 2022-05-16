@@ -522,3 +522,42 @@ export function testListToList() {
     const rootTypeString = rootTypeTokensToString((tokenizedType as any).value);
     assert.deepStrictEqual(rootTypeString, str);
 }
+
+export function testQualified() {
+    const str = `Loop.RunningProgram model msg ( View msg )`.trim();
+    const tokenized = tokenize(str);
+    assert.deepStrictEqual(tokenized, [
+        IdentifierToken("Loop.RunningProgram"),
+        WhitespaceToken(" "),
+        IdentifierToken("model"),
+        WhitespaceToken(" "),
+        IdentifierToken("msg"),
+        WhitespaceToken(" "),
+        OpenBracketToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("View"),
+        WhitespaceToken(" "),
+        IdentifierToken("msg"),
+        WhitespaceToken(" "),
+        CloseBracketToken(),
+    ]);
+
+    const tokenizedType = tokenizeType(tokenized);
+    assert.deepStrictEqual(
+        tokenizedType,
+        Ok([
+            BaseTypeToken([
+                IdentifierToken("Loop.RunningProgram"),
+                BaseTypeToken([ IdentifierToken("model") ]),
+                BaseTypeToken([ IdentifierToken("msg") ]),
+                BaseTypeToken([
+                    IdentifierToken("View"),
+                    BaseTypeToken([ IdentifierToken("msg") ]),
+                ]),
+            ]),
+        ])
+    );
+
+    const rootTypeString = rootTypeTokensToString((tokenizedType as any).value);
+    assert.deepStrictEqual(rootTypeString, str);
+}

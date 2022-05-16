@@ -763,7 +763,6 @@ export function tokenizeType(
     let rootTypeTokens: RootTypeTokens[] = [ ];
     let currentBuffer: TypeTokenRaw[] = [ ];
     let indent = 0;
-    let index = 0;
 
     for (const token of tokens) {
         switch (token.kind) {
@@ -810,87 +809,88 @@ export function tokenizeType(
         }
     }
 
-    if (currentBuffer.length > 0) {
-        if (currentBuffer.find((t) => t.kind === "OpenBracketToken")) {
-            const isFunction = currentBuffer.find(
-                (t) => t.kind === "ArrowToken"
-            );
-            let tokenized: Result<string, RootTypeTokens[]> = Ok([ ]);
+    if (currentBuffer.length === 0) return Ok(rootTypeTokens);
 
-            if (currentBuffer[0].kind === "IdentifierToken" && !isFunction) {
-                let depth = 0;
-                let inner: any[] = [ ];
-                let collectedInners = [ ];
-                for (const t of currentBuffer.slice(1)) {
-                    switch (t.kind) {
-                        case "OpenBracketToken": {
-                            if (depth > 0) inner.push(t);
-                            depth++;
-                            break;
-                        }
-                        case "CloseBracketToken": {
-                            if (depth > 1) inner.push(t);
-                            depth--;
-                            if (depth === 0) {
-                                const innerTokenized = tokenizeType(inner);
-                                if (innerTokenized.kind === "err")
-                                    return innerTokenized;
+    if (currentBuffer.find((t) => t.kind === "OpenBracketToken")) {
+        const isFunction = currentBuffer.find((t) => t.kind === "ArrowToken");
+        let tokenized: Result<string, RootTypeTokens[]> = Ok([ ]);
 
-                                collectedInners.push(innerTokenized.value);
-                                inner = [ ];
-                            }
-                            break;
+        if (currentBuffer[0].kind === "IdentifierToken" && !isFunction) {
+            let depth = 0;
+            let inner: any[] = [ ];
+            let collectedInners = [ ];
+            for (const t of currentBuffer.slice(1)) {
+                switch (t.kind) {
+                    case "OpenBracketToken": {
+                        if (depth > 0) inner.push(t);
+                        depth++;
+                        break;
+                    }
+                    case "CloseBracketToken": {
+                        if (depth > 1) inner.push(t);
+                        depth--;
+                        if (depth === 0) {
+                            const innerTokenized = tokenizeType(inner);
+                            if (innerTokenized.kind === "err")
+                                return innerTokenized;
+
+                            collectedInners.push(innerTokenized.value);
+                            inner = [ ];
                         }
-                        case "IdentifierToken": {
-                            if (depth === 0) {
-                            } else {
-                                inner.push(t);
-                            }
-                            break;
+                        break;
+                    }
+                    case "IdentifierToken": {
+                        if (depth === 0) {
+                            const tokenized = tokenizeType(tokenize(t.body));
+                            if (tokenized.kind === "err") return tokenized;
+                            collectedInners.push(tokenized.value);
+                        } else {
+                            inner.push(t);
                         }
-                        case "ArrowToken": {
-                            if (depth === 0) {
-                            } else {
-                                inner.push(t);
-                            }
+                        break;
+                    }
+                    case "ArrowToken": {
+                        if (depth === 0) {
+                        } else {
+                            inner.push(t);
                         }
                     }
-
-                    let flattened: RootTypeTokens[] = [ ];
-                    for (const collected of collectedInners) {
-                        flattened = flattened.concat(collected);
-                    }
-                    tokenized = Ok([
-                        BaseTypeToken([ currentBuffer[0], ...flattened ]),
-                    ]);
                 }
-            } else {
-                tokenized = tokenizeType(currentBuffer);
-            }
-            if (tokenized.kind === "err") return tokenized;
-            if (isFunction) {
-                rootTypeTokens.push(FunctionTypeToken(tokenized.value));
-            } else {
-                for (const t of tokenized.value) {
-                    rootTypeTokens.push(t);
-                }
-            }
-        } else if (currentBuffer.find((t) => t.kind === "ArrowToken")) {
-            const tokenized = tokenizeType(currentBuffer);
-            if (tokenized.kind === "err") return tokenized;
 
+                let flattened: RootTypeTokens[] = [ ];
+                for (const collected of collectedInners) {
+                    flattened = flattened.concat(collected);
+                }
+                tokenized = Ok([
+                    BaseTypeToken([ currentBuffer[0], ...flattened ]),
+                ]);
+            }
+        } else {
+            tokenized = tokenizeType(currentBuffer);
+        }
+        if (tokenized.kind === "err") return tokenized;
+        if (isFunction) {
             rootTypeTokens.push(FunctionTypeToken(tokenized.value));
         } else {
-            let inner: TypeToken[] = [ ];
-            if (currentBuffer.length > 1) {
-                for (const bufferPart of currentBuffer.slice(1)) {
-                    const tokenized = tokenizeType([ bufferPart ]);
-                    if (tokenized.kind === "err") return tokenized;
-                    inner = inner.concat(tokenized.value);
-                }
+            for (const t of tokenized.value) {
+                rootTypeTokens.push(t);
             }
-            rootTypeTokens.push(BaseTypeToken([ currentBuffer[0], ...inner ]));
         }
+    } else if (currentBuffer.find((t) => t.kind === "ArrowToken")) {
+        const tokenized = tokenizeType(currentBuffer);
+        if (tokenized.kind === "err") return tokenized;
+
+        rootTypeTokens.push(FunctionTypeToken(tokenized.value));
+    } else {
+        let inner: TypeToken[] = [ ];
+        if (currentBuffer.length > 1) {
+            for (const bufferPart of currentBuffer.slice(1)) {
+                const tokenized = tokenizeType([ bufferPart ]);
+                if (tokenized.kind === "err") return tokenized;
+                inner = inner.concat(tokenized.value);
+            }
+        }
+        rootTypeTokens.push(BaseTypeToken([ currentBuffer[0], ...inner ]));
     }
 
     return Ok(rootTypeTokens);
