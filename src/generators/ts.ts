@@ -218,7 +218,10 @@ function generateListValue(list: ListValue): string {
         .join(", ")} ]`;
 }
 
-function generateIfStatement(ifStatement: IfStatement): string {
+function generateIfStatement(
+    ifStatement: IfStatement,
+    parentTypes: string[]
+): string {
     const isSimpleIfBody = isSimpleValue(ifStatement.ifBody.kind);
     const isSimpleElseBody = isSimpleValue(ifStatement.elseBody.kind);
 
@@ -230,7 +233,7 @@ function generateIfStatement(ifStatement: IfStatement): string {
             ? "\n" +
               prefixLines(
                   ifStatement.ifLetBody
-                      .map((block) => generateBlock(block))
+                      .map((block) => generateBlock(block, parentTypes))
                       .join("\n"),
                   4
               )
@@ -250,7 +253,7 @@ function generateIfStatement(ifStatement: IfStatement): string {
             ? "\n" +
               prefixLines(
                   ifStatement.elseLetBody
-                      .map((block) => generateBlock(block))
+                      .map((block) => generateBlock(block, parentTypes))
                       .join("\n"),
                   4
               )
@@ -565,7 +568,7 @@ ${returnWrapper}${body};
 
 function generateCaseStatement(
     caseStatement: CaseStatement,
-    parentTypes?: string[]
+    parentTypes: string[]
 ): string {
     const predicate = generateExpression(caseStatement.predicate);
     const name = `_res${hashCode(predicate)}`;
@@ -905,9 +908,9 @@ function generateExpression(
         case "ObjectLiteral":
             return generateObjectLiteral(expression);
         case "IfStatement":
-            return generateIfStatement(expression);
+            return generateIfStatement(expression, parentTypes || [ ]);
         case "CaseStatement":
-            return generateCaseStatement(expression, parentTypes);
+            return generateCaseStatement(expression, parentTypes || [ ]);
         case "Addition":
             return generateAddition(expression);
         case "Subtraction":
