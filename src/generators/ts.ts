@@ -982,7 +982,12 @@ function generateFunction(function_: Function, parentTypes: string[]): string {
             ? "\n" +
               prefixLines(
                   function_.letBody
-                      .map((block) => generateBlock(block, typeArguments))
+                      .map((block) =>
+                          generateBlock(block, [
+                              ...typeArguments,
+                              ...parentTypes,
+                          ])
+                      )
                       .join("\n"),
                   4
               )
