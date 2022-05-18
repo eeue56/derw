@@ -1939,6 +1939,8 @@ function parseFunctionCall(
     const args: string[] = [ ];
     let currentArg: string[] = [ ];
     let bracketDepth = 0;
+    let colonDepth = 0;
+    let curlyBracketDepth = 0;
 
     for (var i = index; i < tokens.length; i++) {
         const token = tokens[i];
@@ -1951,7 +1953,7 @@ function parseFunctionCall(
                 if (currentArg.join().trim().length > 0) {
                     currentArg.push(token.body);
                 } else {
-                    if (bracketDepth === 0) {
+                    if (bracketDepth === 0 && colonDepth === 0) {
                         args.push(currentArg.join(""));
                         args.push(token.body);
                         currentArg = [ ];
@@ -1962,7 +1964,7 @@ function parseFunctionCall(
                 break;
             }
             case "OpenBracketToken": {
-                if (bracketDepth === 0) {
+                if (bracketDepth === 0 && colonDepth === 0) {
                     if (currentArg.join().trim().length > 0) {
                         args.push(currentArg.join(""));
                     }
@@ -1976,7 +1978,7 @@ function parseFunctionCall(
             }
             case "CloseBracketToken": {
                 bracketDepth--;
-                if (bracketDepth <= 0) {
+                if (bracketDepth <= 0 && colonDepth === 0) {
                     args.push(currentArg.join(""));
                     currentArg = [ ];
                 } else {
@@ -1985,24 +1987,29 @@ function parseFunctionCall(
                 break;
             }
             case "OpenCurlyBracesToken": {
+                curlyBracketDepth++;
                 currentArg.push("{");
                 break;
             }
             case "CloseCurlyBracesToken": {
+                curlyBracketDepth--;
                 currentArg.push("}");
+                if (colonDepth > 0) colonDepth--;
+                if (bracketDepth === 0 && curlyBracketDepth === 0) {
+                    args.push(currentArg.join(""));
+                    currentArg = [ ];
+                }
                 break;
             }
             case "ColonToken": {
                 currentArg.push(":");
-                if (bracketDepth === 0) {
-                    bracketDepth++;
-                }
+                colonDepth++;
                 break;
             }
             case "CommaToken": {
                 currentArg.push(",");
-                if (bracketDepth === 1) {
-                    bracketDepth--;
+                if (colonDepth === 1) {
+                    colonDepth--;
                 }
                 break;
             }
