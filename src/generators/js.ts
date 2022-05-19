@@ -555,10 +555,20 @@ function generateFunctionCall(functionCall: FunctionCall): string {
 
 function generateLambda(lambda: Lambda): string {
     const args = lambda.args.join(", ");
-    const body = generateExpression(lambda.body);
-    return `
+    const isSimple = isSimpleValue(lambda.body.kind);
+    const body = prefixLines(generateExpression(lambda.body), isSimple ? 0 : 4);
+
+    if (isSimple) {
+        return `
 function(${args}) {
     return ${body};
+}
+`.trim();
+    }
+
+    return `
+function(${args}) {
+${body}
 }
 `.trim();
 }

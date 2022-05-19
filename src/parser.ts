@@ -2025,6 +2025,10 @@ function parseFunctionCall(
                 currentArg.push("->");
                 break;
             }
+            case "KeywordToken": {
+                currentArg.push(token.body);
+                break;
+            }
         }
     }
 
