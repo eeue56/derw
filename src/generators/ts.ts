@@ -220,7 +220,7 @@ function generateListValue(list: ListValue): string {
 
 function generateIfStatement(
     ifStatement: IfStatement,
-    parentTypes: string[]
+    parentTypeArguments: string[]
 ): string {
     const isSimpleIfBody = isSimpleValue(ifStatement.ifBody.kind);
     const isSimpleElseBody = isSimpleValue(ifStatement.elseBody.kind);
@@ -233,13 +233,13 @@ function generateIfStatement(
             ? "\n" +
               prefixLines(
                   ifStatement.ifLetBody
-                      .map((block) => generateBlock(block, parentTypes))
+                      .map((block) => generateBlock(block, parentTypeArguments))
                       .join("\n"),
                   4
               )
             : "";
 
-    const ifBody = generateExpression(ifStatement.ifBody, parentTypes);
+    const ifBody = generateExpression(ifStatement.ifBody, parentTypeArguments);
     const indentedIfBody =
         ifBody.split("\n").length === 1
             ? ifBody
@@ -253,13 +253,16 @@ function generateIfStatement(
             ? "\n" +
               prefixLines(
                   ifStatement.elseLetBody
-                      .map((block) => generateBlock(block, parentTypes))
+                      .map((block) => generateBlock(block, parentTypeArguments))
                       .join("\n"),
                   4
               )
             : "";
 
-    const elseBody = generateExpression(ifStatement.elseBody, parentTypes);
+    const elseBody = generateExpression(
+        ifStatement.elseBody,
+        parentTypeArguments
+    );
     const indentedElseBody =
         elseBody.split("\n").length === 1
             ? elseBody
@@ -392,11 +395,11 @@ case ${predicate}.length: {
 function generateBranch(
     predicate: string,
     branch: Branch,
-    parentTypes: string[]
+    parentTypeArguments: string[]
 ): string {
     const returnWrapper = isSimpleValue(branch.body.kind) ? "    return " : "";
     const body = prefixLines(
-        generateExpression(branch.body, parentTypes),
+        generateExpression(branch.body, parentTypeArguments),
         isSimpleValue(branch.body.kind) ? 0 : 4
     );
     const maybeLetBody =
@@ -404,7 +407,7 @@ function generateBranch(
             ? "\n" +
               prefixLines(
                   branch.letBody
-                      .map((block) => generateBlock(block, parentTypes))
+                      .map((block) => generateBlock(block, parentTypeArguments))
                       .join("\n"),
                   4
               )
@@ -568,12 +571,12 @@ ${returnWrapper}${body};
 
 function generateCaseStatement(
     caseStatement: CaseStatement,
-    parentTypes: string[]
+    parentTypeArguments: string[]
 ): string {
     const predicate = generateExpression(caseStatement.predicate);
     const name = `_res${hashCode(predicate)}`;
     const branches = caseStatement.branches.map((branch) =>
-        generateBranch(name, branch, parentTypes || [ ])
+        generateBranch(name, branch, parentTypeArguments || [ ])
     );
 
     const isString =
@@ -902,7 +905,7 @@ function generateListPrepend(prepend: ListPrepend): string {
 
 function generateExpression(
     expression: Expression,
-    parentTypes?: string[]
+    parentTypeArguments?: string[]
 ): string {
     switch (expression.kind) {
         case "Value":
@@ -918,9 +921,12 @@ function generateExpression(
         case "ObjectLiteral":
             return generateObjectLiteral(expression);
         case "IfStatement":
-            return generateIfStatement(expression, parentTypes || [ ]);
+            return generateIfStatement(expression, parentTypeArguments || [ ]);
         case "CaseStatement":
-            return generateCaseStatement(expression, parentTypes || [ ]);
+            return generateCaseStatement(
+                expression,
+                parentTypeArguments || [ ]
+            );
         case "Addition":
             return generateAddition(expression);
         case "Subtraction":
@@ -981,7 +987,10 @@ function collectTypeArguments(type_: Type): string[] {
     }
 }
 
-function generateFunction(function_: Function, parentTypes: string[]): string {
+function generateFunction(
+    function_: Function,
+    parentTypeArguments: string[]
+): string {
     const functionArguments = function_.args
         .map((arg) => {
             switch (arg.kind) {
@@ -1003,7 +1012,7 @@ function generateFunction(function_: Function, parentTypes: string[]): string {
         .filter(
             (value, index, arr) =>
                 arr.indexOf(value) === index &&
-                parentTypes.indexOf(value) === -1
+                parentTypeArguments.indexOf(value) === -1
         );
 
     const maybeLetBody =
@@ -1014,7 +1023,7 @@ function generateFunction(function_: Function, parentTypes: string[]): string {
                       .map((block) =>
                           generateBlock(block, [
                               ...typeArguments,
-                              ...parentTypes,
+                              ...parentTypeArguments,
                           ])
                       )
                       .join("\n"),
@@ -1031,7 +1040,7 @@ function generateFunction(function_: Function, parentTypes: string[]): string {
         bodyPrefix +
         generateExpression(function_.body, [
             ...typeArguments,
-            ...parentTypes,
+            ...parentTypeArguments,
         ]) +
         bodySuffix;
 
@@ -1092,7 +1101,7 @@ const ${constDef.name}: ${typeDef} = ${body};
 `.trim();
 }
 
-function generateBlock(syntax: Block, parentTypes?: string[]): string {
+function generateBlock(syntax: Block, parentTypeArguments?: string[]): string {
     switch (syntax.kind) {
         case "Import":
             return generateImportBlock(syntax);
@@ -1103,7 +1112,7 @@ function generateBlock(syntax: Block, parentTypes?: string[]): string {
         case "TypeAlias":
             return generateTypeAlias(syntax);
         case "Function":
-            return generateFunction(syntax, parentTypes || [ ]);
+            return generateFunction(syntax, parentTypeArguments || [ ]);
         case "Const":
             return generateConst(syntax);
         case "Comment":
