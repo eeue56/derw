@@ -804,7 +804,11 @@ function generateModuleReference(moduleReference: ModuleReference): string {
     return `${left}.${right}`;
 }
 
-function generateFunctionCall(functionCall: FunctionCall): string {
+function generateFunctionCall(
+    functionCall: FunctionCall,
+    parentTypeArguments?: string[],
+    parentTypes?: Type[]
+): string {
     const right = functionCall.args
         .map((item) => generateExpression(item))
         .join(", ");
@@ -905,7 +909,8 @@ function generateListPrepend(prepend: ListPrepend): string {
 
 function generateExpression(
     expression: Expression,
-    parentTypeArguments?: string[]
+    parentTypeArguments?: string[],
+    parentTypes?: Type[]
 ): string {
     switch (expression.kind) {
         case "Value":
@@ -948,7 +953,11 @@ function generateExpression(
         case "ModuleReference":
             return generateModuleReference(expression);
         case "FunctionCall":
-            return generateFunctionCall(expression);
+            return generateFunctionCall(
+                expression,
+                parentTypeArguments || [ ],
+                parentTypes || [ ]
+            );
         case "Lambda":
             return generateLambda(expression);
         case "LambdaCall":
@@ -989,7 +998,8 @@ function collectTypeArguments(type_: Type): string[] {
 
 function generateFunction(
     function_: Function,
-    parentTypeArguments: string[]
+    parentTypeArguments: string[],
+    parentTypes: Type[]
 ): string {
     const functionArguments = function_.args
         .map((arg) => {
@@ -1038,10 +1048,11 @@ function generateFunction(
     const bodySuffix = isSimpleBody ? ";" : "";
     const body =
         bodyPrefix +
-        generateExpression(function_.body, [
-            ...typeArguments,
-            ...parentTypeArguments,
-        ]) +
+        generateExpression(
+            function_.body,
+            [ ...typeArguments, ...parentTypeArguments ],
+            [ ...parentTypes, function_.returnType ]
+        ) +
         bodySuffix;
 
     const prefixedBody = prefixLines(body, 4);
@@ -1101,7 +1112,11 @@ const ${constDef.name}: ${typeDef} = ${body};
 `.trim();
 }
 
-function generateBlock(syntax: Block, parentTypeArguments?: string[]): string {
+function generateBlock(
+    syntax: Block,
+    parentTypeArguments?: string[],
+    parentTypes?: Type[]
+): string {
     switch (syntax.kind) {
         case "Import":
             return generateImportBlock(syntax);
@@ -1112,7 +1127,11 @@ function generateBlock(syntax: Block, parentTypeArguments?: string[]): string {
         case "TypeAlias":
             return generateTypeAlias(syntax);
         case "Function":
-            return generateFunction(syntax, parentTypeArguments || [ ]);
+            return generateFunction(
+                syntax,
+                parentTypeArguments || [ ],
+                parentTypes || [ ]
+            );
         case "Const":
             return generateConst(syntax);
         case "Comment":
