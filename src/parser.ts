@@ -929,6 +929,34 @@ function parseStringValue(tokens: Token[]): Result<string, StringValue> {
     return Err(`Expected string literal, got ${tokens[0].kind}`);
 }
 
+function listRangeDotsNotWithinString(tokens: Token[]): boolean {
+    let i = 0;
+
+    for (const token of tokens) {
+        if (token.kind !== "WhitespaceToken") break;
+        i++;
+    }
+
+    if (i === tokens.length) return true;
+
+    const firstToken = tokens[i];
+
+    if (firstToken.kind === "LiteralToken" && firstToken.body.startsWith("[")) {
+        const newTokens = tokenize(firstToken.body.slice(1));
+
+        for (const token of newTokens) {
+            if (
+                (token.kind === "LiteralToken" ||
+                    token.kind === "IdentifierToken") &&
+                token.body.indexOf("..") > -1
+            ) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 function parseListRange(tokens: Token[]): Result<string, ListRange> {
     let index = 0;
 
@@ -2467,7 +2495,7 @@ export function parseExpression(body: string): Result<string, Expression> {
             }
             case "LiteralToken": {
                 if (token.body.startsWith("[")) {
-                    if (token.body.indexOf("..") > -1) {
+                    if (listRangeDotsNotWithinString(tokens)) {
                         return parseListRange(tokens);
                     }
                     return parseListValue(tokens);
