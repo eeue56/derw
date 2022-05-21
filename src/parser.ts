@@ -2330,6 +2330,10 @@ export function parseExpression(body: string): Result<string, Expression> {
             break;
         }
         case "OpenCurlyBracesToken": {
+            if (hasTopLevelOperator("::", tokens)) {
+                return parseListPrepend(tokens);
+            }
+
             const tokensOtherThanWhitespace = tokens
                 .slice(index + 1)
                 .filter((token) => token.kind !== "WhitespaceToken");
@@ -2343,6 +2347,7 @@ export function parseExpression(body: string): Result<string, Expression> {
                 ).length === tokensOtherThanWhitespace.length
             ) {
             }
+
             return parseObjectLiteral(tokens);
         }
         case "IdentifierToken": {
