@@ -102,7 +102,7 @@ export async function install(
         return;
     } else {
         if (!isQuiet) console.log("Installing packages...");
-        await installPackages(validPackage, isQuiet);
+        await installPackages(validPackage, isQuiet, [ ]);
         if (!isQuiet)
             console.log(
                 `Installed ${validPackage.dependencies.length} packages`
@@ -120,14 +120,33 @@ function isPackageAlreadyThere(
     return false;
 }
 
+function isAlreadyInstalled(
+    dependency: Dependency,
+    alreadyInstalledDependency: Dependency[]
+): boolean {
+    return (
+        alreadyInstalledDependency.filter(
+            (d) =>
+                d.name === dependency.name && d.version === dependency.version
+        ).length > 0
+    );
+}
+
 async function installPackages(
     validPackage: Package,
-    isQuiet: boolean
+    isQuiet: boolean,
+    alreadyInstalledDependencies: Dependency[]
 ): Promise<Package[]> {
     await ensureDirectoryExists("derw-packages");
     const installedPackages: Package[] = [ ];
 
     for (const dependency of validPackage.dependencies) {
+        const alreadyInstalled = isAlreadyInstalled(
+            dependency,
+            alreadyInstalledDependencies
+        );
+        if (alreadyInstalled) continue;
+
         if (!isQuiet)
             console.log(`Fetching ${dependency.name}@${dependency.version}...`);
 
@@ -137,7 +156,11 @@ async function installPackages(
             if (!isPackageAlreadyThere(depPackage.value, installedPackages)) {
                 const subpackages = await installPackages(
                     depPackage.value,
-                    isQuiet
+                    isQuiet,
+                    [
+                        ...alreadyInstalledDependencies,
+                        ...validPackage.dependencies,
+                    ]
                 );
 
                 for (const subpackage of subpackages) {
