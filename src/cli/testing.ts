@@ -17,6 +17,7 @@ const testingParser = parser([
     longFlag("watch", "Watch Derw files for changes", empty()),
     longFlag("function", "A particular function name to run", string()),
     longFlag("file", "A particular file name to run", string()),
+    longFlag("only-fails", "Only log failing tests", empty()),
     bothFlag("h", "help", "This help text", empty()),
 ]);
 
