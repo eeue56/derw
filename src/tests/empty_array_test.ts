@@ -55,6 +55,7 @@ export function testParse() {
                 Const(
                     "helloWorld",
                     FixedType("List", [ FixedType("number", [ ]) ]),
+                    [ ],
                     ListValue([ ])
                 ),
             ],
@@ -72,6 +73,7 @@ export function testParseMultiLine() {
                 Const(
                     "helloWorld",
                     FixedType("List", [ FixedType("number", [ ]) ]),
+                    [ ],
                     ListValue([ ])
                 ),
             ],

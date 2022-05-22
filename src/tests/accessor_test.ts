@@ -71,6 +71,7 @@ export function testParse() {
                 Const(
                     "sum",
                     FixedType("List", [ FixedType("number", [ ]) ]),
+                    [ ],
                     ModuleReference(
                         [ "List" ],
                         FunctionCall("map", [
@@ -98,6 +99,7 @@ export function testParseMultiLine() {
                 Const(
                     "sum",
                     FixedType("List", [ FixedType("number", [ ]) ]),
+                    [ ],
                     ModuleReference(
                         [ "List" ],
                         FunctionCall("map", [

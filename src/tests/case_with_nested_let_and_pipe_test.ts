@@ -133,6 +133,7 @@ export function testParse() {
                                     Const(
                                         "first",
                                         FixedType("number", [ ]),
+                                        [ ],
                                         LeftPipe(
                                             Addition(Value("1"), Value("2")),
                                             Value("sum")
@@ -169,6 +170,7 @@ export function testParseMultiLine() {
                                     Const(
                                         "first",
                                         FixedType("number", [ ]),
+                                        [ ],
                                         LeftPipe(
                                             Addition(Value("1"), Value("2")),
                                             Value("sum")

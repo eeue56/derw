@@ -66,6 +66,7 @@ export function testParse() {
                 Const(
                     "helloWorld",
                     FixedType("List", [ GenericType("any") ]),
+                    [ ],
                     ListPrepend(
                         ObjectLiteral(null, [ Field("value", Value("1")) ]),
                         ListValue([ ])
@@ -86,6 +87,7 @@ export function testParseMultiLine() {
                 Const(
                     "helloWorld",
                     FixedType("List", [ GenericType("any") ]),
+                    [ ],
                     ListPrepend(
                         ObjectLiteral(null, [ Field("value", Value("1")) ]),
                         ListValue([ ])

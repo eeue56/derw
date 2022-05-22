@@ -65,6 +65,7 @@ export function testParse() {
                     FixedType("List", [
                         FixedType("List", [ GenericType("any") ]),
                     ]),
+                    [ ],
                     FunctionCall("div", [
                         ListValue([ ]),
                         ListValue([ ]),
@@ -94,6 +95,7 @@ export function testParseMultiLine() {
                     FixedType("List", [
                         FixedType("List", [ GenericType("any") ]),
                     ]),
+                    [ ],
                     FunctionCall("div", [
                         ListValue([ ]),
                         ListValue([ ]),

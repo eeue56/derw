@@ -65,6 +65,7 @@ export function testParse() {
                 Const(
                     "helloWorld",
                     FixedType("List", [ FixedType("number", [ ]) ]),
+                    [ ],
                     ListPrepend(
                         ModuleReference(
                             [ "Some" ],
@@ -88,6 +89,7 @@ export function testParseMultiLine() {
                 Const(
                     "helloWorld",
                     FixedType("List", [ FixedType("number", [ ]) ]),
+                    [ ],
                     ListPrepend(
                         ModuleReference(
                             [ "Some" ],

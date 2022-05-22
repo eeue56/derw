@@ -148,6 +148,7 @@ export function testParse() {
                         FixedType("number", [ ]),
                         FixedType("string", [ ]),
                     ]),
+                    [ ],
                     Constructor(
                         "Left",
                         ObjectLiteral(null, [ Field("value", Value("1")) ])
@@ -193,6 +194,7 @@ export function testParseMultiLine() {
                         FixedType("number", [ ]),
                         FixedType("string", [ ]),
                     ]),
+                    [ ],
                     Constructor(
                         "Left",
                         ObjectLiteral(null, [ Field("value", Value("1")) ])

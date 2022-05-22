@@ -622,11 +622,21 @@ ${prefixedBody}
 }
 
 function generateConst(constDef: Const): string {
-    const body = prefixLines(generateExpression(constDef.value), 4);
+    const maybeLetBody =
+        constDef.letBody.length > 0
+            ? prefixLines("\nlet", 4) +
+              "\n" +
+              prefixLines(constDef.letBody.map(generateBlock).join("\n\n"), 8) +
+              prefixLines("\nin", 4)
+            : "";
     const typeDef = generateTopLevelType(constDef.type);
+    const body = prefixLines(
+        generateExpression(constDef.value),
+        maybeLetBody === "" ? 4 : 8
+    );
     return `
 ${constDef.name}: ${typeDef}
-${constDef.name} =
+${constDef.name} =${maybeLetBody}
 ${body}
 `.trim();
 }

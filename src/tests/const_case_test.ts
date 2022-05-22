@@ -98,6 +98,7 @@ export function testParse() {
                 Const(
                     "name",
                     FixedType("string", [ ]),
+                    [ ],
                     CaseStatement(Value("person"), [
                         Branch(StringValue("noah"), StringValue("Noah"), [ ]),
                         Branch(StringValue("james"), StringValue("James"), [ ]),
@@ -119,6 +120,7 @@ export function testParseMultiLine() {
                 Const(
                     "name",
                     FixedType("string", [ ]),
+                    [ ],
                     CaseStatement(Value("person"), [
                         Branch(StringValue("noah"), StringValue("Noah"), [ ]),
                         Branch(StringValue("james"), StringValue("James"), [ ]),

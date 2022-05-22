@@ -71,6 +71,7 @@ export function testParse() {
                 Const(
                     "helloWorld",
                     GenericType("any"),
+                    [ ],
                     FunctionCall("after", [
                         Lambda(
                             [ "_" ],
@@ -101,6 +102,7 @@ export function testParseMultiLine() {
                 Const(
                     "helloWorld",
                     GenericType("any"),
+                    [ ],
                     FunctionCall("after", [
                         Lambda(
                             [ "_" ],

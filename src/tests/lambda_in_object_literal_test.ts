@@ -69,6 +69,7 @@ export function testParse() {
                 Const(
                     "filterMap",
                     FixedType("Maybe", [ GenericType("any") ]),
+                    [ ],
                     ObjectLiteral(null, [
                         Field(
                             "value",
@@ -101,6 +102,7 @@ export function testParseMultiLine() {
                 Const(
                     "filterMap",
                     FixedType("Maybe", [ GenericType("any") ]),
+                    [ ],
                     ObjectLiteral(null, [
                         Field(
                             "value",

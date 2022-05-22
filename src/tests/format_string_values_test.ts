@@ -60,6 +60,7 @@ export function testParse() {
                 Const(
                     "helloWorld",
                     FixedType("string", [ ]),
+                    [ ],
                     FormatStringValue("Hello world")
                 ),
             ],
@@ -77,6 +78,7 @@ export function testParseMultiLine() {
                 Const(
                     "helloWorld",
                     FixedType("string", [ ]),
+                    [ ],
                     FormatStringValue("Hello world")
                 ),
             ],

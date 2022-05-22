@@ -114,6 +114,7 @@ export function testParse() {
                 Const(
                     "person",
                     FixedType("Person", [ ]),
+                    [ ],
                     ObjectLiteral(null, [
                         Field("name", ObjectLiteral(null, [ ])),
                         Field("age", Value("28")),
@@ -138,6 +139,7 @@ export function testParseMultiLine() {
                 Const(
                     "person",
                     FixedType("Person", [ ]),
+                    [ ],
                     ObjectLiteral(null, [
                         Field("name", ObjectLiteral(null, [ ])),
                         Field("age", Value("28")),

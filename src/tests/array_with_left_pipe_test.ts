@@ -63,6 +63,7 @@ export function testParse() {
                 Const(
                     "helloWorld",
                     FixedType("List", [ FixedType("string", [ ]) ]),
+                    [ ],
                     ListValue([ LeftPipe(Value("1"), Value("toString")) ])
                 ),
             ],
@@ -80,6 +81,7 @@ export function testParseMultiLine() {
                 Const(
                     "helloWorld",
                     FixedType("List", [ FixedType("string", [ ]) ]),
+                    [ ],
                     ListValue([ LeftPipe(Value("1"), Value("toString")) ])
                 ),
             ],

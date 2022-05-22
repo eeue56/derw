@@ -68,6 +68,7 @@ export function testParse() {
                     FixedType("List", [
                         FixedType("Maybe", [ FixedType("number", [ ]) ]),
                     ]),
+                    [ ],
                     ListPrepend(
                         Constructor(
                             "Just",
@@ -93,6 +94,7 @@ export function testParseMultiLine() {
                     FixedType("List", [
                         FixedType("Maybe", [ FixedType("number", [ ]) ]),
                     ]),
+                    [ ],
                     ListPrepend(
                         Constructor(
                             "Just",

@@ -66,6 +66,7 @@ export function testParse() {
                 Const(
                     "helloWorld",
                     FixedType("List", [ FixedType("number", [ ]) ]),
+                    [ ],
                     RightPipe(
                         ModuleReference(
                             [ "List" ],
@@ -89,6 +90,7 @@ export function testParseMultiLine() {
                 Const(
                     "helloWorld",
                     FixedType("List", [ FixedType("number", [ ]) ]),
+                    [ ],
                     RightPipe(
                         ModuleReference(
                             [ "List" ],

@@ -70,6 +70,7 @@ export function testParse() {
                 Const(
                     "filterMap",
                     FixedType("Maybe", [ GenericType("any") ]),
+                    [ ],
                     FunctionCall("call", [
                         ObjectLiteral(null, [
                             Field(
@@ -107,6 +108,7 @@ export function testParseMultiLine() {
                 Const(
                     "filterMap",
                     FixedType("Maybe", [ GenericType("any") ]),
+                    [ ],
                     FunctionCall("call", [
                         ObjectLiteral(null, [
                             Field(

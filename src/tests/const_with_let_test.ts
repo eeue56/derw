@@ -6,34 +6,48 @@ import { generateJavascript } from "../generators/js";
 import { generateTypescript } from "../generators/ts";
 import { parse } from "../parser";
 import {
-    BlockKinds,
     Const,
     FixedType,
-    FunctionCall,
-    ListValue,
     Module,
-    ModuleReference,
+    StringValue,
     UnparsedBlock,
     Value,
 } from "../types";
 
 const oneLine = `
-sum: number
-sum = Math.sum [1, 2, 3]
+name: string
+name =
+    let
+        rootName: string
+        rootName =
+            "noah"
+    in
+        rootName
 `.trim();
 
 const multiLine = `
-sum: number
-sum =
-    Math.sum [1, 2, 3]
+name: string
+name =
+    let
+        rootName: string
+        rootName =
+            "noah"
+    in
+        rootName
 `.trim();
 
 const expectedOutput = `
-const sum: number = Math.sum([ 1, 2, 3 ]);
+const name: string = (function(): string {
+    const rootName: string = "noah";
+    return rootName;
+})();
 `.trim();
 
 const expectedOutputJS = `
-const sum = Math.sum([ 1, 2, 3 ]);
+const name = (function() {
+    const rootName = "noah";
+    return rootName;
+})();
 `.trim();
 
 export function testIntoBlocks() {
@@ -49,14 +63,11 @@ export function testIntoBlocksMultiLine() {
 }
 
 export function testBlockKind() {
-    assert.deepStrictEqual(blockKind(oneLine), Ok<string, BlockKinds>("Const"));
+    assert.deepStrictEqual(blockKind(oneLine), Ok("Const"));
 }
 
 export function testBlockKindMultiLine() {
-    assert.deepStrictEqual(
-        blockKind(multiLine),
-        Ok<string, BlockKinds>("Const")
-    );
+    assert.deepStrictEqual(blockKind(multiLine), Ok("Const"));
 }
 
 export function testParse() {
@@ -66,15 +77,17 @@ export function testParse() {
             "main",
             [
                 Const(
-                    "sum",
-                    FixedType("number", [ ]),
-                    [ ],
-                    ModuleReference(
-                        [ "Math" ],
-                        FunctionCall("sum", [
-                            ListValue([ Value("1"), Value("2"), Value("3") ]),
-                        ])
-                    )
+                    "name",
+                    FixedType("string", [ ]),
+                    [
+                        Const(
+                            "rootName",
+                            FixedType("string", [ ]),
+                            [ ],
+                            StringValue("noah")
+                        ),
+                    ],
+                    Value("rootName")
                 ),
             ],
             [ ]
@@ -89,15 +102,17 @@ export function testParseMultiLine() {
             "main",
             [
                 Const(
-                    "sum",
-                    FixedType("number", [ ]),
-                    [ ],
-                    ModuleReference(
-                        [ "Math" ],
-                        FunctionCall("sum", [
-                            ListValue([ Value("1"), Value("2"), Value("3") ]),
-                        ])
-                    )
+                    "name",
+                    FixedType("string", [ ]),
+                    [
+                        Const(
+                            "rootName",
+                            FixedType("string", [ ]),
+                            [ ],
+                            StringValue("noah")
+                        ),
+                    ],
+                    Value("rootName")
                 ),
             ],
             [ ]
@@ -106,13 +121,15 @@ export function testParseMultiLine() {
 }
 
 export function testGenerate() {
-    const parsed = parse(oneLine);
-    assert.strictEqual(generateTypescript(parsed), expectedOutput);
+    const parsed = parse(multiLine);
+    const generated = generateTypescript(parsed);
+    assert.strictEqual(generated, expectedOutput);
 }
 
-export function testGenerateMultiLine() {
-    const parsed = parse(multiLine);
-    assert.deepStrictEqual(generateTypescript(parsed), expectedOutput);
+export function testGenerateOneLine() {
+    const parsed = parse(oneLine);
+    const generated = generateTypescript(parsed);
+    assert.strictEqual(generated, expectedOutput);
 }
 
 export function testCompile() {

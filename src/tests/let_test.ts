@@ -99,11 +99,13 @@ export function testParse() {
                         Const(
                             "y",
                             FixedType("number", [ ]),
+                            [ ],
                             Addition(Value("x"), Value("x"))
                         ),
                         Const(
                             "z",
                             FixedType("string", [ ]),
+                            [ ],
                             StringValue("hello")
                         ),
                     ],
@@ -129,11 +131,13 @@ export function testParseMultiLine() {
                         Const(
                             "y",
                             FixedType("number", [ ]),
+                            [ ],
                             Addition(Value("x"), Value("x"))
                         ),
                         Const(
                             "z",
                             FixedType("string", [ ]),
+                            [ ],
                             StringValue("hello")
                         ),
                     ],

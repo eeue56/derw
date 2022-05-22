@@ -2758,39 +2758,64 @@ function parseConst(tokens: Token[]): Result<string, Const> {
 
     let bodyParts = tokens.slice(index);
     let block = tokensToString(bodyParts);
+    const lines = block.split("\n");
+
+    const letStart = lines.findIndex(
+        (line) => line.startsWith("    let") && line.endsWith("let")
+    );
+    const letEnd = lines.findIndex(
+        (line) => line.startsWith("    in") && line.endsWith("in")
+    );
+
+    let letBlock: Block[] = [ ];
+
+    if (letStart > -1 && letEnd > -1) {
+        const letLines = lines
+            .slice(letStart + 1, letEnd)
+            .map((line) => line.slice(8));
+        const letBlocks = intoBlocks(letLines.join("\n"));
+
+        letBlock = letBlocks
+            .map(parseBlock)
+            .filter((block) => block.kind === "ok")
+            .map((block) => (block as Ok<Block>).value);
+    }
 
     const parsedType = parseType(constType);
 
-    const bodyLines = block;
-    const init: { pieces: string[]; hasSeenText: boolean } = {
-        pieces: [ ],
-        hasSeenText: false,
-    };
-    const body = bodyLines
-        .split("=")
-        .slice(1)
-        .join("=")
-        .split("\n")
-        .reduce((obj, line: string) => {
-            const { pieces, hasSeenText } = obj;
-            if (hasSeenText) {
-                pieces.push(line);
-                return { pieces, hasSeenText };
-            } else if (line.trim().length === 0) {
-                return { pieces, hasSeenText };
+    const body = [ ];
+    const split = block.split("\n");
+    const start = letEnd > -1 ? letEnd + 1 : 0;
+    let seenEquals = false;
+    for (let i = start; i < split.length; i++) {
+        if (seenEquals) {
+            body.push(split[i]);
+        } else {
+            if (split[i].indexOf("=") === -1) {
+                body.push(split[i]);
             } else {
-                pieces.push(line);
-                return { pieces, hasSeenText: true };
+                body.push(split[i].split("=").slice(1).join("="));
+                seenEquals = true;
             }
-        }, init)
-        .pieces.join("\n");
+        }
+    }
 
-    const parsedBody = parseExpression(body);
+    const parsedBody = parseExpression(body.join("\n"));
 
-    if (parsedBody.kind === "err") return parsedBody;
-    if (parsedType.kind === "err") return parsedType;
+    if (parsedBody.kind === "err") {
+        return mapError(
+            (error) => `Failed to parse body due to ${error}`,
+            parsedBody
+        );
+    }
+    if (parsedType.kind === "err") {
+        return mapError(
+            (error) => `Failed to parse type due to ${error}`,
+            parsedType
+        );
+    }
 
-    return Ok(Const(constName, parsedType.value, parsedBody.value));
+    return Ok(Const(constName, parsedType.value, letBlock, parsedBody.value));
 }
 
 function parseImport(tokens: Token[]): Result<string, Import> {

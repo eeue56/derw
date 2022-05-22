@@ -92,6 +92,7 @@ export function testParse() {
                         Const(
                             "typeOfSomething",
                             FixedType("number", [ ]),
+                            [ ],
                             Addition(Value("x"), Value("x"))
                         ),
                     ],
@@ -117,6 +118,7 @@ export function testParseMultiLine() {
                         Const(
                             "typeOfSomething",
                             FixedType("number", [ ]),
+                            [ ],
                             Addition(Value("x"), Value("x"))
                         ),
                     ],

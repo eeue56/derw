@@ -795,14 +795,21 @@ export type Const = {
     kind: "Const";
     name: string;
     type: Type;
+    letBody: Block[];
     value: Expression;
 };
 
-export function Const(name: string, type: Type, value: Expression): Const {
+export function Const(
+    name: string,
+    type: Type,
+    letBody: Block[],
+    value: Expression
+): Const {
     return {
         kind: "Const",
         name,
         type,
+        letBody,
         value,
     };
 }

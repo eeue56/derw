@@ -82,6 +82,7 @@ export function testParse() {
                 Const(
                     "helloWorld",
                     FixedType("List", [ FixedType("number", [ ]) ]),
+                    [ ],
                     LeftPipe(
                         ListValue([ Value("1"), Value("2"), Value("3") ]),
                         ModuleReference(
@@ -108,6 +109,7 @@ export function testParseMultiLine() {
                 Const(
                     "helloWorld",
                     FixedType("List", [ FixedType("number", [ ]) ]),
+                    [ ],
                     LeftPipe(
                         ListValue([ Value("1"), Value("2"), Value("3") ]),
                         ModuleReference(

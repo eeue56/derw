@@ -754,20 +754,52 @@ ${prefixLines(generateExpression(expression), 4)}
 })()`;
 }
 
+function generateNestedConst(constDef: Const, body: string): string {
+    const generatedBlocks = constDef.letBody
+        .map((block) => generateBlock(block))
+        .join("\n");
+    return `(function() {
+${prefixLines(generatedBlocks, 4)}
+    return ${body};
+})()
+`.trim();
+}
+
 function generateConst(constDef: Const): string {
     let body = "";
 
     switch (constDef.value.kind) {
         case "IfStatement": {
-            body = generateInlineIf(constDef.value);
+            if (constDef.letBody.length === 0) {
+                body = generateInlineIf(constDef.value);
+            } else {
+                body = generateNestedConst(
+                    constDef,
+                    generateInlineIf(constDef.value)
+                );
+            }
             break;
         }
         case "CaseStatement": {
-            body = generateInlineCase(constDef.value);
+            if (constDef.letBody.length === 0) {
+                body = generateInlineCase(constDef.value);
+            } else {
+                body = generateNestedConst(
+                    constDef,
+                    generateInlineCase(constDef.value)
+                );
+            }
             break;
         }
         default: {
-            body = generateExpression(constDef.value);
+            if (constDef.letBody.length === 0) {
+                body = generateExpression(constDef.value);
+            } else {
+                body = generateNestedConst(
+                    constDef,
+                    generateExpression(constDef.value)
+                );
+            }
             break;
         }
     }

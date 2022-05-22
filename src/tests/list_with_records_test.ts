@@ -71,6 +71,7 @@ export function testParse() {
                 Const(
                     "helloWorld",
                     FixedType("List", [ FixedType("Person", [ ]) ]),
+                    [ ],
                     ListValue([
                         ObjectLiteral(null, [
                             Field("name", StringValue("Noah")),
@@ -93,6 +94,7 @@ export function testParseMultiLine() {
                 Const(
                     "helloWorld",
                     FixedType("List", [ FixedType("Person", [ ]) ]),
+                    [ ],
                     ListValue([
                         ObjectLiteral(null, [
                             Field("name", StringValue("Noah")),

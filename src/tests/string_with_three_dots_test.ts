@@ -99,6 +99,7 @@ export function testParse() {
                 Const(
                     "example",
                     FixedType("string", [ ]),
+                    [ ],
                     CaseStatement(
                         Constructor("Nothing", ObjectLiteral(null, [ ])),
                         [
@@ -142,6 +143,7 @@ export function testParseMultiLine() {
                 Const(
                     "example",
                     FixedType("string", [ ]),
+                    [ ],
                     CaseStatement(
                         Constructor("Nothing", ObjectLiteral(null, [ ])),
                         [

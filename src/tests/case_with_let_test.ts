@@ -142,6 +142,7 @@ export function testParse() {
                             Const(
                                 "x",
                                 FixedType("number", [ ]),
+                                [ ],
                                 Addition(Value("1"), Value("2"))
                             ),
                         ]),
@@ -154,6 +155,7 @@ export function testParse() {
                             Const(
                                 "x",
                                 FixedType("number", [ ]),
+                                [ ],
                                 Addition(Value("2"), Value("3"))
                             ),
                         ]),
@@ -181,6 +183,7 @@ export function testParseMultiLine() {
                             Const(
                                 "x",
                                 FixedType("number", [ ]),
+                                [ ],
                                 Addition(Value("1"), Value("2"))
                             ),
                         ]),
@@ -193,6 +196,7 @@ export function testParseMultiLine() {
                             Const(
                                 "x",
                                 FixedType("number", [ ]),
+                                [ ],
                                 Addition(Value("2"), Value("3"))
                             ),
                         ]),

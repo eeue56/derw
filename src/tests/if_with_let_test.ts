@@ -125,6 +125,7 @@ export function testParse() {
                             Const(
                                 "x",
                                 FixedType("string", [ ]),
+                                [ ],
                                 StringValue("hello")
                             ),
                         ],
@@ -133,6 +134,7 @@ export function testParse() {
                             Const(
                                 "y",
                                 FixedType("string", [ ]),
+                                [ ],
                                 StringValue("world")
                             ),
                         ]
@@ -171,6 +173,7 @@ export function testParseMultiLine() {
                             Const(
                                 "x",
                                 FixedType("string", [ ]),
+                                [ ],
                                 StringValue("hello")
                             ),
                         ],
@@ -179,6 +182,7 @@ export function testParseMultiLine() {
                             Const(
                                 "y",
                                 FixedType("string", [ ]),
+                                [ ],
                                 StringValue("world")
                             ),
                         ]

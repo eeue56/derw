@@ -182,36 +182,42 @@ export function testParse() {
                 Const(
                     "isEqual",
                     FixedType("boolean", [ ]),
+                    [ ],
                     Equality(Value("1"), Value("2"))
                 ),
 
                 Const(
                     "isNotEqual",
                     FixedType("boolean", [ ]),
+                    [ ],
                     InEquality(Value("1"), Value("2"))
                 ),
 
                 Const(
                     "isLessThan",
                     FixedType("boolean", [ ]),
+                    [ ],
                     LessThan(Value("1"), Value("2"))
                 ),
 
                 Const(
                     "isLessThanOrEqual",
                     FixedType("boolean", [ ]),
+                    [ ],
                     LessThanOrEqual(Value("1"), Value("2"))
                 ),
 
                 Const(
                     "isGreaterThan",
                     FixedType("boolean", [ ]),
+                    [ ],
                     GreaterThan(Value("1"), Value("2"))
                 ),
 
                 Const(
                     "isGreaterThanOrEqual",
                     FixedType("boolean", [ ]),
+                    [ ],
                     GreaterThanOrEqual(Value("1"), Value("2"))
                 ),
 
@@ -262,36 +268,42 @@ export function testParseMultiLine() {
                 Const(
                     "isEqual",
                     FixedType("boolean", [ ]),
+                    [ ],
                     Equality(Value("1"), Value("2"))
                 ),
 
                 Const(
                     "isNotEqual",
                     FixedType("boolean", [ ]),
+                    [ ],
                     InEquality(Value("1"), Value("2"))
                 ),
 
                 Const(
                     "isLessThan",
                     FixedType("boolean", [ ]),
+                    [ ],
                     LessThan(Value("1"), Value("2"))
                 ),
 
                 Const(
                     "isLessThanOrEqual",
                     FixedType("boolean", [ ]),
+                    [ ],
                     LessThanOrEqual(Value("1"), Value("2"))
                 ),
 
                 Const(
                     "isGreaterThan",
                     FixedType("boolean", [ ]),
+                    [ ],
                     GreaterThan(Value("1"), Value("2"))
                 ),
 
                 Const(
                     "isGreaterThanOrEqual",
                     FixedType("boolean", [ ]),
+                    [ ],
                     GreaterThanOrEqual(Value("1"), Value("2"))
                 ),
 

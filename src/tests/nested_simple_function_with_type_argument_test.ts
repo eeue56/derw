@@ -93,7 +93,7 @@ export function testParse() {
                             FixedType("Maybe", [ GenericType("a") ])
                         ),
                     ],
-                    [ Const("x", GenericType("a"), Value("5")) ],
+                    [ Const("x", GenericType("a"), [ ], Value("5")) ],
                     IfStatement(
                         Value("value"),
                         Value("true"),
@@ -135,7 +135,7 @@ export function testParseMultiLine() {
                             FixedType("Maybe", [ GenericType("a") ])
                         ),
                     ],
-                    [ Const("x", GenericType("a"), Value("5")) ],
+                    [ Const("x", GenericType("a"), [ ], Value("5")) ],
                     IfStatement(
                         Value("value"),
                         Value("true"),

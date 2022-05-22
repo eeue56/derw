@@ -70,6 +70,7 @@ export function testParse() {
                 Const(
                     "listLength",
                     FixedType("number", [ ]),
+                    [ ],
                     LeftPipe(
                         ListValue([ Value("1"), Value("2"), Value("3") ]),
                         Lambda(
@@ -93,6 +94,7 @@ export function testParseMultiLine() {
                 Const(
                     "listLength",
                     FixedType("number", [ ]),
+                    [ ],
                     LeftPipe(
                         ListValue([ Value("1"), Value("2"), Value("3") ]),
                         Lambda(

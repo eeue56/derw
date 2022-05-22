@@ -150,6 +150,7 @@ export function testParse() {
                                     Const(
                                         "first",
                                         FixedType("number", [ ]),
+                                        [ ],
                                         Addition(Value("1"), Value("2"))
                                     ),
                                 ]),
@@ -157,6 +158,7 @@ export function testParse() {
                                     Const(
                                         "second",
                                         FixedType("number", [ ]),
+                                        [ ],
                                         Addition(Value("1"), Value("2"))
                                     ),
                                 ]),
@@ -190,6 +192,7 @@ export function testParseMultiLine() {
                                     Const(
                                         "first",
                                         FixedType("number", [ ]),
+                                        [ ],
                                         Addition(Value("1"), Value("2"))
                                     ),
                                 ]),
@@ -197,6 +200,7 @@ export function testParseMultiLine() {
                                     Const(
                                         "second",
                                         FixedType("number", [ ]),
+                                        [ ],
                                         Addition(Value("1"), Value("2"))
                                     ),
                                 ]),
@@ -213,7 +217,6 @@ export function testParseMultiLine() {
 
 export function testGenerate() {
     const parsed = parse(oneLine);
-    console.log(generateTypescript(parsed));
 
     assert.deepStrictEqual(generateTypescript(parsed), expectedOutput);
 }

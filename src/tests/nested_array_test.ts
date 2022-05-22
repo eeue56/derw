@@ -67,6 +67,7 @@ export function testParse() {
                     FixedType("List", [
                         FixedType("List", [ FixedType("number", [ ]) ]),
                     ]),
+                    [ ],
                     ListValue([
                         ListValue([ Value("1"), Value("2"), Value("3") ]),
                         ListValue([ Value("3"), Value("2"), Value("1") ]),
@@ -89,6 +90,7 @@ export function testParseMultiLine() {
                     FixedType("List", [
                         FixedType("List", [ FixedType("number", [ ]) ]),
                     ]),
+                    [ ],
                     ListValue([
                         ListValue([ Value("1"), Value("2"), Value("3") ]),
                         ListValue([ Value("3"), Value("2"), Value("1") ]),
