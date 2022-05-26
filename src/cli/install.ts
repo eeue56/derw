@@ -57,8 +57,13 @@ export async function install(
     }
 
     const isQuiet = program.flags.quiet.isPresent;
-
     const isInstallNewPackage = program.flags.name.isPresent;
+
+    if (argv.length > 3 && !(isInstallNewPackage || isQuiet)) {
+        showInstallHelp();
+        return;
+    }
+
     const packageFile = await loadPackageFile("derw-package.json");
 
     if (packageFile.kind === "err") {
