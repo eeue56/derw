@@ -937,6 +937,20 @@ export type Block =
 
 export type TypedBlock = UnionType | TypeAlias;
 
+export type DoExpression = FunctionCall | ModuleReference;
+
+export type DoBlock = {
+    kind: "DoBlock";
+    expressions: DoExpression[];
+};
+
+export function DoBlock(expressions: DoExpression[]): DoBlock {
+    return {
+        kind: "DoBlock",
+        expressions,
+    };
+}
+
 export type Module = {
     kind: "Module";
     name: string;
