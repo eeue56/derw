@@ -10,6 +10,7 @@ import {
     Constructor,
     Destructure,
     Division,
+    DoBlock,
     Equality,
     Expression,
     Field,
@@ -996,6 +997,48 @@ function collectTypeArguments(type_: Type): string[] {
     }
 }
 
+function generateDoBlock(
+    doBody: DoBlock,
+    parentTypeArguments: string[],
+    parentTypes: Type[]
+): string {
+    const lines = [ ];
+
+    for (const expression of doBody.expressions) {
+        switch (expression.kind) {
+            case "Const": {
+                lines.push(generateConst(expression));
+                break;
+            }
+            case "Function": {
+                lines.push(
+                    generateFunction(
+                        expression,
+                        parentTypeArguments,
+                        parentTypes
+                    )
+                );
+                break;
+            }
+            case "FunctionCall": {
+                lines.push(
+                    generateFunctionCall(
+                        expression,
+                        parentTypeArguments,
+                        parentTypes
+                    ) + ";"
+                );
+                break;
+            }
+            case "ModuleReference": {
+                lines.push(generateModuleReference(expression) + ";");
+                break;
+            }
+        }
+    }
+    return lines.join("\n");
+}
+
 function generateFunction(
     function_: Function,
     parentTypeArguments: string[],
@@ -1041,6 +1084,19 @@ function generateFunction(
               )
             : "";
 
+    const maybeDoBody =
+        function_.doBody === null
+            ? ""
+            : "\n" +
+              prefixLines(
+                  generateDoBlock(
+                      function_.doBody,
+                      parentTypeArguments,
+                      parentTypes
+                  ),
+                  4
+              );
+
     const returnType = generateTopLevelType(function_.returnType);
     const isSimpleBody = isSimpleValue(function_.body.kind);
 
@@ -1061,7 +1117,7 @@ function generateFunction(
         typeArguments.length === 0 ? "" : `<${typeArguments.join(", ")}>`;
 
     return `
-function ${function_.name}${typeArgumentsString}(${functionArguments}): ${returnType} {${maybeLetBody}
+function ${function_.name}${typeArgumentsString}(${functionArguments}): ${returnType} {${maybeLetBody}${maybeDoBody}
 ${prefixedBody}
 }`.trim();
 }

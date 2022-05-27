@@ -524,6 +524,17 @@ asIs result =
     derw template --path src/Main.derw --template web
     ```
 
+-   [x] Do notation
+
+    ```elm
+    sayHi: string -> void
+    sayHi name =
+        do
+            globalThis.console.log "Hello" name
+        return
+            undefined
+    ```
+
 # 2.0.0
 
 -   [ ] Time travelling debugger

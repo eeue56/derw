@@ -36,6 +36,8 @@ import {
     Default,
     Destructure,
     Division,
+    DoBlock,
+    DoExpression,
     EmptyList,
     Equality,
     Export,
@@ -2557,6 +2559,120 @@ export function parseExpression(body: string): Result<string, Expression> {
     return Err(`No expression found: '${body}'`);
 }
 
+function parseDoBlock(tokens: Token[]): Result<string, DoBlock> {
+    const expressions: Result<string, DoExpression>[] = [ ];
+
+    let index = 1;
+
+    let currentBuffer = [ ];
+    function parseDoExpression(currentBuffer: Token[]) {
+        const asString = tokensToString(currentBuffer);
+        const asBlock = intoBlocks(asString);
+
+        if (asBlock.length > 0 && asBlock[0].kind !== "UnknownBlock") {
+            for (const block of asBlock) {
+                if (block.kind === "CommentBlock") {
+                    continue;
+                }
+
+                if (
+                    block.kind === "ConstBlock" ||
+                    block.kind === "FunctionBlock"
+                ) {
+                    expressions.push(
+                        parseBlock(block) as Result<string, Const | Function>
+                    );
+                } else {
+                    expressions.push(
+                        Err(`Got unexpected block in do: ${block.kind}`)
+                    );
+                }
+            }
+        } else {
+            const expression = parseExpression(tokensToString(currentBuffer));
+
+            if (
+                expression.kind === "ok" &&
+                (expression.value.kind === "FunctionCall" ||
+                    expression.value.kind === "ModuleReference")
+            ) {
+                expressions.push(
+                    expression as Result<string, FunctionCall | ModuleReference>
+                );
+            }
+
+            if (expression.kind === "err") {
+                expressions.push(expression);
+            }
+        }
+    }
+
+    for (const token of tokens.slice(1)) {
+        switch (token.kind) {
+            case "IdentifierToken": {
+                currentBuffer.push(token);
+                break;
+            }
+            case "StringToken": {
+                currentBuffer.push(token);
+                break;
+            }
+            case "WhitespaceToken": {
+                if (token.body.indexOf("\n\n") > -1) {
+                    parseDoExpression(currentBuffer);
+                    currentBuffer = [ ];
+                } else {
+                    currentBuffer.push(token);
+                }
+                break;
+            }
+            default: {
+                currentBuffer.push(token);
+                break;
+            }
+        }
+    }
+
+    if (currentBuffer.length > 0) {
+        parseDoExpression(currentBuffer);
+    }
+
+    const errors = expressions
+        .filter((e) => e.kind === "err")
+        .map((e) => (e as Err<string>).error)
+        .join("\n");
+
+    if (errors) {
+        return Err(errors);
+    }
+
+    const values = expressions
+        .filter((e) => e.kind === "ok")
+        .map((e) => (e as Ok<DoExpression>).value);
+
+    return Ok(DoBlock(values));
+}
+
+function isTokenAtIndentLevel(
+    currentToken: Token,
+    previousToken: Token,
+    tokenName: string,
+    level: number
+): boolean {
+    if (previousToken.kind === "WhitespaceToken") {
+        const lineSplits = previousToken.body.split("\n");
+        const endsWithFourIndents =
+            lineSplits[lineSplits.length - 1] === " ".repeat(level);
+        return (
+            currentToken.kind === "KeywordToken" &&
+            currentToken.body === tokenName &&
+            endsWithFourIndents
+        );
+    }
+
+    return false;
+}
+
 function parseFunction(tokens: Token[]): Result<string, Function> {
     if (tokens[0].kind !== "IdentifierToken") {
         return Err("Expected identfier, got " + tokens[0].kind);
@@ -2575,6 +2691,19 @@ function parseFunction(tokens: Token[]): Result<string, Function> {
 
         index++;
     }
+
+    const doIndex = tokens.findIndex(
+        (t) => t.kind === "KeywordToken" && t.body === "do"
+    );
+
+    const doReturnIndex = tokens.findIndex(
+        (t) => t.kind === "KeywordToken" && t.body === "return"
+    );
+
+    const doBody =
+        doIndex > -1
+            ? parseDoBlock(tokens.slice(doIndex, doReturnIndex))
+            : undefined;
 
     index++;
     const lastIndex = index;
@@ -2608,28 +2737,43 @@ function parseFunction(tokens: Token[]): Result<string, Function> {
         index++;
     }
 
+    if (doIndex > -1) {
+        index = doReturnIndex + 1;
+    }
+
     const tokenizedTypes = tokenizeType(currentType);
 
     if (tokenizedTypes.kind === "err") return tokenizedTypes;
     const types = tokenizedTypes.value;
 
     const bodyTokens = tokens.slice(index);
-    const block = tokensToString(bodyTokens);
 
-    const lines = block.split("\n");
+    const letStart = tokens.findIndex((t, i) => {
+        const previous = tokens[i - 1];
+        if (!previous) return false;
+        return isTokenAtIndentLevel(t, previous, "let", 4);
+    });
+    const letEnd = tokens.findIndex((t, i) => {
+        const previous = tokens[i - 1];
+        if (!previous) return false;
 
-    const letStart = lines.findIndex(
-        (line) => line.startsWith("    let") && line.endsWith("let")
-    );
-    const letEnd = lines.findIndex(
-        (line) => line.startsWith("    in") && line.endsWith("in")
-    );
+        return isTokenAtIndentLevel(t, previous, "in", 4);
+    });
 
     let letBlock: Block[] = [ ];
 
     if (letStart > -1 && letEnd > -1) {
-        const letLines = lines
-            .slice(letStart + 1, letEnd)
+        const firstPastWhitespace = tokens
+            .slice(letStart + 1)
+            .findIndex((t) => t.kind !== "WhitespaceToken");
+
+        const letTokens = tokens.slice(
+            letStart + firstPastWhitespace + 1,
+            letEnd
+        );
+
+        const letLines = (" ".repeat(8) + tokensToString(letTokens))
+            .split("\n")
             .map((line) => line.slice(8));
         const letBlocks = intoBlocks(letLines.join("\n"));
 
@@ -2639,7 +2783,7 @@ function parseFunction(tokens: Token[]): Result<string, Function> {
             .map((block) => (block as Ok<Block>).value);
     }
 
-    const argumentLine = lines[0];
+    const argumentLine = tokensToString(tokens.slice(lastIndex)).split("\n")[1];
     const argumentNames = argumentLine
         .slice(functionName.length)
         .split("=")[0]
@@ -2673,17 +2817,29 @@ function parseFunction(tokens: Token[]): Result<string, Function> {
     const returnParts = types[types.length - 1];
     const returnType = parseRootTypeTokens(returnParts);
 
-    const body = [ argumentLine.split("=").slice(1).join("=").trim() ].concat(
-        block.split("\n").slice(letEnd > -1 ? letEnd + 1 : 1)
-    );
+    let bodyStart = tokens.findIndex((t) => t.kind === "AssignToken") + 1;
+    let body: string[] = tokensToString(tokens.slice(bodyStart)).split("\n");
+    if (letEnd > -1) {
+        body = tokensToString(tokens.slice(letEnd + 1)).split("\n");
+    }
+    if (doIndex > -1) {
+        bodyStart = doReturnIndex + 1;
+        body = tokensToString(tokens.slice(bodyStart)).split("\n");
+    }
 
     const parsedBody = parseExpression(body.join("\n"));
 
-    if (parsedBody.kind === "err") return parsedBody;
-    if (returnType.kind === "err") return returnType;
+    if (parsedBody.kind === "err") {
+        return Err(`Failed to parse function body due to ${parsedBody.error}`);
+    }
+    if (returnType.kind === "err") {
+        return Err(
+            `Failed to parse function return type due to ${returnType.error}`
+        );
+    }
+    if (doBody !== undefined && doBody.kind === "err") return doBody;
 
-    for (var i = 0; i < combinedArguments.length; i++) {
-        const arg = combinedArguments[i];
+    for (const arg of combinedArguments) {
         if (arg.kind === "err") return arg;
     }
 
@@ -2693,7 +2849,8 @@ function parseFunction(tokens: Token[]): Result<string, Function> {
             returnType.value,
             combinedArguments.map((arg) => (arg as Ok<FunctionArg>).value),
             letBlock,
-            parsedBody.value
+            parsedBody.value,
+            doBody === undefined ? undefined : (doBody as Ok<DoBlock>).value
         )
     );
 }

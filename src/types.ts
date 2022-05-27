@@ -772,6 +772,7 @@ export type Function = {
     args: FunctionArgsUnion[];
     letBody: Block[];
     body: Expression;
+    doBody: DoBlock | null;
 };
 
 export function Function(
@@ -779,7 +780,8 @@ export function Function(
     returnType: Type,
     args: FunctionArgsUnion[],
     letBody: Block[],
-    body: Expression
+    body: Expression,
+    doBody?: DoBlock
 ): Function {
     return {
         kind: "Function",
@@ -788,6 +790,7 @@ export function Function(
         args,
         letBody,
         body,
+        doBody: doBody ? doBody : null,
     };
 }
 
@@ -937,7 +940,7 @@ export type Block =
 
 export type TypedBlock = UnionType | TypeAlias;
 
-export type DoExpression = FunctionCall | ModuleReference;
+export type DoExpression = FunctionCall | ModuleReference | Const | Function;
 
 export type DoBlock = {
     kind: "DoBlock";

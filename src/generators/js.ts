@@ -9,6 +9,7 @@ import {
     Constructor,
     Destructure,
     Division,
+    DoBlock,
     Equality,
     Expression,
     Field,
@@ -701,6 +702,32 @@ function generateExpression(expression: Expression): string {
     }
 }
 
+function generateDoBlock(doBody: DoBlock): string {
+    const lines = [ ];
+
+    for (const expression of doBody.expressions) {
+        switch (expression.kind) {
+            case "Const": {
+                lines.push(generateConst(expression));
+                break;
+            }
+            case "Function": {
+                lines.push(generateFunction(expression));
+                break;
+            }
+            case "FunctionCall": {
+                lines.push(generateFunctionCall(expression) + ";");
+                break;
+            }
+            case "ModuleReference": {
+                lines.push(generateModuleReference(expression) + ";");
+                break;
+            }
+        }
+    }
+    return lines.join("\n");
+}
+
 function generateFunction(function_: Function): string {
     const functionArguments = function_.args
         .map((arg) => {
@@ -720,6 +747,11 @@ function generateFunction(function_: Function): string {
               prefixLines(function_.letBody.map(generateBlock).join("\n"), 4)
             : "";
 
+    const maybeDoBody =
+        function_.doBody === null
+            ? ""
+            : "\n" + prefixLines(generateDoBlock(function_.doBody), 4);
+
     const bodyPrefix = isSimpleBody ? "return " : "";
     const bodySuffix = isSimpleBody ? ";" : "";
     const body = bodyPrefix + generateExpression(function_.body) + bodySuffix;
@@ -727,7 +759,7 @@ function generateFunction(function_: Function): string {
     const prefixedBody = prefixLines(body, 4);
 
     return `
-function ${function_.name}(${functionArguments}) {${maybeLetBody}
+function ${function_.name}(${functionArguments}) {${maybeLetBody}${maybeDoBody}
 ${prefixedBody}
 }`.trim();
 }

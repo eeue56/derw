@@ -87,6 +87,8 @@ const keywords = [
     "in",
     "case",
     "of",
+    "do",
+    "return",
 ];
 
 type State =

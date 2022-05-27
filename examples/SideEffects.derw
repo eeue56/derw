@@ -1,0 +1,6 @@
+sayHi: string -> void
+sayHi name =
+    do
+        globalThis.console.log "Hello" name
+    return
+        undefined
