@@ -2562,8 +2562,6 @@ export function parseExpression(body: string): Result<string, Expression> {
 function parseDoBlock(tokens: Token[]): Result<string, DoBlock> {
     const expressions: Result<string, DoExpression>[] = [ ];
 
-    let index = 1;
-
     let currentBuffer = [ ];
     function parseDoExpression(currentBuffer: Token[]) {
         const asString = tokensToString(currentBuffer);
@@ -2702,7 +2700,7 @@ function parseFunction(tokens: Token[]): Result<string, Function> {
 
     const doBody =
         doIndex > -1
-            ? parseDoBlock(tokens.slice(doIndex, doReturnIndex))
+            ? parseDoBlock(tokens.slice(doIndex + 1, doReturnIndex))
             : undefined;
 
     index++;
@@ -2745,8 +2743,6 @@ function parseFunction(tokens: Token[]): Result<string, Function> {
 
     if (tokenizedTypes.kind === "err") return tokenizedTypes;
     const types = tokenizedTypes.value;
-
-    const bodyTokens = tokens.slice(index);
 
     const letStart = tokens.findIndex((t, i) => {
         const previous = tokens[i - 1];
