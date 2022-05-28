@@ -2780,6 +2780,17 @@ function parseFunction(tokens: Token[]): Result<string, Function> {
     }
 
     const argumentLine = tokensToString(tokens.slice(lastIndex)).split("\n")[1];
+    if (!argumentLine) {
+        return Err(`No arguments found in function definition.
+Functions should look like:
+\`\`\`
+foo: string -> string
+foo name =
+    "Hi! " + name
+\`\`\`
+But I seemed to only find the \`foo: string -> string\` line.
+`);
+    }
     const argumentNames = argumentLine
         .slice(functionName.length)
         .split("=")[0]
