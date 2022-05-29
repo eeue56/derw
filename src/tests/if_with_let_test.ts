@@ -113,12 +113,12 @@ export function testParse() {
                     ],
                     [ ],
                     IfStatement(
-                        ModuleReference(
-                            [ "line" ],
-                            Equality(
-                                FunctionCall("charAt", [ Value("index") ]),
-                                StringValue("0")
-                            )
+                        Equality(
+                            ModuleReference(
+                                [ "line" ],
+                                FunctionCall("charAt", [ Value("index") ])
+                            ),
+                            StringValue("0")
                         ),
                         Value("true"),
                         [
@@ -161,12 +161,12 @@ export function testParseMultiLine() {
                     ],
                     [ ],
                     IfStatement(
-                        ModuleReference(
-                            [ "line" ],
-                            Equality(
-                                FunctionCall("charAt", [ Value("index") ]),
-                                StringValue("0")
-                            )
+                        Equality(
+                            ModuleReference(
+                                [ "line" ],
+                                FunctionCall("charAt", [ Value("index") ])
+                            ),
+                            StringValue("0")
                         ),
                         Value("true"),
                         [

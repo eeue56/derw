@@ -2157,7 +2157,20 @@ function parseOperator(
     return { left, right };
 }
 
-function hasTopLevelOperator(operator: string, tokens: Token[]): boolean {
+type AllOperators = {
+    kind: "AllOperators";
+};
+
+function AllOperators(): AllOperators {
+    return {
+        kind: "AllOperators",
+    };
+}
+
+function hasTopLevelOperator(
+    operator: string | AllOperators,
+    tokens: Token[]
+): boolean {
     let bracketDepth = 0;
     let curlyBracketDepth = 0;
     for (const token of tokens) {
@@ -2179,12 +2192,14 @@ function hasTopLevelOperator(operator: string, tokens: Token[]): boolean {
                 break;
             }
             case "OperatorToken": {
-                if (
-                    bracketDepth === 0 &&
-                    curlyBracketDepth === 0 &&
-                    token.body === operator
-                ) {
-                    return true;
+                if (bracketDepth === 0 && curlyBracketDepth === 0) {
+                    if (
+                        (typeof operator === "string" &&
+                            token.body === operator) ||
+                        (operator as AllOperators).kind === "AllOperators"
+                    ) {
+                        return true;
+                    }
                 }
             }
         }
@@ -2381,6 +2396,10 @@ export function parseExpression(body: string): Result<string, Expression> {
             return parseObjectLiteral(tokens);
         }
         case "IdentifierToken": {
+            if (hasTopLevelOperator(AllOperators(), tokens)) {
+                break;
+            }
+
             const tokensOtherThanWhitespace = tokens
                 .slice(index + 1)
                 .filter((token) => token.kind !== "WhitespaceToken");
@@ -2393,35 +2412,6 @@ export function parseExpression(body: string): Result<string, Expression> {
                         return parseListPrepend(tokens);
                     }
                     return parseModuleReference(tokens.slice(index));
-                }
-            }
-            if (tokensOtherThanWhitespace.length >= 2) {
-                let tempIndex = index + 1;
-                let seenOperator = false;
-
-                while (tempIndex < tokens.length) {
-                    let escape = false;
-                    switch (tokens[tempIndex].kind) {
-                        case "OperatorToken": {
-                            seenOperator = true;
-                            escape = true;
-                            break;
-                        }
-                        case "OpenCurlyBracesToken":
-                        case "ColonToken": {
-                            escape = true;
-                            break;
-                        }
-                    }
-
-                    if (escape) {
-                        break;
-                    }
-                    tempIndex++;
-                }
-
-                if (seenOperator) {
-                    break;
                 }
             }
             if (tokensOtherThanWhitespace.length > 0) {

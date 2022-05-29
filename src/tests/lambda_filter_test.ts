@@ -6,103 +6,84 @@ import { generateJavascript } from "../generators/js";
 import { generateTypescript } from "../generators/ts";
 import { parse } from "../parser";
 import {
+    Const,
     Equality,
     FixedType,
-    Function,
-    FunctionArg,
     FunctionCall,
-    IfStatement,
+    Lambda,
     Module,
     ModuleReference,
-    StringValue,
     UnparsedBlock,
     Value,
 } from "../types";
 
 const oneLine = `
-reducer: number -> string -> boolean
-reducer index line =
-    if line.charAt index == "0" then
-        true
-    else
-        false
+withoutItem: List ListItem
+withoutItem = List.filter (\\x -> x.label == item.label) model.list
 `.trim();
 
 const multiLine = `
-reducer: number -> string -> boolean
-reducer index line =
-    if line.charAt index == "0" then
-        true
-    else
-        false
+withoutItem: List ListItem
+withoutItem =
+    List.filter (\\x -> x.label == item.label) model.list
 `.trim();
 
 const expectedOutput = `
-function reducer(index: number, line: string): boolean {
-    if (line.charAt(index) === "0") {
-        return true;
-    } else {
-        return false;
-    }
-}
+const withoutItem: ListItem[] = List.filter(function(x: any) {
+    return x.label === item.label;
+}, model.list);
 `.trim();
 
 const expectedOutputJS = `
-function reducer(index, line) {
-    if (line.charAt(index) === "0") {
-        return true;
-    } else {
-        return false;
-    }
-}
+const withoutItem = List.filter(function(x) {
+    return x.label === item.label;
+}, model.list);
 `.trim();
 
 export function testIntoBlocks() {
     assert.deepStrictEqual(intoBlocks(oneLine), [
-        UnparsedBlock("FunctionBlock", 0, oneLine.split("\n")),
+        UnparsedBlock("ConstBlock", 0, oneLine.split("\n")),
     ]);
 }
 
 export function testIntoBlocksMultiLine() {
     assert.deepStrictEqual(intoBlocks(multiLine), [
-        UnparsedBlock("FunctionBlock", 0, multiLine.split("\n")),
+        UnparsedBlock("ConstBlock", 0, multiLine.split("\n")),
     ]);
 }
 
 export function testBlockKind() {
-    assert.deepStrictEqual(blockKind(oneLine), Ok("Function"));
+    assert.deepStrictEqual(blockKind(oneLine), Ok("Const"));
 }
 
 export function testBlockKindMultiLine() {
-    assert.deepStrictEqual(blockKind(multiLine), Ok("Function"));
+    assert.deepStrictEqual(blockKind(multiLine), Ok("Const"));
 }
 
 export function testParse() {
+    // console.log(JSON.stringify(parse(oneLine), null, 4));
+    // return;
     assert.deepStrictEqual(
         parse(oneLine),
         Module(
             "main",
             [
-                Function(
-                    "reducer",
-                    FixedType("boolean", [ ]),
-                    [
-                        FunctionArg("index", FixedType("number", [ ])),
-                        FunctionArg("line", FixedType("string", [ ])),
-                    ],
+                Const(
+                    "withoutItem",
+                    FixedType("List", [ FixedType("ListItem", [ ]) ]),
                     [ ],
-                    IfStatement(
-                        Equality(
-                            ModuleReference(
-                                [ "line" ],
-                                FunctionCall("charAt", [ Value("index") ])
+                    ModuleReference(
+                        [ "List" ],
+                        FunctionCall("filter", [
+                            Lambda(
+                                [ "x" ],
+                                Equality(
+                                    ModuleReference([ "x" ], Value("label")),
+                                    ModuleReference([ "item" ], Value("label"))
+                                )
                             ),
-                            StringValue("0")
-                        ),
-                        Value("true"),
-                        [ ],
-                        Value("false"),
-                        [ ]
+                            ModuleReference([ "model" ], Value("list")),
+                        ])
                     )
                 ),
             ],
@@ -117,26 +98,22 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
-                Function(
-                    "reducer",
-                    FixedType("boolean", [ ]),
-                    [
-                        FunctionArg("index", FixedType("number", [ ])),
-                        FunctionArg("line", FixedType("string", [ ])),
-                    ],
+                Const(
+                    "withoutItem",
+                    FixedType("List", [ FixedType("ListItem", [ ]) ]),
                     [ ],
-                    IfStatement(
-                        Equality(
-                            ModuleReference(
-                                [ "line" ],
-                                FunctionCall("charAt", [ Value("index") ])
+                    ModuleReference(
+                        [ "List" ],
+                        FunctionCall("filter", [
+                            Lambda(
+                                [ "x" ],
+                                Equality(
+                                    ModuleReference([ "x" ], Value("label")),
+                                    ModuleReference([ "item" ], Value("label"))
+                                )
                             ),
-                            StringValue("0")
-                        ),
-                        Value("true"),
-                        [ ],
-                        Value("false"),
-                        [ ]
+                            ModuleReference([ "model" ], Value("list")),
+                        ])
                     )
                 ),
             ],
