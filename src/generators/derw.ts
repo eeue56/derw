@@ -613,7 +613,7 @@ function generateDoBlock(doBody: DoBlock): string {
         }
     }
     return `do
-${prefixLines(lines.join("\n"), 4)}
+${prefixLines(lines.join("\n\n"), 4)}
 return`;
 }
 
