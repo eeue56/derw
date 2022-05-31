@@ -23,6 +23,7 @@ import {
     GreaterThan,
     GreaterThanOrEqual,
     IfStatement,
+    Import,
     InEquality,
     isSimpleValue,
     Lambda,
@@ -65,15 +66,18 @@ import {
     generateValue,
 } from "./common_to_ecma";
 
-function generateUnionType(syntax: UnionType): string {
+function generateUnionType(syntax: UnionType, imports: Import[]): string {
     const tagCreators = syntax.tags
         .map((tag) => {
             const typeDefArgs = tag.args
-                .map((arg) => arg.name + ": " + generateType(arg.type) + ";")
+                .map(
+                    (arg) =>
+                        arg.name + ": " + generateType(arg.type, imports) + ";"
+                )
                 .join("\n    ");
 
             const funcDefArgs = tag.args
-                .map((arg) => arg.name + ": " + generateType(arg.type))
+                .map((arg) => arg.name + ": " + generateType(arg.type, imports))
                 .join(", ");
 
             const generatedType = generateType(
@@ -92,7 +96,8 @@ function generateUnionType(syntax: UnionType): string {
 
                             return true;
                         })
-                )
+                ),
+                imports
             );
 
             const funcDefArgsStr =
@@ -132,7 +137,8 @@ function ${generatedType}(args: ${funcDefArgsStr}): ${generatedType} {
 
                             return true;
                         })
-                )
+                ),
+                imports
             );
         })
         .join(" | ");
@@ -140,21 +146,23 @@ function ${generatedType}(args: ${funcDefArgsStr}): ${generatedType} {
     return `
 ${tagCreators}
 
-type ${generateType(syntax.type)} = ${tags};
+type ${generateType(syntax.type, imports)} = ${tags};
 `.trim();
 }
 
-function generateProperty(syntax: Property): string {
-    return `${syntax.name}: ${generateTopLevelType(syntax.type)}`;
+function generateProperty(syntax: Property, imports: Import[]): string {
+    return `${syntax.name}: ${generateTopLevelType(syntax.type, imports)}`;
 }
 
-function generateTypeAlias(syntax: TypeAlias): string {
-    const generatedProperties = syntax.properties.map(generateProperty);
+function generateTypeAlias(syntax: TypeAlias, imports: Import[]): string {
+    const generatedProperties = syntax.properties.map((prop) =>
+        generateProperty(prop, imports)
+    );
     const properties =
         generatedProperties.length === 0
             ? ""
             : "    " + generatedProperties.join(";\n    ") + ";";
-    const type = generateType(syntax.type);
+    const type = generateType(syntax.type, imports);
     const args =
         generatedProperties.length === 0
             ? " "
@@ -621,16 +629,34 @@ function getGenericTypesFromFunctionType(type_: FunctionType): GenericType[] {
     ) as GenericType[];
 }
 
-function generateTopLevelType(type_: Type): string {
+function typeHasOverlapWithImportedModule(
+    type_: FixedType,
+    imports: Import[]
+): boolean {
+    for (const import_ of imports) {
+        for (const module_ of import_.modules) {
+            if (
+                module_.alias.kind === "just" &&
+                module_.alias.value === type_.name
+            ) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function generateTopLevelType(type_: Type, imports: Import[]): string {
     switch (type_.kind) {
         case "GenericType": {
-            return generateType(type_);
+            return generateType(type_, imports);
         }
         case "FixedType": {
             if (type_.name === "List") {
                 if (type_.args[0] && type_.args[0].kind === "GenericType") {
-                    return generateTopLevelType(type_.args[0]) + "[]";
+                    return generateTopLevelType(type_.args[0], imports) + "[]";
                 }
+
                 const fixedArgs = type_.args.filter(
                     (type_) => type_.kind === "FixedType"
                 );
@@ -638,10 +664,12 @@ function generateTopLevelType(type_: Type): string {
                 if (fixedArgs.length === 0) {
                     return "any[]";
                 } else if (fixedArgs.length === 1) {
-                    return `${generateTopLevelType(fixedArgs[0])}[]`;
+                    return `${generateTopLevelType(fixedArgs[0], imports)}[]`;
                 }
 
-                return `(${fixedArgs.map(generateTopLevelType).join(" | ")})[]`;
+                return `(${fixedArgs
+                    .map((arg) => generateTopLevelType(arg, imports))
+                    .join(" | ")})[]`;
             }
 
             if (
@@ -650,7 +678,7 @@ function generateTopLevelType(type_: Type): string {
                 type_.args[0].args.length > 0
             ) {
                 return `${type_.name}<${type_.args
-                    .map(generateTopLevelType)
+                    .map((arg) => generateTopLevelType(arg, imports))
                     .join(", ")}>`;
             }
 
@@ -668,17 +696,28 @@ function generateTopLevelType(type_: Type): string {
                 }
             }
 
+            const qualifiedName = typeHasOverlapWithImportedModule(
+                type_,
+                imports
+            )
+                ? `${type_.name}.${type_.name}`
+                : type_.name;
+
             if (args.length === 0) {
-                return type_.name;
+                return qualifiedName;
             }
 
-            return `${type_.name}<${args.map(generateType).join(", ")}>`;
+            return `${qualifiedName}<${args
+                .map((arg) => generateType(arg, imports))
+                .join(", ")}>`;
         }
         case "FunctionType": {
             const parts = [ ];
             let index = 0;
             for (const typePart of type_.args.slice(0, -1)) {
-                parts.push(`arg${index}: ${generateTopLevelType(typePart)}`);
+                parts.push(
+                    `arg${index}: ${generateTopLevelType(typePart, imports)}`
+                );
                 index++;
             }
 
@@ -686,13 +725,13 @@ function generateTopLevelType(type_: Type): string {
                 "(" +
                 parts.join(", ") +
                 ") => " +
-                generateType(type_.args[type_.args.length - 1])
+                generateType(type_.args[type_.args.length - 1], imports)
             );
         }
     }
 }
 
-function generateType(type_: Type): string {
+function generateType(type_: Type, imports: Import[]): string {
     switch (type_.kind) {
         case "GenericType": {
             return type_.name;
@@ -700,7 +739,7 @@ function generateType(type_: Type): string {
         case "FixedType": {
             if (type_.name === "List") {
                 if (type_.args[0] && type_.args[0].kind === "GenericType") {
-                    return generateType(type_.args[0]) + "[]";
+                    return generateType(type_.args[0], imports) + "[]";
                 }
                 const fixedArgs = type_.args.filter(
                     (type_) => type_.kind === "FixedType"
@@ -709,10 +748,12 @@ function generateType(type_: Type): string {
                 if (fixedArgs.length === 0) {
                     return "any[]";
                 } else if (fixedArgs.length === 1) {
-                    return `${generateType(fixedArgs[0])}[]`;
+                    return `${generateType(fixedArgs[0], imports)}[]`;
                 }
 
-                return `(${fixedArgs.map(generateType).join(" | ")})[]`;
+                return `(${fixedArgs
+                    .map((arg) => generateType(arg, imports))
+                    .join(" | ")})[]`;
             }
 
             const args = [ ];
@@ -729,17 +770,26 @@ function generateType(type_: Type): string {
                 }
             }
 
+            const qualifiedName = typeHasOverlapWithImportedModule(
+                type_,
+                imports
+            )
+                ? `${type_.name}.${type_.name}`
+                : type_.name;
+
             if (args.length === 0) {
-                return type_.name;
+                return qualifiedName;
             }
 
-            return `${type_.name}<${args.map(generateType).join(", ")}>`;
+            return `${qualifiedName}<${args
+                .map((arg) => generateType(arg, imports))
+                .join(", ")}>`;
         }
         case "FunctionType": {
             const parts = [ ];
             let index = 0;
             for (const typePart of type_.args.slice(0, -1)) {
-                parts.push(`arg${index}: ${generateType(typePart)}`);
+                parts.push(`arg${index}: ${generateType(typePart, imports)}`);
                 index++;
             }
 
@@ -747,7 +797,7 @@ function generateType(type_: Type): string {
                 "(" +
                 parts.join(", ") +
                 ") => " +
-                generateType(type_.args[type_.args.length - 1])
+                generateType(type_.args[type_.args.length - 1], imports)
             );
         }
     }
@@ -1000,14 +1050,15 @@ function collectTypeArguments(type_: Type): string[] {
 function generateDoBlock(
     doBody: DoBlock,
     parentTypeArguments: string[],
-    parentTypes: Type[]
+    parentTypes: Type[],
+    imports: Import[]
 ): string {
     const lines = [ ];
 
     for (const expression of doBody.expressions) {
         switch (expression.kind) {
             case "Const": {
-                lines.push(generateConst(expression));
+                lines.push(generateConst(expression, imports));
                 break;
             }
             case "Function": {
@@ -1015,7 +1066,8 @@ function generateDoBlock(
                     generateFunction(
                         expression,
                         parentTypeArguments,
-                        parentTypes
+                        parentTypes,
+                        imports
                     )
                 );
                 break;
@@ -1042,16 +1094,24 @@ function generateDoBlock(
 function generateFunction(
     function_: Function,
     parentTypeArguments: string[],
-    parentTypes: Type[]
+    parentTypes: Type[],
+    imports: Import[]
 ): string {
     const functionArguments = function_.args
         .map((arg) => {
             switch (arg.kind) {
                 case "FunctionArg":
-                    return arg.name + ": " + generateTopLevelType(arg.type);
+                    return (
+                        arg.name +
+                        ": " +
+                        generateTopLevelType(arg.type, imports)
+                    );
                 case "AnonFunctionArg":
                     return (
-                        "_" + arg.index + ": " + generateTopLevelType(arg.type)
+                        "_" +
+                        arg.index +
+                        ": " +
+                        generateTopLevelType(arg.type, imports)
                     );
             }
         })
@@ -1074,10 +1134,12 @@ function generateFunction(
               prefixLines(
                   function_.letBody
                       .map((block) =>
-                          generateBlock(block, [
-                              ...typeArguments,
-                              ...parentTypeArguments,
-                          ])
+                          generateBlock(
+                              block,
+                              [ ...typeArguments, ...parentTypeArguments ],
+                              [ ],
+                              imports
+                          )
                       )
                       .join("\n"),
                   4
@@ -1092,12 +1154,13 @@ function generateFunction(
                   generateDoBlock(
                       function_.doBody,
                       parentTypeArguments,
-                      parentTypes
+                      parentTypes,
+                      imports
                   ),
                   4
               );
 
-    const returnType = generateTopLevelType(function_.returnType);
+    const returnType = generateTopLevelType(function_.returnType, imports);
     const isSimpleBody = isSimpleValue(function_.body.kind);
 
     const bodyPrefix = isSimpleBody ? "return " : "";
@@ -1144,8 +1207,12 @@ ${prefixLines(generateExpression(expression), 4)}
 })()`;
 }
 
-function generateNestedConst(constDef: Const, body: string): string {
-    const typeDef = generateTopLevelType(constDef.type);
+function generateNestedConst(
+    constDef: Const,
+    body: string,
+    imports: Import[]
+): string {
+    const typeDef = generateTopLevelType(constDef.type, imports);
     const generatedBlocks = constDef.letBody
         .map((block) => generateBlock(block, [ ], [ ]))
         .join("\n");
@@ -1156,7 +1223,7 @@ ${prefixLines(generatedBlocks, 4)}
 `.trim();
 }
 
-function generateConst(constDef: Const): string {
+function generateConst(constDef: Const, imports: Import[]): string {
     let body = "";
 
     switch (constDef.value.kind) {
@@ -1166,7 +1233,8 @@ function generateConst(constDef: Const): string {
             } else {
                 body = generateNestedConst(
                     constDef,
-                    generateInlineIf(constDef.value)
+                    generateInlineIf(constDef.value),
+                    imports
                 );
             }
             break;
@@ -1177,7 +1245,8 @@ function generateConst(constDef: Const): string {
             } else {
                 body = generateNestedConst(
                     constDef,
-                    generateInlineCase(constDef.value)
+                    generateInlineCase(constDef.value),
+                    imports
                 );
             }
             break;
@@ -1188,13 +1257,14 @@ function generateConst(constDef: Const): string {
             } else {
                 body = generateNestedConst(
                     constDef,
-                    generateExpression(constDef.value)
+                    generateExpression(constDef.value),
+                    imports
                 );
             }
             break;
         }
     }
-    const typeDef = generateTopLevelType(constDef.type);
+    const typeDef = generateTopLevelType(constDef.type, imports);
 
     return `
 const ${constDef.name}: ${typeDef} = ${body};
@@ -1204,7 +1274,8 @@ const ${constDef.name}: ${typeDef} = ${body};
 function generateBlock(
     syntax: Block,
     parentTypeArguments?: string[],
-    parentTypes?: Type[]
+    parentTypes?: Type[],
+    imports?: Import[]
 ): string {
     switch (syntax.kind) {
         case "Import":
@@ -1212,17 +1283,18 @@ function generateBlock(
         case "Export":
             return generateExportBlock(syntax);
         case "UnionType":
-            return generateUnionType(syntax);
+            return generateUnionType(syntax, imports || [ ]);
         case "TypeAlias":
-            return generateTypeAlias(syntax);
+            return generateTypeAlias(syntax, imports || [ ]);
         case "Function":
             return generateFunction(
                 syntax,
                 parentTypeArguments || [ ],
-                parentTypes || [ ]
+                parentTypes || [ ],
+                imports || [ ]
             );
         case "Const":
-            return generateConst(syntax);
+            return generateConst(syntax, imports || [ ]);
         case "Comment":
         case "MultilineComment":
             return "";
@@ -1230,8 +1302,11 @@ function generateBlock(
 }
 
 export function generateTypescript(module: Module): string {
+    const imports: Import[] = module.body.filter(
+        (block) => block.kind === "Import"
+    ) as Import[];
     return [ exportTests(module), ...module.body ]
-        .map((block) => generateBlock(block))
+        .map((block) => generateBlock(block, [ ], [ ], imports))
         .filter((line) => line.length > 0)
         .join("\n\n");
 }

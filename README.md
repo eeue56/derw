@@ -358,6 +358,7 @@ asIs result =
     import "./other"
     import "./something" as banana
     import "./another" exposing ( isTrue, isFalse )
+    import "./Maybe" as Maybe exposing (Maybe)
     ```
 
 -   [x] Errors when failing to find relative import

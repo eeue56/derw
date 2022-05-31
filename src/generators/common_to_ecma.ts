@@ -1,3 +1,4 @@
+import { Just } from "@eeue56/ts-core/build/main/lib/maybe";
 import {
     Export,
     Expression,
@@ -148,7 +149,16 @@ export function generateImportBlock(imports: Import): string {
                     module.alias.kind === "just"
                         ? module.alias.value
                         : getNameFromPath(withoutQuotes);
-                const exposing = `import { ${module.exposing.join(
+
+                const filteredExposing =
+                    module.alias.kind === "nothing"
+                        ? module.exposing
+                        : module.exposing.filter(
+                              (expose) =>
+                                  expose !==
+                                  (module.alias as Just<string>).value
+                          );
+                const exposing = `import { ${filteredExposing.join(
                     ", "
                 )} } from ${module.name};`;
 
