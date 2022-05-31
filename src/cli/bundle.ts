@@ -18,6 +18,11 @@ const bundleParser = parser([
     longFlag("output", "Output file to generate", string()),
     longFlag("quiet", "Dont print any output", empty()),
     longFlag("watch", "Watch Derw files for changes", empty()),
+    longFlag(
+        "optimize",
+        "Run generated Javascript through minification",
+        empty()
+    ),
     bothFlag("h", "help", "This help text", empty()),
 ]);
 
@@ -26,6 +31,7 @@ function showBundleHelp(): void {
         "To bundle, run `derw build --entry {filename} --output {filename}`"
     );
     console.log("To watch use the --watch flag");
+    console.log("To produce the smallest bundle use the --optimize flag");
     console.log(help(bundleParser));
 }
 
@@ -86,12 +92,23 @@ export async function bundle(
     async function build() {
         await compileFiles(isInPackageDirectory, args);
         try {
-            await esbuild.build({
-                entryPoints: [ entry as string ],
-                bundle: true,
-                outfile: output as string,
-                logLevel: "error",
-            });
+            if (program.flags.optimize.isPresent) {
+                await esbuild.build({
+                    entryPoints: [ entry as string ],
+                    logLevel: "error",
+                    bundle: true,
+                    minify: true,
+                    format: "iife",
+                    outfile: output as string,
+                });
+            } else {
+                await esbuild.build({
+                    entryPoints: [ entry as string ],
+                    logLevel: "error",
+                    bundle: true,
+                    outfile: output as string,
+                });
+            }
         } catch (e) {}
     }
 
