@@ -4,3 +4,8 @@ examples
 test/
 bench/
 derw-packages/
+src/debugging
+build/debugging
+src/bench
+build/bench
+.github/workflows/
