@@ -1685,10 +1685,18 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
                 tokenize(branchPattern)
             );
 
+            const maybeLetAndDoErrorMessage = letAndDoErrorMessage(
+                letStart,
+                letEnd
+            );
+
             if (
                 branchExpression.kind === "err" ||
-                parsedBranchPattern.kind === "err"
+                parsedBranchPattern.kind === "err" ||
+                maybeLetAndDoErrorMessage
             ) {
+                if (maybeLetAndDoErrorMessage)
+                    branches.push(Err(maybeLetAndDoErrorMessage));
                 if (branchExpression.kind === "err")
                     branches.push(branchExpression);
                 if (parsedBranchPattern.kind === "err")
@@ -1754,11 +1762,18 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
         );
 
         const parsedBranchPattern = parseBranchPattern(tokenize(branchPattern));
+        const maybeLetAndDoErrorMessage = letAndDoErrorMessage(
+            letStart,
+            letEnd
+        );
 
         if (
             branchExpression.kind === "err" ||
-            parsedBranchPattern.kind === "err"
+            parsedBranchPattern.kind === "err" ||
+            maybeLetAndDoErrorMessage
         ) {
+            if (maybeLetAndDoErrorMessage)
+                branches.push(Err(maybeLetAndDoErrorMessage));
             if (branchExpression.kind === "err")
                 branches.push(branchExpression);
             if (parsedBranchPattern.kind === "err")
@@ -2334,6 +2349,57 @@ function dropSurroundingBrackets(tokens: Token[]): Token[] {
     return tokens.slice(start + 1, end);
 }
 
+function letAndDoErrorMessage(
+    letIndex: number,
+    inIndex: number,
+    doIndex?: number,
+    doReturnIndex?: number
+): string | null {
+    const isMissingLet = letIndex === -1;
+    const isMissingIn = inIndex === -1;
+    const hasCompleteLetIn =
+        (!isMissingLet && !isMissingIn) || (isMissingLet && isMissingIn);
+    const isMissingDo = doIndex === -1;
+    const isMissingReturn = doReturnIndex === -1;
+    const hasCompleteDoReturn =
+        (!isMissingDo && !isMissingReturn) || (isMissingDo && isMissingReturn);
+
+    if (hasCompleteLetIn && hasCompleteDoReturn) return null;
+
+    if (!hasCompleteLetIn) {
+        if (isMissingLet) {
+            if (hasCompleteDoReturn) {
+                return `Missing let before in.`;
+            }
+            if (isMissingDo) {
+                return `Missing let before in, but found return without do. Did you mean to do let..in instead of in..return?`;
+            }
+            if (isMissingReturn) {
+                return `Missing let before in, missing return after do. Did you mean to do let..in or do..return instead of do..in?`;
+            }
+        } else {
+            if (hasCompleteDoReturn) {
+                return `Missing in after let. let should be followed by in.`;
+            }
+            if (isMissingDo) {
+                return `Missing in after let, but found return without do. Did you mean to do let..in or do..return instead of let..return?`;
+            }
+            if (isMissingReturn) {
+                return `Missing in after let, missing return after do. let should be followed by in, and do followed by return.`;
+            }
+        }
+    }
+
+    if (!hasCompleteDoReturn) {
+        if (isMissingDo) {
+            return `Missing do before return.`;
+        } else {
+            return `Missing return after do.`;
+        }
+    }
+    return null;
+}
+
 export function parseExpression(body: string): Result<string, Expression> {
     const tokens = dropSurroundingBrackets(tokenize(body));
 
@@ -2746,6 +2812,14 @@ function parseFunction(tokens: Token[]): Result<string, Function> {
         return isTokenAtIndentLevel(t, previous, "in", 4);
     });
 
+    const maybeLetAndDoErrorMessage = letAndDoErrorMessage(
+        letStart,
+        letEnd,
+        doIndex,
+        doReturnIndex
+    );
+    if (maybeLetAndDoErrorMessage) return Err(maybeLetAndDoErrorMessage);
+
     let letBlock: Block[] = [ ];
 
     if (letStart > -1 && letEnd > -1) {
@@ -2920,6 +2994,9 @@ function parseConst(tokens: Token[]): Result<string, Const> {
     const letEnd = lines.findIndex(
         (line) => line.startsWith("    in") && line.endsWith("in")
     );
+
+    const maybeLetAndDoErrorMessage = letAndDoErrorMessage(letStart, letEnd);
+    if (maybeLetAndDoErrorMessage) return Err(maybeLetAndDoErrorMessage);
 
     let letBlock: Block[] = [ ];
 
