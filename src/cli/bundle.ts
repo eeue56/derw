@@ -16,7 +16,7 @@ import { compileFiles } from "./compile";
 const bundleParser = parser([
     longFlag("entry", "Entry point file to bundle up", string()),
     longFlag("output", "Output file to generate", string()),
-    longFlag("quiet", "Dont print any output", empty()),
+    longFlag("quiet", "Don't print any output", empty()),
     longFlag("watch", "Watch Derw files for changes", empty()),
     longFlag(
         "optimize",
