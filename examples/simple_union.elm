@@ -1,4 +1,4 @@
-module Main exposing (..)
+module Examples.simple_union exposing (..)
 
 type Binary =
     One

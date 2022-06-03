@@ -56,7 +56,7 @@ export async function testExamples() {
             const jsContents = (await readFile(js)).toString();
             const elmContents = (await readFile(elm)).toString();
 
-            const parsed = parse(derwContents);
+            const parsed = parse(derwContents, derw);
             const generatedTS =
                 generateTypescript(parsed) + emptyLineAtEndOfFile;
             const generatedJS =

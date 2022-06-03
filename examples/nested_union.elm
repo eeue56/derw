@@ -1,4 +1,4 @@
-module Main exposing (..)
+module Examples.nested_union exposing (..)
 
 type Maybe a =
     Just { value: a }

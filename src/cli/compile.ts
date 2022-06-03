@@ -20,10 +20,8 @@ import * as util from "util";
 import { compileTypescript } from "../compile";
 import { addMissingNamesSuggestions } from "../errors/names";
 import { generate, Target } from "../generator";
-import { loadPackageFile } from "../package";
 import * as derwParser from "../parser";
 import { Block, ContextModule, contextModuleToModule, Import } from "../types";
-import { isTestFile } from "../utils";
 import { ensureDirectoryExists, fileExists, getDerwFiles } from "./utils";
 
 const compileParser = parser([
@@ -149,25 +147,6 @@ export async function compileFiles(
         ? await getDerwFiles("./src")
         : (program.flags.files.arguments as Ok<string[]>).value;
 
-    if (isPackageDirectoryAndNoFilesPassed) {
-        const packageFile = await loadPackageFile("derw-package.json");
-
-        if (packageFile.kind === "err") {
-            console.log("Failed to parse package file due to:");
-            console.log(packageFile.error);
-            process.exit(1);
-        }
-
-        const validPackage = packageFile.value;
-        for (const dep of validPackage.dependencies) {
-            for (const file of await getDerwFiles(
-                `derw-packages/${dep.name}/src`
-            )) {
-                files.push(file);
-            }
-        }
-    }
-
     const outputDir = program.flags.output.isPresent
         ? (program.flags.output.arguments as Ok<string>).value
         : "./";
@@ -226,11 +205,9 @@ export async function compileFiles(
                     await promises.readFile(fileName)
                 ).toString();
 
-                const isMain =
-                    files.indexOf(fileName) > -1 && !isTestFile(fileName);
                 let parsed = derwParser.parseWithContext(
                     derwContents,
-                    isMain ? "Main" : fileName
+                    fileName
                 );
 
                 if (program.flags.names.isPresent) {

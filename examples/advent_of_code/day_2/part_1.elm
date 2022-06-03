@@ -1,4 +1,4 @@
-module Main exposing (..)
+module Examples.advent_of_code.day_2.part_1 exposing (..)
 
 import fs
 

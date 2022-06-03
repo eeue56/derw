@@ -1,4 +1,4 @@
-module Main exposing (..)
+module Examples.complex_union exposing (..)
 
 type Animal =
     Dog { name: String }

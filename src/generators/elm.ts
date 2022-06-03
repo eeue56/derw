@@ -669,6 +669,7 @@ function generateImportBlock(imports: Import): string {
 
 function generateExportBlock(moduleName: string, names: string[]): string {
     moduleName = moduleName.toUpperCase()[0] + moduleName.slice(1);
+    moduleName = moduleName.split("/").join(".").replace(".derw", "");
 
     if (names.length === 0) return `module ${moduleName} exposing (..)`;
 

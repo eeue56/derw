@@ -1,4 +1,4 @@
-module Main exposing (..)
+module Examples.SideEffects exposing (..)
 
 sayHi: String -> String
 sayHi name =
