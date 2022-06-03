@@ -8,6 +8,10 @@ Follow Derw on Twitter: https://twitter.com/derwlang
 
 # Install
 
+The compiler runs through ts-node currently, so you'll need to install that via `npm install -g ts-node`.
+
+You can also just use node, through running `node <path-to-derw>/build/cli.js`.
+
 ```bash
 npm install --save-dev derw
 ```
@@ -17,6 +21,7 @@ or
 ```bash
 npm install -g derw
 ```
+
 
 # Usage
 
