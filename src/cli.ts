@@ -1,15 +1,5 @@
 #!/usr/bin/env ts-node
 import { Err, Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
-import { bundle } from "./cli/bundle";
-import { compileFiles } from "./cli/compile";
-import { format } from "./cli/format";
-import { info } from "./cli/info";
-import { init } from "./cli/init";
-import { install } from "./cli/install";
-import { repl } from "./cli/repl";
-import { template } from "./cli/template";
-import { runTests } from "./cli/testing";
-import { fileExists } from "./cli/utils";
 
 type CliCommand =
     | "init"
@@ -84,42 +74,53 @@ export async function main(): Promise<number> {
     }
 
     const argv = process.argv;
+    const { fileExists } = await import("./cli/utils");
     const isInPackageDirectory = await fileExists("derw-package.json");
 
     switch (command.value) {
         case "compile": {
+            const { compileFiles } = await import("./cli/compile");
+
             await compileFiles(isInPackageDirectory, argv);
             return 0;
         }
         case "init": {
+            const { init } = await import("./cli/init");
             await init(isInPackageDirectory, argv);
             return 0;
         }
         case "install": {
+            const { install } = await import("./cli/install");
             await install(isInPackageDirectory, argv);
             return 0;
         }
         case "test": {
+            const { runTests } = await import("./cli/testing");
             await runTests(isInPackageDirectory, argv);
             return 0;
         }
         case "info": {
+            const { info } = await import("./cli/info");
             await info(isInPackageDirectory, argv);
             return 0;
         }
         case "repl": {
+            const { repl } = await import("./cli/repl");
             await repl(isInPackageDirectory, argv);
             return 0;
         }
         case "bundle": {
+            const { bundle } = await import("./cli/bundle");
             await bundle(isInPackageDirectory, argv);
             return 0;
         }
         case "format": {
+            const { format } = await import("./cli/format");
             await format(isInPackageDirectory, argv);
             return 0;
         }
         case "template": {
+            const { template } = await import("./cli/template");
             await template(isInPackageDirectory, argv);
             return 0;
         }
