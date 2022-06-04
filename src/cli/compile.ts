@@ -17,7 +17,6 @@ import { promises } from "fs";
 import { writeFile } from "fs/promises";
 import path from "path";
 import * as util from "util";
-import { compileTypescript } from "../compile";
 import { addMissingNamesSuggestions } from "../errors/names";
 import { generate, Target } from "../generator";
 import * as derwParser from "../parser";
@@ -316,6 +315,7 @@ export async function compileFiles(
                 );
 
                 if (program.flags.verify.isPresent && target === "ts") {
+                    const { compileTypescript } = await import("../compile");
                     const output = compileTypescript(generated);
 
                     if (output.kind === "err") {
