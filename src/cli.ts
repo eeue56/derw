@@ -1,4 +1,4 @@
-#!/usr/bin/env ts-node
+#!/usr/bin/env node
 import { Err, Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
 
 type CliCommand =
