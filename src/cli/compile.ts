@@ -367,10 +367,13 @@ export async function compileFiles(
     }
 
     if (program.flags.watch.isPresent) {
-        if (!isQuiet) console.log("Watching...");
+        if (!isQuiet) console.log("Watching src and derw-packages...");
         let timer: any;
         chokidar
-            .watch(path.join(process.cwd(), "src"))
+            .watch([
+                path.join(process.cwd(), "src"),
+                path.join(process.cwd(), "derw-packages"),
+            ])
             .on("all", async (event: Event, path: string): Promise<any> => {
                 if (path.endsWith(".derw")) {
                     if (timer !== null) {

@@ -113,10 +113,13 @@ export async function bundle(
     }
 
     if (program.flags.watch.isPresent) {
-        console.log("Watching src...");
+        console.log("Watching src and derw-packages...");
         let timer: any;
         chokidar
-            .watch(path.join(process.cwd(), "src"))
+            .watch([
+                path.join(process.cwd(), "src"),
+                path.join(process.cwd(), "derw-packages"),
+            ])
             .on("all", async (event: Event, path: string): Promise<any> => {
                 if (path.endsWith(".derw")) {
                     if (timer !== null) {

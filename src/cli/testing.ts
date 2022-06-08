@@ -50,10 +50,14 @@ export async function runTests(
     }
 
     if (program.flags.watch.isPresent) {
+        console.log("Watching src and derw-packages...");
         process.argv.push("--clean-exit");
         let timer: any;
         chokidar
-            .watch(path.join(process.cwd(), "src"))
+            .watch([
+                path.join(process.cwd(), "src"),
+                path.join(process.cwd(), "derw-packages"),
+            ])
             .on("error", () => {
                 console.log("Got an error");
             })
