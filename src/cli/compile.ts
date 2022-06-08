@@ -228,6 +228,7 @@ export async function compileFiles(
                     import_ = import_ as Import;
 
                     import_.modules.forEach((module) => {
+                        if (module.namespace === "Global") return;
                         if (isPackageFile) {
                             if (module.name.startsWith('"../derw-packages')) {
                                 module.name = module.name.replace(
@@ -236,7 +237,6 @@ export async function compileFiles(
                                 );
                             }
                         }
-                        if (module.namespace === "Global") return;
                         const moduleName = module.name.slice(1, -1);
                         imports.push(
                             path.normalize(path.join(dir, moduleName))
