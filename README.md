@@ -575,6 +575,15 @@ cp -r derw-language-server ~/.vscode/extensions/derw-language-server-0.0.1
 
 ```
 
+# VScode auto-formatting
+
+```
+
+git clone https://github.com/derw-lang/derw-formatter-vscode
+cp -r derw-formatter-vscode ~/.vscode/extensions/derw-formatter-vscode-0.0.1
+
+```
+
 # Name
 
 derw which means oak. Oak is one of the native trees in Wales, famous for it's long life, tall stature, and hard, good quality wood. An English speaker might pronounce it as "deh-ru".
