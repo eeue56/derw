@@ -23,6 +23,8 @@ const templateParser = parser([
 ]);
 
 function showInfoHelp() {
+    console.log("Generate a Derw file from a template.");
+    console.log("Also installs required packages.");
     console.log(help(templateParser));
 }
 
