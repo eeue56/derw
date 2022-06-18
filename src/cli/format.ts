@@ -15,7 +15,6 @@ const formatParser = parser([
 function showFormatHelp(): void {
     console.log("To format, run `derw format`");
     console.log("To watch use the --watch flag");
-    console.log("To produce the smallest bundle use the --optimize flag");
     console.log(help(formatParser));
 }
 
