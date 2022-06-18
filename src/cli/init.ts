@@ -16,13 +16,14 @@ import { ensureDirectoryExists, fileExists } from "./utils";
 const initParser = parser([
     longFlag(
         "dir",
-        "name of a directory to use as package name e.g stdlib. Defaults to current folder's name",
+        "name of a directory to use as package name e.g stdlib. Defaults to current directory's name",
         string()
     ),
     bothFlag("h", "help", "This help text", empty()),
 ]);
 
 function showInfoHelp() {
+    console.log("Initialize a directory as a Derw project.");
     console.log(help(initParser));
 }
 
