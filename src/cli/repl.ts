@@ -117,9 +117,7 @@ export async function repl(
         } else if (line.trim() === ":help") {
             console.log("Enter some code, followed by a blank newline.");
             console.log("Run the current namespace via :run");
-            console.log(
-                "And check the values of code via :show <name> after using :run"
-            );
+            console.log("And check the values of code via :show <name>");
             console.log(
                 "Or evaluate a constant or function with :eval <function> <args>"
             );
