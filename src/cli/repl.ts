@@ -76,17 +76,31 @@ export async function repl(
         currentlyImportedModule = await import(filename);
     }
 
+    let linesAddedToCurrentBufferSinceLastParsing: string[] = [ ];
+
     for await (const line of rl) {
         if (line.trim() === "") {
-            currentBuffer.push("");
-            module = parseWithContext(currentBuffer.join("\n"), "Main");
+            module = parseWithContext(
+                [
+                    ...currentBuffer,
+                    "",
+                    ...linesAddedToCurrentBufferSinceLastParsing,
+                ].join("\n"),
+                "Main"
+            );
             module = addTypeErrors(module, [ ]);
 
             if (module.errors.length > 0) {
                 console.log(
                     `Errors while parsing: ${module.errors.join("\n")}`
                 );
+                linesAddedToCurrentBufferSinceLastParsing = [ ];
             } else {
+                for (const newLine of linesAddedToCurrentBufferSinceLastParsing) {
+                    currentBuffer.push(newLine);
+                }
+                linesAddedToCurrentBufferSinceLastParsing = [ ];
+                currentBuffer.push("");
                 console.log("Parsed successfully");
             }
         } else if (line.trim() === ":run") {
@@ -94,7 +108,7 @@ export async function repl(
         } else if (line.startsWith(":show")) {
             const name = line.split(" ")[1].trim();
             await run(currentBuffer);
-
+            1;
             if (currentlyImportedModule[name] === undefined) {
                 console.log(`Couldn't find ${name} in current scope.`);
             } else {
@@ -138,7 +152,9 @@ _cli = ${line.split(" ").slice(1).join(" ")}
             currentlyImportedModule = await import(filename);
             console.log(currentlyImportedModule["_cli"]);
         } else {
-            currentBuffer.push(line.split("\t").join("    "));
+            linesAddedToCurrentBufferSinceLastParsing.push(
+                line.split("\t").join("    ")
+            );
         }
         rl.prompt();
     }
