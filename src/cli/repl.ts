@@ -64,6 +64,18 @@ export async function repl(
     let module = null;
     await ensureDirectoryExists("derw-packages/.cli/");
 
+    async function run(currentBuffer: string[]): Promise<void> {
+        module = parseWithContext([ ...currentBuffer ].join("\n"), "Main");
+        module = exportEverything(module);
+
+        const generated = generateTypescript(contextModuleToModule(module));
+
+        const fileTimestamp = new Date().getTime();
+        const filename = `${process.cwd()}/derw-packages/.cli/${fileTimestamp}.ts`;
+        await writeFile(filename, generated);
+        currentlyImportedModule = await import(filename);
+    }
+
     for await (const line of rl) {
         if (line.trim() === "") {
             currentBuffer.push("");
@@ -78,18 +90,16 @@ export async function repl(
                 console.log("Parsed successfully");
             }
         } else if (line.trim() === ":run") {
-            module = parseWithContext([ ...currentBuffer ].join("\n"), "Main");
-            module = exportEverything(module);
-
-            const generated = generateTypescript(contextModuleToModule(module));
-
-            const fileTimestamp = new Date().getTime();
-            const filename = `${process.cwd()}/derw-packages/.cli/${fileTimestamp}.ts`;
-            await writeFile(filename, generated);
-            currentlyImportedModule = await import(filename);
+            await run(currentBuffer);
         } else if (line.startsWith(":show")) {
             const name = line.split(" ")[1].trim();
-            console.log(currentlyImportedModule[name]);
+            await run(currentBuffer);
+
+            if (currentlyImportedModule[name] === undefined) {
+                console.log(`Couldn't find ${name} in current scope.`);
+            } else {
+                console.log(currentlyImportedModule[name]);
+            }
         } else if (line.trim() === ":help") {
             console.log("Enter some code, followed by a blank newline.");
             console.log("Run the current namespace via :run");
