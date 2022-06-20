@@ -22,7 +22,7 @@ const testingParser = parser([
 ]);
 
 function showTestingHelp(): void {
-    console.log("To  run tests, run `derw test` from the package directory");
+    console.log("To run tests, run `derw test` from the package directory");
     console.log("To watch use the --watch flag");
     console.log(help(testingParser));
 }
@@ -51,7 +51,7 @@ export async function runTests(
 
     if (program.flags.watch.isPresent) {
         console.log("Watching src and derw-packages...");
-        process.argv.push("--clean-exit");
+        argv.push("--clean-exit");
         let timer: any;
         chokidar
             .watch([
@@ -67,7 +67,7 @@ export async function runTests(
                         clearTimeout(timer);
                     }
                     timer = setTimeout(async () => {
-                        await compileFiles(isInPackageDirectory, [ ]);
+                        await compileFiles(isInPackageDirectory, argv);
                         await runner();
                     }, 300);
                 }
