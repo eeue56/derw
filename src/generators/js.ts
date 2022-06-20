@@ -133,7 +133,9 @@ function generateIfStatement(ifStatement: IfStatement): string {
         ifStatement.ifLetBody.length > 0
             ? "\n" +
               prefixLines(
-                  ifStatement.ifLetBody.map(generateBlock).join("\n"),
+                  ifStatement.ifLetBody
+                      .map((block) => generateBlock(block))
+                      .join("\n"),
                   4
               )
             : "";
@@ -151,7 +153,9 @@ function generateIfStatement(ifStatement: IfStatement): string {
         ifStatement.elseLetBody.length > 0
             ? "\n" +
               prefixLines(
-                  ifStatement.elseLetBody.map(generateBlock).join("\n"),
+                  ifStatement.elseLetBody
+                      .map((block) => generateBlock(block))
+                      .join("\n"),
                   4
               )
             : "";
@@ -295,7 +299,12 @@ function generateBranch(predicate: string, branch: Branch): string {
     const maybeLetBody =
         branch.letBody.length > 0
             ? "\n" +
-              prefixLines(branch.letBody.map(generateBlock).join("\n"), 4)
+              prefixLines(
+                  branch.letBody
+                      .map((block) => generateBlock(block))
+                      .join("\n"),
+                  4
+              )
             : "";
 
     switch (branch.pattern.kind) {
@@ -744,7 +753,12 @@ function generateFunction(function_: Function): string {
     const maybeLetBody =
         function_.letBody.length > 0
             ? "\n" +
-              prefixLines(function_.letBody.map(generateBlock).join("\n"), 4)
+              prefixLines(
+                  function_.letBody
+                      .map((block) => generateBlock(block))
+                      .join("\n"),
+                  4
+              )
             : "";
 
     const maybeDoBody =
@@ -852,12 +866,17 @@ function ${type}(args) {
     `.trim();
 }
 
-function generateBlock(syntax: Block): string {
+function generateBlock(syntax: Block, unionTypeNames?: string[]): string {
     switch (syntax.kind) {
         case "Import":
             return generateImportBlock(syntax);
         case "Export":
-            return generateExportBlock(syntax);
+            return generateExportBlock({
+                ...syntax,
+                names: syntax.names.filter(
+                    (name) => !(unionTypeNames || [ ]).includes(name)
+                ),
+            });
         case "UnionType":
             return generateUnionType(syntax);
         case "TypeAlias":
@@ -873,8 +892,12 @@ function generateBlock(syntax: Block): string {
 }
 
 export function generateJavascript(module: Module): string {
+    const unionTypeNames = module.body
+        .filter((block) => block.kind === "UnionType")
+        .map((block) => (block as UnionType).type.name);
+
     return [ exportTests(module), ...module.body ]
-        .map(generateBlock)
+        .map((b) => generateBlock(b, unionTypeNames))
         .filter((line) => line.length > 0)
         .join("\n\n");
 }
