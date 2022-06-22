@@ -103,7 +103,6 @@ function isValid(animal: Animal): boolean {
 
 const expectedOutputJS = `
 export { isValid };
-export { Animal };
 
 function Cat(args) {
     return {
@@ -126,8 +125,6 @@ function isValid(animal) {
 
 const expectedOutputJSMultiLine = `
 export { isValid };
-
-export { Animal };
 
 function Cat(args) {
     return {
