@@ -3142,6 +3142,14 @@ function parseExport(tokens: Token[]): Result<string, Export> {
     return Ok(Export(exports));
 }
 
+function parseComment(tokens: Token[]): Comment {
+    return Comment(tokensToString(tokens.slice(1)).trim());
+}
+
+function parseMultilineComment(tokens: Token[]): MultilineComment {
+    return MultilineComment(tokensToString(tokens.slice(1, -2)).trim());
+}
+
 export function parseBlock(block: UnparsedBlock): Result<string, Block> {
     const wrapError = (res: Result<string, Block>) => {
         return mapError((err) => {
@@ -3174,10 +3182,10 @@ ${block.lines.join("\n")}
             return wrapError(parseConst(tokens));
         }
         case "CommentBlock": {
-            return Ok(Comment());
+            return Ok(parseComment(tokenize(block.lines.join("\n"))));
         }
         case "MultilineCommentBlock": {
-            return Ok(MultilineComment());
+            return Ok(parseMultilineComment(tokenize(block.lines.join("\n"))));
         }
         case "UnknownBlock": {
             return Err(

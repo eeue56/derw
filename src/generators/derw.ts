@@ -5,6 +5,7 @@ import {
     Branch,
     BranchPattern,
     CaseStatement,
+    Comment,
     Const,
     Constructor,
     Division,
@@ -33,6 +34,7 @@ import {
     ListValue,
     Module,
     ModuleReference,
+    MultilineComment,
     Multiplication,
     ObjectLiteral,
     Or,
@@ -711,6 +713,16 @@ function generateExportBlock(exports: Export): string {
     return `exposing (${exports.names.join(", ")})`;
 }
 
+function generateComment(comment: Comment): string {
+    return `-- ${comment.body}`;
+}
+
+function generateMultilineComment(comment: MultilineComment): string {
+    return `{-
+${comment.body}
+-}`;
+}
+
 function generateBlock(syntax: Block): string {
     switch (syntax.kind) {
         case "Import":
@@ -726,9 +738,26 @@ function generateBlock(syntax: Block): string {
         case "Const":
             return generateConst(syntax);
         case "Comment":
+            return generateComment(syntax);
         case "MultilineComment":
-            return "";
+            return generateMultilineComment(syntax);
     }
+}
+
+function joinBlocks(blocks: Block[]): string {
+    let output = "";
+    for (const block of blocks) {
+        const generated = generateBlock(block);
+        if (generated.trim().length === 0) continue;
+
+        if (block.kind === "Comment" || block.kind === "MultilineComment") {
+            output += generated + "\n";
+        } else {
+            output += generated + "\n\n";
+        }
+    }
+
+    return output.trim();
 }
 
 export function generateDerw(module: Module): string {
@@ -744,9 +773,6 @@ export function generateDerw(module: Module): string {
             .sort((a, b) => (a === b ? 0 : a < b ? -1 : 1))
             .join("\n"),
         importBlocks.length > 0 ? "\n\n" : "",
-        ...nonImportBlocks
-            .map(generateBlock)
-            .filter((line) => line.length > 0)
-            .join("\n\n"),
+        ...joinBlocks(nonImportBlocks),
     ].join("");
 }

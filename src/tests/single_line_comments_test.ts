@@ -82,7 +82,7 @@ export function testParse() {
         Module(
             "main",
             [
-                Comment(),
+                Comment("turn anything into a string"),
                 Function(
                     "toString",
                     FixedType("string", [ ]),
@@ -102,7 +102,7 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
-                Comment(),
+                Comment("turn anything into a string"),
                 Function(
                     "toString",
                     FixedType("string", [ ]),

@@ -868,21 +868,25 @@ export function Export(names: string[]): Export {
 
 export type Comment = {
     kind: "Comment";
+    body: string;
 };
 
-export function Comment(): Comment {
+export function Comment(body: string): Comment {
     return {
         kind: "Comment",
+        body,
     };
 }
 
 export type MultilineComment = {
     kind: "MultilineComment";
+    body: string;
 };
 
-export function MultilineComment(): MultilineComment {
+export function MultilineComment(body: string): MultilineComment {
     return {
         kind: "MultilineComment",
+        body,
     };
 }
 

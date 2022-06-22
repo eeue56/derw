@@ -2,60 +2,54 @@ import * as assert from "@eeue56/ts-assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { blockKind, intoBlocks } from "../blocks";
 import { compileTypescript } from "../compile";
+import { generateDerw } from "../generators/derw";
 import { generateJavascript } from "../generators/js";
 import { generateTypescript } from "../generators/ts";
-import { parse, stripComments } from "../parser";
+import { parse } from "../parser";
 import {
-    ArrowToken,
-    AssignToken,
-    CloseBracketToken,
-    ColonToken,
-    IdentifierToken,
-    OpenBracketToken,
-    tokenize,
-    WhitespaceToken,
-} from "../tokens";
-import {
+    Const,
+    Equality,
     FixedType,
-    Function,
-    FunctionArg,
-    FunctionCall,
-    GenericType,
+    IfStatement,
     Module,
-    ModuleReference,
     MultilineComment,
+    StringValue,
     UnparsedBlock,
+    Value,
 } from "../types";
 
 const oneLine = `
 {-
-    hello
-    world
+something with name
+eman htiw gnihtemos
 -}
-toString: any -> string
-toString buffer = buffer.toString()
+name: string
+name =
+    if 1 == 1 then
+        "Noah"
+    else
+        "James"
 `.trim();
 
 const multiLine = `
 {-
-    hello
-    world
+something with name
+eman htiw gnihtemos
 -}
-toString: any -> string
-toString buffer =
-    buffer.toString()
+name: string
+name =
+    if 1 == 1 then
+        "Noah"
+    else
+        "James"
 `.trim();
 
 const expectedOutput = `
-function toString(buffer: any): string {
-    return buffer.toString();
-}
+const name: string = 1 === 1 ? "Noah" : "James";
 `.trim();
 
 const expectedOutputJS = `
-function toString(buffer) {
-    return buffer.toString();
-}
+const name = 1 === 1 ? "Noah" : "James";
 `.trim();
 
 export function testIntoBlocks() {
@@ -65,7 +59,7 @@ export function testIntoBlocks() {
             0,
             oneLine.split("\n").slice(0, 4)
         ),
-        UnparsedBlock("FunctionBlock", 4, oneLine.split("\n").slice(4)),
+        UnparsedBlock("ConstBlock", 4, oneLine.split("\n").slice(4)),
     ]);
 }
 
@@ -74,9 +68,9 @@ export function testIntoBlocksMultiLine() {
         UnparsedBlock(
             "MultilineCommentBlock",
             0,
-            multiLine.split("\n").slice(0, 4)
+            oneLine.split("\n").slice(0, 4)
         ),
-        UnparsedBlock("FunctionBlock", 4, multiLine.split("\n").slice(4)),
+        UnparsedBlock("ConstBlock", 4, oneLine.split("\n").slice(4)),
     ]);
 }
 
@@ -94,13 +88,18 @@ export function testParse() {
         Module(
             "main",
             [
-                MultilineComment("hello\n    world"),
-                Function(
-                    "toString",
+                MultilineComment("something with name\neman htiw gnihtemos"),
+                Const(
+                    "name",
                     FixedType("string", [ ]),
-                    [ FunctionArg("buffer", GenericType("any")) ],
                     [ ],
-                    ModuleReference([ "buffer" ], FunctionCall("toString", [ ]))
+                    IfStatement(
+                        Equality(Value("1"), Value("1")),
+                        StringValue("Noah"),
+                        [ ],
+                        StringValue("James"),
+                        [ ]
+                    )
                 ),
             ],
             [ ]
@@ -114,13 +113,18 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
-                MultilineComment("hello\n    world"),
-                Function(
-                    "toString",
+                MultilineComment("something with name\neman htiw gnihtemos"),
+                Const(
+                    "name",
                     FixedType("string", [ ]),
-                    [ FunctionArg("buffer", GenericType("any")) ],
                     [ ],
-                    ModuleReference([ "buffer" ], FunctionCall("toString", [ ]))
+                    IfStatement(
+                        Equality(Value("1"), Value("1")),
+                        StringValue("Noah"),
+                        [ ],
+                        StringValue("James"),
+                        [ ]
+                    )
                 ),
             ],
             [ ]
@@ -176,56 +180,14 @@ export function testGenerateOneLineJS() {
     assert.strictEqual(generated, expectedOutputJS);
 }
 
-export function testStripComments() {
-    const tokens = tokenize(oneLine);
-    const withoutComments = stripComments(tokens);
-
-    assert.deepStrictEqual(withoutComments, [
-        WhitespaceToken("\n"),
-        IdentifierToken("toString"),
-        ColonToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("any"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("string"),
-        WhitespaceToken("\n"),
-        IdentifierToken("toString"),
-        WhitespaceToken(" "),
-        IdentifierToken("buffer"),
-        WhitespaceToken(" "),
-        AssignToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("buffer.toString"),
-        OpenBracketToken(),
-        CloseBracketToken(),
-    ]);
+export function testGenerateDerw() {
+    const parsed = parse(multiLine);
+    const generated = generateDerw(parsed);
+    assert.strictEqual(generated, multiLine);
 }
 
-export function testStripCommentsMultiLine() {
-    const tokens = tokenize(multiLine);
-    const withoutComments = stripComments(tokens);
-
-    assert.deepStrictEqual(withoutComments, [
-        WhitespaceToken("\n"),
-        IdentifierToken("toString"),
-        ColonToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("any"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("string"),
-        WhitespaceToken("\n"),
-        IdentifierToken("toString"),
-        WhitespaceToken(" "),
-        IdentifierToken("buffer"),
-        WhitespaceToken(" "),
-        AssignToken(),
-        WhitespaceToken("\n    "),
-        IdentifierToken("buffer.toString"),
-        OpenBracketToken(),
-        CloseBracketToken(),
-    ]);
+export function testGenerateOneLineDerw() {
+    const parsed = parse(oneLine);
+    const generated = generateDerw(parsed);
+    assert.strictEqual(generated, oneLine);
 }
