@@ -9,8 +9,7 @@ import {
     parser,
     string,
 } from "@eeue56/baner";
-import { readFile, writeFile } from "fs/promises";
-import path from "path";
+import { writeFile } from "fs/promises";
 import { install } from "./install";
 import { fileExists } from "./utils";
 
@@ -29,7 +28,8 @@ function showInfoHelp() {
 }
 
 async function copyWebTemplate(path: string): Promise<void> {
-    const template = `
+    const template =
+        `
 import "../derw-packages/derw-lang/html/src/Html" exposing ( HtmlNode, RunningProgram, div, text, program, attribute, class_ )
 
 type alias Model = {
@@ -64,7 +64,7 @@ main =
         update: update,
         root: root
     }
-    `.trim();
+    `.trim() + "\n";
 
     if (await fileExists(path)) {
         console.log("Already a file!");
@@ -72,27 +72,6 @@ main =
     }
 
     await writeFile(path, template);
-}
-
-async function appendGitIgnore(dir: string): Promise<void> {
-    let gitIgnore = "";
-    const gitIgnorePath = path.join(dir, ".gitignore");
-
-    try {
-        gitIgnore = await (await readFile(gitIgnorePath)).toString();
-    } catch (e) {}
-
-    gitIgnore =
-        gitIgnore +
-        `
-
-# derw
-
-derw-packages/
-src/**/*.ts
-`;
-
-    await writeFile(gitIgnorePath, gitIgnore);
 }
 
 export async function template(
