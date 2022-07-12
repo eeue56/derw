@@ -24,7 +24,11 @@ import { Block, ContextModule, contextModuleToModule, Import } from "../types";
 import { ensureDirectoryExists, fileExists, getDerwFiles } from "./utils";
 
 const compileParser = parser([
-    longFlag("files", "File names to be compiled", variableList(string())),
+    longFlag(
+        "files",
+        "File names or folders to be compiled",
+        variableList(string())
+    ),
     longFlag(
         "target",
         "Target TS, JS, Derw, Elm, or English output",
@@ -113,6 +117,19 @@ function filterBodyForName(module: ContextModule, name: string): Block[] {
 
 export type ProcessedFiles = Record<string, ContextModule>;
 
+async function getFlatFiles(files: string[]): Promise<string[]> {
+    const nestedFiles = await Promise.all(
+        files.map(async (file) => await getDerwFiles(file))
+    );
+    let returnedFiles: string[] = [ ];
+
+    for (const innerFiles of nestedFiles) {
+        returnedFiles = returnedFiles.concat(innerFiles);
+    }
+
+    return returnedFiles;
+}
+
 export async function compileFiles(
     isInPackageDirectory: boolean,
     argv: string[]
@@ -144,7 +161,9 @@ export async function compileFiles(
 
     const files = isPackageDirectoryAndNoFilesPassed
         ? await getDerwFiles("./src")
-        : (program.flags.files.arguments as Ok<string[]>).value;
+        : await getFlatFiles(
+              (program.flags.files.arguments as Ok<string[]>).value
+          );
 
     const outputDir = program.flags.output.isPresent
         ? (program.flags.output.arguments as Ok<string>).value
