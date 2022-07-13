@@ -81,8 +81,7 @@ async function copyHtmlTemplate(path: string): Promise<void> {
 <!doctype html>
 <html>
     <body>
-        <div id="root">
-        </div>
+        <div id="root"></div>
         <script type="text/javascript" src="build.js"></script>
     </body>
 </html>
