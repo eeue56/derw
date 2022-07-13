@@ -13,7 +13,8 @@ import { writeFile } from "fs/promises";
 import { install } from "./install";
 import { fileExists } from "./utils";
 
-const validTemplates = [ "web" ];
+type TemplateType = "web" | "html";
+const validTemplates = [ "web", "html" ];
 
 const templateParser = parser([
     longFlag("path", "path of Derw file to create", string()),
@@ -74,6 +75,27 @@ main =
     await writeFile(path, template);
 }
 
+async function copyHtmlTemplate(path: string): Promise<void> {
+    const template =
+        `
+<!doctype html>
+<html>
+    <body>
+        <div id="root">
+        </div>
+        <script type="text/javascript" src="build.js"></script>
+    </body>
+</html>
+    `.trim() + "\n";
+
+    if (await fileExists(path)) {
+        console.log("Already a file!");
+        process.exit(1);
+    }
+
+    await writeFile(path, template);
+}
+
 export async function template(
     isInPackageDirectory: boolean,
     argv: string[]
@@ -100,7 +122,7 @@ export async function template(
     const template =
         program.flags.template.isPresent &&
         program.flags.template.arguments.kind === "ok" &&
-        (program.flags.template.arguments.value as string);
+        (program.flags.template.arguments.value as TemplateType);
 
     if (!path) {
         console.log("You must provide a path via --path");
@@ -115,6 +137,8 @@ export async function template(
             "--version",
             "main",
         ]);
+    } else if (template === "html") {
+        await copyHtmlTemplate(path);
     } else {
         console.log(
             `Template ${template} is unknown. Try one of: ${validTemplates.join(
