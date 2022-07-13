@@ -23,6 +23,13 @@ export async function ensureDirectoryExists(directory: string): Promise<void> {
 }
 
 export async function getDerwFiles(dir: string): Promise<string[]> {
+    try {
+        const lstat = await promises.lstat(dir);
+        if (!lstat.isDirectory()) {
+            return [ dir ];
+        }
+    } catch (error) {}
+
     let files: string[] = [ ];
 
     for (const file of await readdir(dir, { withFileTypes: true })) {
