@@ -1928,7 +1928,7 @@ function parseModuleReference(
         " " +
         trimmedBody.split(" ").slice(1).join(" ");
 
-    const expression = parseExpression(value);
+    const expression = parseExpression(value, true);
 
     if (expression.kind === "err") return expression;
 
@@ -2400,7 +2400,10 @@ function letAndDoErrorMessage(
     return null;
 }
 
-export function parseExpression(body: string): Result<string, Expression> {
+export function parseExpression(
+    body: string,
+    isModuleReference: boolean = false
+): Result<string, Expression> {
     const tokens = dropSurroundingBrackets(tokenize(body));
 
     let index = 0;
@@ -2413,6 +2416,9 @@ export function parseExpression(body: string): Result<string, Expression> {
     const firstToken = tokens[index];
     if (!firstToken) {
         return Err(`Expected a token but got "${tokens}"`);
+    }
+    if (isModuleReference && firstToken.kind === "KeywordToken") {
+        tokens[index] = IdentifierToken(firstToken.body);
     }
 
     const isKeyword = firstToken.kind === "KeywordToken";

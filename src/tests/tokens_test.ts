@@ -699,3 +699,33 @@ typeOfString x =
     ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
+
+export function testKeywordFollowedByDot() {
+    const str = `
+typeOfString: fn -> void
+typeOfString fn =
+    promise.then fn
+`.trim();
+
+    assert.deepStrictEqual(tokenize(str), [
+        IdentifierToken("typeOfString"),
+        ColonToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("fn"),
+        WhitespaceToken(" "),
+        ArrowToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("void"),
+        WhitespaceToken("\n"),
+        IdentifierToken("typeOfString"),
+        WhitespaceToken(" "),
+        IdentifierToken("fn"),
+        WhitespaceToken(" "),
+        AssignToken(),
+        WhitespaceToken("\n    "),
+        IdentifierToken("promise.then"),
+        WhitespaceToken(" "),
+        IdentifierToken("fn"),
+    ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
+}
