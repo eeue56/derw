@@ -123,7 +123,10 @@ export async function init(
 
     const package_ = Package(packageName, [ ], [ ]);
 
-    if (isInPackageDirectory) {
+    const isAlreadyAPackage = await fileExists(
+        path.join(dir, "derw-package.json")
+    );
+    if (isAlreadyAPackage) {
         console.log("Package already initialized!");
         process.exit(-1);
     }
