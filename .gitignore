@@ -116,3 +116,6 @@ derw-packages
 # derw
 
 derw-packages/
+
+# derw generated files
+src/Collisions.ts

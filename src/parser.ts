@@ -7,7 +7,7 @@ import {
 } from "@eeue56/ts-core/build/main/lib/result";
 import { intoBlocks, typeBlocks } from "./blocks";
 import { isBuiltinType, isReservedName } from "./builtins";
-import { collisions } from "./collisions";
+import { collisions } from "./Collisions";
 import {
     CloseBracketToken,
     CloseCurlyBracesToken,

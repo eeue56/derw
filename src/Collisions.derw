@@ -1,0 +1,194 @@
+import "../derw-packages/derw-lang/stdlib/src/List" as List
+import "../derw-packages/derw-lang/stdlib/src/Maybe" as Maybe exposing ( Just, Nothing, Maybe )
+import "./types" exposing ( Block, ImportModule )
+
+exposing (Collision, collisions)
+
+type alias Collision = {
+    name: string,
+    indexes: List number
+}
+
+type alias Seen = {
+    indexes: List number,
+    name: string
+}
+
+type alias Names = {
+    modules: List Seen,
+    values: List Seen
+}
+
+moduleNames: number -> ImportModule -> Names
+moduleNames index module =
+    let
+        moduleName: string
+        moduleName =
+            if module.alias.kind == "just" then
+                module.alias.value
+            else
+                module.name
+    in
+        {
+            modules: [ {
+            name: moduleName,
+            indexes: [ index ]
+        } ],
+            values: List.map (\name -> {
+            indexes: [ index ],
+            name: name
+        }) module.exposing
+        }
+
+blockNames: Block -> number -> Names
+blockNames block index =
+    case block of
+        Function { name } ->
+            {
+                modules: [ ],
+                values: [ {
+                name: name,
+                indexes: [ index ]
+            } ]
+            }
+
+        Const { name } ->
+            {
+                modules: [ ],
+                values: [ {
+                name: name,
+                indexes: [ index ]
+            } ]
+            }
+
+        UnionType { type } ->
+            {
+                modules: [ ],
+                values: [ {
+                name: type.name,
+                indexes: [ index ]
+            } ]
+            }
+
+        TypeAlias { type } ->
+            {
+                modules: [ ],
+                values: [ {
+                name: type.name,
+                indexes: [ index ]
+            } ]
+            }
+
+        Import { modules } ->
+            let
+                step: ImportModule -> Names -> Names
+                step module names =
+                    let
+                        modNames: Names
+                        modNames =
+                            moduleNames index module
+                    in
+                        {
+                            modules: List.append names.modules modNames.modules,
+                            values: List.append names.values modNames.values
+                        }
+            in
+                List.foldr step {
+                    modules: [ ],
+                    values: [ ]
+                } modules
+
+        default ->
+            {
+                modules: [ ],
+                values: [ ]
+            }
+
+mergeSeen: Seen -> List Seen -> List Seen
+mergeSeen seen seens =
+    let
+        hasBeenSeen: boolean
+        hasBeenSeen =
+            List.filter (\x -> x.name == seen.name) seens
+                |> (\x -> x.length > 0)
+
+        mapper: Seen -> Seen
+        mapper innerSeen =
+            if innerSeen.name == seen.name then
+                {
+                    name: innerSeen.name,
+                    indexes: List.append seen.indexes innerSeen.indexes
+                }
+            else
+                innerSeen
+    in
+        if hasBeenSeen then
+            List.map mapper seens
+        else
+            seen :: seens
+
+mergeNames: Names -> Names -> Names
+mergeNames first second =
+    let
+        modules: List Seen
+        modules =
+            List.append first.modules second.modules
+                |> List.foldr mergeSeen [ ]
+
+        values: List Seen
+        values =
+            List.append first.values second.values
+                |> List.foldr mergeSeen [ ]
+    in
+        {
+            modules: modules,
+            values: values
+        }
+
+flattenNames: List Names -> Names
+flattenNames names =
+    List.foldr (\currentNames finalNames -> mergeNames currentNames finalNames) {
+        modules: [ ],
+        values: [ ]
+    } names
+
+seenToCollision: Seen -> Maybe Collision
+seenToCollision seen =
+    if seen.indexes.length > 1 then
+        Just { value: {
+            name: seen.name,
+            indexes: seen.indexes
+        } }
+    else
+        Nothing
+
+namesToCollisions: Names -> List Collision
+namesToCollisions names =
+    let
+        collisionStep: Seen -> List Collision -> List Collision
+        collisionStep seen collisions =
+            case seenToCollision seen of
+                Nothing ->
+                    collisions
+
+                Just { value } ->
+                    {
+                        name: value.name,
+                        indexes: value.indexes
+                    } :: collisions
+
+        moduleCollisions: List Collision
+        moduleCollisions =
+            List.foldr collisionStep [ ] names.modules
+
+        valueCollisions: List Collision
+        valueCollisions =
+            List.foldr collisionStep [ ] names.values
+    in
+        List.append moduleCollisions valueCollisions
+
+collisions: List Block -> List Collision
+collisions blocks =
+    List.indexedMap blockNames blocks
+        |> flattenNames
+        |> namesToCollisions

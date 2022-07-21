@@ -63,9 +63,19 @@ export function testIntoBlocksMultiLine() {
 }
 
 export function testParse() {
-    assert.deepStrictEqual(parse(oneLine).errors.length, 2);
+    const errors = parse(oneLine).errors;
+    assert.deepStrictEqual(errors.length, 2);
+    assert.deepStrictEqual(errors, [
+        "The name `isEqual` has been used for different things.\n0 - 2:\n```\nisEqual: boolean\nisEqual = 1 == 2\n```\n\n3 - 5:\n```\nisEqual: boolean\nisEqual = 1 != 2\n```",
+        "The name `Robot` has been used for different things.\n6 - 7:\n```\ntype Robot = Robot\n```\n\n8 - 9:\n```\ntype alias Robot = { name : string }\n```\n\n10 - 12:\n```\nRobot: number -> number\nRobot x = x\n```",
+    ]);
 }
 
 export function testParseMultiLine() {
-    assert.deepStrictEqual(parse(multiLine).errors.length, 2);
+    const errors = parse(multiLine).errors;
+    assert.deepStrictEqual(errors.length, 2);
+    assert.deepStrictEqual(errors, [
+        "The name `isEqual` has been used for different things.\n0 - 3:\n```\nisEqual: boolean\nisEqual =\n    1 == 2\n```\n\n4 - 7:\n```\nisEqual: boolean\nisEqual =\n    1 != 2\n```",
+        "The name `Robot` has been used for different things.\n8 - 9:\n```\ntype Robot = Robot\n```\n\n10 - 13:\n```\ntype alias Robot = {\n    name : string\n}\n```\n\n14 - 17:\n```\nRobot: number -> number\nRobot x =\n    x\n```",
+    ]);
 }
