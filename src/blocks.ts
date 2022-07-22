@@ -134,7 +134,7 @@ export function intoBlocks(body: string): UnparsedBlock[] {
             currentBlock.push(line);
         } else {
             if (
-                currentBlockKind.kind === "ok" &&
+                currentBlockKind.kind === "Ok" &&
                 currentBlockKind.value === "MultilineComment"
             ) {
                 if (line === "-}") {
@@ -155,10 +155,10 @@ export function intoBlocks(body: string): UnparsedBlock[] {
             const currentLineBlockKind = blockKind(line);
 
             const isIndent =
-                currentLineBlockKind.kind === "ok" &&
+                currentLineBlockKind.kind === "Ok" &&
                 currentLineBlockKind.value === "Indent";
             const isDefinition =
-                currentLineBlockKind.kind === "ok" &&
+                currentLineBlockKind.kind === "Ok" &&
                 currentLineBlockKind.value === "Definition";
 
             if (isIndent || isDefinition) {
@@ -169,7 +169,7 @@ export function intoBlocks(body: string): UnparsedBlock[] {
                 currentBlock.push(line);
             } else {
                 switch (currentBlockKind.kind) {
-                    case "ok": {
+                    case "Ok": {
                         blocks.push(
                             createUnparsedBlock(
                                 currentBlockKind.value,
@@ -183,7 +183,7 @@ export function intoBlocks(body: string): UnparsedBlock[] {
                         lineStart = i;
                         break;
                     }
-                    case "err": {
+                    case "Err": {
                         // when we don't know the current block
                         currentBlock.push(line);
                         break;
@@ -195,7 +195,7 @@ export function intoBlocks(body: string): UnparsedBlock[] {
 
     if (currentBlock.length > 0) {
         switch (currentBlockKind.kind) {
-            case "ok": {
+            case "Ok": {
                 blocks.push(
                     createUnparsedBlock(
                         currentBlockKind.value,
@@ -205,7 +205,7 @@ export function intoBlocks(body: string): UnparsedBlock[] {
                 );
                 break;
             }
-            case "err": {
+            case "Err": {
                 blocks.push(
                     createUnparsedBlock("Unknown", lineStart, currentBlock)
                 );

@@ -24,7 +24,7 @@ value = [ ]
 `.trim();
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -48,7 +48,7 @@ value = [ "hello", "world" ]
 `.trim();
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -72,7 +72,7 @@ value = [ 1, 2 ]
 `.trim();
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -96,7 +96,7 @@ value = [ 1..2 ]
 `.trim();
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -121,7 +121,7 @@ value =
 `.trim();
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -138,7 +138,7 @@ value =
 `.trim();
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -158,7 +158,7 @@ value =
 `.trim();
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -186,7 +186,7 @@ value =
 `.trim();
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -206,7 +206,7 @@ value =
 `.trim();
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -226,7 +226,7 @@ value =
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
 
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -246,7 +246,7 @@ value =
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
 
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -264,7 +264,7 @@ value =
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
 
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -282,7 +282,7 @@ value =
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
 
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -300,7 +300,7 @@ value =
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
 
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -318,7 +318,7 @@ value =
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
 
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -336,7 +336,7 @@ value =
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
 
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -354,7 +354,7 @@ value =
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
 
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -372,7 +372,7 @@ value =
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
 
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -390,7 +390,7 @@ value =
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
 
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -408,7 +408,7 @@ value =
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
 
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -426,7 +426,7 @@ value =
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
 
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -444,7 +444,7 @@ value =
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
 
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -462,7 +462,7 @@ value =
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
 
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -480,7 +480,7 @@ value =
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
 
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -498,7 +498,7 @@ value =
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
 
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -516,7 +516,7 @@ value =
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
 
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -534,7 +534,7 @@ value =
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
 
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -552,7 +552,7 @@ value =
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
 
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -582,7 +582,7 @@ value =
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
 
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -612,7 +612,7 @@ value =
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
 
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -642,7 +642,7 @@ value =
     const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
 
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(

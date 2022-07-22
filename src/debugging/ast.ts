@@ -12,7 +12,7 @@ import {
 
 function importModuleToString(module: ImportModule): string {
     const alias =
-        module.alias.kind === "nothing"
+        module.alias.kind === "Nothing"
             ? "Nothing()"
             : `Just("${module.alias.value}")`;
     const exposing = module.exposing.map((e) => `"${e}"`).join(", ");

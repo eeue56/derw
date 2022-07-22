@@ -145,7 +145,7 @@ function parseTypeToken(token: TypeToken): Result<string, Type> {
                 const errors = [ ];
                 const correct = [ ];
                 for (const parsed of parsedTypes) {
-                    if (parsed.kind === "ok") {
+                    if (parsed.kind === "Ok") {
                         correct.push(parsed.value);
                     } else {
                         errors.push(parsed.error);
@@ -171,7 +171,7 @@ function parseTypeToken(token: TypeToken): Result<string, Type> {
             const correct = [ ];
 
             for (const parsed of parsedTypes) {
-                if (parsed.kind === "ok") {
+                if (parsed.kind === "Ok") {
                     correct.push(parsed.value);
                 } else {
                     errors.push(parsed.error);
@@ -295,7 +295,7 @@ function parseType(tokens: Token[]): Result<string, Type> {
         FixedType(
             rootTypeName,
             parsedTypes
-                .filter((type_) => type_.kind !== "err")
+                .filter((type_) => type_.kind !== "Err")
                 .map((type_) => (type_ as Ok<Type>).value)
         )
     );
@@ -391,7 +391,7 @@ function parseUnionType(tokens: Token[]): Result<string, UnionType> {
 
     const parsedType = parseType(typeLine);
 
-    if (parsedType.kind === "err") return parsedType;
+    if (parsedType.kind === "Err") return parsedType;
 
     const tags: Result<string, Tag>[] = branches.map((tag) => {
         if (tag.startsWith("|")) {
@@ -426,12 +426,12 @@ function parseUnionType(tokens: Token[]): Result<string, UnionType> {
             .map((arg) => {
                 const property = parseProperty(tokenize(arg));
 
-                if (property.kind === "err") return property;
+                if (property.kind === "Err") return property;
                 return Ok(TagArg(property.value.name, property.value.type));
             });
 
         if (
-            args.filter((maybeTag) => maybeTag.kind === "ok").length ===
+            args.filter((maybeTag) => maybeTag.kind === "Ok").length ===
             args.length
         ) {
             return Ok(
@@ -445,7 +445,7 @@ function parseUnionType(tokens: Token[]): Result<string, UnionType> {
         return Err(
             "Error parsing args due to:\n" +
                 args
-                    .filter((arg) => arg.kind === "err")
+                    .filter((arg) => arg.kind === "Err")
                     .map((err) => (err as Err<string>).error)
         );
     });
@@ -456,7 +456,7 @@ function parseUnionType(tokens: Token[]): Result<string, UnionType> {
 
     for (var i = 0; i < tags.length; i++) {
         const tag = tags[i];
-        if (tag.kind === "err") {
+        if (tag.kind === "Err") {
             return tag;
         }
     }
@@ -477,7 +477,7 @@ function parseUnionType(tokens: Token[]): Result<string, UnionType> {
         UnionType(
             parsedType.value,
             tags
-                .filter((tag) => tag.kind === "ok")
+                .filter((tag) => tag.kind === "Ok")
                 .map((tag) => (tag as Ok<Tag>).value)
         )
     );
@@ -522,7 +522,7 @@ function parseProperty(tokens: Token[]): Result<string, Property> {
 
     const tokenizedTypes = tokenizeType(bitsAfterName);
 
-    if (tokenizedTypes.kind === "err") return tokenizedTypes;
+    if (tokenizedTypes.kind === "Err") return tokenizedTypes;
     const types = tokenizedTypes.value;
     if (types.length > 1) {
         return Err("Too many types found in property");
@@ -531,7 +531,7 @@ function parseProperty(tokens: Token[]): Result<string, Property> {
     if (types.length < 1) return Err("Failed to find type");
     const type = parseRootTypeTokens(types[0]);
 
-    if (type.kind === "err") return type;
+    if (type.kind === "Err") return type;
     return Ok(Property(name, type.value));
 }
 
@@ -647,7 +647,7 @@ function parseTypeAlias(tokens: Token[]): Result<string, TypeAlias> {
 
     const parsedAliasName = parseType(typeLine);
 
-    if (parsedAliasName.kind === "err") {
+    if (parsedAliasName.kind === "Err") {
         return parsedAliasName;
     }
 
@@ -718,7 +718,7 @@ function parseTypeAlias(tokens: Token[]): Result<string, TypeAlias> {
 
     const parsedProperties = properties.map((x) => parseProperty(tokenize(x)));
     const errors = parsedProperties.filter(
-        (property: Result<string, Property>) => property.kind === "err"
+        (property: Result<string, Property>) => property.kind === "Err"
     );
 
     if (errors.length > 0) {
@@ -795,7 +795,7 @@ function parseObjectLiteral(tokens: Token[]): Result<string, ObjectLiteral> {
                     if (innermostBuffer.trim().length === 0) continue;
                     const innerLiteral = parseExpression(innermostBuffer);
 
-                    if (innerLiteral.kind === "err") return innerLiteral;
+                    if (innerLiteral.kind === "Err") return innerLiteral;
                     innermostBuffer = "";
                     currentValue = innerLiteral.value;
 
@@ -827,7 +827,7 @@ function parseObjectLiteral(tokens: Token[]): Result<string, ObjectLiteral> {
                     innermostBuffer += ",";
                 } else {
                     const innerLiteral = parseExpression(innermostBuffer);
-                    if (innerLiteral.kind === "err") return innerLiteral;
+                    if (innerLiteral.kind === "Err") return innerLiteral;
                     fields.push(Field(currentName.trim(), innerLiteral.value));
                     innermostBuffer = "";
                     currentName = "";
@@ -976,13 +976,13 @@ function parseListRange(tokens: Token[]): Result<string, ListRange> {
                 const start = parseValue(tokenize(pieces[0]));
                 const end = parseValue(tokenize(pieces[1]));
 
-                if (start.kind === "err") return start;
-                if (end.kind === "err") return end;
+                if (start.kind === "Err") return start;
+                if (end.kind === "Err") return end;
 
-                if (start.kind === "ok" && start.value.kind === "Constructor")
+                if (start.kind === "Ok" && start.value.kind === "Constructor")
                     return Err("Expected variable but got constructor");
 
-                if (end.kind === "ok" && end.value.kind === "Constructor")
+                if (end.kind === "Ok" && end.value.kind === "Constructor")
                     return Err("Expected variable but got constructor");
 
                 return Ok(ListRange(start.value as Value, end.value as Value));
@@ -1064,8 +1064,8 @@ function parseListValue(tokens: Token[]): Result<string, ListValue> {
         parsedValues.push(parseExpression(tokensToString(currentBuffer)));
     }
 
-    const errors = parsedValues.filter((part) => part.kind === "err");
-    const passedValues = parsedValues.filter((part) => part.kind === "ok");
+    const errors = parsedValues.filter((part) => part.kind === "Err");
+    const passedValues = parsedValues.filter((part) => part.kind === "Ok");
 
     if (errors.length > 0)
         return Err(
@@ -1194,7 +1194,7 @@ function parseConstructor(tokens: Token[]): Result<string, Constructor> {
     index++;
 
     const pattern = parseObjectLiteral(patternParts);
-    if (pattern.kind === "err") return pattern;
+    if (pattern.kind === "Err") return pattern;
 
     return Ok(Constructor(constructor, pattern.value));
 }
@@ -1290,9 +1290,9 @@ function parseIfStatementSingleLine(body: string): Result<string, IfStatement> {
     const parsedElseBody = parseElseBody(tokenize(body));
 
     const errors = [ ];
-    if (parsedPredicate.kind === "err") errors.push(parsedPredicate.error);
-    if (parsedIfBody.kind === "err") errors.push(parsedIfBody.error);
-    if (parsedElseBody.kind === "err") errors.push(parsedElseBody.error);
+    if (parsedPredicate.kind === "Err") errors.push(parsedPredicate.error);
+    if (parsedIfBody.kind === "Err") errors.push(parsedIfBody.error);
+    if (parsedElseBody.kind === "Err") errors.push(parsedElseBody.error);
 
     if (errors.length > 0) {
         return Err(errors.join("\n"));
@@ -1383,7 +1383,7 @@ function parseIfStatement(body: string): Result<string, IfStatement> {
 
         ifLetBlock = letBlocks
             .map(parseBlock)
-            .filter((block) => block.kind === "ok")
+            .filter((block) => block.kind === "Ok")
             .map((block) => (block as Ok<Block>).value);
     }
 
@@ -1410,7 +1410,7 @@ function parseIfStatement(body: string): Result<string, IfStatement> {
 
         elseLetBlock = letBlocks
             .map(parseBlock)
-            .filter((block) => block.kind === "ok")
+            .filter((block) => block.kind === "Ok")
             .map((block) => (block as Ok<Block>).value);
     }
 
@@ -1423,9 +1423,9 @@ function parseIfStatement(body: string): Result<string, IfStatement> {
     );
 
     const errors = [ ];
-    if (parsedPredicate.kind === "err") errors.push(parsedPredicate.error);
-    if (parsedIfBody.kind === "err") errors.push(parsedIfBody.error);
-    if (parsedElseBody.kind === "err") errors.push(parsedElseBody.error);
+    if (parsedPredicate.kind === "Err") errors.push(parsedPredicate.error);
+    if (parsedIfBody.kind === "Err") errors.push(parsedIfBody.error);
+    if (parsedElseBody.kind === "Err") errors.push(parsedElseBody.error);
 
     if (errors.length > 0) {
         return Err(errors.join("\n"));
@@ -1498,7 +1498,7 @@ function parseListDestructure(
 
                 if (isInDestructor) {
                     const destructure = parseDestructure(destructorParts);
-                    if (destructure.kind === "err") return destructure;
+                    if (destructure.kind === "Err") return destructure;
 
                     parts.push(destructure.value);
                     isInDestructor = false;
@@ -1571,7 +1571,7 @@ function parseBranchPattern(tokens: Token[]): Result<string, BranchPattern> {
         }
         case "LiteralToken": {
             const emptyList = parseEmptyList(tokens);
-            if (emptyList.kind === "ok") return emptyList;
+            if (emptyList.kind === "Ok") return emptyList;
         }
     }
     return Err(`Expected destructure or string but got ${firstToken.kind}`);
@@ -1673,7 +1673,7 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
 
                 letBlock = letBlocks
                     .map(parseBlock)
-                    .filter((block) => block.kind === "ok")
+                    .filter((block) => block.kind === "Ok")
                     .map((block) => (block as Ok<Block>).value);
             }
 
@@ -1691,15 +1691,15 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
             );
 
             if (
-                branchExpression.kind === "err" ||
-                parsedBranchPattern.kind === "err" ||
+                branchExpression.kind === "Err" ||
+                parsedBranchPattern.kind === "Err" ||
                 maybeLetAndDoErrorMessage
             ) {
                 if (maybeLetAndDoErrorMessage)
                     branches.push(Err(maybeLetAndDoErrorMessage));
-                if (branchExpression.kind === "err")
+                if (branchExpression.kind === "Err")
                     branches.push(branchExpression);
-                if (parsedBranchPattern.kind === "err")
+                if (parsedBranchPattern.kind === "Err")
                     branches.push(parsedBranchPattern);
             } else {
                 branches.push(
@@ -1753,7 +1753,7 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
 
             letBlock = letBlocks
                 .map(parseBlock)
-                .filter((block) => block.kind === "ok")
+                .filter((block) => block.kind === "Ok")
                 .map((block) => (block as Ok<Block>).value);
         }
 
@@ -1768,15 +1768,15 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
         );
 
         if (
-            branchExpression.kind === "err" ||
-            parsedBranchPattern.kind === "err" ||
+            branchExpression.kind === "Err" ||
+            parsedBranchPattern.kind === "Err" ||
             maybeLetAndDoErrorMessage
         ) {
             if (maybeLetAndDoErrorMessage)
                 branches.push(Err(maybeLetAndDoErrorMessage));
-            if (branchExpression.kind === "err")
+            if (branchExpression.kind === "Err")
                 branches.push(branchExpression);
-            if (parsedBranchPattern.kind === "err")
+            if (parsedBranchPattern.kind === "Err")
                 branches.push(parsedBranchPattern);
         } else {
             branches.push(
@@ -1792,9 +1792,9 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
     }
 
     const errors = [ ];
-    if (casePredicate.kind === "err") errors.push(casePredicate.error);
+    if (casePredicate.kind === "Err") errors.push(casePredicate.error);
     branches.forEach((branch, i) => {
-        if (branch.kind === "err") {
+        if (branch.kind === "Err") {
             errors.push(branch.error);
         } else {
             if (
@@ -1852,8 +1852,8 @@ function parseAddition(tokens: Token[]): Result<string, Addition> {
     const operator = "+";
     const { left, right } = parseOperator(operator, tokens);
 
-    if (left.kind === "err") return left;
-    if (right.kind === "err") return right;
+    if (left.kind === "Err") return left;
+    if (right.kind === "Err") return right;
 
     return Ok(Addition(left.value, right.value));
 }
@@ -1862,8 +1862,8 @@ function parseSubtraction(tokens: Token[]): Result<string, Subtraction> {
     const operator = "-";
     const { left, right } = parseOperator(operator, tokens);
 
-    if (left.kind === "err") return left;
-    if (right.kind === "err") return right;
+    if (left.kind === "Err") return left;
+    if (right.kind === "Err") return right;
 
     return Ok(Subtraction(left.value, right.value));
 }
@@ -1872,8 +1872,8 @@ function parseMultiplcation(tokens: Token[]): Result<string, Multiplication> {
     const operator = "*";
     const { left, right } = parseOperator(operator, tokens);
 
-    if (left.kind === "err") return left;
-    if (right.kind === "err") return right;
+    if (left.kind === "Err") return left;
+    if (right.kind === "Err") return right;
 
     return Ok(Multiplication(left.value, right.value));
 }
@@ -1882,8 +1882,8 @@ function parseDivision(tokens: Token[]): Result<string, Division> {
     const operator = "/";
     const { left, right } = parseOperator(operator, tokens);
 
-    if (left.kind === "err") return left;
-    if (right.kind === "err") return right;
+    if (left.kind === "Err") return left;
+    if (right.kind === "Err") return right;
 
     return Ok(Division(left.value, right.value));
 }
@@ -1892,8 +1892,8 @@ function parseLeftPipe(tokens: Token[]): Result<string, LeftPipe> {
     const operator = "|>";
     const { left, right } = parseOperator(operator, tokens);
 
-    if (left.kind === "err") return left;
-    if (right.kind === "err") return right;
+    if (left.kind === "Err") return left;
+    if (right.kind === "Err") return right;
     if (!isLeftPipeableExpression(right.value))
         return Err(`Could not pipe to ${right.value}`);
 
@@ -1904,8 +1904,8 @@ function parseRightPipe(tokens: Token[]): Result<string, RightPipe> {
     const operator = "<|";
     const { left, right } = parseOperator(operator, tokens);
 
-    if (left.kind === "err") return left;
-    if (right.kind === "err") return right;
+    if (left.kind === "Err") return left;
+    if (right.kind === "Err") return right;
 
     return Ok(RightPipe(left.value, right.value));
 }
@@ -1930,7 +1930,7 @@ function parseModuleReference(
 
     const expression = parseExpression(value, true);
 
-    if (expression.kind === "err") return expression;
+    if (expression.kind === "Err") return expression;
 
     return Ok(
         ModuleReference(
@@ -2087,7 +2087,7 @@ function parseFunctionCall(
             return parseExpression(arg);
         });
 
-    const errors = parsedArgs.filter((arg) => arg.kind === "err");
+    const errors = parsedArgs.filter((arg) => arg.kind === "Err");
 
     if (errors.length > 0) {
         return Err(
@@ -2097,7 +2097,7 @@ function parseFunctionCall(
     }
 
     const correctArgs = parsedArgs
-        .filter((arg) => arg.kind === "ok")
+        .filter((arg) => arg.kind === "Ok")
         .map((arg) => (arg as Ok<Expression>).value);
 
     return Ok(FunctionCall(functionName, correctArgs));
@@ -2135,7 +2135,7 @@ function parseLambda(tokens: Token[]): Result<string, Lambda> {
     const lambdaBody = tokensToString(tokens.slice(index));
     const parsedBody = parseExpression(lambdaBody);
 
-    if (parsedBody.kind === "err") {
+    if (parsedBody.kind === "Err") {
         return Err(
             "Failed to parse lambda definiton due to:\n" + parsedBody.error
         );
@@ -2225,8 +2225,8 @@ function hasTopLevelOperator(
 function parseEquality(tokens: Token[]): Result<string, Equality> {
     const operator = "==";
     const { left, right } = parseOperator(operator, tokens);
-    if (left.kind === "err") return left;
-    if (right.kind === "err") return right;
+    if (left.kind === "Err") return left;
+    if (right.kind === "Err") return right;
 
     return Ok(Equality(left.value, right.value));
 }
@@ -2235,8 +2235,8 @@ function parseInEquality(tokens: Token[]): Result<string, InEquality> {
     const operator = "!=";
     const { left, right } = parseOperator(operator, tokens);
 
-    if (left.kind === "err") return left;
-    if (right.kind === "err") return right;
+    if (left.kind === "Err") return left;
+    if (right.kind === "Err") return right;
 
     return Ok(InEquality(left.value, right.value));
 }
@@ -2245,8 +2245,8 @@ function parseLessThan(tokens: Token[]): Result<string, LessThan> {
     const operator = "<";
     const { left, right } = parseOperator(operator, tokens);
 
-    if (left.kind === "err") return left;
-    if (right.kind === "err") return right;
+    if (left.kind === "Err") return left;
+    if (right.kind === "Err") return right;
 
     return Ok(LessThan(left.value, right.value));
 }
@@ -2257,8 +2257,8 @@ function parseLessThanOrEqual(
     const operator = "<=";
     const { left, right } = parseOperator(operator, tokens);
 
-    if (left.kind === "err") return left;
-    if (right.kind === "err") return right;
+    if (left.kind === "Err") return left;
+    if (right.kind === "Err") return right;
 
     return Ok(LessThanOrEqual(left.value, right.value));
 }
@@ -2267,8 +2267,8 @@ function parseGreaterThan(tokens: Token[]): Result<string, GreaterThan> {
     const operator = ">";
     const { left, right } = parseOperator(operator, tokens);
 
-    if (left.kind === "err") return left;
-    if (right.kind === "err") return right;
+    if (left.kind === "Err") return left;
+    if (right.kind === "Err") return right;
 
     return Ok(GreaterThan(left.value, right.value));
 }
@@ -2279,8 +2279,8 @@ function parseGreaterThanOrEqual(
     const operator = ">=";
     const { left, right } = parseOperator(operator, tokens);
 
-    if (left.kind === "err") return left;
-    if (right.kind === "err") return right;
+    if (left.kind === "Err") return left;
+    if (right.kind === "Err") return right;
 
     return Ok(GreaterThanOrEqual(left.value, right.value));
 }
@@ -2289,8 +2289,8 @@ function parseAnd(tokens: Token[]): Result<string, And> {
     const operator = "&&";
     const { left, right } = parseOperator(operator, tokens);
 
-    if (left.kind === "err") return left;
-    if (right.kind === "err") return right;
+    if (left.kind === "Err") return left;
+    if (right.kind === "Err") return right;
 
     return Ok(And(left.value, right.value));
 }
@@ -2299,8 +2299,8 @@ function parseOr(tokens: Token[]): Result<string, Or> {
     const operator = "||";
     const { left, right } = parseOperator(operator, tokens);
 
-    if (left.kind === "err") return left;
-    if (right.kind === "err") return right;
+    if (left.kind === "Err") return left;
+    if (right.kind === "Err") return right;
 
     return Ok(Or(left.value, right.value));
 }
@@ -2309,8 +2309,8 @@ function parseListPrepend(tokens: Token[]): Result<string, ListPrepend> {
     const operator = "::";
     const { left, right } = parseOperator(operator, tokens);
 
-    if (left.kind === "err") return left;
-    if (right.kind === "err") return right;
+    if (left.kind === "Err") return left;
+    if (right.kind === "Err") return right;
 
     return Ok(ListPrepend(left.value, right.value));
 }
@@ -2652,7 +2652,7 @@ function parseDoBlock(tokens: Token[]): Result<string, DoBlock> {
             const expression = parseExpression(tokensToString(currentBuffer));
 
             if (
-                expression.kind === "ok" &&
+                expression.kind === "Ok" &&
                 (expression.value.kind === "FunctionCall" ||
                     expression.value.kind === "ModuleReference")
             ) {
@@ -2661,7 +2661,7 @@ function parseDoBlock(tokens: Token[]): Result<string, DoBlock> {
                 );
             }
 
-            if (expression.kind === "err") {
+            if (expression.kind === "Err") {
                 expressions.push(expression);
             }
         }
@@ -2698,7 +2698,7 @@ function parseDoBlock(tokens: Token[]): Result<string, DoBlock> {
     }
 
     const errors = expressions
-        .filter((e) => e.kind === "err")
+        .filter((e) => e.kind === "Err")
         .map((e) => (e as Err<string>).error)
         .join("\n");
 
@@ -2707,7 +2707,7 @@ function parseDoBlock(tokens: Token[]): Result<string, DoBlock> {
     }
 
     const values = expressions
-        .filter((e) => e.kind === "ok")
+        .filter((e) => e.kind === "Ok")
         .map((e) => (e as Ok<DoExpression>).value);
 
     return Ok(DoBlock(values));
@@ -2803,7 +2803,7 @@ function parseFunction(tokens: Token[]): Result<string, Function> {
 
     const tokenizedTypes = tokenizeType(currentType);
 
-    if (tokenizedTypes.kind === "err") return tokenizedTypes;
+    if (tokenizedTypes.kind === "Err") return tokenizedTypes;
     const types = tokenizedTypes.value;
 
     const letStart = tokens.findIndex((t, i) => {
@@ -2845,7 +2845,7 @@ function parseFunction(tokens: Token[]): Result<string, Function> {
 
         letBlock = letBlocks
             .map(parseBlock)
-            .filter((block) => block.kind === "ok")
+            .filter((block) => block.kind === "Ok")
             .map((block) => (block as Ok<Block>).value);
     }
 
@@ -2873,7 +2873,7 @@ But I seemed to only find the \`foo: string -> string\` line.
         .map((type_, i) => {
             if (argumentNames.length <= i) {
                 const parsedType = parseRootTypeTokens(type_);
-                if (parsedType.kind === "err")
+                if (parsedType.kind === "Err")
                     return Err(
                         `Failed to parse argument ${i} due to ${parsedType.error}`
                     );
@@ -2882,7 +2882,7 @@ But I seemed to only find the \`foo: string -> string\` line.
             } else {
                 const name = argumentNames[i];
                 const parsedType = parseRootTypeTokens(type_);
-                if (parsedType.kind === "err")
+                if (parsedType.kind === "Err")
                     return Err(
                         `Failed to parse ${name} due to ${parsedType.error}`
                     );
@@ -2906,18 +2906,18 @@ But I seemed to only find the \`foo: string -> string\` line.
 
     const parsedBody = parseExpression(body.join("\n"));
 
-    if (parsedBody.kind === "err") {
+    if (parsedBody.kind === "Err") {
         return Err(`Failed to parse function body due to ${parsedBody.error}`);
     }
-    if (returnType.kind === "err") {
+    if (returnType.kind === "Err") {
         return Err(
             `Failed to parse function return type due to ${returnType.error}`
         );
     }
-    if (doBody !== undefined && doBody.kind === "err") return doBody;
+    if (doBody !== undefined && doBody.kind === "Err") return doBody;
 
     for (const arg of combinedArguments) {
-        if (arg.kind === "err") return arg;
+        if (arg.kind === "Err") return arg;
     }
 
     return Ok(
@@ -3014,7 +3014,7 @@ function parseConst(tokens: Token[]): Result<string, Const> {
 
         letBlock = letBlocks
             .map(parseBlock)
-            .filter((block) => block.kind === "ok")
+            .filter((block) => block.kind === "Ok")
             .map((block) => (block as Ok<Block>).value);
     }
 
@@ -3039,13 +3039,13 @@ function parseConst(tokens: Token[]): Result<string, Const> {
 
     const parsedBody = parseExpression(body.join("\n"));
 
-    if (parsedBody.kind === "err") {
+    if (parsedBody.kind === "Err") {
         return mapError(
             (error) => `Failed to parse body due to ${error}`,
             parsedBody
         );
     }
-    if (parsedType.kind === "err") {
+    if (parsedType.kind === "Err") {
         return mapError(
             (error) => `Failed to parse type due to ${error}`,
             parsedType
@@ -3256,26 +3256,26 @@ export function parse(body: string, filename: string = "main"): Module {
     const blocks = intoBlocks(body);
     const syntax = blocks.map(parseBlock);
     const errors = syntax
-        .filter((syn) => syn.kind === "err")
+        .filter((syn) => syn.kind === "Err")
         .map((syn) => (syn as Err<string>).error);
     const successes = syntax
-        .filter((syn) => syn.kind === "ok")
+        .filter((syn) => syn.kind === "Ok")
         .map((syn) => (syn as Ok<Block>).value);
 
     const imports: Import[] = syntax
-        .filter((syn) => syn.kind === "ok" && syn.value.kind === "Import")
-        .map((syn) => syn.kind === "ok" && syn.value) as Import[];
+        .filter((syn) => syn.kind === "Ok" && syn.value.kind === "Import")
+        .map((syn) => syn.kind === "Ok" && syn.value) as Import[];
 
     const typeErrors = syntax
         .map((resultBlock, index) => {
-            if (resultBlock.kind === "err") return null;
+            if (resultBlock.kind === "Err") return null;
 
             const block = resultBlock as Ok<Block>;
             const validatedType = validateType(
                 block.value,
                 typeBlocks(
                     [ ...syntax.slice(0, index), ...syntax.slice(index) ]
-                        .filter((b) => b.kind === "ok")
+                        .filter((b) => b.kind === "Ok")
                         .map((b) => (b as Ok<Block>).value)
                 ),
                 imports
@@ -3289,7 +3289,7 @@ ${reportBlock(blocks[index])}`,
                 validatedType
             );
         })
-        .filter((type) => type && type.kind === "err")
+        .filter((type) => type && type.kind === "Err")
         .map((type) => (type as Err<string>).error);
 
     const collidingNames = collisions(successes).map(({ indexes, name }) => {
@@ -3311,7 +3311,7 @@ ${definitions.join("\n\n")}
     return Module(
         moduleName,
         syntax
-            .filter((syn) => syn.kind === "ok")
+            .filter((syn) => syn.kind === "Ok")
             .map((syn) => (syn as Ok<any>).value),
         [ ...errors, ...typeErrors, ...collidingNames ]
     );
@@ -3354,7 +3354,7 @@ ${reportBlock(module.unparsedBody[index])}`,
                 validatedType
             );
         })
-        .filter((type) => type && type.kind === "err")
+        .filter((type) => type && type.kind === "Err")
         .map((type) => (type as Err<string>).error);
 
     module.errors = module.errors.concat(typeErrors);
@@ -3368,10 +3368,10 @@ export function parseWithContext(
     const blocks = intoBlocks(body);
     const syntax = blocks.map(parseBlock);
     const errors = syntax
-        .filter((syn) => syn.kind === "err")
+        .filter((syn) => syn.kind === "Err")
         .map((syn) => (syn as Err<string>).error);
     const successes = syntax
-        .filter((syn) => syn.kind === "ok")
+        .filter((syn) => syn.kind === "Ok")
         .map((syn) => (syn as Ok<Block>).value);
 
     const collidingNames = collisions(successes).map(({ indexes, name }) => {
@@ -3393,7 +3393,7 @@ ${definitions.join("\n\n")}
     return ContextModule(
         moduleName,
         syntax
-            .filter((syn) => syn.kind === "ok")
+            .filter((syn) => syn.kind === "Ok")
             .map((syn) => (syn as Ok<any>).value),
         blocks,
         [ ...errors, ...collidingNames ]

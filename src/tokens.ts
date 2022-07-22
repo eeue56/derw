@@ -787,7 +787,7 @@ export function tokenizeType(
                         (t) => t.kind === "ArrowToken"
                     );
                     const tokenized = tokenizeType(currentBuffer);
-                    if (tokenized.kind === "err") return tokenized;
+                    if (tokenized.kind === "Err") return tokenized;
                     if (isFunction) {
                         rootTypeTokens.push(FunctionTypeToken(tokenized.value));
                     } else {
@@ -833,7 +833,7 @@ export function tokenizeType(
                         depth--;
                         if (depth === 0) {
                             const innerTokenized = tokenizeType(inner);
-                            if (innerTokenized.kind === "err")
+                            if (innerTokenized.kind === "Err")
                                 return innerTokenized;
 
                             collectedInners.push(innerTokenized.value);
@@ -844,7 +844,7 @@ export function tokenizeType(
                     case "IdentifierToken": {
                         if (depth === 0) {
                             const tokenized = tokenizeType(tokenize(t.body));
-                            if (tokenized.kind === "err") return tokenized;
+                            if (tokenized.kind === "Err") return tokenized;
                             collectedInners.push(tokenized.value);
                         } else {
                             inner.push(t);
@@ -870,7 +870,7 @@ export function tokenizeType(
         } else {
             tokenized = tokenizeType(currentBuffer);
         }
-        if (tokenized.kind === "err") return tokenized;
+        if (tokenized.kind === "Err") return tokenized;
         if (isFunction) {
             rootTypeTokens.push(FunctionTypeToken(tokenized.value));
         } else {
@@ -880,7 +880,7 @@ export function tokenizeType(
         }
     } else if (currentBuffer.find((t) => t.kind === "ArrowToken")) {
         const tokenized = tokenizeType(currentBuffer);
-        if (tokenized.kind === "err") return tokenized;
+        if (tokenized.kind === "Err") return tokenized;
 
         rootTypeTokens.push(FunctionTypeToken(tokenized.value));
     } else {
@@ -888,7 +888,7 @@ export function tokenizeType(
         if (currentBuffer.length > 1) {
             for (const bufferPart of currentBuffer.slice(1)) {
                 const tokenized = tokenizeType([ bufferPart ]);
-                if (tokenized.kind === "err") return tokenized;
+                if (tokenized.kind === "Err") return tokenized;
                 inner = inner.concat(tokenized.value);
             }
         }

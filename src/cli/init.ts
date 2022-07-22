@@ -115,7 +115,7 @@ export async function init(
     }
 
     const dir =
-        program.flags.dir.isPresent && program.flags.dir.arguments.kind === "ok"
+        program.flags.dir.isPresent && program.flags.dir.arguments.kind === "Ok"
             ? (program.flags.dir.arguments.value as string)
             : process.cwd();
 

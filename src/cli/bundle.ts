@@ -61,7 +61,7 @@ export async function bundle(
 
     const output =
         program.flags.output.isPresent &&
-        program.flags.output.arguments.kind === "ok" &&
+        program.flags.output.arguments.kind === "Ok" &&
         (program.flags.output.arguments.value as string);
 
     if (!output) {
@@ -73,7 +73,7 @@ export async function bundle(
 
     let entry: string | false =
         program.flags.entry.isPresent &&
-        program.flags.entry.arguments.kind === "ok" &&
+        program.flags.entry.arguments.kind === "Ok" &&
         (program.flags.entry.arguments.value as string);
 
     if (!entry) {

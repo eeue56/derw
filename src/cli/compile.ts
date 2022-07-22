@@ -298,7 +298,7 @@ export async function compileFiles(
 
                 if (debugMode) {
                     if (program.flags["only"].isPresent) {
-                        if (program.flags["only"].arguments.kind === "err") {
+                        if (program.flags["only"].arguments.kind === "Err") {
                             console.log(program.flags.only.arguments.error);
                         } else {
                             const name = (
@@ -337,7 +337,7 @@ export async function compileFiles(
                     const { compileTypescript } = await import("../compile");
                     const output = compileTypescript(generated);
 
-                    if (output.kind === "err") {
+                    if (output.kind === "Err") {
                         console.log(
                             `Failed to compile ${fileName} due to`,
                             output.error.map((e) => e.messageText).join("\n")
@@ -365,7 +365,7 @@ export async function compileFiles(
                 if (shouldRun) {
                     const isFileToRun =
                         program.flags.files.isPresent &&
-                        program.flags.files.arguments.kind === "ok" &&
+                        program.flags.files.arguments.kind === "Ok" &&
                         (
                             program.flags.files.arguments as Ok<string[]>
                         ).value.indexOf(fileName) > -1;

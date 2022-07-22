@@ -24,10 +24,12 @@ moduleNames index module =
     let
         moduleName: string
         moduleName =
-            if module.alias.kind == "just" then
-                module.alias.value
-            else
-                module.name
+            case module.alias of
+                Just { value } ->
+                    value
+
+                Nothing ->
+                    module.name
     in
         {
             modules: [ {

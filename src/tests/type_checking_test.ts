@@ -9,7 +9,7 @@ export async function testEmptyList() {
 [ ]
 `;
     const parsed = parseExpression(exampleInput);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
@@ -23,7 +23,7 @@ export async function testStringList() {
 [ "hello", "world" ]
 `;
     const parsed = parseExpression(exampleInput);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
@@ -37,7 +37,7 @@ export async function testNumberList() {
 [ 1, 2 ]
 `;
     const parsed = parseExpression(exampleInput);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
@@ -51,7 +51,7 @@ export async function testListRange() {
 [ 1..2 ]
 `;
     const parsed = parseExpression(exampleInput);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
@@ -65,7 +65,7 @@ export async function testString() {
 "hello"
 `;
     const parsed = parseExpression(exampleInput);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(inferType(value, [ ]), Ok(FixedType("string", [ ])));
@@ -76,7 +76,7 @@ export async function testFormatString() {
 \`hello\`
 `;
     const parsed = parseExpression(exampleInput);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(inferType(value, [ ]), Ok(FixedType("string", [ ])));
@@ -90,7 +90,7 @@ export async function testObjectLiteral() {
 }
 `;
     const parsed = parseExpression(exampleInput);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(inferType(value, [ ]), Ok(FixedType("any", [ ])));
@@ -104,7 +104,7 @@ else
     "world"
 `;
     const parsed = parseExpression(exampleInput);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(inferType(value, [ ]), Ok(FixedType("string", [ ])));
@@ -118,7 +118,7 @@ else
     1
 `;
     const parsed = parseExpression(exampleInput);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
@@ -134,7 +134,7 @@ case x of
     Cat { name } -> "world"
 `;
     const parsed = parseExpression(exampleInput);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(inferType(value, [ ]), Ok(FixedType("string", [ ])));
@@ -147,7 +147,7 @@ case x of
     Cat { name } -> 2
 `;
     const parsed = parseExpression(exampleInput);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
@@ -161,7 +161,7 @@ export async function testAddition() {
 1 + 2
 `;
     const parsed = parseExpression(exampleInput);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(inferType(value, [ ]), Ok(FixedType("number", [ ])));
@@ -172,7 +172,7 @@ export async function testMultiAddition() {
 1 + "hello"
 `;
     const parsed = parseExpression(exampleInput);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
@@ -186,7 +186,7 @@ export async function testSubtraction() {
 1 - 2
 `;
     const parsed = parseExpression(exampleInput);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(inferType(value, [ ]), Ok(FixedType("number", [ ])));
@@ -197,7 +197,7 @@ export async function testMultiSubtraction() {
 1 - "hello"
 `;
     const parsed = parseExpression(exampleInput);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
@@ -211,7 +211,7 @@ export async function testMultiplication() {
 1 * 2
 `;
     const parsed = parseExpression(exampleInput);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(inferType(value, [ ]), Ok(FixedType("number", [ ])));
@@ -222,7 +222,7 @@ export async function testMultiMultiplication() {
 1 * "hello"
 `;
     const parsed = parseExpression(exampleInput);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
@@ -236,7 +236,7 @@ export async function testDivision() {
 1 / 2
 `;
     const parsed = parseExpression(exampleInput);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(inferType(value, [ ]), Ok(FixedType("number", [ ])));
@@ -247,7 +247,7 @@ export async function testMultiDivision() {
 1 / "hello"
 `;
     const parsed = parseExpression(exampleInput);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
@@ -261,7 +261,7 @@ export async function testEquality() {
 1 == 2
 `;
     const parsed = parseExpression(exampleInput);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
@@ -275,7 +275,7 @@ export async function testInEquality() {
 1 != 2
 `;
     const parsed = parseExpression(exampleInput);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
@@ -289,7 +289,7 @@ export async function testLessThan() {
 1 < 2
 `;
     const parsed = parseExpression(exampleInput);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
@@ -303,7 +303,7 @@ export async function testLessThanOrEqual() {
 1 <= 2
 `;
     const parsed = parseExpression(exampleInput);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
@@ -317,7 +317,7 @@ export async function testGreaterThan() {
 1 > 2
 `;
     const parsed = parseExpression(exampleInput);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
@@ -331,7 +331,7 @@ export async function testGreaterThanOrEqual() {
 1 >= 2
 `;
     const parsed = parseExpression(exampleInput);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
@@ -346,7 +346,7 @@ export async function testListPrepend() {
 `.trim();
     const parsed = parseExpression(exampleInput);
 
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
@@ -361,7 +361,7 @@ export async function testListPrependWithMixedTypes() {
 `.trim();
     const parsed = parseExpression(exampleInput);
 
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
@@ -378,7 +378,7 @@ Person { name: "hello" } :: [ Animal { name: "Frodo" } ]
 `.trim();
     const parsed = parseExpression(exampleInput);
 
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(

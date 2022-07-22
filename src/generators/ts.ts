@@ -636,7 +636,7 @@ function typeHasOverlapWithImportedModule(
     for (const import_ of imports) {
         for (const module_ of import_.modules) {
             if (
-                module_.alias.kind === "just" &&
+                module_.alias.kind === "Just" &&
                 module_.alias.value === type_.name
             ) {
                 return true;

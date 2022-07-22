@@ -67,7 +67,7 @@ function showCommandHelp(): void {
 export async function main(): Promise<number> {
     const command = parseCliCommand();
 
-    if (command.kind === "err") {
+    if (command.kind === "Err") {
         console.log(command.error);
         showCommandHelp();
         process.exit(1);

@@ -624,7 +624,7 @@ function generateImportBlock(imports: Import): string {
                     ? ` exposing ( ${module.exposing.join(", ")} )`
                     : "";
 
-            if (module.alias.kind === "just")
+            if (module.alias.kind === "Just")
                 return `import ${module.name} as ${module.alias.value}${exposingPart}`;
 
             return `import ${module.name}${exposingPart}`;

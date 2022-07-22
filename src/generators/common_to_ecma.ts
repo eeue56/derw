@@ -146,12 +146,12 @@ export function generateImportBlock(imports: Import): string {
             if (module.namespace === "Relative") {
                 const withoutQuotes = module.name.slice(1, -1);
                 const name =
-                    module.alias.kind === "just"
+                    module.alias.kind === "Just"
                         ? module.alias.value
                         : getNameFromPath(withoutQuotes);
 
                 const filteredExposing =
-                    module.alias.kind === "nothing"
+                    module.alias.kind === "Nothing"
                         ? module.exposing
                         : module.exposing.filter(
                               (expose) =>
@@ -165,7 +165,7 @@ export function generateImportBlock(imports: Import): string {
                 if (module.exposing.length === 0) {
                     return `import * as ${name} from ${module.name};`;
                 } else {
-                    if (module.alias.kind === "just") {
+                    if (module.alias.kind === "Just") {
                         return `import * as ${name} from ${module.name};
 ${exposing}`;
                     }
@@ -173,7 +173,7 @@ ${exposing}`;
                 }
             }
             const name =
-                module.alias.kind === "just" ? module.alias.value : module.name;
+                module.alias.kind === "Just" ? module.alias.value : module.name;
             const exposing = `import { ${module.exposing.join(", ")} } from "${
                 module.name
             }";`;
@@ -181,7 +181,7 @@ ${exposing}`;
             if (module.exposing.length === 0) {
                 return `import * as ${name} from "${module.name}";`;
             } else {
-                if (module.alias.kind === "just") {
+                if (module.alias.kind === "Just") {
                     return `import * as ${name} from "${module.name}";
 ${exposing}`;
                 }

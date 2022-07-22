@@ -164,7 +164,7 @@ export async function info(
 
     const fileNameToParse =
         program.flags.file.isPresent &&
-        program.flags.file.arguments.kind === "ok" &&
+        program.flags.file.arguments.kind === "Ok" &&
         (program.flags.file.arguments.value as string);
 
     if (!isInPackageDirectory && !fileNameToParse) {

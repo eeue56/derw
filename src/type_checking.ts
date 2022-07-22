@@ -216,7 +216,7 @@ function inferListValue(
 
     for (const item of value.items) {
         const inferred = inferType(item, typedBlocks);
-        if (inferred.kind === "err") return inferred;
+        if (inferred.kind === "Err") return inferred;
         types.push(inferred.value);
     }
 
@@ -237,7 +237,7 @@ function inferObjectLiteral(
         FixedType("Inferred", [ ]),
         value.fields.map((field) => {
             const inferred = inferType(field.value, typedBlocks);
-            if (inferred.kind === "err") {
+            if (inferred.kind === "Err") {
                 return Property(field.name, GenericType("any"));
             }
 
@@ -284,8 +284,8 @@ function inferIfStatement(
     const ifBranch = inferType(value.ifBody, typedBlocks);
     const elseBranch = inferType(value.elseBody, typedBlocks);
 
-    if (ifBranch.kind === "err") return ifBranch;
-    if (elseBranch.kind === "err") return elseBranch;
+    if (ifBranch.kind === "Err") return ifBranch;
+    if (elseBranch.kind === "Err") return elseBranch;
 
     if (isSameType(ifBranch.value, elseBranch.value, false))
         return Ok(ifBranch.value);
@@ -312,7 +312,7 @@ function inferCaseStatement(
 
     for (const branch of value.branches) {
         const inf = inferBranch(branch, typedBlocks);
-        if (inf.kind === "err") return inf;
+        if (inf.kind === "Err") return inf;
         typesToReduce.push(inf.value);
     }
     const branches = reduceTypes(typesToReduce);
@@ -329,8 +329,8 @@ function inferAddition(
     const left = inferType(value.left, typedBlocks);
     const right = inferType(value.right, typedBlocks);
 
-    if (left.kind === "err") return left;
-    if (right.kind === "err") return right;
+    if (left.kind === "Err") return left;
+    if (right.kind === "Err") return right;
 
     if (!isSameType(left.value, right.value, false))
         return Err(
@@ -348,8 +348,8 @@ function inferSubtraction(
     const left = inferType(value.left, typedBlocks);
     const right = inferType(value.right, typedBlocks);
 
-    if (left.kind === "err") return left;
-    if (right.kind === "err") return right;
+    if (left.kind === "Err") return left;
+    if (right.kind === "Err") return right;
 
     if (!isSameType(left.value, right.value, false))
         return Err(
@@ -367,8 +367,8 @@ function inferMultiplication(
     const left = inferType(value.left, typedBlocks);
     const right = inferType(value.right, typedBlocks);
 
-    if (left.kind === "err") return left;
-    if (right.kind === "err") return right;
+    if (left.kind === "Err") return left;
+    if (right.kind === "Err") return right;
 
     if (!isSameType(left.value, right.value, false))
         return Err(
@@ -386,8 +386,8 @@ function inferDivision(
     const left = inferType(value.left, typedBlocks);
     const right = inferType(value.right, typedBlocks);
 
-    if (left.kind === "err") return left;
-    if (right.kind === "err") return right;
+    if (left.kind === "Err") return left;
+    if (right.kind === "Err") return right;
 
     if (!isSameType(left.value, right.value, false))
         return Err(
@@ -487,8 +487,8 @@ function inferListPrepend(
     const leftInfer = inferType(value.left, typedBlocks);
     const rightInfer = inferType(value.right, typedBlocks);
 
-    if (leftInfer.kind === "err") return leftInfer;
-    if (rightInfer.kind === "err") return rightInfer;
+    if (leftInfer.kind === "Err") return leftInfer;
+    if (rightInfer.kind === "Err") return rightInfer;
 
     if (
         rightInfer.value.kind === "GenericType" ||
@@ -634,7 +634,7 @@ function typeExistsInNamespace(
 
             if (
                 type.name.indexOf(".") > -1 &&
-                module.alias.kind === "just" &&
+                module.alias.kind === "Just" &&
                 type.name.split(".")[0] === module.alias.value
             ) {
                 return true;
@@ -661,7 +661,7 @@ export function validateType(
             }
 
             const inferredRes = inferType(block.value, typedBlocks);
-            if (inferredRes.kind === "err") return inferredRes;
+            if (inferredRes.kind === "Err") return inferredRes;
             const inferred = inferredRes.value;
             if (isSameType(block.type, inferred, false)) {
                 return Ok(block.type);
@@ -702,7 +702,7 @@ export function validateType(
             }
 
             const inferredRes = inferType(block.body, typedBlocks);
-            if (inferredRes.kind === "err") return inferredRes;
+            if (inferredRes.kind === "Err") return inferredRes;
             const inferred = inferredRes.value;
 
             if (!isSameType(block.returnType, inferred, false)) {

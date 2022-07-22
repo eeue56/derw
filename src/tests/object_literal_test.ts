@@ -185,8 +185,8 @@ export function testCompile() {
 
     assert.deepStrictEqual(
         compiled.kind,
-        "ok",
-        (compiled.kind === "err" && compiled.error.toString()) || ""
+        "Ok",
+        (compiled.kind === "Err" && compiled.error.toString()) || ""
     );
 }
 
@@ -197,8 +197,8 @@ export function testCompileMultiLine() {
 
     assert.deepStrictEqual(
         compiled.kind,
-        "ok",
-        (compiled.kind === "err" && compiled.error.toString()) || ""
+        "Ok",
+        (compiled.kind === "Err" && compiled.error.toString()) || ""
     );
 }
 

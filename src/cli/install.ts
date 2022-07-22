@@ -66,7 +66,7 @@ export async function install(
 
     const packageFile = await loadPackageFile("derw-package.json");
 
-    if (packageFile.kind === "err") {
+    if (packageFile.kind === "Err") {
         console.log("Failed to parse package file due to:");
         console.log(packageFile.error);
         process.exit(1);
@@ -157,7 +157,7 @@ async function installPackages(
 
         const depPackage = await fetchDependencyPackage(dependency);
 
-        if (depPackage.kind === "ok") {
+        if (depPackage.kind === "Ok") {
             if (!isPackageAlreadyThere(depPackage.value, installedPackages)) {
                 const subpackages = await installPackages(
                     depPackage.value,
@@ -182,7 +182,7 @@ async function installPackages(
             await npmInstall(dependency);
         }
 
-        if (depPackage.kind === "ok") {
+        if (depPackage.kind === "Ok") {
             installedPackages.push(depPackage.value);
         }
     }

@@ -115,12 +115,12 @@ export async function template(
 
     const path =
         program.flags.path.isPresent &&
-        program.flags.path.arguments.kind === "ok" &&
+        program.flags.path.arguments.kind === "Ok" &&
         (program.flags.path.arguments.value as string);
 
     const template =
         program.flags.template.isPresent &&
-        program.flags.template.arguments.kind === "ok" &&
+        program.flags.template.arguments.kind === "Ok" &&
         (program.flags.template.arguments.value as TemplateType);
 
     if (!path) {

@@ -12,7 +12,7 @@ type Animal =
 `.trim();
     const block = UnparsedBlock("UnionTypeBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
@@ -30,7 +30,7 @@ type alias Person = {
 `.trim();
     const block = UnparsedBlock("TypeAliasBlock", 0, exampleInput.split("\n"));
     const parsed = parseBlock(block);
-    assert.deepStrictEqual(parsed.kind, "ok");
+    assert.deepStrictEqual(parsed.kind, "Ok");
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
