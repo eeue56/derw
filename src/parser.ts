@@ -2497,31 +2497,31 @@ export function parseExpression(
         }
     }
 
-    if (body.indexOf(" == ") > 0) {
+    if (hasTopLevelOperator("==", tokens)) {
         return parseEquality(tokens);
-    } else if (body.indexOf(" != ") > 0) {
+    } else if (hasTopLevelOperator("!=", tokens)) {
         return parseInEquality(tokens);
-    } else if (body.indexOf(" < ") > 0) {
+    } else if (hasTopLevelOperator("<", tokens)) {
         return parseLessThan(tokens);
-    } else if (body.indexOf(" <= ") > 0) {
+    } else if (hasTopLevelOperator("<=", tokens)) {
         return parseLessThanOrEqual(tokens);
-    } else if (body.indexOf(" > ") > 0) {
+    } else if (hasTopLevelOperator(">", tokens)) {
         return parseGreaterThan(tokens);
-    } else if (body.indexOf(" >= ") > 0) {
+    } else if (hasTopLevelOperator(">=", tokens)) {
         return parseGreaterThanOrEqual(tokens);
-    } else if (body.indexOf(" && ") > 0) {
+    } else if (hasTopLevelOperator("&&", tokens)) {
         return parseAnd(tokens);
-    } else if (body.indexOf(" || ") > 0) {
+    } else if (hasTopLevelOperator("||", tokens)) {
         return parseOr(tokens);
     } else if (hasTopLevelOperator("::", tokens)) {
         return parseListPrepend(tokens);
-    } else if (body.indexOf(" + ") > 0) {
+    } else if (hasTopLevelOperator("+", tokens)) {
         return parseAddition(tokens);
-    } else if (body.indexOf(" - ") > 0) {
+    } else if (hasTopLevelOperator("-", tokens)) {
         return parseSubtraction(tokens);
-    } else if (body.indexOf(" * ") > 0) {
+    } else if (hasTopLevelOperator("*", tokens)) {
         return parseMultiplcation(tokens);
-    } else if (body.indexOf(" / ") > 0) {
+    } else if (hasTopLevelOperator("/", tokens)) {
         return parseDivision(tokens);
     }
 
