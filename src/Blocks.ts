@@ -1,4 +1,4 @@
-import * as List from "../derw-packages/derw-lang/stdlib/src/List";
+import * as List from "./stdlib/List";
 
 import { BlockKinds, Block, TypedBlock, Module } from "./types";
 

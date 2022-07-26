@@ -1,4 +1,4 @@
-import "../derw-packages/derw-lang/stdlib/src/List" as List
+import "./stdlib/List" as List
 import "./types" exposing ( BlockKinds, Block, TypedBlock, Module )
 import "./utils" exposing (isTestFile)
 

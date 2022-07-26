@@ -1,0 +1,75 @@
+import "./List_kernel" exposing ( kernelLength, kernelEmptyList, kernelSort, kernelSortBy )
+import "./Maybe" exposing ( Maybe )
+
+exposing (emptyList, map, indexedMap, filter, foldl, foldr, filterMap, append, reverse, length, take, drop, sort, sortBy)
+
+emptyList: List any
+emptyList =
+    [ ]
+
+map: (a -> b) -> List a -> List b
+map fn xs =
+    xs.map fn
+
+indexedMap: (a -> number -> b) -> List a -> List b
+indexedMap fn xs =
+    xs.map fn
+
+filter: (a -> boolean) -> List a -> List a
+filter fn xs =
+    xs.filter fn
+
+foldl: (a -> b -> b) -> b -> List a -> b
+foldl fn init xs =
+    xs.reduce (\a b -> fn b a) init
+
+foldr: (a -> b -> b) -> b -> List a -> b
+foldr fn init xs =
+    xs.reduceRight (\a b -> fn b a) init
+
+filterMapHelp: (a -> Maybe b) -> a -> List b -> List b
+filterMapHelp fn a xs =
+    let
+        maybe: Maybe b
+        maybe =
+            fn a
+    in
+        case maybe of
+            Just { value } ->
+                append xs [ value ]
+
+            Nothing ->
+                xs
+
+filterMap: (a -> Maybe b) -> List a -> List b
+filterMap fn xs =
+    foldl (\y ys -> filterMapHelp fn y ys) [ ] xs
+
+append: List a -> List a -> List a
+append xs ys =
+    kernelEmptyList()
+        |> (\x -> x.concat xs ys)
+
+reverse: List a -> List a
+reverse xs =
+    xs.reverse()
+
+length: List a -> number
+length xs =
+    kernelLength xs
+
+take: number -> List a -> List a
+take n xs =
+    xs.slice 0 n
+
+drop: number -> List a -> List a
+drop n xs =
+    xs.slice n xs.length
+
+sort: List a -> List a
+sort xs =
+    kernelSort xs
+
+sortBy: (a -> a -> number) -> List a -> List a
+sortBy fn xs =
+    kernelSortBy fn xs

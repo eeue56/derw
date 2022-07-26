@@ -1,0 +1,32 @@
+exposing (Maybe, Just, Nothing, map, withDefault, andThen)
+
+type Maybe a =
+    Just { value: a }
+    | Nothing
+
+map: (a -> b) -> Maybe a -> Maybe b
+map fn maybe =
+    case maybe of
+        Just { value } ->
+            Just { value: fn value }
+
+        Nothing ->
+            Nothing
+
+withDefault: a -> Maybe a -> a
+withDefault defaultValue maybe =
+    case maybe of
+        Just { value } ->
+            value
+
+        Nothing ->
+            defaultValue
+
+andThen: (a -> Maybe b) -> Maybe a -> Maybe b
+andThen fn maybe =
+    case maybe of
+        Just { value } ->
+            fn value
+
+        Nothing ->
+            Nothing

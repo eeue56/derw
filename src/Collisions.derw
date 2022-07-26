@@ -1,5 +1,5 @@
-import "../derw-packages/derw-lang/stdlib/src/List" as List
-import "../derw-packages/derw-lang/stdlib/src/Maybe" as Maybe exposing ( Just, Nothing, Maybe )
+import "./stdlib/List" as List
+import "./stdlib/Maybe" as Maybe exposing ( Just, Nothing, Maybe )
 import "./types" exposing ( Block, ImportModule )
 
 exposing (Collision, collisions)

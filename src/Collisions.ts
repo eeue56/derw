@@ -1,7 +1,7 @@
-import * as List from "../derw-packages/derw-lang/stdlib/src/List";
+import * as List from "./stdlib/List";
 
-import * as Maybe from "../derw-packages/derw-lang/stdlib/src/Maybe";
-import { Just, Nothing } from "../derw-packages/derw-lang/stdlib/src/Maybe";
+import * as Maybe from "./stdlib/Maybe";
+import { Just, Nothing } from "./stdlib/Maybe";
 
 import { Block, ImportModule } from "./types";
 

@@ -3,9 +3,9 @@
     "version": "0.0.7",
     "description": "An Elm-inspired language that transpiles to TypeScript",
     "main": "index.js",
-    "bin": "build/cli.js",
+    "bin": "build/src/cli.js",
     "scripts": {
-        "postinstall": "npx derw install && ls -la && npx ts-node src/cli.ts compile",
+        "postinstall": "npx ts-node src/cli.ts compile",
         "build": "npx derw compile",
         "test": "npx @eeue56/bach",
         "bench": "npx @eeue56/mainc",
