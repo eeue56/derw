@@ -1,0 +1,411 @@
+import "../derw-packages/derw-lang/stdlib/src/List" as List
+import "./types" exposing ( BlockKinds, Block, TypedBlock, Module )
+import "./utils" exposing (isTestFile)
+
+exposing (blockKind, createUnparsedBlock, intoBlocks, typeBlocks, exportTests)
+
+type alias Validator = {
+    test: string -> boolean,
+    blockKind: BlockKinds
+}
+
+type Result error value =
+    Ok { value: value }
+    | Err { error: error }
+
+type UnparsedBlock =
+    ImportBlock { lineStart: number,
+        lines: List string }
+    | ExportBlock { lineStart: number,
+        lines: List string }
+    | UnionTypeBlock { lineStart: number,
+        lines: List string }
+    | TypeAliasBlock { lineStart: number,
+        lines: List string }
+    | FunctionBlock { lineStart: number,
+        lines: List string }
+    | ConstBlock { lineStart: number,
+        lines: List string }
+    | CommentBlock { lineStart: number,
+        lines: List string }
+    | MultilineCommentBlock { lineStart: number,
+        lines: List string }
+    | UnknownBlock { lineStart: number,
+        lines: List string }
+
+hasTypeLine: string -> boolean
+hasTypeLine block =
+    case block.split ":" of
+        x :: [] ->
+            false
+
+        x :: xs ->
+            let
+                trimmed: string
+                trimmed =
+                    x.trim()
+
+                split: List string
+                split =
+                    trimmed.split " "
+
+                length: number
+                length =
+                    split.length
+            in
+                length == 1
+
+        default ->
+            false
+
+isAFunction: string -> boolean
+isAFunction block =
+    case block.split "\n" of
+        firstLine :: xs ->
+            firstLine.split "->"
+                |> (\y -> y.length > 1)
+
+        default ->
+            false
+
+validators: List Validator
+validators =
+    [
+        {
+            test: (\x -> x.startsWith "--"),
+            blockKind: "Comment"
+        },
+        {
+            test: (\x -> x.startsWith "{-"),
+            blockKind: "MultilineComment"
+        },
+        {
+            test: (\x -> x.startsWith "type alias"),
+            blockKind: "TypeAlias"
+        },
+        {
+            test: (\x -> x.startsWith "type "),
+            blockKind: "UnionType"
+        },
+        {
+            test: (\x -> x.startsWith " " || x.startsWith "}"),
+            blockKind: "Indent"
+        },
+        {
+            test: (\x -> x.startsWith "import"),
+            blockKind: "Import"
+        },
+        {
+            test: (\x -> x.startsWith "exposing"),
+            blockKind: "Export"
+        },
+        {
+            test: (\x -> hasTypeLine x && isAFunction x),
+            blockKind: "Function"
+        },
+        {
+            test: (\x -> hasTypeLine x),
+            blockKind: "Const"
+        },
+        {
+            test: (\x -> x.split "="
+            |> (\y -> y.length > 1)),
+            blockKind: "Definition"
+        }
+    ]
+
+blockKindStep: string -> List Validator -> Result string BlockKinds
+blockKindStep block validators =
+    case validators of
+        validator :: ys ->
+            if validator.test block then
+                Ok { value: validator.blockKind }
+            else
+                blockKindStep block ys
+
+        default ->
+            Err { error: "Unknown block type" }
+
+blockKind: string -> Result string BlockKinds
+blockKind block =
+    blockKindStep block validators
+
+createUnparsedBlock: BlockKinds -> number -> List string -> UnparsedBlock
+createUnparsedBlock blockKind lineStart lines =
+    case blockKind of
+        "Import" ->
+            ImportBlock {
+                lineStart: lineStart,
+                lines: lines
+            }
+
+        "Export" ->
+            ExportBlock {
+                lineStart: lineStart,
+                lines: lines
+            }
+
+        "Const" ->
+            ConstBlock {
+                lineStart: lineStart,
+                lines: lines
+            }
+
+        "Function" ->
+            FunctionBlock {
+                lineStart: lineStart,
+                lines: lines
+            }
+
+        "UnionType" ->
+            UnionTypeBlock {
+                lineStart: lineStart,
+                lines: lines
+            }
+
+        "TypeAlias" ->
+            TypeAliasBlock {
+                lineStart: lineStart,
+                lines: lines
+            }
+
+        "Indent" ->
+            UnknownBlock {
+                lineStart: lineStart,
+                lines: lines
+            }
+
+        "Definition" ->
+            UnknownBlock {
+                lineStart: lineStart,
+                lines: lines
+            }
+
+        "Comment" ->
+            CommentBlock {
+                lineStart: lineStart,
+                lines: lines
+            }
+
+        "MultilineComment" ->
+            MultilineCommentBlock {
+                lineStart: lineStart,
+                lines: lines
+            }
+
+        "Unknown" ->
+            UnknownBlock {
+                lineStart: lineStart,
+                lines: lines
+            }
+
+type alias IntoBlockInfo = {
+    currentBlock: List string,
+    previousLine: string,
+    currentBlockKind: Result string BlockKinds,
+    lineStart: number
+}
+
+stepMultilineComment: number -> IntoBlockInfo -> string -> List string -> List UnparsedBlock
+stepMultilineComment lineNumber info line lines =
+    if line == "-}" then
+        let
+            infoWithCurrentLine: IntoBlockInfo
+            infoWithCurrentLine =
+                {
+                    ...info,
+                    previousLine: line,
+                    currentBlock: List.append info.currentBlock [ line ]
+                }
+
+            block: UnparsedBlock
+            block =
+                createUnparsedBlock "MultilineComment" infoWithCurrentLine.lineStart infoWithCurrentLine.currentBlock
+
+            nextInfo: IntoBlockInfo
+            nextInfo =
+                {
+                    currentBlock: [ ],
+                    previousLine: line,
+                    lineStart: lineNumber,
+                    currentBlockKind: Err { error: "Nothing" }
+                }
+        in
+            block :: intoBlocksStep (lineNumber + 1) nextInfo lines
+    else
+        let
+            infoWithCurrentLine: IntoBlockInfo
+            infoWithCurrentLine =
+                {
+                    ...info,
+                    previousLine: line,
+                    currentBlock: List.append info.currentBlock [ line ]
+                }
+        in
+            intoBlocksStep (lineNumber + 1) infoWithCurrentLine lines
+
+indentOrDefinitionStep: number -> IntoBlockInfo -> string -> List string -> List UnparsedBlock
+indentOrDefinitionStep lineNumber info line lines =
+    let
+        nextLines: List string
+        nextLines =
+            if lineNumber > 0 && info.previousLine.trim() == "" then
+                [
+                    info.previousLine,
+                    line
+                ]
+            else
+                [ line ]
+
+        nextInfo: IntoBlockInfo
+        nextInfo =
+            {
+                ...info,
+                currentBlock: List.append info.currentBlock nextLines,
+                previousLine: line
+            }
+    in
+        intoBlocksStep (lineNumber + 1) nextInfo lines
+
+intoBlocksStep: number -> IntoBlockInfo -> List string -> List UnparsedBlock
+intoBlocksStep lineNumber info lines =
+    case lines of
+        line :: xs ->
+            if line.trim().length == 0 then
+                let
+                    nextInfo: IntoBlockInfo
+                    nextInfo =
+                        { ...info, previousLine: line }
+                in
+                    intoBlocksStep (lineNumber + 1) nextInfo xs
+            else
+                case info.currentBlock of
+                    [] ->
+                        let
+                            nextInfo: IntoBlockInfo
+                            nextInfo =
+                                {
+                                    previousLine: line,
+                                    currentBlock: [ line ],
+                                    lineStart: lineNumber,
+                                    currentBlockKind: blockKind line
+                                }
+                        in
+                            intoBlocksStep (lineNumber + 1) nextInfo xs
+
+                    default ->
+                        let
+                            isInMultilineComment: boolean
+                            isInMultilineComment =
+                                info.currentBlockKind.kind == "Ok" && info.currentBlockKind.value == "MultilineComment"
+                        in
+                            if isInMultilineComment then
+                                stepMultilineComment lineNumber info line xs
+                            else
+                                let
+                                    currentLineBlockKind: Result string BlockKinds
+                                    currentLineBlockKind =
+                                        blockKind line
+
+                                    isIndent: boolean
+                                    isIndent =
+                                        currentLineBlockKind.kind == "Ok" && currentLineBlockKind.value == "Indent"
+
+                                    isDefinition: boolean
+                                    isDefinition =
+                                        currentLineBlockKind.kind == "Ok" && currentLineBlockKind.value == "Definition"
+                                in
+                                    if isIndent || isDefinition then
+                                        indentOrDefinitionStep lineNumber info line xs
+                                    else
+                                        case info.currentBlockKind of
+                                            Ok { value } ->
+                                                let
+                                                    block: UnparsedBlock
+                                                    block =
+                                                        createUnparsedBlock value info.lineStart info.currentBlock
+
+                                                    nextInfo: IntoBlockInfo
+                                                    nextInfo =
+                                                        {
+                                                            previousLine: line,
+                                                            currentBlock: [ line ],
+                                                            lineStart: lineNumber,
+                                                            currentBlockKind: currentLineBlockKind
+                                                        }
+                                                in
+                                                    block :: intoBlocksStep (lineNumber + 1) nextInfo xs
+
+                                            Err ->
+                                                let
+                                                    nextInfo: IntoBlockInfo
+                                                    nextInfo =
+                                                        {
+                                                            ...info,
+                                                            previousLine: line,
+                                                            currentBlock: List.append info.currentBlock [ line ]
+                                                        }
+                                                in
+                                                    intoBlocksStep (lineNumber + 1) nextInfo xs
+
+        default ->
+            if info.currentBlock.length > 0 then
+                case info.currentBlockKind of
+                    Ok { value } ->
+                        [ createUnparsedBlock value info.lineStart info.currentBlock ]
+
+                    Err ->
+                        [ createUnparsedBlock "Unknown" info.lineStart info.currentBlock ]
+            else
+                [ ]
+
+intoBlocks: string -> List UnparsedBlock
+intoBlocks body =
+    let
+        lines: List string
+        lines =
+            body.split "\n"
+    in
+        intoBlocksStep 0 {
+            previousLine: "",
+            currentBlock: [ ],
+            currentBlockKind: Err { error: "Nothing" },
+            lineStart: 0
+        } lines
+
+
+typeBlocks: List Block -> List TypedBlock
+typeBlocks blocks =
+    List.filter (\block -> block.kind == "UnionType" || block.kind == "TypeAlias") blocks
+
+type MyExport = Export { names: List string }
+
+exportTests: Module -> MyExport
+exportTests module =
+    let
+        isTest: boolean
+        isTest =
+            isTestFile module.name
+
+        namesToExpose: List string
+        namesToExpose =
+            if isTest then
+                List.filter (\block -> block.kind == "Function" || block.kind == "Const") module.body
+                    |> List.map (\block -> block.name)
+                    |> List.filter (\name -> name.startsWith "test")
+            else
+                []
+
+        exports: List Export
+        exports =
+            List.filter (\block -> block.kind == "Export") module.body
+
+        exportNames: List string
+        epxortNames =
+            List.foldl (\export_ allNames -> List.append export_.names allNames) [] exports
+
+        exposeWithoutDuplicates: List string
+        exposeWithoutDuplicates =
+            List.filter (\name -> exportNames.includes name) namesToExpose
+    in
+        Export { names: exposeWithoutDuplicates }

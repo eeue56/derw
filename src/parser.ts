@@ -5,7 +5,7 @@ import {
     Ok,
     Result,
 } from "@eeue56/ts-core/build/main/lib/result";
-import { intoBlocks, typeBlocks } from "./blocks";
+import { intoBlocks, typeBlocks } from "./Blocks";
 import { isBuiltinType, isReservedName } from "./builtins";
 import { collisions } from "./Collisions";
 import {

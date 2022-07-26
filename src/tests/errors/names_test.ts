@@ -1,6 +1,6 @@
 import { deepStrictEqual } from "@eeue56/ts-assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
-import { intoBlocks } from "../../blocks";
+import { intoBlocks } from "../../Blocks";
 import { namesPerBlock } from "../../errors/names";
 import { parseBlock } from "../../parser";
 import { Block } from "../../types";

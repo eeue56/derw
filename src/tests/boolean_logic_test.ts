@@ -1,5 +1,5 @@
 import * as assert from "@eeue56/ts-assert";
-import { intoBlocks } from "../blocks";
+import { intoBlocks } from "../Blocks";
 import { compileTypescript } from "../compile";
 import { generateJavascript } from "../generators/js";
 import { generateTypescript } from "../generators/ts";

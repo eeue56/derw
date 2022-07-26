@@ -70,7 +70,11 @@ ${prefixLines(tags, 4)}
 }
 
 function generateProperty(syntax: Property): string {
-    return `${syntax.name}: ${generateTopLevelType(syntax.type)}`;
+    const type_ = generateTopLevelType(syntax.type);
+    if (syntax.type.kind === "FunctionType") {
+        return `${syntax.name}: ${type_.slice(1, -1)}`;
+    }
+    return `${syntax.name}: ${type_}`;
 }
 
 export function generateTypeAlias(syntax: TypeAlias): string {
@@ -440,6 +444,21 @@ function generateFunctionCall(functionCall: FunctionCall): string {
                 break;
             }
             case "ListPrepend": {
+                output.push("(" + generateExpression(arg) + ")");
+                break;
+            }
+            case "Addition":
+            case "Subtraction":
+            case "Multiplication":
+            case "Division":
+            case "Equality":
+            case "InEquality":
+            case "LessThan":
+            case "GreaterThan":
+            case "LessThanOrEqual":
+            case "GreaterThanOrEqual":
+            case "LeftPipe":
+            case "RightPipe": {
                 output.push("(" + generateExpression(arg) + ")");
                 break;
             }

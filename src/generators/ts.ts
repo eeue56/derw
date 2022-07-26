@@ -1,4 +1,4 @@
-import { exportTests } from "../blocks";
+import { exportTests } from "../Blocks";
 import { isBuiltinType } from "../builtins";
 import {
     Addition,

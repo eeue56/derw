@@ -1,5 +1,5 @@
 import * as assert from "@eeue56/ts-assert";
-import { intoBlocks } from "../blocks";
+import { intoBlocks } from "../Blocks";
 import { parse } from "../parser";
 import { UnparsedBlock } from "../types";
 

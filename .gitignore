@@ -119,3 +119,4 @@ derw-packages/
 
 # derw generated files
 src/Collisions.ts
+src/Blocks.ts

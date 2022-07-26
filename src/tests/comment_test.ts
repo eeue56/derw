@@ -1,6 +1,6 @@
 import * as assert from "@eeue56/ts-assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
-import { blockKind, intoBlocks } from "../blocks";
+import { blockKind, intoBlocks } from "../Blocks";
 import { compileTypescript } from "../compile";
 import { generateDerw } from "../generators/derw";
 import { generateJavascript } from "../generators/js";

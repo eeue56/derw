@@ -1,7 +1,7 @@
 import * as assert from "@eeue56/ts-assert";
 import { Just, Nothing } from "@eeue56/ts-core/build/main/lib/maybe";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
-import { blockKind, intoBlocks } from "../blocks";
+import { blockKind, intoBlocks } from "../Blocks";
 import { compileTypescript } from "../compile";
 import { generateJavascript } from "../generators/js";
 import { generateTypescript } from "../generators/ts";
