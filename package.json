@@ -5,7 +5,7 @@
     "main": "index.js",
     "bin": "build/cli.js",
     "scripts": {
-        "postinstall": "npx derw install && npx derw compile",
+        "postinstall": "npx derw install && ls -la && npx ts-node src/cli.ts compile",
         "build": "npx derw compile",
         "test": "npx @eeue56/bach",
         "bench": "npx @eeue56/mainc",

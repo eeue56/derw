@@ -43,7 +43,7 @@ jobs:
 
             - name: Install current version of derw
               working-directory: derw
-              run: npm install derw
+              run: npm install derw@0.0.6
 
             - name: Install npm packages
               working-directory: derw
