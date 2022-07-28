@@ -54,7 +54,7 @@ import {
     patternGapPositions,
     patternHasGaps,
     prefixLines,
-} from "./common";
+} from "./Common";
 import {
     flattenLeftPipe,
     generateExportBlock,

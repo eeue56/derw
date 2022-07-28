@@ -44,7 +44,7 @@ import {
     UnionType,
     Value,
 } from "../types";
-import { prefixLines } from "./common";
+import { prefixLines } from "./Common";
 
 function generateUnionType(syntax: UnionType): string {
     const tags = syntax.tags

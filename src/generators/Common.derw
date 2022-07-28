@@ -1,0 +1,95 @@
+import "../stdlib/List" as List
+import "../types" exposing ( ListDestructure, ListDestructurePart )
+
+exposing (prefixLines, destructureLength, patternGapPositions, patternHasGaps)
+
+prefixLines: string -> number -> string
+prefixLines body indent =
+    let
+        lineFn: string -> string
+        lineFn line =
+            if line.trim() == "" then
+                line
+            else
+                `${" ".repeat(indent)}${line}`
+    in
+        body.split "\n"
+            |> List.map lineFn
+            |> (\y -> y.join "\n")
+
+partLength: ListDestructurePart -> number -> number
+partLength part index =
+    case part of
+        Destructure ->
+            1
+
+        StringValue ->
+            1
+
+        FormatStringValue ->
+            1
+
+        EmptyList ->
+            0
+
+        Value ->
+            if index == 0 then
+                1
+            else
+                0
+
+destructureLength: ListDestructure -> number
+destructureLength pattern =
+    List.indexedMap partLength pattern.parts
+        |> List.foldl (\x y -> x + y) 0
+
+type alias GapPositionInfo = {
+    i: number,
+    positions: List number
+}
+
+patternGapPositions: ListDestructure -> List number
+patternGapPositions pattern =
+    let
+        folder: ListDestructurePart -> GapPositionInfo -> GapPositionInfo
+        folder part info =
+            case part of
+                Value ->
+                    if info.i > 0 then
+                        {
+                            i: info.i - 1,
+                            positions: info.i :: info.positions
+                        }
+                    else
+                        { ...info, i: info.i - 1 }
+
+                default ->
+                    { ...info, i: info.i - 1 }
+    in
+        List.foldr folder {
+            i: pattern.parts.length - 1,
+            positions: [ ]
+        } pattern.parts
+            |> (\y -> y.positions)
+
+patternHasGaps: ListDestructure -> boolean
+patternHasGaps pattern =
+    let
+        hasGap: number -> List ListDestructurePart -> boolean
+        hasGap index xs =
+            case xs of
+                x :: ys ->
+                    case x of
+                        Value ->
+                            if index > 0 then
+                                true
+                            else
+                                hasGap (index + 1) ys
+
+                        default ->
+                            hasGap (index + 1) ys
+
+                default ->
+                    false
+    in
+        hasGap 0 pattern.parts
