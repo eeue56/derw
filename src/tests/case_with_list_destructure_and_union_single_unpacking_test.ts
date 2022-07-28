@@ -51,11 +51,10 @@ capture tokens =
 
 const expectedOutput = `
 function capture(tokens: Token[]): string[] {
-    const _res868186726 = tokens;
-    switch (_res868186726.length) {
-        case _res868186726.length: {
-            if (_res868186726.length >= 2) {
-                const [ _0, ..._rest ] = _res868186726;
+    switch (tokens.length) {
+        case tokens.length: {
+            if (tokens.length >= 2) {
+                const [ _0, ..._rest ] = tokens;
                 if (_0.kind === "Speech") {
                     let _foundIndex: number = -1;
                     for (let _i = 0; _i < _rest.length; _i++) {
@@ -73,17 +72,17 @@ function capture(tokens: Token[]): string[] {
                 }
             }
         }
-        case _res868186726.length: {
-            if (_res868186726.length >= 1) {
-                const [ _0, ...rest ] = _res868186726;
+        case tokens.length: {
+            if (tokens.length >= 1) {
+                const [ _0, ...rest ] = tokens;
                 if (_0.kind === "Speech") {
                     return [ ];
                 }
             }
         }
-        case _res868186726.length: {
-            if (_res868186726.length >= 1) {
-                const [ _0, ...rest ] = _res868186726;
+        case tokens.length: {
+            if (tokens.length >= 1) {
+                const [ _0, ...rest ] = tokens;
                 if (_0.kind === "Char") {
                     const { char } = _0;
                     return capture(rest);
@@ -99,11 +98,10 @@ function capture(tokens: Token[]): string[] {
 
 const expectedOutputJS = `
 function capture(tokens) {
-    const _res868186726 = tokens;
-    switch (_res868186726.length) {
-        case _res868186726.length: {
-            if (_res868186726.length >= 2) {
-                const [ _0, ..._rest ] = _res868186726;
+    switch (tokens.length) {
+        case tokens.length: {
+            if (tokens.length >= 2) {
+                const [ _0, ..._rest ] = tokens;
                 if (_0.kind === "Speech") {
                     let _foundIndex = -1;
                     for (let _i = 0; _i < _rest.length; _i++) {
@@ -121,17 +119,17 @@ function capture(tokens) {
                 }
             }
         }
-        case _res868186726.length: {
-            if (_res868186726.length >= 1) {
-                const [ _0, ...rest ] = _res868186726;
+        case tokens.length: {
+            if (tokens.length >= 1) {
+                const [ _0, ...rest ] = tokens;
                 if (_0.kind === "Speech") {
                     return [ ];
                 }
             }
         }
-        case _res868186726.length: {
-            if (_res868186726.length >= 1) {
-                const [ _0, ...rest ] = _res868186726;
+        case tokens.length: {
+            if (tokens.length >= 1) {
+                const [ _0, ...rest ] = tokens;
                 if (_0.kind === "Char") {
                     const { char } = _0;
                     return capture(rest);

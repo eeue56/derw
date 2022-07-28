@@ -45,10 +45,9 @@ function foldr<a, b>(fn: (arg0: a, arg1: b) => b, init: b, xs: a[]): b {
 
 function filterMapHelp<a, b>(fn: (arg0: a) => Maybe<b>, a: a, xs: b[]): b[] {
     const maybe: Maybe<b> = fn(a);
-    const _res103672936 = maybe;
-    switch (_res103672936.kind) {
+    switch (maybe.kind) {
         case "Just": {
-            const { value } = _res103672936;
+            const { value } = maybe;
             return append(xs, [ value ]);
         }
         case "Nothing": {

@@ -50,20 +50,19 @@ basic xs =
 
 const expectedOutput = `
 function basic(xs: Maybe<string>[]): Maybe<string>[] {
-    const _res3835 = xs;
-    switch (_res3835.length) {
-        case _res3835.length: {
-            if (_res3835.length >= 1) {
-                const [ _0, ...rest ] = _res3835;
+    switch (xs.length) {
+        case xs.length: {
+            if (xs.length >= 1) {
+                const [ _0, ...rest ] = xs;
                 if (_0.kind === "Just") {
                     const { value } = _0;
                     return [ Just({ value }), ...basic(rest) ];
                 }
             }
         }
-        case _res3835.length: {
-            if (_res3835.length >= 1) {
-                const [ _0, ...rest ] = _res3835;
+        case xs.length: {
+            if (xs.length >= 1) {
+                const [ _0, ...rest ] = xs;
                 if (_0.kind === "Nothing") {
                     return basic(rest);
                 }
@@ -78,20 +77,19 @@ function basic(xs: Maybe<string>[]): Maybe<string>[] {
 
 const expectedOutputJS = `
 function basic(xs) {
-    const _res3835 = xs;
-    switch (_res3835.length) {
-        case _res3835.length: {
-            if (_res3835.length >= 1) {
-                const [ _0, ...rest ] = _res3835;
+    switch (xs.length) {
+        case xs.length: {
+            if (xs.length >= 1) {
+                const [ _0, ...rest ] = xs;
                 if (_0.kind === "Just") {
                     const { value } = _0;
                     return [ Just({ value }), ...basic(rest) ];
                 }
             }
         }
-        case _res3835.length: {
-            if (_res3835.length >= 1) {
-                const [ _0, ...rest ] = _res3835;
+        case xs.length: {
+            if (xs.length >= 1) {
+                const [ _0, ...rest ] = xs;
                 if (_0.kind === "Nothing") {
                     return basic(rest);
                 }

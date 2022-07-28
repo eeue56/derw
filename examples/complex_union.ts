@@ -25,14 +25,13 @@ function Cat(args: { lives: number }): Cat {
 type Animal = Dog | Cat;
 
 function sayHiToPet(pet: Animal): string {
-    const _res110879 = pet;
-    switch (_res110879.kind) {
+    switch (pet.kind) {
         case "Dog": {
-            const { name } = _res110879;
+            const { name } = pet;
             return `Good boy ${name}!`;
         }
         case "Cat": {
-            const { lives } = _res110879;
+            const { lives } = pet;
             return "You have " + lives + " lives remaining.";
         }
     }

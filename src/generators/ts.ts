@@ -332,7 +332,7 @@ function generateListDestructureWithGaps(
                     const destructorAfter = pattern.parts[i + 2] as Destructure;
                     output += prefixLines(
                         `
-const [ _0, ..._rest ] = _res868186726;
+const [ _0, ..._rest ] = ${predicate};
 if (_0.kind === "${part.constructor}") {
     let _foundIndex: number = -1;
     for (let _i = 0; _i < _rest.length; _i++) {
@@ -427,7 +427,7 @@ function generateBranch(
             const pattern =
                 branch.pattern.pattern.trim().length > 0
                     ? `\n    const ${branch.pattern.pattern} = ${predicate};`
-                    : "";
+                    : ``;
             return `case "${branch.pattern.constructor}": {${pattern}${maybeLetBody}
 ${returnWrapper}${body};
 }`;
@@ -578,12 +578,23 @@ ${returnWrapper}${body};
     }
 }
 
+function isModuleReferenceToAValue(moduleReference: ModuleReference): boolean {
+    return moduleReference.value.kind === "Value";
+}
+
 function generateCaseStatement(
     caseStatement: CaseStatement,
     parentTypeArguments: string[]
 ): string {
     const predicate = generateExpression(caseStatement.predicate);
-    const name = `_res${hashCode(predicate)}`;
+    const isValue =
+        caseStatement.predicate.kind === "Value" ||
+        (caseStatement.predicate.kind === "ModuleReference" &&
+            isModuleReferenceToAValue(caseStatement.predicate));
+    const name = isValue ? predicate : `_res${hashCode(predicate)}`;
+    const maybePredicateAssignment = isValue
+        ? ""
+        : `const ${name} = ${predicate};`;
     const branches = caseStatement.branches.map((branch) =>
         generateBranch(name, branch, parentTypeArguments || [ ])
     );
@@ -595,7 +606,7 @@ function generateCaseStatement(
 
     if (isString) {
         return `
-const ${name} = ${predicate};
+${maybePredicateAssignment}
 switch (${name}) {
 ${prefixLines(branches.join("\n"), 4)}
 }`.trim();
@@ -610,14 +621,14 @@ ${prefixLines(branches.join("\n"), 4)}
 
     if (isList) {
         return `
-const ${name} = ${predicate};
+${maybePredicateAssignment}
 switch (${name}.length) {
 ${prefixLines(branches.join("\n"), 4)}
 }`.trim();
     }
 
     return `
-const ${name} = ${predicate};
+${maybePredicateAssignment}
 switch (${name}.kind) {
 ${prefixLines(branches.join("\n"), 4)}
 }`.trim();

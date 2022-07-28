@@ -50,11 +50,10 @@ basic xs =
 
 const expectedOutput = `
 function basic(xs: Maybe<string>[]): Maybe<string>[] {
-    const _res3835 = xs;
-    switch (_res3835.length) {
-        case _res3835.length: {
-            if (_res3835.length >= 2) {
-                const [ _0, _1, ...rest ] = _res3835;
+    switch (xs.length) {
+        case xs.length: {
+            if (xs.length >= 2) {
+                const [ _0, _1, ...rest ] = xs;
                 if (_0.kind === "Just" && _1.kind === "Just") {
                     const { value } = _0;
                     const { value: otherValue } = _1;
@@ -62,9 +61,9 @@ function basic(xs: Maybe<string>[]): Maybe<string>[] {
                 }
             }
         }
-        case _res3835.length: {
-            if (_res3835.length >= 2) {
-                const [ _0, _1, ...rest ] = _res3835;
+        case xs.length: {
+            if (xs.length >= 2) {
+                const [ _0, _1, ...rest ] = xs;
                 if (_0.kind === "Nothing" && _1.kind === "Just") {
                     const { value } = _1;
                     return [ Just({ value }), ...basic(rest) ];
@@ -80,11 +79,10 @@ function basic(xs: Maybe<string>[]): Maybe<string>[] {
 
 const expectedOutputJS = `
 function basic(xs) {
-    const _res3835 = xs;
-    switch (_res3835.length) {
-        case _res3835.length: {
-            if (_res3835.length >= 2) {
-                const [ _0, _1, ...rest ] = _res3835;
+    switch (xs.length) {
+        case xs.length: {
+            if (xs.length >= 2) {
+                const [ _0, _1, ...rest ] = xs;
                 if (_0.kind === "Just" && _1.kind === "Just") {
                     const { value } = _0;
                     const { value: otherValue } = _1;
@@ -92,9 +90,9 @@ function basic(xs) {
                 }
             }
         }
-        case _res3835.length: {
-            if (_res3835.length >= 2) {
-                const [ _0, _1, ...rest ] = _res3835;
+        case xs.length: {
+            if (xs.length >= 2) {
+                const [ _0, _1, ...rest ] = xs;
                 if (_0.kind === "Nothing" && _1.kind === "Just") {
                     const { value } = _1;
                     return [ Just({ value }), ...basic(rest) ];

@@ -47,20 +47,19 @@ sum xs =
 
 const expectedOutput = `
 function sum(xs: number[]): number {
-    const _res3835 = xs;
-    switch (_res3835.length) {
+    switch (xs.length) {
         case 0: {
             return 0;
         }
-        case _res3835.length: {
-            if (_res3835.length === 1) {
-                const [ y ] = _res3835;
+        case xs.length: {
+            if (xs.length === 1) {
+                const [ y ] = xs;
                 return y;
             }
         }
-        case _res3835.length: {
-            if (_res3835.length >= 1) {
-                const [ z, ...zs ] = _res3835;
+        case xs.length: {
+            if (xs.length >= 1) {
+                const [ z, ...zs ] = xs;
                 return z + sum(zs);
             }
         }
@@ -73,20 +72,19 @@ function sum(xs: number[]): number {
 
 const expectedOutputJS = `
 function sum(xs) {
-    const _res3835 = xs;
-    switch (_res3835.length) {
+    switch (xs.length) {
         case 0: {
             return 0;
         }
-        case _res3835.length: {
-            if (_res3835.length === 1) {
-                const [ y ] = _res3835;
+        case xs.length: {
+            if (xs.length === 1) {
+                const [ y ] = xs;
                 return y;
             }
         }
-        case _res3835.length: {
-            if (_res3835.length >= 1) {
-                const [ z, ...zs ] = _res3835;
+        case xs.length: {
+            if (xs.length >= 1) {
+                const [ z, ...zs ] = xs;
                 return z + sum(zs);
             }
         }

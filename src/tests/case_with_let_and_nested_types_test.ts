@@ -59,8 +59,7 @@ sayHello name =
 
 const expectedOutput = `
 function sayHello<a>(name: a): string {
-    const _res3373707 = name;
-    switch (_res3373707) {
+    switch (name) {
         case "Noah": {
             function x(y: a): boolean {
                 return true;
@@ -82,8 +81,7 @@ function sayHello<a>(name: a): string {
 
 const expectedOutputJS = `
 function sayHello(name) {
-    const _res3373707 = name;
-    switch (_res3373707) {
+    switch (name) {
         case "Noah": {
             function x(y) {
                 return true;

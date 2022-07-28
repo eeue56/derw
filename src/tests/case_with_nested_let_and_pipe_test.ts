@@ -52,11 +52,9 @@ sayHello name =
 
 const expectedOutput = `
 function sayHello(name: string): string {
-    const _res3373707 = name;
-    switch (_res3373707) {
+    switch (name) {
         case "Noah": {
-            const _res121 = y;
-            switch (_res121) {
+            switch (y) {
                 case "0": {
                     const first: number = sum(1 + 2);
                     return "Hi 0";
@@ -69,11 +67,9 @@ function sayHello(name: string): string {
 
 const expectedOutputJS = `
 function sayHello(name) {
-    const _res3373707 = name;
-    switch (_res3373707) {
+    switch (name) {
         case "Noah": {
-            const _res121 = y;
-            switch (_res121) {
+            switch (y) {
                 case "0": {
                     const first = sum(1 + 2);
                     return "Hi 0";

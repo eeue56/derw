@@ -31,10 +31,9 @@ function Nothing(args: {}): Nothing {
 type Maybe<a> = Just<a> | Nothing;
 
 function map<a, b>(fn: (arg0: a) => b, maybe: Maybe<a>): Maybe<b> {
-    const _res103672936 = maybe;
-    switch (_res103672936.kind) {
+    switch (maybe.kind) {
         case "Just": {
-            const { value } = _res103672936;
+            const { value } = maybe;
             return Just({ value: fn(value) });
         }
         case "Nothing": {
@@ -44,10 +43,9 @@ function map<a, b>(fn: (arg0: a) => b, maybe: Maybe<a>): Maybe<b> {
 }
 
 function withDefault<a>(defaultValue: a, maybe: Maybe<a>): a {
-    const _res103672936 = maybe;
-    switch (_res103672936.kind) {
+    switch (maybe.kind) {
         case "Just": {
-            const { value } = _res103672936;
+            const { value } = maybe;
             return value;
         }
         case "Nothing": {
@@ -57,10 +55,9 @@ function withDefault<a>(defaultValue: a, maybe: Maybe<a>): a {
 }
 
 function andThen<a, b>(fn: (arg0: a) => Maybe<b>, maybe: Maybe<a>): Maybe<b> {
-    const _res103672936 = maybe;
-    switch (_res103672936.kind) {
+    switch (maybe.kind) {
         case "Just": {
-            const { value } = _res103672936;
+            const { value } = maybe;
             return fn(value);
         }
         case "Nothing": {

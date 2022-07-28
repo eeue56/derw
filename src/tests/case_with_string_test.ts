@@ -39,8 +39,7 @@ sayHello name =
 
 const expectedOutput = `
 function sayHello(name: string): string {
-    const _res3373707 = name;
-    switch (_res3373707) {
+    switch (name) {
         case "Noah": {
             return "Hi Noah";
         }
@@ -56,8 +55,7 @@ function sayHello(name: string): string {
 
 const expectedOutputJS = `
 function sayHello(name) {
-    const _res3373707 = name;
-    switch (_res3373707) {
+    switch (name) {
         case "Noah": {
             return "Hi Noah";
         }

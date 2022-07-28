@@ -92,14 +92,13 @@ function Ok<b>(args: { value: b }): Ok<b> {
 type Result<a, b> = Err<a> | Ok<b>;
 
 function asIs<a, b>(result: Result<a, b>): Result<a, b> {
-    const _res934426595 = result;
-    switch (_res934426595.kind) {
+    switch (result.kind) {
         case "Err": {
-            const { error } = _res934426595;
+            const { error } = result;
             return Err({ error });
         }
         case "Ok": {
-            const { value } = _res934426595;
+            const { value } = result;
             return Ok({ value });
         }
     }
@@ -122,14 +121,13 @@ function Ok(args) {
 }
 
 function asIs(result) {
-    const _res934426595 = result;
-    switch (_res934426595.kind) {
+    switch (result.kind) {
         case "Err": {
-            const { error } = _res934426595;
+            const { error } = result;
             return Err({ error });
         }
         case "Ok": {
-            const { value } = _res934426595;
+            const { value } = result;
             return Ok({ value });
         }
     }

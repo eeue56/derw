@@ -50,10 +50,9 @@ import * as Maybe from "./Maybe";
 import { Just, Nothing } from "./Maybe";
 
 function makeSomething(name: Maybe.Maybe<string>): string {
-    const _res3373707 = name;
-    switch (_res3373707.kind) {
+    switch (name.kind) {
         case "Just": {
-            const { value } = _res3373707;
+            const { value } = name;
             return value;
         }
         case "Nothing": {
@@ -68,10 +67,9 @@ import * as Maybe from "./Maybe";
 import { Just, Nothing } from "./Maybe";
 
 function makeSomething(name) {
-    const _res3373707 = name;
-    switch (_res3373707.kind) {
+    switch (name.kind) {
         case "Just": {
-            const { value } = _res3373707;
+            const { value } = name;
             return value;
         }
         case "Nothing": {

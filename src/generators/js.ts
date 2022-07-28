@@ -221,7 +221,7 @@ function generateListDestructureWithGaps(
                     const destructorAfter = pattern.parts[i + 2] as Destructure;
                     output += prefixLines(
                         `
-const [ _0, ..._rest ] = _res868186726;
+const [ _0, ..._rest ] = ${predicate};
 if (_0.kind === "${part.constructor}") {
     let _foundIndex = -1;
     for (let _i = 0; _i < _rest.length; _i++) {
@@ -462,9 +462,20 @@ ${returnWrapper}${body};
     }
 }
 
+function isModuleReferenceToAValue(moduleReference: ModuleReference): boolean {
+    return moduleReference.value.kind === "Value";
+}
+
 function generateCaseStatement(caseStatement: CaseStatement): string {
     const predicate = generateExpression(caseStatement.predicate);
-    const name = `_res${hashCode(predicate)}`;
+    const isValue =
+        caseStatement.predicate.kind === "Value" ||
+        (caseStatement.predicate.kind === "ModuleReference" &&
+            isModuleReferenceToAValue(caseStatement.predicate));
+    const name = isValue ? predicate : `_res${hashCode(predicate)}`;
+    const maybePredicateAssignment = isValue
+        ? ""
+        : `const ${name} = ${predicate};`;
     const branches = caseStatement.branches.map((branch) =>
         generateBranch(name, branch)
     );
@@ -476,7 +487,7 @@ function generateCaseStatement(caseStatement: CaseStatement): string {
 
     if (isString) {
         return `
-const ${name} = ${predicate};
+${maybePredicateAssignment}
 switch (${name}) {
 ${prefixLines(branches.join("\n"), 4)}
 }`.trim();
@@ -491,14 +502,14 @@ ${prefixLines(branches.join("\n"), 4)}
 
     if (isList) {
         return `
-const ${name} = ${predicate};
+${maybePredicateAssignment}
 switch (${name}.length) {
 ${prefixLines(branches.join("\n"), 4)}
 }`.trim();
     }
 
     return `
-const ${name} = ${predicate};
+${maybePredicateAssignment}
 switch (${name}.kind) {
 ${prefixLines(branches.join("\n"), 4)}
 }`.trim();
