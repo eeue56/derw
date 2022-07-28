@@ -262,11 +262,10 @@ const validators: Validator[] = [ {
 } ];
 
 function blockKindStep(block: string, validators: Validator[]): Result<string, BlockKinds> {
-    const _res43557023 = validators;
-    switch (_res43557023.length) {
-        case _res43557023.length: {
-            if (_res43557023.length >= 1) {
-                const [ validator, ...ys ] = _res43557023;
+    switch (validators.length) {
+        case validators.length: {
+            if (validators.length >= 1) {
+                const [ validator, ...ys ] = validators;
                 if (validator.test(block)) {
                 return Ok({ value: validator.blockKind });
             } else {
@@ -285,8 +284,7 @@ function blockKind(block: string): Result<string, BlockKinds> {
 }
 
 function createUnparsedBlock(blockKind: BlockKinds, lineStart: number, lines: string[]): UnparsedBlock {
-    const _res872179137 = blockKind;
-    switch (_res872179137) {
+    switch (blockKind) {
         case "Import": {
             return ImportBlock({
             lineStart,
@@ -405,17 +403,15 @@ function indentOrDefinitionStep(lineNumber: number, info: IntoBlockInfo, line: s
 }
 
 function intoBlocksStep(lineNumber: number, info: IntoBlockInfo, lines: string[]): UnparsedBlock[] {
-    const _res102977279 = lines;
-    switch (_res102977279.length) {
-        case _res102977279.length: {
-            if (_res102977279.length >= 1) {
-                const [ line, ...xs ] = _res102977279;
+    switch (lines.length) {
+        case lines.length: {
+            if (lines.length >= 1) {
+                const [ line, ...xs ] = lines;
                 if (line.trim().length === 0) {
                 const nextInfo: IntoBlockInfo = { ...info, previousLine: line };
                 return intoBlocksStep(lineNumber + 1, nextInfo, xs);
             } else {
-                const _res261297196 = info.currentBlock;
-                switch (_res261297196.length) {
+                switch (info.currentBlock.length) {
                     case 0: {
                         const nextInfo: IntoBlockInfo = {
                             previousLine: line,
@@ -436,10 +432,9 @@ function intoBlocksStep(lineNumber: number, info: IntoBlockInfo, lines: string[]
                             if (isIndent || isDefinition) {
                                 return indentOrDefinitionStep(lineNumber, info, line, xs);
                             } else {
-                                const _res707882616 = info.currentBlockKind;
-                                switch (_res707882616.kind) {
+                                switch (info.currentBlockKind.kind) {
                                     case "Ok": {
-                                        const { value } = _res707882616;
+                                        const { value } = info.currentBlockKind;
                                         const block: UnparsedBlock = createUnparsedBlock(value, info.lineStart, info.currentBlock);
                                         const nextInfo: IntoBlockInfo = {
                                             previousLine: line,
@@ -467,10 +462,9 @@ function intoBlocksStep(lineNumber: number, info: IntoBlockInfo, lines: string[]
         }
         default: {
             if (info.currentBlock.length > 0) {
-                const _res707882616 = info.currentBlockKind;
-                switch (_res707882616.kind) {
+                switch (info.currentBlockKind.kind) {
                     case "Ok": {
-                        const { value } = _res707882616;
+                        const { value } = info.currentBlockKind;
                         return [ createUnparsedBlock(value, info.lineStart, info.currentBlock) ];
                     }
                     case "Err": {

@@ -21,8 +21,7 @@ function prefixLines(body: string, indent: number): string {
 }
 
 function partLength(part: ListDestructurePart, index: number): number {
-    const _res3433459 = part;
-    switch (_res3433459.kind) {
+    switch (part.kind) {
         case "Destructure": {
             return 1;
         }
@@ -64,8 +63,7 @@ function GapPositionInfo(args: { i: number, positions: number[] }): GapPositionI
 
 function patternGapPositions(pattern: ListDestructure): number[] {
     function folder(part: ListDestructurePart, info: GapPositionInfo): GapPositionInfo {
-        const _res3433459 = part;
-        switch (_res3433459.kind) {
+        switch (part.kind) {
             case "Value": {
                 if (info.i > 0) {
                     return {
@@ -91,13 +89,11 @@ function patternGapPositions(pattern: ListDestructure): number[] {
 
 function patternHasGaps(pattern: ListDestructure): boolean {
     function hasGap(index: number, xs: ListDestructurePart[]): boolean {
-        const _res3835 = xs;
-        switch (_res3835.length) {
-            case _res3835.length: {
-                if (_res3835.length >= 1) {
-                    const [ x, ...ys ] = _res3835;
-                    const _res120 = x;
-                switch (_res120.kind) {
+        switch (xs.length) {
+            case xs.length: {
+                if (xs.length >= 1) {
+                    const [ x, ...ys ] = xs;
+                    switch (x.kind) {
                     case "Value": {
                         if (index > 0) {
                             return true;

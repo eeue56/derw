@@ -43,10 +43,9 @@ function Names(args: { modules: Seen[], values: Seen[] }): Names {
 
 function moduleNames(index: number, module: ImportModule): Names {
     const moduleName: string = (function (): any {
-        const _res195078222 = module.alias;
-        switch (_res195078222.kind) {
+        switch (module.alias.kind) {
             case "Just": {
-                const { value } = _res195078222;
+                const { value } = module.alias;
                 return value;
             }
             case "Nothing": {
@@ -69,10 +68,9 @@ function moduleNames(index: number, module: ImportModule): Names {
 }
 
 function blockNames(block: Block, index: number): Names {
-    const _res93832333 = block;
-    switch (_res93832333.kind) {
+    switch (block.kind) {
         case "Function": {
-            const { name } = _res93832333;
+            const { name } = block;
             return {
             modules: [ ],
             values: [ {
@@ -82,7 +80,7 @@ function blockNames(block: Block, index: number): Names {
         };
         }
         case "Const": {
-            const { name } = _res93832333;
+            const { name } = block;
             return {
             modules: [ ],
             values: [ {
@@ -92,7 +90,7 @@ function blockNames(block: Block, index: number): Names {
         };
         }
         case "UnionType": {
-            const { type } = _res93832333;
+            const { type } = block;
             return {
             modules: [ ],
             values: [ {
@@ -102,7 +100,7 @@ function blockNames(block: Block, index: number): Names {
         };
         }
         case "TypeAlias": {
-            const { type } = _res93832333;
+            const { type } = block;
             return {
             modules: [ ],
             values: [ {
@@ -112,7 +110,7 @@ function blockNames(block: Block, index: number): Names {
         };
         }
         case "Import": {
-            const { modules } = _res93832333;
+            const { modules } = block;
             function step(module: ImportModule, names: Names): Names {
                 const modNames: Names = moduleNames(index, module);
                 return {
