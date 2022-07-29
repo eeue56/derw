@@ -64,7 +64,7 @@ import {
     generateListRange,
     generateStringValue,
     generateValue,
-} from "./common_to_ecma";
+} from "./CommonToEcma";
 
 function generateUnionType(syntax: UnionType, imports: Import[]): string {
     const tagCreators = syntax.tags

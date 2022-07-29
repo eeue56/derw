@@ -1,0 +1,235 @@
+import "../stdlib/List" as List
+import "../types" exposing ( Value, StringValue, FormatStringValue, ListRange, ListDestructurePart, ModuleReference, Expression, LeftPipe, Lambda, Export, ImportModule, Import )
+import "../utils" exposing ( getNameFromPath )
+
+exposing (generateValue, generateStringValue, generateFormatStringValue, generateListRange, generateListDestructurePart, flattenLeftPipe, generateImportBlock, generateExportBlock)
+
+type MyExpressions =
+    FunctionCall { name: string,
+        args: List Expression }
+    | LambdaCall { args: List Expression,
+        lambda: Lambda }
+
+generateValue: Value -> string
+generateValue value =
+    value.body
+
+generateStringValue: StringValue -> string
+generateStringValue string =
+    `"${string.body}"`
+
+generateFormatStringValue: FormatStringValue -> string
+generateFormatStringValue string =
+    "`" + string.body + "`"
+
+generateListRange: ListRange -> string
+generateListRange list =
+    let
+        gap: string
+        gap =
+            `${list.end.body} - ${list.start.body} + 1`
+    in
+        `Array.from({ length: ${gap} }, (x, i) => i + ${list.start.body})`
+
+generateListDestructurePart: ListDestructurePart -> string
+generateListDestructurePart part =
+    case part of
+        EmptyList ->
+            "[]"
+
+        StringValue { body } ->
+            body
+
+        FormatStringValue { body } ->
+            body
+
+        Value { body } ->
+            body
+
+        Destructure { constructor, pattern } ->
+            let
+                generatedPattern: string
+                generatedPattern =
+                    if pattern then
+                        ` ${pattern}`
+                    else
+                        ""
+            in
+                `${constructor}${pattern}`
+
+addArgsToModuleReference: ModuleReference -> List Expression -> ModuleReference
+addArgsToModuleReference moduleReference newArgs =
+    case moduleReference.value of
+        FunctionCall { args, name } ->
+            { ...moduleReference, value: FunctionCall {
+                name: name,
+                args: List.append args newArgs
+            } }
+
+        Value { body } ->
+            { ...moduleReference, value: FunctionCall {
+                name: body,
+                args: newArgs
+            } }
+
+        default ->
+            moduleReference
+
+flattenLeftPipe: LeftPipe -> any
+flattenLeftPipe leftPipe =
+    let
+        left: Expression
+        left =
+            leftPipe.left
+
+        right: Expression
+        right =
+            leftPipe.right
+    in
+        case right of
+            FunctionCall { name, args } ->
+                FunctionCall {
+                    name: name,
+                    args: List.append args [ left ]
+                }
+
+            Value { body } ->
+                FunctionCall {
+                    name: body,
+                    args: [ left ]
+                }
+
+            ModuleReference ->
+                addArgsToModuleReference right [ left ]
+
+            Lambda ->
+                LambdaCall {
+                    lambda: right,
+                    args: [ left ]
+                }
+
+            LeftPipe ->
+                case right.left of
+                    FunctionCall { args, name } ->
+                        let
+                            fn: FunctionCall
+                            fn =
+                                FunctionCall {
+                                    name: name,
+                                    args: List.append args [ left ]
+                                }
+                        in
+                            flattenLeftPipe {
+                                kind: "LeftPipe",
+                                left: fn,
+                                right: right.right
+                            }
+
+                    Value { body } ->
+                        let
+                            fn: FunctionCall
+                            fn =
+                                FunctionCall {
+                                    name: body,
+                                    args: [ left ]
+                                }
+                        in
+                            flattenLeftPipe {
+                                kind: "LeftPipe",
+                                left: fn,
+                                right: right.right
+                            }
+
+                    ModuleReference ->
+                        let
+                            fn: ModuleReference
+                            fn =
+                                addArgsToModuleReference right.left [ left ]
+                        in
+                            flattenLeftPipe {
+                                kind: "LeftPipe",
+                                left: fn,
+                                right: right.right
+                            }
+
+                    LeftPipe ->
+                        right
+
+                    default ->
+                        right.left
+
+generateModule: ImportModule -> string
+generateModule module =
+    if module.namespace == "Relative" then
+        let
+            withoutQuotes: string
+            withoutQuotes =
+                module.name.slice 1 -1
+
+            name: string
+            name =
+                case module.alias of
+                    Just { value } ->
+                        value
+
+                    Nothing ->
+                        getNameFromPath withoutQuotes
+
+            filteredExposing: List string
+            filteredExposing =
+                case module.alias of
+                    Just { value } ->
+                        List.filter (\expose -> expose != value) module.exposing
+
+                    Nothing ->
+                        module.exposing
+
+            exposed: string
+            exposed =
+                `import { ${filteredExposing.join(", ")} } from ${module.name};`
+        in
+            if module.exposing.length == 0 then
+                `import * as ${name} from ${module.name};`
+            else
+                case module.alias of
+                    Just ->
+                        `import * as ${name} from ${module.name};\n${exposed}`
+
+                    Nothing ->
+                        exposed
+
+    else
+        let
+            name: string
+            name =
+                case module.alias of
+                    Just { value } ->
+                        value
+
+                    Nothing ->
+                        module.name
+
+            exposed: string
+            exposed =
+                `import { ${module.exposing.join(", ")} } from "${module.name}";`
+        in
+            if module.exposing.length == 0 then
+                `import * as ${name} from "${module.name}";`
+            else
+                case module.alias of
+                    Just ->
+                        `import * as ${name} from "${module.name}";\n${exposed}`
+
+                    Nothing ->
+                        exposed
+
+generateImportBlock: Import -> string
+generateImportBlock imports =
+    List.filter (\module -> module.name != "globalThis") imports.modules
+        |> List.map generateModule
+        |> (\y -> y.join "\n")
+
+generateExportBlock: Export -> string
+generateExportBlock exports =
+    List.map (\name -> `export { ${name} };`) exports.names
+        |> (\x -> x.join "\n")
