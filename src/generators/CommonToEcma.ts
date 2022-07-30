@@ -166,6 +166,17 @@ function flattenLeftPipe(leftPipe: LeftPipe): any {
                     right: right.right
                 });
                 }
+                case "Lambda": {
+                    const fn: any = LambdaCall({
+                        lambda: right.left,
+                        args: [ left ]
+                    });
+                    return flattenLeftPipe({
+                    kind: "LeftPipe",
+                    left: fn,
+                    right: right.right
+                });
+                }
                 case "LeftPipe": {
                     return right;
                 }

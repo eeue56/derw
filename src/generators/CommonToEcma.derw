@@ -152,6 +152,21 @@ flattenLeftPipe leftPipe =
                                 right: right.right
                             }
 
+                    Lambda ->
+                        let
+                            fn: any
+                            fn =
+                                LambdaCall {
+                                    lambda: right.left,
+                                    args: [ left ]
+                                }
+                        in
+                            flattenLeftPipe {
+                                kind: "LeftPipe",
+                                left: fn,
+                                right: right.right
+                            }
+
                     LeftPipe ->
                         right
 

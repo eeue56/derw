@@ -2404,7 +2404,12 @@ export function parseExpression(
     body: string,
     isModuleReference: boolean = false
 ): Result<string, Expression> {
-    const tokens = dropSurroundingBrackets(tokenize(body));
+    const preTokens = tokenize(body);
+    const tokens =
+        hasTopLevelOperator("\\", preTokens) ||
+        hasTopLevelOperator("|>", preTokens)
+            ? preTokens
+            : dropSurroundingBrackets(preTokens);
 
     let index = 0;
 
