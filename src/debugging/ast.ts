@@ -16,7 +16,7 @@ function importModuleToString(module: ImportModule): string {
             ? "Nothing()"
             : `Just("${module.alias.value}")`;
     const exposing = module.exposing.map((e) => `"${e}"`).join(", ");
-    return `ImportModule(${module.name}, ${alias}, [ ${exposing} ], "${module.namespace}")`;
+    return `ImportModule("${module.name}", ${alias}, [ ${exposing} ], "${module.namespace}")`;
 }
 
 function typeToString(type_: Type): string {
@@ -81,7 +81,7 @@ function expressionToString(expression: Expression): string {
         case "ListValue":
             return `ListValue([ ${expression.items
                 .map(expressionToString)
-                .join("\n")}) ]`;
+                .join("\n,")}) ]`;
         case "ListRange":
             return `ListRange(Value("${expression.start})"), Value("${expression.end}"))`;
         case "ObjectLiteral": {
