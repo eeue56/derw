@@ -4,7 +4,7 @@ import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { blockKind, intoBlocks } from "../Blocks";
 import { compileTypescript } from "../compile";
 import { generateJavascript } from "../generators/js";
-import { generateTypescript } from "../generators/ts";
+import { generateTypescript } from "../generators/Ts";
 import { parse } from "../parser";
 import {
     BlockKinds,

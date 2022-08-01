@@ -2,7 +2,7 @@ import { generateDerw } from "./generators/derw";
 import { generateElm } from "./generators/elm";
 import { generateEnglish } from "./generators/English";
 import { generateJavascript } from "./generators/js";
-import { generateTypescript } from "./generators/ts";
+import { generateTypescript } from "./generators/Ts";
 import { Module } from "./types";
 
 const emptyLineAtEndOfFile = "\n";

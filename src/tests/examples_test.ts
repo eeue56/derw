@@ -4,7 +4,7 @@ import path from "path";
 import { generateDerw } from "../generators/derw";
 import { generateElm } from "../generators/elm";
 import { generateJavascript } from "../generators/js";
-import { generateTypescript } from "../generators/ts";
+import { generateTypescript } from "../generators/Ts";
 import { parse } from "../parser";
 
 const adventOfCodePath = "./examples/advent_of_code";
