@@ -1,0 +1,1244 @@
+import "../Blocks" exposing ( exportTests )
+import "../builtins" exposing ( isBuiltinType )
+import "../stdlib/List" as List
+import "../types" as Aliases exposing ( TypeAlias, Property )
+import "../types" as Blocks exposing ( Function, FunctionArg, FunctionArgsUnion, Const, ImportModule, Import, Export, Module )
+import "../types" as Boolean exposing ( Equality, InEquality, LessThan, LessThanOrEqual, GreaterThan, GreaterThanOrEqual, And, Or, ListPrepend )
+import "../types" as Control exposing ( IfStatement, Destructure, ListDestructure, ListDestructurePart, BranchPattern, Branch, CaseStatement, DoBlock, DoExpression )
+import "../types" as Functions exposing ( FunctionCall, Lambda, LambdaCall )
+import "../types" as Objects exposing ( ObjectLiteral, Field, ModuleReference )
+import "../types" as Operators exposing ( Addition, Subtraction, Multiplication, Division, LeftPipe, RightPipe )
+import "../types" as Values exposing ( Value, StringValue, FormatStringValue, ListValue, ListRange )
+import "../types" exposing ( Tag, UnionType, Type, TagArg, Block, Constructor, Expression, FunctionType, GenericType, FixedType, isSimpleValue )
+import "../utils" exposing ( hashCode )
+import "./Common" exposing ( prefixLines, destructureLength, patternHasGaps, patternGapPositions )
+import "./CommonToEcma" exposing ( flattenLeftPipe, generateExportBlock, generateFormatStringValue, generateImportBlock, generateListDestructurePart, generateListRange, generateStringValue, generateValue )
+
+exposing (generateJavascript)
+
+generateTagCreator: Tag -> string
+generateTagCreator tag =
+    [
+        `function ${tag.name}(args) {`,
+        "    return {",
+        `        kind: "${tag.name}",`,
+        `        ...args,`,
+        `    };`,
+        "}"
+    ]
+        |> (\y -> y.join "\n")
+
+generateUnionType: UnionType -> string
+generateUnionType syntax =
+    List.map (\tag -> generateTagCreator tag) syntax.tags
+        |> (\y -> y.join "\n\n")
+
+generateTypeAlias: TypeAlias -> string
+generateTypeAlias syntax =
+    let
+        typeDef: string
+        typeDef =
+            syntax.type.name
+    in
+        [
+            `function ${typeDef}(args) {`,
+            "    return {",
+            "        ...args,",
+            "    };",
+            "}"
+        ]
+            |> (\y -> y.join "\n")
+
+generateField: Field -> string
+generateField field =
+    let
+        value: string
+        value =
+            generateExpression field.value
+    in
+        if field.name == value then
+            field.name
+        else
+            `${field.name}: ${value}`
+
+generateObjectLiteral: ObjectLiteral -> string
+generateObjectLiteral literal =
+    let
+        fields: string
+        fields =
+            literal.fields.map generateField
+                |> (\y -> y.join ",\n    ")
+    in
+        if literal.base == null then
+            case literal.fields of
+                [] ->
+                    "{ }"
+
+                x :: [] ->
+                    `{ ${fields} }`
+
+                default ->
+                    `{\n    ${fields}\n}`
+        else
+            case literal.fields of
+                [] ->
+                    `{ ${literal.base.body} }`
+
+                x :: [] ->
+                    `{ ${literal.base.body}, ${fields} }`
+
+                default ->
+                    `{\n    ${literal.base.body},\n    ${fields}\n}`
+
+generateListValue: ListValue -> string
+generateListValue list =
+    let
+        items: List string
+        items =
+            List.map generateExpression list.items
+    in
+        case items of
+            [] ->
+                "[ ]"
+
+            x :: [] ->
+                `[ ${x} ]`
+
+            default ->
+                `[ ${items.join(", ")} ]`
+
+generateLetBlock: List Block -> string
+generateLetBlock body =
+    case body of
+        [] ->
+            ""
+
+        x :: ys ->
+            let
+                prefixedBody: string
+                prefixedBody =
+                    List.map (\block -> generateBlock block) body
+                        |> (\y -> y.join "\n")
+
+                prefixedLines: string
+                prefixedLines =
+                    prefixLines prefixedBody 4
+            in
+                `\n${prefixedLines}`
+
+        default ->
+            ""
+
+generateIfStatement: IfStatement -> string
+generateIfStatement ifStatement =
+    let
+        isSimpleIfBody: boolean
+        isSimpleIfBody =
+            isSimpleValue ifStatement.ifBody.kind
+
+        isSimpleElseBody: boolean
+        isSimpleElseBody =
+            isSimpleValue ifStatement.elseBody.kind
+
+        ifBodyPrefix: string
+        ifBodyPrefix =
+            if isSimpleIfBody then
+                "return "
+            else
+                ""
+
+        elseBodyPrefix: string
+        elseBodyPrefix =
+            if isSimpleElseBody then
+                "return "
+            else
+                ""
+
+        maybeIfLetBody: string
+        maybeIfLetBody =
+            generateLetBlock ifStatement.ifLetBody
+
+        maybeElseLetBody: string
+        maybeElseLetBody =
+            generateLetBlock ifStatement.elseLetBody
+
+        predicate: string
+        predicate =
+            generateExpression ifStatement.predicate
+
+        ifBody: string
+        ifBody =
+            generateExpression ifStatement.ifBody
+
+        indentedIfBody: string
+        indentedIfBody =
+            case ifBody.split "\n" of
+                [] ->
+                    ifBody
+
+                x :: [] ->
+                    ifBody
+
+                x :: xs ->
+                    [
+                        x,
+                        prefixLines (xs.join "\n") 4
+                    ]
+                        |> (\y -> y.join "\n")
+
+                default ->
+                    ifBody
+
+        elseBody: string
+        elseBody =
+            generateExpression ifStatement.elseBody
+
+        indentedElseBody: string
+        indentedElseBody =
+            case elseBody.split "\n" of
+                [] ->
+                    elseBody
+
+                x :: [] ->
+                    elseBody
+
+                x :: xs ->
+                    [
+                        x,
+                        prefixLines (xs.join "\n") 4
+                    ]
+                        |> (\y -> y.join "\n")
+
+                default ->
+                    elseBody
+    in
+        `if (${predicate}) {${maybeIfLetBody}\n    ${ifBodyPrefix}${indentedIfBody};\n} else {${maybeElseLetBody}\n    ${elseBodyPrefix}${indentedElseBody};\n}`
+
+generateConstructor: Constructor -> string
+generateConstructor constructor =
+    case constructor.pattern.fields of
+        [] ->
+            `${constructor.constructor}({ })`
+
+        default ->
+            `${constructor.constructor}(${generateObjectLiteral(constructor.pattern)})`
+
+replaceKey: string
+replaceKey =
+    "$REPLACE_ME"
+
+type alias GapsInfo = {
+    partIndex: number,
+    currentIndex: number,
+    output: string
+}
+
+generateListDestructurePartWithGaps: string -> List ListDestructurePart -> ListDestructurePart -> GapsInfo -> GapsInfo
+generateListDestructurePartWithGaps predicate parts part info =
+    if info.partIndex < info.currentIndex then
+        { ...info, partIndex: info.partIndex + 1 }
+    else
+        let
+            index: number
+            index =
+                info.currentIndex
+
+            output: string
+            output =
+                info.output
+
+            isLastValue: boolean
+            isLastValue =
+                index == parts.length - 1
+        in
+            case part of
+                Destructure ->
+                    let
+                        isNextAValue: boolean
+                        isNextAValue =
+                            if isLastValue then
+                                false
+                            else
+                                parts[index + 1].kind == "Value"
+
+                        hasADestructureAfter: boolean
+                        hasADestructureAfter =
+                            if index < parts.length - 2 then
+                                parts[index + 2].kind == "Destructure"
+                            else
+                                false
+                    in
+                        if isNextAValue && hasADestructureAfter then
+                            let
+                                nextValue: Value
+                                nextValue =
+                                    parts[index + 1]
+                                        |> (\y -> y)
+
+                                destructorAfter: Destructure
+                                destructorAfter =
+                                    parts[index + 2]
+                                        |> (\y -> y)
+                            in
+                                [
+                                    `const [ _0, ..._rest ] = ${predicate};`,
+                                    `if (_0.kind === "${part.constructor}") {`,
+                                    `    let _foundIndex = -1;`,
+                                    `    for (let _i = 0; _i < _rest.length; _i++) {`,
+                                    `        if (_rest[_i].kind === "${destructorAfter.constructor}") {`,
+                                    `            _foundIndex = _i;`,
+                                    `            break;`,
+                                    `        }`,
+                                    `    }`,
+                                    ``,
+                                    `    if (_foundIndex > -1) {`,
+                                    `        const ${nextValue.body} = _rest.slice(0, _foundIndex);`,
+                                    `        ${replaceKey}`,
+                                    `    }`,
+                                    `}`
+                                ]
+                                    |> (\y -> y.join "\n")
+                                    |> (\y -> prefixLines y 8)
+                                    |> (\y -> {
+                                    ...info,
+                                    output: y,
+                                    partIndex: info.partIndex + 1,
+                                    currentIndex: info.currentIndex + 2
+                                })
+                        else
+                            { ...info, partIndex: info.partIndex + 1 }
+
+                Value ->
+                    let
+                        newOutput: string
+                        newOutput =
+                            if output.length == 0 then
+                                `\nconst ${part.body} = _rest;\n                    `
+                            else
+                                if parts[ info.partIndex - 1].kind == "Destructure" then
+                                    output.replace replaceKey `const ${part.body} = _rest.slice(_foundIndex, _rest.length);\n${replaceKey}`
+                                else
+                                    output.replace replaceKey `const ${part.body} = _rest;\n${replaceKey}`
+                    in
+                        {
+                            ...info,
+                            output: newOutput,
+                            partIndex: info.partIndex + 1,
+                            currentIndex: info.currentIndex + 1
+                        }
+
+                default ->
+                    {
+                        ...info,
+                        currentIndex: info.currentIndex + 1,
+                        partIndex: info.partIndex + 1
+                    }
+
+generateListDestructureWithGaps: string -> Branch -> ListDestructure -> string
+generateListDestructureWithGaps predicate branch pattern =
+    let
+        isFinalEmptyList: boolean
+        isFinalEmptyList =
+            pattern.parts[pattern.parts.length - 1].kind == "EmptyList"
+
+        partsWithLength: number
+        partsWithLength =
+            destructureLength pattern
+
+        startingInfo: GapsInfo
+        startingInfo =
+            {
+                output: "",
+                partIndex: 0,
+                currentIndex: 0
+            }
+
+        parts: string
+        parts =
+            List.foldl (\x info -> generateListDestructurePartWithGaps predicate pattern.parts x info) startingInfo pattern.parts
+                |> (\y -> y.output)
+
+        conditional: string
+        conditional =
+            if isFinalEmptyList then
+                `${predicate}.length === ${partsWithLength}`
+            else
+                `${predicate}.length >= ${partsWithLength}`
+
+        isSimpleBody: boolean
+        isSimpleBody =
+            isSimpleValue branch.body.kind
+
+        wrapper: string
+        wrapper =
+            if isSimpleBody then
+                `    return `
+            else
+                ""
+
+        bodyIndent: number
+        bodyIndent =
+            if isSimpleBody then
+                0
+            else
+                4
+
+        body: string
+        body =
+            generateExpression branch.body
+                |> (\y -> prefixLines y bodyIndent)
+
+        inner: string
+        inner =
+            prefixLines `${wrapper}${body};` 12
+    in
+        `case ${predicate}.length: {\n    if (${conditional}) {\n${parts.replace(replaceKey, inner)}\n    }\n}`
+
+generateBranch: string -> Branch -> string
+generateBranch predicate branch =
+    let
+        isSimpleBody: boolean
+        isSimpleBody =
+            isSimpleValue branch.body.kind
+
+        wrapper: string
+        wrapper =
+            if isSimpleBody then
+                "    return "
+            else
+                ""
+
+        maybeLetBody: string
+        maybeLetBody =
+            generateLetBlock branch.letBody
+
+        bodyIndent: number
+        bodyIndent =
+            if isSimpleBody then
+                0
+            else
+                4
+
+        branchBody: string
+        branchBody =
+            generateExpression branch.body
+                |> (\y -> prefixLines y bodyIndent)
+    in
+        case branch.pattern of
+            Destructure { pattern } ->
+                let
+                    generatedPattern: string
+                    generatedPattern =
+                        if pattern.trim().length > 0 then
+                            `\n    const ${pattern} = ${predicate};`
+                        else
+                            ""
+                in
+                    `case "${branch.pattern.constructor}": {${generatedPattern}${maybeLetBody}\n${wrapper}${branchBody};\n}`
+
+            StringValue { body } ->
+                `case "${body}": {${maybeLetBody}\n${wrapper}${branchBody};\n}`
+
+            FormatStringValue { body } ->
+                `case ` + "`" + body + "`" + `: {${maybeLetBody}\n${wrapper}${branchBody};\n}`
+
+            EmptyList ->
+                `case 0: {${maybeLetBody}\n${wrapper}${branchBody};\n}`
+
+            ListDestructure { parts } ->
+                let
+                    length: number
+                    length =
+                        parts.length
+
+                    isFinalEmptyList: boolean
+                    isFinalEmptyList =
+                        parts[length - 1].kind == "EmptyList"
+
+                    partsWithLength: number
+                    partsWithLength =
+                        destructureLength branch.pattern
+
+                    hasGaps: boolean
+                    hasGaps =
+                        patternHasGaps branch.pattern
+
+                    gapPositions: List number
+                    gapPositions =
+                        patternGapPositions branch.pattern
+
+                    isOnlyFinalGap: boolean
+                    isOnlyFinalGap =
+                        gapPositions.length == 1 && gapPositions[0] == length - 1
+
+                    not: boolean -> boolean
+                    not value =
+                        if value then
+                            false
+                        else
+                            true
+
+                    conditional: string
+                    conditional =
+                        if isFinalEmptyList && not hasGaps then
+                            `${predicate}.length === ${partsWithLength}`
+                        else
+                            `${predicate}.length >= ${partsWithLength}`
+
+                    firstPart: ListDestructurePart
+                    firstPart =
+                        parts[0]
+
+                    isFirstDestructure: boolean
+                    isFirstDestructure =
+                        firstPart.kind == "Destructure"
+                in
+                    if hasGaps && not isOnlyFinalGap then
+                        generateListDestructureWithGaps predicate branch branch.pattern
+                    else
+                        if isFirstDestructure then
+                            let
+                                destructors: List Destructure
+                                destructors =
+                                    List.filter (\t -> t.kind == "Destructure") parts
+
+                                destructorParts: List string
+                                destructorParts =
+                                    List.indexedMap (\_ i -> `_${i}`) destructors
+
+                                allButFinalPart: List string
+                                allButFinalPart =
+                                    parts.slice destructorParts.length -1
+                                        |> List.map generateListDestructurePart
+
+                                generatedParts: List string
+                                generatedParts =
+                                    List.append destructorParts allButFinalPart
+
+                                joinedGeneratedParts: string
+                                joinedGeneratedParts =
+                                    generatedParts.join ", "
+
+                                partsString: string
+                                partsString =
+                                    if isFinalEmptyList then
+                                        joinedGeneratedParts
+                                    else
+                                        `${joinedGeneratedParts}, ...${generateListDestructurePart(parts[length - 1])}`
+
+                                conditionals: List string
+                                conditionals =
+                                    List.indexedMap (\destructor index -> `_${index}.kind === "${destructor.constructor}"`) destructors
+
+                                joinedConditionals: string
+                                joinedConditionals =
+                                    conditionals.join " && "
+
+                                unpackFn: Destructure -> number -> string
+                                unpackFn destructor index =
+                                    if destructor.pattern.length == 0 then
+                                        ""
+                                    else
+                                        `\n            const ${destructor.pattern} = _${index};`
+
+                                unpacked: List string
+                                unpacked =
+                                    List.indexedMap unpackFn destructors
+
+                                joinedUnpacked: string
+                                joinedUnpacked =
+                                    if unpacked.length == 0 then
+                                        ""
+                                    else
+                                        unpacked.join ""
+                            in
+                                [
+                                    `case ${predicate}.length: {`,
+                                    `    if (${conditional}) {`,
+                                    `        const [ ${partsString} ] = ${predicate};`,
+                                    `        if (${joinedConditionals}) {${joinedUnpacked}${maybeLetBody ? prefixLines(maybeLetBody, 8) : ""}`,
+                                    `        ${wrapper}${branchBody};`,
+                                    `        }`,
+                                    `    }`,
+                                    `}`
+                                ]
+                                    |> (\y -> y.join "\n")
+                        else
+                            let
+                                isFirstValue: boolean
+                                isFirstValue =
+                                    firstPart.kind == "StringValue" || firstPart.kind == "FormatStringValue"
+
+                                partsToGenerate: List ListDestructurePart
+                                partsToGenerate =
+                                    if isFirstValue then
+                                        {
+                                            kind: "Value",
+                                            body: "_temp"
+                                        } :: branch.pattern.parts.slice 1 -1
+                                    else
+                                        branch.pattern.parts.slice 0 -1
+
+                                generatedParts: List string
+                                generatedParts =
+                                    List.map generateListDestructurePart partsToGenerate
+
+                                joinedParts: string
+                                joinedParts =
+                                    generatedParts.join ", "
+
+                                partsString: string
+                                partsString =
+                                    if isFinalEmptyList then
+                                        joinedParts
+                                    else
+                                        `${joinedParts}, ...${generateListDestructurePart(branch.pattern.parts[length - 1])}`
+                            in
+                                if isFirstValue then
+                                    let
+                                        tempConditional: string
+                                        tempConditional =
+                                            case firstPart of
+                                                StringValue { body } ->
+                                                    `"${body}"`
+
+                                                FormatStringValue { body } ->
+                                                    "`" + body + "`"
+
+                                                default ->
+                                                    ""
+                                    in
+                                        [
+                                            `case ${predicate}.length: {`,
+                                            `    if (${conditional}) {`,
+                                            `        const [ ${partsString} ] = ${predicate};${maybeLetBody ? prefixLines(maybeLetBody, 4) : ""}`,
+                                            `        if (_temp === ${tempConditional}) {`,
+                                            `        ${wrapper}${branchBody};`,
+                                            `        }`,
+                                            `    }`,
+                                            `}`
+                                        ]
+                                            |> (\y -> y.join "\n")
+                                else
+                                    [
+                                        `case ${predicate}.length: {`,
+                                        `    if (${conditional}) {`,
+                                        `        const [ ${partsString} ] = ${predicate};${maybeLetBody ? prefixLines(maybeLetBody, 4) : ""}`,
+                                        `    ${wrapper}${branchBody};`,
+                                        `    }`,
+                                        `}`
+                                    ]
+                                        |> (\y -> y.join "\n")
+
+            Default ->
+                `default: {${maybeLetBody}\n${wrapper}${branchBody};\n}`
+
+isModuleReferenceToAValue: ModuleReference -> boolean
+isModuleReferenceToAValue moduleReference =
+    moduleReference.value.kind == "Value"
+
+generateCaseStatement: CaseStatement -> string
+generateCaseStatement caseStatement =
+    let
+        predicate: string
+        predicate =
+            generateExpression caseStatement.predicate
+
+        isValue: boolean
+        isValue =
+            case caseStatement.predicate of
+                Value ->
+                    true
+
+                ModuleReference ->
+                    isModuleReferenceToAValue caseStatement.predicate
+
+                default ->
+                    false
+
+        name: string
+        name =
+            if isValue then
+                predicate
+            else
+                `_res${hashCode(predicate)}`
+
+        maybePredicateAssignment: string
+        maybePredicateAssignment =
+            if isValue then
+                ""
+            else
+                `const ${name} = ${predicate};\n`
+
+        branches: string
+        branches =
+            List.map (\branch -> generateBranch name branch) caseStatement.branches
+                |> (\y -> y.join "\n")
+                |> (\y -> prefixLines y 4)
+
+        isString: boolean
+        isString =
+            List.filter (\branch -> branch.pattern.kind == "StringValue") caseStatement.branches
+                |> (\y -> y.length > 0)
+
+        isList: boolean
+        isList =
+            List.filter (\branch -> branch.pattern.kind == "EmptyList" || branch.pattern.kind == "ListDestructure") caseStatement.branches
+                |> (\y -> y.length > 0)
+    in
+        if isString then
+            `${maybePredicateAssignment}switch (${name}) {\n${branches}\n}`
+        else
+            if isList then
+                `${maybePredicateAssignment}switch (${name}.length) {\n${branches}\n}`
+            else
+                `${maybePredicateAssignment}switch (${name}.kind) {\n${branches}\n}`
+
+generateAddition: Addition -> string
+generateAddition addition =
+    let
+        left: string
+        left =
+            generateExpression addition.left
+
+        right: string
+        right =
+            generateExpression addition.right
+    in
+        `${left} + ${right}`
+
+generateSubtraction: Subtraction -> string
+generateSubtraction subtraction =
+    let
+        left: string
+        left =
+            generateExpression subtraction.left
+
+        right: string
+        right =
+            generateExpression subtraction.right
+    in
+        `${left} - ${right}`
+
+generateMultiplication: Multiplication -> string
+generateMultiplication multiplication =
+    let
+        left: string
+        left =
+            generateExpression multiplication.left
+
+        right: string
+        right =
+            generateExpression multiplication.right
+    in
+        `${left} * ${right}`
+
+generateDivision: Division -> string
+generateDivision division =
+    let
+        left: string
+        left =
+            generateExpression division.left
+
+        right: string
+        right =
+            generateExpression division.right
+    in
+        `${left} / ${right}`
+
+generateLeftPipe: LeftPipe -> string
+generateLeftPipe leftPipe =
+    flattenLeftPipe leftPipe
+        |> generateExpression
+
+generateRightPipe: RightPipe -> string
+generateRightPipe rightPipe =
+    let
+        left: string
+        left =
+            generateExpression rightPipe.left
+
+        right: string
+        right =
+            generateExpression rightPipe.right
+    in
+        `${left}(${right})`
+
+generateModuleReference: ModuleReference -> string
+generateModuleReference moduleReference =
+    case moduleReference.path of
+        [] ->
+            `(arg0) => arg0.${generateExpression(moduleReference.value)}`
+
+        default ->
+            let
+                left: string
+                left =
+                    moduleReference.path.join "."
+
+                right: string
+                right =
+                    generateExpression moduleReference.value
+            in
+                `${left}.${right}`
+
+generateFunctionCall: FunctionCall -> string
+generateFunctionCall functionCall =
+    let
+        args: string
+        args =
+            List.map generateExpression functionCall.args
+                |> (\y -> y.join ", ")
+    in
+        `${functionCall.name}(${args})`
+
+generateLambda: Lambda -> string
+generateLambda lambda =
+    let
+        isSimple: boolean
+        isSimple =
+            isSimpleValue lambda.body.kind
+
+        args: string
+        args =
+            lambda.args.join ", "
+
+        body: string
+        body =
+            if isSimple then
+                generateExpression lambda.body
+            else
+                generateExpression lambda.body
+                    |> (\y -> prefixLines y 4)
+    in
+        if isSimple then
+            `function(${args}) {\n    return ${body};\n}`
+        else
+            `function(${args}) {\n${body}\n}`
+
+generateLambdaCall: LambdaCall -> string
+generateLambdaCall lambdaCall =
+    let
+        args: string
+        args =
+            lambdaCall.lambda.args.join ", "
+
+        argsValues: string
+        argsValues =
+            List.map generateExpression lambdaCall.args
+                |> (\y -> y.join ", ")
+
+        body: string
+        body =
+            generateExpression lambdaCall.lambda.body
+    in
+        `(function(${args}) {\n    return ${body};\n})(${argsValues})`
+
+generateEquality: Equality -> string
+generateEquality equality =
+    let
+        left: string
+        left =
+            generateExpression equality.left
+
+        right: string
+        right =
+            generateExpression equality.right
+    in
+        `${left} === ${right}`
+
+generateInEquality: InEquality -> string
+generateInEquality inEquality =
+    let
+        left: string
+        left =
+            generateExpression inEquality.left
+
+        right: string
+        right =
+            generateExpression inEquality.right
+    in
+        `${left} !== ${right}`
+
+generateLessThan: LessThan -> string
+generateLessThan lessThan =
+    let
+        left: string
+        left =
+            generateExpression lessThan.left
+
+        right: string
+        right =
+            generateExpression lessThan.right
+    in
+        `${left} < ${right}`
+
+generateLessThanOrEqual: LessThanOrEqual -> string
+generateLessThanOrEqual lessThanOrEqual =
+    let
+        left: string
+        left =
+            generateExpression lessThanOrEqual.left
+
+        right: string
+        right =
+            generateExpression lessThanOrEqual.right
+    in
+        `${left} <= ${right}`
+
+generateGreaterThan: GreaterThan -> string
+generateGreaterThan greaterThan =
+    let
+        left: string
+        left =
+            generateExpression greaterThan.left
+
+        right: string
+        right =
+            generateExpression greaterThan.right
+    in
+        `${left} > ${right}`
+
+generateGreaterThanOrEqual: GreaterThanOrEqual -> string
+generateGreaterThanOrEqual greaterThanOrEqual =
+    let
+        left: string
+        left =
+            generateExpression greaterThanOrEqual.left
+
+        right: string
+        right =
+            generateExpression greaterThanOrEqual.right
+    in
+        `${left} >= ${right}`
+
+generateAnd: And -> string
+generateAnd and =
+    let
+        left: string
+        left =
+            generateExpression and.left
+
+        right: string
+        right =
+            generateExpression and.right
+    in
+        `${left} && ${right}`
+
+generateOr: Or -> string
+generateOr or =
+    let
+        left: string
+        left =
+            generateExpression or.left
+
+        right: string
+        right =
+            generateExpression or.right
+    in
+        `${left} || ${right}`
+
+generateListPrepend: ListPrepend -> string
+generateListPrepend prepend =
+    let
+        left: string
+        left =
+            generateExpression prepend.left
+
+        right: string
+        right =
+            generateExpression prepend.right
+    in
+        `[ ${left}, ...${right} ]`
+
+generateExpression: Expression -> string
+generateExpression expression =
+    case expression of
+        Value ->
+            generateValue expression
+
+        StringValue ->
+            generateStringValue expression
+
+        FormatStringValue ->
+            generateFormatStringValue expression
+
+        ListValue ->
+            generateListValue expression
+
+        ListRange ->
+            generateListRange expression
+
+        ObjectLiteral ->
+            generateObjectLiteral expression
+
+        IfStatement ->
+            generateIfStatement expression
+
+        CaseStatement ->
+            generateCaseStatement expression
+
+        Addition ->
+            generateAddition expression
+
+        Subtraction ->
+            generateSubtraction expression
+
+        Multiplication ->
+            generateMultiplication expression
+
+        Division ->
+            generateDivision expression
+
+        And ->
+            generateAnd expression
+
+        Or ->
+            generateOr expression
+
+        ListPrepend ->
+            generateListPrepend expression
+
+        LeftPipe ->
+            generateLeftPipe expression
+
+        RightPipe ->
+            generateRightPipe expression
+
+        ModuleReference ->
+            generateModuleReference expression
+
+        FunctionCall ->
+            generateFunctionCall expression
+
+        Lambda ->
+            generateLambda expression
+
+        LambdaCall ->
+            generateLambdaCall expression
+
+        Constructor ->
+            generateConstructor expression
+
+        Equality ->
+            generateEquality expression
+
+        InEquality ->
+            generateInEquality expression
+
+        LessThan ->
+            generateLessThan expression
+
+        LessThanOrEqual ->
+            generateLessThanOrEqual expression
+
+        GreaterThan ->
+            generateGreaterThan expression
+
+        GreaterThanOrEqual ->
+            generateGreaterThanOrEqual expression
+
+generateDoExpression: DoExpression -> string
+generateDoExpression expression =
+    case expression of
+        Const ->
+            generateConst expression
+
+        Function ->
+            generateFunction expression
+
+        FunctionCall ->
+            generateFunctionCall expression
+                |> (\y -> y + ";")
+
+        ModuleReference ->
+            generateModuleReference expression
+                |> (\y -> y + ";")
+
+generateDoBlock: DoBlock -> string
+generateDoBlock doBody =
+    List.map (\expression -> generateDoExpression expression) doBody.expressions
+        |> (\y -> y.join "\n")
+
+generateFunctionArg: FunctionArgsUnion -> string
+generateFunctionArg arg =
+    case arg of
+        FunctionArg { name } ->
+            name
+
+        AnonFunctionArg { index } ->
+            `_${index}`
+
+generateFunction: Function -> string
+generateFunction function_ =
+    let
+        args: string
+        args =
+            List.map (\arg -> generateFunctionArg arg) function_.args
+                |> (\y -> y.join ", ")
+
+        maybeLetBody: string
+        maybeLetBody =
+            generateLetBlock function_.letBody
+
+        maybeDoBody: string
+        maybeDoBody =
+            if function_.doBody == null then
+                ""
+            else
+                generateDoBlock function_.doBody
+                    |> (\y -> `\n${prefixLines(y, 4)}`)
+
+        isSimpleBody: boolean
+        isSimpleBody =
+            isSimpleValue function_.body.kind
+
+        bodyPrefix: string
+        bodyPrefix =
+            if isSimpleBody then
+                "return "
+            else
+                ""
+
+        bodySuffix: string
+        bodySuffix =
+            if isSimpleBody then
+                ";"
+            else
+                ""
+
+        body: string
+        body =
+            generateExpression function_.body
+                |> (\y -> bodyPrefix + y + bodySuffix)
+                |> (\y -> prefixLines y 4)
+    in
+        [
+            `function ${function_.name}(${args}) {${maybeLetBody}${maybeDoBody}`,
+            `${body}`,
+            `}`
+        ]
+            |> (\y -> y.join "\n")
+
+generateInlineIf: IfStatement -> string
+generateInlineIf expression =
+    let
+        ifBody: string
+        ifBody =
+            case expression.ifBody of
+                IfStatement ->
+                    `( ${generateInlineIf(expression.ifBody)} )`
+
+                default ->
+                    generateExpression expression.ifBody
+
+        elseBody: string
+        elseBody =
+            case expression.elseBody of
+                IfStatement ->
+                    `( ${generateInlineIf(expression.elseBody)} )`
+
+                default ->
+                    generateExpression expression.elseBody
+    in
+        `${generateExpression(expression.predicate)} ? ${ifBody} : ${elseBody}`
+
+generateInlineCase: CaseStatement -> string
+generateInlineCase expression =
+    `(function () {\n${prefixLines(generateExpression(expression), 4)}\n})()`
+
+generateNestedConst: Const -> string -> string
+generateNestedConst constDef body =
+    let
+        generatedBlocks: List string
+        generatedBlocks =
+            List.map (\block -> generateBlock block) constDef.letBody
+
+        joinedBlocks: string
+        joinedBlocks =
+            generatedBlocks.join "\n"
+                |> (\y -> prefixLines y 4)
+    in
+        `(function() {\n${joinedBlocks}\n    return ${body};\n})()`
+
+generateConst: Const -> string
+generateConst constDef =
+    let
+        body: string
+        body =
+            case constDef.value of
+                IfStatement ->
+                    if constDef.letBody.length == 0 then
+                        generateInlineIf constDef.value
+                    else
+                        generateNestedConst constDef (generateInlineIf constDef.value)
+
+                CaseStatement ->
+                    if constDef.letBody.length == 0 then
+                        generateInlineCase constDef.value
+                    else
+                        generateNestedConst constDef (generateInlineCase constDef.value)
+
+                default ->
+                    if constDef.letBody.length == 0 then
+                        generateExpression constDef.value
+                    else
+                        generateNestedConst constDef (generateExpression constDef.value)
+    in
+        `const ${constDef.name} = ${body};`
+
+generateBlock: Block -> List string -> string
+generateBlock syntax unionTypeNames? =
+    case syntax of
+        Import ->
+            generateImportBlock syntax
+
+        Export ->
+            let
+                actualUnionTypeNames: List string
+                actualUnionTypeNames =
+                    unionTypeNames || [ ]
+
+                exportingBlock: Export
+                exportingBlock =
+                    { ...syntax, names: syntax.names.filter (\name -> !actualUnionTypeNames.includes name) }
+            in
+                generateExportBlock exportingBlock
+
+        UnionType ->
+            generateUnionType syntax
+
+        TypeAlias ->
+            generateTypeAlias syntax
+
+        Function ->
+            generateFunction syntax
+
+        Const ->
+            generateConst syntax
+
+        Comment ->
+            ""
+
+        MultilineComment ->
+            ""
+
+generateJavascript: Module -> string
+generateJavascript module =
+    let
+        unionTypeNames: List string
+        unionTypeNames =
+            List.filter (\block -> block.kind == "UnionType") module.body
+                |> List.map (\block -> block.type.name)
+
+        testExports: Export
+        testExports =
+            exportTests module
+
+        withTestExports: List Block
+        withTestExports =
+            testExports :: module.body
+    in
+        List.map (\block -> generateBlock block unionTypeNames) withTestExports
+            |> List.filter (\line -> line.length > 0)
+            |> (\y -> y.join "\n\n")

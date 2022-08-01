@@ -1,7 +1,7 @@
 import { generateDerw } from "./generators/derw";
 import { generateElm } from "./generators/elm";
 import { generateEnglish } from "./generators/English";
-import { generateJavascript } from "./generators/js";
+import { generateJavascript } from "./generators/Js";
 import { generateTypescript } from "./generators/Ts";
 import { Module } from "./types";
 

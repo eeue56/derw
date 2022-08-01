@@ -3,7 +3,7 @@ import { readdir, readFile } from "fs/promises";
 import path from "path";
 import { generateDerw } from "../generators/derw";
 import { generateElm } from "../generators/elm";
-import { generateJavascript } from "../generators/js";
+import { generateJavascript } from "../generators/Js";
 import { generateTypescript } from "../generators/Ts";
 import { parse } from "../parser";
 

@@ -1,7 +1,7 @@
 import * as assert from "@eeue56/ts-assert";
 import { intoBlocks } from "../Blocks";
 import { compileTypescript } from "../compile";
-import { generateJavascript } from "../generators/js";
+import { generateJavascript } from "../generators/Js";
 import { generateTypescript } from "../generators/Ts";
 import { parse } from "../parser";
 import {
