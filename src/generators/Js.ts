@@ -698,19 +698,19 @@ function generateExpression(expression: Expression): string {
 function generateDoExpression(expression: DoExpression): string {
     switch (expression.kind) {
         case "Const": {
-            return generateConst(expression);
+            return generateConst(expression, true);
         }
         case "Function": {
             return generateFunction(expression);
         }
         case "FunctionCall": {
             return (function(y: any) {
-            return y + ";";
+            return "await " + y + ";";
         })(generateFunctionCall(expression));
         }
         case "ModuleReference": {
             return (function(y: any) {
-            return y + ";";
+            return "await " + y + ";";
         })(generateModuleReference(expression));
         }
     }
@@ -744,6 +744,8 @@ function generateFunction(function_: Function): string {
         return generateFunctionArg(arg);
     }, function_.args));
     const maybeLetBody: string = generateLetBlock(function_.letBody);
+    const isAsync: boolean = function_.doBody !== null;
+    const maybeAsyncPrefix: string = isAsync ? "async " : "";
     const maybeDoBody: string = function_.doBody === null ? "" : (function(y: any) {
         return `\n${prefixLines(y, 4)}`;
     })(generateDoBlock(function_.doBody));
@@ -757,7 +759,7 @@ function generateFunction(function_: Function): string {
     })(generateExpression(function_.body)));
     return (function(y: any) {
         return y.join("\n");
-    })([ `function ${function_.name}(${args}) {${maybeLetBody}${maybeDoBody}`, `${body}`, `}` ]);
+    })([ `${maybeAsyncPrefix}function ${function_.name}(${args}) {${maybeLetBody}${maybeDoBody}`, `${body}`, `}` ]);
 }
 
 function generateInlineIf(expression: IfStatement): string {
@@ -798,7 +800,7 @@ function generateNestedConst(constDef: Const, body: string): string {
     return `(function() {\n${joinedBlocks}\n    return ${body};\n})()`;
 }
 
-function generateConst(constDef: Const): string {
+function generateConst(constDef: Const, isAsync: boolean): string {
     const body: string = (function (): any {
         switch (constDef.value.kind) {
             case "IfStatement": {
@@ -824,7 +826,8 @@ function generateConst(constDef: Const): string {
             }
         }
     })();
-    return `const ${constDef.name} = ${body};`;
+    const maybeAsyncPrefix: string = isAsync ? "await " : "";
+    return `const ${constDef.name} = ${maybeAsyncPrefix}${body};`;
 }
 
 function generateBlock(syntax: Block, unionTypeNames?: string[]): string {
@@ -849,7 +852,7 @@ function generateBlock(syntax: Block, unionTypeNames?: string[]): string {
             return generateFunction(syntax);
         }
         case "Const": {
-            return generateConst(syntax);
+            return generateConst(syntax, false);
         }
         case "Comment": {
             return "";

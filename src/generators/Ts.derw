@@ -1426,18 +1426,18 @@ generateDoExpression: DoExpression -> List string -> List Type -> List Import ->
 generateDoExpression expression parentTypeArguments parentTypes imports =
     case expression of
         Const ->
-            generateConst expression imports
+            generateConst expression imports true
 
         Function ->
             generateFunction expression parentTypeArguments parentTypes imports
 
         FunctionCall ->
             generateFunctionCall expression
-                |> (\y -> y + ";")
+                |> (\y -> "await " + y + ";")
 
         ModuleReference ->
             generateModuleReference expression
-                |> (\y -> y + ";")
+                |> (\y -> "await " + y + ";")
 
 generateDoBlock: DoBlock -> List string -> List Type -> List Import -> string
 generateDoBlock doBody parentTypeArguments parentTypes imports =
@@ -1478,17 +1478,35 @@ generateFunction function_ parentTypeArguments parentTypes imports =
         maybeLetBody =
             generateLetBlock function_.letBody (List.append filteredTypeArguments parentTypeArguments) imports
 
+        isAsync: boolean
+        isAsync =
+            function_.doBody != null
+
+        maybeAsyncPrefix: string
+        maybeAsyncPrefix =
+            if isAsync then
+                "async "
+            else
+                ""
+
         maybeDoBody: string
         maybeDoBody =
-            if function_.doBody == null then
-                ""
-            else
+            if function_.doBody != null then
                 generateDoBlock function_.doBody parentTypeArguments parentTypes imports
                     |> (\y -> `\n${prefixLines(y, 4)}`)
+            else
+                ""
 
         returnType: string
         returnType =
-            generateTopLevelType function_.returnType imports
+            if isAsync then
+                generateTopLevelType {
+                    kind: "FixedType",
+                    name: "Promise",
+                    args: [ function_.returnType ]
+                } imports
+            else
+                generateTopLevelType function_.returnType imports
 
         isSimpleBody: boolean
         isSimpleBody =
@@ -1530,7 +1548,7 @@ generateFunction function_ parentTypeArguments parentTypes imports =
                 `<${filteredTypeArguments.join(", ")}>`
     in
         [
-            `function ${function_.name}${typeArgumentsString}(${args}): ${returnType} {${maybeLetBody}${maybeDoBody}`,
+            `${maybeAsyncPrefix}function ${function_.name}${typeArgumentsString}(${args}): ${returnType} {${maybeLetBody}${maybeDoBody}`,
             `${body}`,
             `}`
         ]
@@ -1581,8 +1599,8 @@ generateNestedConst constDef body imports =
     in
         `(function(): ${typeDef} {\n${joinedBlocks}\n    return ${body};\n})()`
 
-generateConst: Const -> List Import -> string
-generateConst constDef imports =
+generateConst: Const -> List Import -> boolean -> string
+generateConst constDef imports isAsync =
     let
         body: string
         body =
@@ -1605,11 +1623,18 @@ generateConst constDef imports =
                     else
                         generateNestedConst constDef (generateExpression constDef.value) imports
 
+        maybeAsyncPrefix: string
+        maybeAsyncPrefix =
+            if isAsync then
+                "await "
+            else
+                ""
+
         typeDef: string
         typeDef =
             generateTopLevelType constDef.type imports
     in
-        `const ${constDef.name}: ${typeDef} = ${body};`
+        `const ${constDef.name}: ${typeDef} = ${maybeAsyncPrefix}${body};`
 
 generateBlock: Block -> List string -> List Type -> List Import -> string
 generateBlock syntax parentTypeArguments? parentTypes? imports? =
@@ -1643,7 +1668,7 @@ generateBlock syntax parentTypeArguments? parentTypes? imports? =
                 generateFunction syntax actualParentTypeArguments actualParentTypes actualImports
 
             Const ->
-                generateConst syntax actualImports
+                generateConst syntax actualImports false
 
             Comment ->
                 ""

@@ -42,15 +42,15 @@ fetch url options =
 `.trim();
 
 const expectedOutput = `
-function fetch(url: string, options: any): any {
-    const response: Response = globalThis.fetch(url, options);
+async function fetch(url: string, options: any): Promise<any> {
+    const response: Response = await globalThis.fetch(url, options);
     return response;
 }
 `.trim();
 
 const expectedOutputJS = `
-function fetch(url, options) {
-    const response = globalThis.fetch(url, options);
+async function fetch(url, options) {
+    const response = await globalThis.fetch(url, options);
     return response;
 }
 `.trim();

@@ -57,10 +57,10 @@ isTrue value =
 `.trim();
 
 const expectedOutput = `
-function isTrue(value: boolean): boolean {
-    globalThis.console.log("hello");
-    const x: number = 5;
-    globalThis.console.log(x);
+async function isTrue(value: boolean): Promise<boolean> {
+    await globalThis.console.log("hello");
+    const x: number = await 5;
+    await globalThis.console.log(x);
     if (value) {
         return true;
     } else {
@@ -70,10 +70,10 @@ function isTrue(value: boolean): boolean {
 `.trim();
 
 const expectedOutputJS = `
-function isTrue(value) {
-    globalThis.console.log("hello");
-    const x = 5;
-    globalThis.console.log(x);
+async function isTrue(value) {
+    await globalThis.console.log("hello");
+    const x = await 5;
+    await globalThis.console.log(x);
     if (value) {
         return true;
     } else {

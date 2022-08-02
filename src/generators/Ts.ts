@@ -1052,19 +1052,19 @@ function collectTypeArguments(type_: Type): string[] {
 function generateDoExpression(expression: DoExpression, parentTypeArguments: string[], parentTypes: Type[], imports: Import[]): string {
     switch (expression.kind) {
         case "Const": {
-            return generateConst(expression, imports);
+            return generateConst(expression, imports, true);
         }
         case "Function": {
             return generateFunction(expression, parentTypeArguments, parentTypes, imports);
         }
         case "FunctionCall": {
             return (function(y: any) {
-            return y + ";";
+            return "await " + y + ";";
         })(generateFunctionCall(expression));
         }
         case "ModuleReference": {
             return (function(y: any) {
-            return y + ";";
+            return "await " + y + ";";
         })(generateModuleReference(expression));
         }
     }
@@ -1107,10 +1107,16 @@ function generateFunction(function_: Function, parentTypeArguments: string[], pa
         return arr.indexOf(value) === index && parentTypeArguments.indexOf(value) === -1;
     });
     const maybeLetBody: string = generateLetBlock(function_.letBody, List.append(filteredTypeArguments, parentTypeArguments), imports);
-    const maybeDoBody: string = function_.doBody === null ? "" : (function(y: any) {
+    const isAsync: boolean = function_.doBody !== null;
+    const maybeAsyncPrefix: string = isAsync ? "async " : "";
+    const maybeDoBody: string = function_.doBody !== null ? (function(y: any) {
         return `\n${prefixLines(y, 4)}`;
-    })(generateDoBlock(function_.doBody, parentTypeArguments, parentTypes, imports));
-    const returnType: string = generateTopLevelType(function_.returnType, imports);
+    })(generateDoBlock(function_.doBody, parentTypeArguments, parentTypes, imports)) : "";
+    const returnType: string = isAsync ? generateTopLevelType({
+        kind: "FixedType",
+        name: "Promise",
+        args: [ function_.returnType ]
+    }, imports) : generateTopLevelType(function_.returnType, imports);
     const isSimpleBody: boolean = isSimpleValue(function_.body.kind);
     const bodyPrefix: string = isSimpleBody ? "return " : "";
     const bodySuffix: string = isSimpleBody ? ";" : "";
@@ -1124,7 +1130,7 @@ function generateFunction(function_: Function, parentTypeArguments: string[], pa
     const typeArgumentsString: string = filteredTypeArguments.length === 0 ? "" : `<${filteredTypeArguments.join(", ")}>`;
     return (function(y: any) {
         return y.join("\n");
-    })([ `function ${function_.name}${typeArgumentsString}(${args}): ${returnType} {${maybeLetBody}${maybeDoBody}`, `${body}`, `}` ]);
+    })([ `${maybeAsyncPrefix}function ${function_.name}${typeArgumentsString}(${args}): ${returnType} {${maybeLetBody}${maybeDoBody}`, `${body}`, `}` ]);
 }
 
 function generateInlineIf(expression: IfStatement): string {
@@ -1166,7 +1172,7 @@ function generateNestedConst(constDef: Const, body: string, imports: Import[]): 
     return `(function(): ${typeDef} {\n${joinedBlocks}\n    return ${body};\n})()`;
 }
 
-function generateConst(constDef: Const, imports: Import[]): string {
+function generateConst(constDef: Const, imports: Import[], isAsync: boolean): string {
     const body: string = (function (): any {
         switch (constDef.value.kind) {
             case "IfStatement": {
@@ -1192,8 +1198,9 @@ function generateConst(constDef: Const, imports: Import[]): string {
             }
         }
     })();
+    const maybeAsyncPrefix: string = isAsync ? "await " : "";
     const typeDef: string = generateTopLevelType(constDef.type, imports);
-    return `const ${constDef.name}: ${typeDef} = ${body};`;
+    return `const ${constDef.name}: ${typeDef} = ${maybeAsyncPrefix}${body};`;
 }
 
 function generateBlock(syntax: Block, parentTypeArguments?: string[], parentTypes?: Type[], imports?: Import[]): string {
@@ -1217,7 +1224,7 @@ function generateBlock(syntax: Block, parentTypeArguments?: string[], parentType
             return generateFunction(syntax, actualParentTypeArguments, actualParentTypes, actualImports);
         }
         case "Const": {
-            return generateConst(syntax, actualImports);
+            return generateConst(syntax, actualImports, false);
         }
         case "Comment": {
             return "";

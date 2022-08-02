@@ -1042,18 +1042,18 @@ generateDoExpression: DoExpression -> string
 generateDoExpression expression =
     case expression of
         Const ->
-            generateConst expression
+            generateConst expression true
 
         Function ->
             generateFunction expression
 
         FunctionCall ->
             generateFunctionCall expression
-                |> (\y -> y + ";")
+                |> (\y -> "await " + y + ";")
 
         ModuleReference ->
             generateModuleReference expression
-                |> (\y -> y + ";")
+                |> (\y -> "await " + y + ";")
 
 generateDoBlock: DoBlock -> string
 generateDoBlock doBody =
@@ -1080,6 +1080,17 @@ generateFunction function_ =
         maybeLetBody: string
         maybeLetBody =
             generateLetBlock function_.letBody
+
+        isAsync: boolean
+        isAsync =
+            function_.doBody != null
+
+        maybeAsyncPrefix: string
+        maybeAsyncPrefix =
+            if isAsync then
+                "async "
+            else
+                ""
 
         maybeDoBody: string
         maybeDoBody =
@@ -1114,7 +1125,7 @@ generateFunction function_ =
                 |> (\y -> prefixLines y 4)
     in
         [
-            `function ${function_.name}(${args}) {${maybeLetBody}${maybeDoBody}`,
+            `${maybeAsyncPrefix}function ${function_.name}(${args}) {${maybeLetBody}${maybeDoBody}`,
             `${body}`,
             `}`
         ]
@@ -1161,8 +1172,8 @@ generateNestedConst constDef body =
     in
         `(function() {\n${joinedBlocks}\n    return ${body};\n})()`
 
-generateConst: Const -> string
-generateConst constDef =
+generateConst: Const -> boolean -> string
+generateConst constDef isAsync =
     let
         body: string
         body =
@@ -1184,8 +1195,15 @@ generateConst constDef =
                         generateExpression constDef.value
                     else
                         generateNestedConst constDef (generateExpression constDef.value)
+
+        maybeAsyncPrefix: string
+        maybeAsyncPrefix =
+            if isAsync then
+                "await "
+            else
+                ""
     in
-        `const ${constDef.name} = ${body};`
+        `const ${constDef.name} = ${maybeAsyncPrefix}${body};`
 
 generateBlock: Block -> List string -> string
 generateBlock syntax unionTypeNames? =
@@ -1215,7 +1233,7 @@ generateBlock syntax unionTypeNames? =
             generateFunction syntax
 
         Const ->
-            generateConst syntax
+            generateConst syntax false
 
         Comment ->
             ""

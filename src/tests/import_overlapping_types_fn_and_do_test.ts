@@ -54,8 +54,8 @@ const expectedOutput = `
 import * as Maybe from "./Maybe";
 import { Just, Nothing } from "./Maybe";
 
-function makeSomething(name: string): Maybe.Maybe<string> {
-    const something: Maybe.Maybe<string> = Just({ value: "hello" });
+async function makeSomething(name: string): Promise<Maybe.Maybe<string>> {
+    const something: Maybe.Maybe<string> = await Just({ value: "hello" });
     return Just({ value: name });
 }
 `.trim();
@@ -64,8 +64,8 @@ const expectedOutputJS = `
 import * as Maybe from "./Maybe";
 import { Just, Nothing } from "./Maybe";
 
-function makeSomething(name) {
-    const something = Just({ value: "hello" });
+async function makeSomething(name) {
+    const something = await Just({ value: "hello" });
     return Just({ value: name });
 }
 `.trim();

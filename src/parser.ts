@@ -20,6 +20,7 @@ import {
     tokenizeType,
     tokensToString,
     TypeToken,
+    WhitespaceToken,
 } from "./tokens";
 import {
     Addition,
@@ -2626,12 +2627,18 @@ export function parseExpression(
     return Err(`No expression found: '${body}'`);
 }
 
+function deIndent(string: string, amount: number): string {
+    return string
+        .split("\n")
+        .map((part) => part.slice(amount))
+        .join("\n");
+}
+
 function parseDoBlock(tokens: Token[]): Result<string, DoBlock> {
     const expressions: Result<string, DoExpression>[] = [ ];
 
-    let currentBuffer = [ ];
     function parseDoExpression(currentBuffer: Token[]) {
-        const asString = tokensToString(currentBuffer);
+        const asString = deIndent(tokensToString(currentBuffer), 8);
         const asBlock = intoBlocks(asString);
 
         if (asBlock.length > 0 && asBlock[0].kind !== "UnknownBlock") {
@@ -2672,6 +2679,9 @@ function parseDoBlock(tokens: Token[]): Result<string, DoBlock> {
         }
     }
 
+    let currentBuffer: Token[] = [ WhitespaceToken("        ") ];
+    const baseIndentLevel = 8;
+
     for (const token of tokens.slice(1)) {
         switch (token.kind) {
             case "IdentifierToken": {
@@ -2683,9 +2693,17 @@ function parseDoBlock(tokens: Token[]): Result<string, DoBlock> {
                 break;
             }
             case "WhitespaceToken": {
-                if (token.body.indexOf("\n\n") > -1) {
+                const intoLines = token.body.split("\n");
+                const currentIndentLevel = intoLines[intoLines.length - 1]
+                    .split("")
+                    .filter((char) => char === " ").length;
+
+                if (
+                    token.body.indexOf("\n\n") > -1 &&
+                    currentIndentLevel === baseIndentLevel
+                ) {
                     parseDoExpression(currentBuffer);
-                    currentBuffer = [ ];
+                    currentBuffer = [ WhitespaceToken("        ") ];
                 } else {
                     currentBuffer.push(token);
                 }
@@ -2698,7 +2716,7 @@ function parseDoBlock(tokens: Token[]): Result<string, DoBlock> {
         }
     }
 
-    if (currentBuffer.length > 0) {
+    if (currentBuffer.filter((t) => t.kind !== "WhitespaceToken").length > 0) {
         parseDoExpression(currentBuffer);
     }
 

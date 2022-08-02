@@ -67,11 +67,11 @@ isTrue value =
 `.trim();
 
 const expectedOutput = `
-function isTrue(value: boolean): boolean {
+async function isTrue(value: boolean): Promise<boolean> {
     const name: string = "Noah";
-    globalThis.console.log("hello", name);
-    const x: number = 5;
-    globalThis.console.log(x);
+    await globalThis.console.log("hello", name);
+    const x: number = await 5;
+    await globalThis.console.log(x);
     if (value) {
         return true;
     } else {
@@ -81,11 +81,11 @@ function isTrue(value: boolean): boolean {
 `.trim();
 
 const expectedOutputJS = `
-function isTrue(value) {
+async function isTrue(value) {
     const name = "Noah";
-    globalThis.console.log("hello", name);
-    const x = 5;
-    globalThis.console.log(x);
+    await globalThis.console.log("hello", name);
+    const x = await 5;
+    await globalThis.console.log(x);
     if (value) {
         return true;
     } else {
