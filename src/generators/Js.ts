@@ -1,5 +1,7 @@
 import { exportTests } from "../Blocks";
 
+import { hashCode } from "../Utils";
+
 import { isBuiltinType } from "../builtins";
 
 import * as List from "../stdlib/List";
@@ -29,8 +31,6 @@ import * as Values from "../types";
 import { Value, StringValue, FormatStringValue, ListValue, ListRange } from "../types";
 
 import { Tag, UnionType, Type, TagArg, Block, Constructor, Expression, FunctionType, GenericType, FixedType, isSimpleValue } from "../types";
-
-import { hashCode } from "../utils";
 
 import { prefixLines, destructureLength, patternHasGaps, patternGapPositions } from "./Common";
 

@@ -1,8 +1,8 @@
+import { isTestFile } from "./Utils";
+
 import * as List from "./stdlib/List";
 
 import { BlockKinds, Block, TypedBlock, Module } from "./types";
-
-import { isTestFile } from "./utils";
 
 export { blockKind };
 export { createUnparsedBlock };

@@ -1,0 +1,50 @@
+import "./stdlib/Bitwise_kernel" as Bitwise
+import "./stdlib/List" as List
+
+exposing (getNameFromPath, isTestFile, hashCode)
+
+getNameFromPath: string -> string
+getNameFromPath path =
+    let
+        splitByPathSymbol: List string
+        splitByPathSymbol =
+            path.split "/"
+
+        lastElement: string
+        lastElement =
+            case splitByPathSymbol.slice -1 of
+                x :: [] ->
+                    x.split "."
+                        |> (\y -> y[0])
+
+                default ->
+                    ""
+    in
+        lastElement
+
+isTestFile: string -> boolean
+isTestFile name =
+    name.endsWith "_test.derw"
+
+hashCodeStep: number -> number -> number
+hashCodeStep charCode hash =
+    let
+        added: number
+        added =
+            hash + charCode
+
+        shift: number
+        shift =
+            Bitwise.leftShift hash 5
+
+        subtracted: number
+        subtracted =
+            shift - added
+    in
+        Bitwise.or subtracted 0
+
+hashCode: string -> number
+hashCode str =
+    List.map (\letter -> letter.charCodeAt 0) (str.split "")
+        |> List.foldl hashCodeStep 0
+        |> (\y -> Math.abs y)

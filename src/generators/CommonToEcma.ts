@@ -1,8 +1,8 @@
+import { getNameFromPath } from "../Utils";
+
 import * as List from "../stdlib/List";
 
 import { Value, StringValue, FormatStringValue, ListRange, ListDestructurePart, ModuleReference, Expression, LeftPipe, Lambda, Export, ImportModule, Import } from "../types";
-
-import { getNameFromPath } from "../utils";
 
 export { generateValue };
 export { generateStringValue };

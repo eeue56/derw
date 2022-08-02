@@ -1,6 +1,6 @@
+import "./Utils" exposing ( isTestFile )
 import "./stdlib/List" as List
 import "./types" exposing ( BlockKinds, Block, TypedBlock, Module )
-import "./utils" exposing (isTestFile)
 
 exposing (blockKind, createUnparsedBlock, intoBlocks, typeBlocks, exportTests)
 
@@ -373,12 +373,12 @@ intoBlocks body =
             lineStart: 0
         } lines
 
-
 typeBlocks: List Block -> List TypedBlock
 typeBlocks blocks =
     List.filter (\block -> block.kind == "UnionType" || block.kind == "TypeAlias") blocks
 
-type MyExport = Export { names: List string }
+type MyExport =
+    Export { names: List string }
 
 exportTests: Module -> MyExport
 exportTests module =
@@ -394,15 +394,15 @@ exportTests module =
                     |> List.map (\block -> block.name)
                     |> List.filter (\name -> name.startsWith "test")
             else
-                []
+                [ ]
 
         exports: List Export
         exports =
             List.filter (\block -> block.kind == "Export") module.body
 
         exportNames: List string
-        epxortNames =
-            List.foldl (\export_ allNames -> List.append export_.names allNames) [] exports
+        exportNames =
+            List.foldl (\export_ allNames -> List.append export_.names allNames) [ ] exports
 
         exposeWithoutDuplicates: List string
         exposeWithoutDuplicates =
