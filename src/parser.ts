@@ -2666,10 +2666,14 @@ function parseDoBlock(tokens: Token[]): Result<string, DoBlock> {
             if (
                 expression.kind === "Ok" &&
                 (expression.value.kind === "FunctionCall" ||
-                    expression.value.kind === "ModuleReference")
+                    expression.value.kind === "ModuleReference" ||
+                    expression.value.kind === "IfStatement")
             ) {
                 expressions.push(
-                    expression as Result<string, FunctionCall | ModuleReference>
+                    expression as Result<
+                        string,
+                        FunctionCall | ModuleReference | IfStatement
+                    >
                 );
             }
 

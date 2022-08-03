@@ -129,16 +129,22 @@ generateLetBlock body =
         default ->
             ""
 
-generateIfStatement: IfStatement -> string
-generateIfStatement ifStatement =
+generateIfStatement: IfStatement -> boolean -> boolean -> string
+generateIfStatement ifStatement isAsync neverSimple =
     let
         isSimpleIfBody: boolean
         isSimpleIfBody =
-            isSimpleValue ifStatement.ifBody.kind
+            if neverSimple then
+                false
+            else
+                isSimpleValue ifStatement.ifBody.kind
 
         isSimpleElseBody: boolean
         isSimpleElseBody =
-            isSimpleValue ifStatement.elseBody.kind
+            if neverSimple then
+                false
+            else
+                isSimpleValue ifStatement.elseBody.kind
 
         ifBodyPrefix: string
         ifBodyPrefix =
@@ -151,6 +157,13 @@ generateIfStatement ifStatement =
         elseBodyPrefix =
             if isSimpleElseBody then
                 "return "
+            else
+                ""
+
+        asyncPrefix: string
+        asyncPrefix =
+            if isAsync then
+                "await "
             else
                 ""
 
@@ -212,7 +225,7 @@ generateIfStatement ifStatement =
                 default ->
                     elseBody
     in
-        `if (${predicate}) {${maybeIfLetBody}\n    ${ifBodyPrefix}${indentedIfBody};\n} else {${maybeElseLetBody}\n    ${elseBodyPrefix}${indentedElseBody};\n}`
+        `if (${predicate}) {${maybeIfLetBody}\n    ${ifBodyPrefix}${asyncPrefix}${indentedIfBody};\n} else {${maybeElseLetBody}\n    ${elseBodyPrefix}${asyncPrefix}${indentedElseBody};\n}`
 
 generateConstructor: Constructor -> string
 generateConstructor constructor =
@@ -973,7 +986,7 @@ generateExpression expression =
             generateObjectLiteral expression
 
         IfStatement ->
-            generateIfStatement expression
+            generateIfStatement expression false false
 
         CaseStatement ->
             generateCaseStatement expression
@@ -1054,6 +1067,9 @@ generateDoExpression expression =
         ModuleReference ->
             generateModuleReference expression
                 |> (\y -> "await " + y + ";")
+
+        IfStatement ->
+            generateIfStatement expression true true
 
 generateDoBlock: DoBlock -> string
 generateDoBlock doBody =

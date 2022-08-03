@@ -146,11 +146,12 @@ function generateLetBlock(body: Block[]): string {
     }
 }
 
-function generateIfStatement(ifStatement: IfStatement): string {
-    const isSimpleIfBody: boolean = isSimpleValue(ifStatement.ifBody.kind);
-    const isSimpleElseBody: boolean = isSimpleValue(ifStatement.elseBody.kind);
+function generateIfStatement(ifStatement: IfStatement, isAsync: boolean, neverSimple: boolean): string {
+    const isSimpleIfBody: boolean = neverSimple ? false : isSimpleValue(ifStatement.ifBody.kind);
+    const isSimpleElseBody: boolean = neverSimple ? false : isSimpleValue(ifStatement.elseBody.kind);
     const ifBodyPrefix: string = isSimpleIfBody ? "return " : "";
     const elseBodyPrefix: string = isSimpleElseBody ? "return " : "";
+    const asyncPrefix: string = isAsync ? "await " : "";
     const maybeIfLetBody: string = generateLetBlock(ifStatement.ifLetBody);
     const maybeElseLetBody: string = generateLetBlock(ifStatement.elseLetBody);
     const predicate: string = generateExpression(ifStatement.predicate);
@@ -206,7 +207,7 @@ function generateIfStatement(ifStatement: IfStatement): string {
             }
         }
     })();
-    return `if (${predicate}) {${maybeIfLetBody}\n    ${ifBodyPrefix}${indentedIfBody};\n} else {${maybeElseLetBody}\n    ${elseBodyPrefix}${indentedElseBody};\n}`;
+    return `if (${predicate}) {${maybeIfLetBody}\n    ${ifBodyPrefix}${asyncPrefix}${indentedIfBody};\n} else {${maybeElseLetBody}\n    ${elseBodyPrefix}${asyncPrefix}${indentedElseBody};\n}`;
 }
 
 function generateConstructor(constructor: Constructor): string {
@@ -627,7 +628,7 @@ function generateExpression(expression: Expression): string {
             return generateObjectLiteral(expression);
         }
         case "IfStatement": {
-            return generateIfStatement(expression);
+            return generateIfStatement(expression, false, false);
         }
         case "CaseStatement": {
             return generateCaseStatement(expression);
@@ -712,6 +713,9 @@ function generateDoExpression(expression: DoExpression): string {
             return (function(y: any) {
             return "await " + y + ";";
         })(generateModuleReference(expression));
+        }
+        case "IfStatement": {
+            return generateIfStatement(expression, true, true);
         }
     }
 }

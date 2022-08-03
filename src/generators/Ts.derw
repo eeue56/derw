@@ -481,21 +481,34 @@ generateLetBlock body parentTypeArguments imports =
         default ->
             ""
 
-generateIfStatement: IfStatement -> List string -> string
-generateIfStatement ifStatement parentTypeArguments =
+generateIfStatement: IfStatement -> List string -> boolean -> boolean -> string
+generateIfStatement ifStatement parentTypeArguments isAsync neverSimple =
     let
         isSimpleIfBody: boolean
         isSimpleIfBody =
-            isSimpleValue ifStatement.ifBody.kind
+            if neverSimple then
+                false
+            else
+                isSimpleValue ifStatement.ifBody.kind
 
         isSimpleElseBody: boolean
         isSimpleElseBody =
-            isSimpleValue ifStatement.elseBody.kind
+            if neverSimple then
+                false
+            else
+                isSimpleValue ifStatement.elseBody.kind
 
         ifBodyPrefix: string
         ifBodyPrefix =
             if isSimpleIfBody then
                 "return "
+            else
+                ""
+
+        asyncPrefix: string
+        asyncPrefix =
+            if isAsync then
+                "await "
             else
                 ""
 
@@ -564,7 +577,7 @@ generateIfStatement ifStatement parentTypeArguments =
                 default ->
                     elseBody
     in
-        `if (${predicate}) {${maybeIfLetBody}\n    ${ifBodyPrefix}${indentedIfBody};\n} else {${maybeElseLetBody}\n    ${elseBodyPrefix}${indentedElseBody};\n}`
+        `if (${predicate}) {${maybeIfLetBody}\n    ${ifBodyPrefix}${asyncPrefix}${indentedIfBody};\n} else {${maybeElseLetBody}\n    ${elseBodyPrefix}${asyncPrefix}${indentedElseBody};\n}`
 
 generateConstructor: Constructor -> string
 generateConstructor constructor =
@@ -1332,7 +1345,7 @@ generateExpression expression parentTypeArguments? parentTypes? =
                 actualParentTypeArguments =
                     parentTypeArguments || [ ]
             in
-                generateIfStatement expression actualParentTypeArguments
+                generateIfStatement expression actualParentTypeArguments false false
 
         CaseStatement ->
             let
@@ -1438,6 +1451,9 @@ generateDoExpression expression parentTypeArguments parentTypes imports =
         ModuleReference ->
             generateModuleReference expression
                 |> (\y -> "await " + y + ";")
+
+        IfStatement ->
+            generateIfStatement expression parentTypeArguments true true
 
 generateDoBlock: DoBlock -> List string -> List Type -> List Import -> string
 generateDoBlock doBody parentTypeArguments parentTypes imports =

@@ -461,10 +461,11 @@ function generateLetBlock(body: Block[], parentTypeArguments: string[], imports:
     }
 }
 
-function generateIfStatement(ifStatement: IfStatement, parentTypeArguments: string[]): string {
-    const isSimpleIfBody: boolean = isSimpleValue(ifStatement.ifBody.kind);
-    const isSimpleElseBody: boolean = isSimpleValue(ifStatement.elseBody.kind);
+function generateIfStatement(ifStatement: IfStatement, parentTypeArguments: string[], isAsync: boolean, neverSimple: boolean): string {
+    const isSimpleIfBody: boolean = neverSimple ? false : isSimpleValue(ifStatement.ifBody.kind);
+    const isSimpleElseBody: boolean = neverSimple ? false : isSimpleValue(ifStatement.elseBody.kind);
     const ifBodyPrefix: string = isSimpleIfBody ? "return " : "";
+    const asyncPrefix: string = isAsync ? "await " : "";
     const elseBodyPrefix: string = isSimpleElseBody ? "return " : "";
     const maybeIfLetBody: string = generateLetBlock(ifStatement.ifLetBody, parentTypeArguments, [ ]);
     const maybeElseLetBody: string = generateLetBlock(ifStatement.elseLetBody, parentTypeArguments, [ ]);
@@ -521,7 +522,7 @@ function generateIfStatement(ifStatement: IfStatement, parentTypeArguments: stri
             }
         }
     })();
-    return `if (${predicate}) {${maybeIfLetBody}\n    ${ifBodyPrefix}${indentedIfBody};\n} else {${maybeElseLetBody}\n    ${elseBodyPrefix}${indentedElseBody};\n}`;
+    return `if (${predicate}) {${maybeIfLetBody}\n    ${ifBodyPrefix}${asyncPrefix}${indentedIfBody};\n} else {${maybeElseLetBody}\n    ${elseBodyPrefix}${asyncPrefix}${indentedElseBody};\n}`;
 }
 
 function generateConstructor(constructor: Constructor): string {
@@ -951,7 +952,7 @@ function generateExpression(expression: Expression, parentTypeArguments?: string
         }
         case "IfStatement": {
             const actualParentTypeArguments: string[] = parentTypeArguments || [ ];
-            return generateIfStatement(expression, actualParentTypeArguments);
+            return generateIfStatement(expression, actualParentTypeArguments, false, false);
         }
         case "CaseStatement": {
             const actualParentTypeArguments: string[] = parentTypeArguments || [ ];
@@ -1066,6 +1067,9 @@ function generateDoExpression(expression: DoExpression, parentTypeArguments: str
             return (function(y: any) {
             return "await " + y + ";";
         })(generateModuleReference(expression));
+        }
+        case "IfStatement": {
+            return generateIfStatement(expression, parentTypeArguments, true, true);
         }
     }
 }

@@ -944,7 +944,12 @@ export type Block =
 
 export type TypedBlock = UnionType | TypeAlias;
 
-export type DoExpression = FunctionCall | ModuleReference | Const | Function;
+export type DoExpression =
+    | FunctionCall
+    | ModuleReference
+    | IfStatement
+    | Const
+    | Function;
 
 export type DoBlock = {
     kind: "DoBlock";
