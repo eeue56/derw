@@ -3,7 +3,7 @@ import {
     Err,
     mapError,
     Ok,
-    Result,
+    Result
 } from "@eeue56/ts-core/build/main/lib/result";
 import { intoBlocks, typeBlocks } from "./Blocks";
 import { isBuiltinType, isReservedName } from "./builtins";
@@ -20,7 +20,7 @@ import {
     tokenizeType,
     tokensToString,
     TypeToken,
-    WhitespaceToken,
+    WhitespaceToken
 } from "./tokens";
 import {
     Addition,
@@ -84,7 +84,7 @@ import {
     TypedBlock,
     UnionType,
     UnparsedBlock,
-    Value,
+    Value
 } from "./types";
 import { validateType } from "./type_checking";
 
@@ -2001,7 +2001,17 @@ function parseFunctionCall(
                 } else {
                     if (bracketDepth === 0 && colonDepth === 0) {
                         args.push(currentArg.join(""));
-                        args.push(token.body);
+                        if (
+                            tokens[i + 1] &&
+                            tokens[i + 1].kind === "OpenBracketToken" &&
+                            tokens[i + 2] &&
+                            tokens[i + 2].kind === "CloseBracketToken"
+                        ) {
+                            args.push(`${token.body}()`);
+                            i += 2;
+                        } else {
+                            args.push(token.body);
+                        }
                         currentArg = [ ];
                     } else {
                         currentArg.push(token.body);

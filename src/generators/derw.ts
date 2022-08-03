@@ -426,7 +426,11 @@ function generateFunctionCall(functionCall: FunctionCall): string {
                 break;
             }
             case "FunctionCall": {
-                output.push("(" + generateExpression(arg) + ")");
+                if (arg.args.length === 0) {
+                    output.push(generateExpression(arg));
+                } else {
+                    output.push("(" + generateExpression(arg) + ")");
+                }
                 break;
             }
             case "ModuleReference": {
