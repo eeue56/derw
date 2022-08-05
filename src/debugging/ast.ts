@@ -197,6 +197,7 @@ function doExpressionToString(expression: DoExpression): string {
             return blockToString(expression);
         case "FunctionCall":
         case "ModuleReference":
+        case "IfStatement":
             return expressionToString(expression);
     }
 }
