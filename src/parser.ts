@@ -3,7 +3,7 @@ import {
     Err,
     mapError,
     Ok,
-    Result
+    Result,
 } from "@eeue56/ts-core/build/main/lib/result";
 import { intoBlocks, typeBlocks } from "./Blocks";
 import { isBuiltinType, isReservedName } from "./builtins";
@@ -20,7 +20,7 @@ import {
     tokenizeType,
     tokensToString,
     TypeToken,
-    WhitespaceToken
+    WhitespaceToken,
 } from "./tokens";
 import {
     Addition,
@@ -84,7 +84,7 @@ import {
     TypedBlock,
     UnionType,
     UnparsedBlock,
-    Value
+    Value,
 } from "./types";
 import { validateType } from "./type_checking";
 
@@ -2416,11 +2416,9 @@ export function parseExpression(
     isModuleReference: boolean = false
 ): Result<string, Expression> {
     const preTokens = tokenize(body);
-    const tokens =
-        hasTopLevelOperator("\\", preTokens) ||
-        hasTopLevelOperator("|>", preTokens)
-            ? preTokens
-            : dropSurroundingBrackets(preTokens);
+    const tokens = hasTopLevelOperator(AllOperators(), preTokens)
+        ? preTokens
+        : dropSurroundingBrackets(preTokens);
 
     let index = 0;
 

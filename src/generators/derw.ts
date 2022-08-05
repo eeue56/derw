@@ -354,30 +354,73 @@ function generateType(type_: Type): string {
 
 // operators
 
+function needsBrackets(expression: Expression): boolean {
+    switch (expression.kind) {
+        case "FunctionCall": {
+            return true;
+        }
+        default: {
+            return false;
+        }
+    }
+}
+
+function applyBrackets(string: string): string {
+    return "(" + string + ")";
+}
+
 function generateAddition(addition: Addition): string {
-    const left = generateExpression(addition.left);
-    const right = generateExpression(addition.right);
+    let left = generateExpression(addition.left);
+    if (needsBrackets(addition.left)) {
+        left = applyBrackets(left);
+    }
+
+    let right = generateExpression(addition.right);
+    if (needsBrackets(addition.right)) {
+        right = applyBrackets(right);
+    }
 
     return `${left} + ${right}`;
 }
 
 function generateSubtraction(subtraction: Subtraction): string {
-    const left = generateExpression(subtraction.left);
-    const right = generateExpression(subtraction.right);
+    let left = generateExpression(subtraction.left);
+    if (needsBrackets(subtraction.left)) {
+        left = applyBrackets(left);
+    }
+
+    let right = generateExpression(subtraction.right);
+    if (needsBrackets(subtraction.right)) {
+        right = applyBrackets(right);
+    }
 
     return `${left} - ${right}`;
 }
 
 function generateMultiplication(multiplication: Multiplication): string {
-    const left = generateExpression(multiplication.left);
-    const right = generateExpression(multiplication.right);
+    let left = generateExpression(multiplication.left);
+    if (needsBrackets(multiplication.left)) {
+        left = applyBrackets(left);
+    }
+
+    let right = generateExpression(multiplication.right);
+    if (needsBrackets(multiplication.right)) {
+        right = applyBrackets(right);
+    }
 
     return `${left} * ${right}`;
 }
 
 function generateDivision(division: Division): string {
-    const left = generateExpression(division.left);
-    const right = generateExpression(division.right);
+    let left = generateExpression(division.left);
+    if (needsBrackets(division.left)) {
+        left = applyBrackets(left);
+    }
+
+    let right = generateExpression(division.right);
+    if (needsBrackets(division.right)) {
+        right = applyBrackets(right);
+    }
 
     return `${left} / ${right}`;
 }
