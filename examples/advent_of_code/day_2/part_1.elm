@@ -107,7 +107,7 @@ split file =
 
 toString: Buffer -> String
 toString buffer =
-    buffer.toString
+    buffer.toString()
 
 main: String
 main =

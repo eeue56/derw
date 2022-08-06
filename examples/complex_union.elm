@@ -9,6 +9,7 @@ sayHiToPet pet =
     case pet of
         Dog { name } ->
             "Good boy ${name}!"
+
         Cat { lives } ->
             "You have " ++ lives ++ " lives remaining."
 

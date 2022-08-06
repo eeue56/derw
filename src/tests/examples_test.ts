@@ -2,7 +2,7 @@ import * as assert from "@eeue56/ts-assert";
 import { readdir, readFile } from "fs/promises";
 import path from "path";
 import { generateDerw } from "../generators/Derw";
-import { generateElm } from "../generators/elm";
+import { generateElm } from "../generators/Elm";
 import { generateJavascript } from "../generators/Js";
 import { generateTypescript } from "../generators/Ts";
 import { parse } from "../parser";

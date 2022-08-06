@@ -59,7 +59,7 @@ split file =
 
 toString: Buffer -> String
 toString buffer =
-    buffer.toString
+    buffer.toString()
 
 exampleMain: String
 exampleMain =

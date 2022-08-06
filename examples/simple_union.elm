@@ -9,5 +9,6 @@ isTruthy binary =
     case binary of
         One ->
             True
+
         Zero ->
             False
