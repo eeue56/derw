@@ -2,6 +2,7 @@ import * as assert from "@eeue56/ts-assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { blockKind, intoBlocks } from "../Blocks";
 import { compileTypescript } from "../compile";
+import { generateDerw } from "../generators/derw";
 import { generateJavascript } from "../generators/Js";
 import { generateTypescript } from "../generators/Ts";
 import { parse } from "../parser";
@@ -20,9 +21,10 @@ type CustomList a = Leaf { value: a } | Node { value: a, next: CustomList a }
 `.trim();
 
 const multiLine = `
-type CustomList a
-    = Leaf { value: a }
-    | Node { value: a, next: CustomList a }
+type CustomList a =
+    Leaf { value: a }
+    | Node { value: a,
+        next: CustomList a }
 `.trim();
 
 const expectedOutput = `
@@ -180,4 +182,10 @@ export function testGenerateOneLineJS() {
     const parsed = parse(oneLine);
     const generated = generateJavascript(parsed);
     assert.strictEqual(generated, expectedOutputJS);
+}
+
+export function testGenerateDerw() {
+    const parsed = parse(multiLine);
+    const generated = generateDerw(parsed);
+    assert.strictEqual(generated, multiLine);
 }

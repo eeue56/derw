@@ -2,6 +2,7 @@ import * as assert from "@eeue56/ts-assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { blockKind, intoBlocks } from "../Blocks";
 import { compileTypescript } from "../compile";
+import { generateDerw } from "../generators/derw";
 import { generateJavascript } from "../generators/Js";
 import { generateTypescript } from "../generators/Ts";
 import { parse } from "../parser";
@@ -19,6 +20,7 @@ isValid animal =
 
 const multiLine = `
 exposing (isValid)
+
 exposing (Animal)
 
 type Animal =
@@ -155,7 +157,7 @@ export function testIntoBlocks() {
 export function testIntoBlocksMultiLine() {
     assert.deepStrictEqual(intoBlocks(multiLine).slice(0, 2), [
         UnparsedBlock("ExportBlock", 0, [ multiLine.split("\n")[0] ]),
-        UnparsedBlock("ExportBlock", 1, [ multiLine.split("\n")[1] ]),
+        UnparsedBlock("ExportBlock", 2, [ multiLine.split("\n")[2] ]),
     ]);
 }
 
@@ -233,4 +235,10 @@ export function testGenerateOneLineJS() {
     const parsed = parse(oneLine);
     const generated = generateJavascript(parsed);
     assert.strictEqual(generated, expectedOutputJS);
+}
+
+export function testGenerateDerw() {
+    const parsed = parse(multiLine);
+    const generated = generateDerw(parsed);
+    assert.strictEqual(generated, multiLine);
 }

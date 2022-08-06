@@ -2,6 +2,7 @@ import * as assert from "@eeue56/ts-assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { blockKind, intoBlocks } from "../Blocks";
 import { compileTypescript } from "../compile";
+import { generateDerw } from "../generators/derw";
 import { generateJavascript } from "../generators/Js";
 import { generateTypescript } from "../generators/Ts";
 import { parse } from "../parser";
@@ -21,11 +22,14 @@ import {
 } from "../types";
 
 const multiLine = `
-sayHiToPet : Animal -> string
+sayHiToPet: Animal -> string
 sayHiToPet pet =
     case pet of
-        Dog { name } -> \`Good boy \${name}!\`
-        Cat { lives } -> "You have " + lives + " lives remaining."
+        Dog { name } ->
+            \`Good boy \${name}!\`
+
+        Cat { lives } ->
+            "You have " + lives + " lives remaining."
 `.trim();
 
 const expectedOutput = `
@@ -100,14 +104,17 @@ export function testParseMultiLine() {
                 ),
             ],
             [
-                "Error on lines 0 - 5\n" +
+                "Error on lines 0 - 8\n" +
                     "Type Animal did not exist in the namespace:\n" +
                     "```\n" +
-                    "sayHiToPet : Animal -> string\n" +
+                    "sayHiToPet: Animal -> string\n" +
                     "sayHiToPet pet =\n" +
                     "    case pet of\n" +
-                    "        Dog { name } -> `Good boy ${name}!`\n" +
-                    '        Cat { lives } -> "You have " + lives + " lives remaining."\n' +
+                    "        Dog { name } ->\n" +
+                    "            `Good boy ${name}!`\n" +
+                    "\n" +
+                    "        Cat { lives } ->\n" +
+                    '            "You have " + lives + " lives remaining."\n' +
                     "```",
             ]
         )
@@ -136,4 +143,10 @@ export function testGenerateJS() {
     const parsed = parse(multiLine);
     const generated = generateJavascript(parsed);
     assert.strictEqual(generated, expectedOutputJS);
+}
+
+export function testGenerateDerw() {
+    const parsed = parse(multiLine);
+    const generated = generateDerw(parsed);
+    assert.strictEqual(generated, multiLine);
 }

@@ -36,10 +36,13 @@ type alias Person = {
 }
 
 person: Person
-person = {
-    name: { },
-    age: 28
-}
+person =
+    {
+        name: {
+
+    },
+        age: 28
+    }
 `.trim();
 
 const expectedOutput = `

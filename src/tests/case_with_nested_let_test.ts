@@ -2,6 +2,7 @@ import * as assert from "@eeue56/ts-assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { blockKind, intoBlocks } from "../Blocks";
 import { compileTypescript } from "../compile";
+import { generateDerw } from "../generators/derw";
 import { generateJavascript } from "../generators/Js";
 import { generateTypescript } from "../generators/Ts";
 import { parse } from "../parser";
@@ -48,13 +49,16 @@ sayHello name =
                 "0" ->
                     let
                         first: number
-                        first = 1 + 2
+                        first =
+                            1 + 2
                     in
                         "Hi 0"
+
                 "1" ->
                     let
                         second: number
-                        second = 1 + 2
+                        second =
+                            1 + 2
                     in
                         "Hi 1"
 `.trim();
@@ -257,4 +261,10 @@ export function testGenerateOneLineJS() {
     const parsed = parse(oneLine);
     const generated = generateJavascript(parsed);
     assert.strictEqual(generated, expectedOutputJS);
+}
+
+export function testGenerateDerw() {
+    const parsed = parse(multiLine);
+    const generated = generateDerw(parsed);
+    assert.strictEqual(generated, multiLine);
 }

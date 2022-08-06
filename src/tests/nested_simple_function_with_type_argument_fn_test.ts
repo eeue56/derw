@@ -2,6 +2,7 @@ import * as assert from "@eeue56/ts-assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { blockKind, intoBlocks } from "../Blocks";
 import { compileTypescript } from "../compile";
+import { generateDerw } from "../generators/derw";
 import { generateJavascript } from "../generators/Js";
 import { generateTypescript } from "../generators/Ts";
 import { parse } from "../parser";
@@ -31,9 +32,13 @@ isTrue: Maybe a -> boolean
 isTrue value =
     let
         x: a -> boolean
-        x y = true
+        x y =
+            true
     in
-        if value then true else false
+        if value then
+            true
+        else
+            false
 `.trim();
 
 const expectedOutput = `
@@ -165,16 +170,20 @@ export function testParseMultiLine() {
                 ),
             ],
             [
-                "Error on lines 0 - 7\n" +
+                "Error on lines 0 - 11\n" +
                     "Type Maybe (a) did not exist in the namespace:\n" +
                     "```\n" +
                     "isTrue: Maybe a -> boolean\n" +
                     "isTrue value =\n" +
                     "    let\n" +
                     "        x: a -> boolean\n" +
-                    "        x y = true\n" +
+                    "        x y =\n" +
+                    "            true\n" +
                     "    in\n" +
-                    "        if value then true else false\n" +
+                    "        if value then\n" +
+                    "            true\n" +
+                    "        else\n" +
+                    "            false\n" +
                     "```",
             ]
         )
@@ -227,4 +236,10 @@ export function testGenerateOneLineJS() {
     const parsed = parse(oneLine);
     const generated = generateJavascript(parsed);
     assert.strictEqual(generated, expectedOutputJS);
+}
+
+export function testGenerateDerw() {
+    const parsed = parse(multiLine);
+    const generated = generateDerw(parsed);
+    assert.strictEqual(generated, multiLine);
 }

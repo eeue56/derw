@@ -24,25 +24,30 @@ isIncrease x =
     let
         -- double x
         y: number
-        y = x + x
+        y =
+            x + x
+
         -- just hello
         z: string
-        z = "hello"
+        z =
+            "hello"
     in
         x + y
 `.trim();
 
 const multiLine = `
-isIncrease : number -> number
+isIncrease: number -> number
 isIncrease x =
     let
         -- double x
         y: number
-        y = x + x
+        y =
+            x + x
 
         -- just hello
         z: string
-        z = "hello"
+        z =
+            "hello"
     in
         x + y
 `.trim();
