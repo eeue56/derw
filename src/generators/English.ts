@@ -168,9 +168,9 @@ function generateObjectLiteral(literal: ObjectLiteral): string {
         };
     } else {
         if (literal.fields.length === 1) {
-            return `{ ${literal.base}, ${fields} }`;
+            return `{ ${literal.base.body}, ${fields} }`;
         } else {
-            return `{\n    ${literal.base},\n    ${fields}\n}`;
+            return `{\n    ${literal.base.body},\n    ${fields}\n}`;
         };
     }
 }

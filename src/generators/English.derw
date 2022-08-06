@@ -165,9 +165,9 @@ generateObjectLiteral literal =
 
         else
             if literal.fields.length == 1 then
-                `{ ${literal.base}, ${fields} }`
+                `{ ${literal.base.body}, ${fields} }`
             else
-                `{\n    ${literal.base},\n    ${fields}\n}`
+                `{\n    ${literal.base.body},\n    ${fields}\n}`
 
 generateValue: Value -> string
 generateValue value =
