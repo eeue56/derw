@@ -328,7 +328,7 @@ generateListDestructurePartWithGaps predicate parts part info =
                             if output.length == 0 then
                                 `\nconst ${part.body} = _rest;\n                    `
                             else
-                                if parts[ info.partIndex - 1].kind == "Destructure" then
+                                if parts[info.partIndex - 1].kind == "Destructure" then
                                     output.replace replaceKey `const ${part.body} = _rest.slice(_foundIndex, _rest.length);\n${replaceKey}`
                                 else
                                     output.replace replaceKey `const ${part.body} = _rest;\n${replaceKey}`

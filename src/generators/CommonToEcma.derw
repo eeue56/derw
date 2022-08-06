@@ -212,7 +212,6 @@ generateModule module =
 
                     Nothing ->
                         exposed
-
     else
         let
             name: string

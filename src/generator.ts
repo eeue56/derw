@@ -1,4 +1,4 @@
-import { generateDerw } from "./generators/derw";
+import { generateDerw } from "./generators/Derw";
 import { generateElm } from "./generators/elm";
 import { generateEnglish } from "./generators/English";
 import { generateJavascript } from "./generators/Js";

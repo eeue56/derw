@@ -2,15 +2,16 @@ import "../stdlib/List" as List
 import "../types" as Aliases exposing ( TypeAlias, Property )
 import "../types" as Blocks exposing ( Function, FunctionArg, FunctionArgsUnion, Const, ImportModule, Import, Export, Module )
 import "../types" as Boolean exposing ( Equality, InEquality, LessThan, LessThanOrEqual, GreaterThan, GreaterThanOrEqual, And, Or, ListPrepend )
-import "../types" as Control exposing ( IfStatement, ListDestructurePart, BranchPattern, Branch, CaseStatement )
+import "../types" as Comments exposing ( Comment, MultilineComment )
+import "../types" as Control exposing ( IfStatement, ListDestructurePart, BranchPattern, Branch, CaseStatement, DoBlock, DoExpression )
 import "../types" as Functions exposing ( FunctionCall, Lambda, LambdaCall )
 import "../types" as Objects exposing ( ObjectLiteral, Field, ModuleReference )
 import "../types" as Operators exposing ( Addition, Subtraction, Multiplication, Division, LeftPipe, RightPipe )
 import "../types" as Values exposing ( Value, StringValue, FormatStringValue, ListValue, ListRange )
-import "../types" exposing ( Tag, UnionType, Type, TagArg, Block, Constructor, Expression )
+import "../types" exposing ( Tag, UnionType, Type, TagArg, Block, Constructor, Expression, isSimpleValue )
 import "./Common" exposing ( prefixLines )
 
-exposing (generateEnglish)
+exposing (generateDerw)
 
 generateTag: Tag -> string
 generateTag tag =
@@ -28,7 +29,7 @@ generateTag tag =
         funcDefArgsStr: string
         funcDefArgsStr =
             if tag.args.length > 0 then
-                `{ ${typeDefArgs} }`
+                ` { ${typeDefArgs} }`
             else
                 ""
     in
@@ -51,11 +52,21 @@ generateUnionType syntax =
         prefixed =
             prefixLines tags 4
     in
-        `type ${generateType(syntax.type)} =\n${tags}`
+        `type ${generateType(syntax.type)} =\n${prefixed}`
 
 generateProperty: Property -> string
 generateProperty syntax =
-    `${syntax.name}: ${generateType(syntax.type)}`
+    let
+        generatedType: string
+        generatedType =
+            generateTopLevelType syntax.type
+    in
+        case syntax.type of
+            FunctionType ->
+                `${syntax.name}: ${generatedType.slice(1, -1)}`
+
+            default ->
+                `${syntax.name}: ${generatedType}`
 
 generateTypeAlias: TypeAlias -> string
 generateTypeAlias syntax =
@@ -69,7 +80,10 @@ generateTypeAlias syntax =
         typeDef =
             generateType syntax.type
     in
-        `type alias ${typeDef} = {\n    ${properties}\n}`
+        if syntax.properties.length == 0 then
+            `type alias ${typeDef} = {\n}`
+        else
+            `type alias ${typeDef} = {\n    ${properties}\n}`
 
 generateListType: List Type -> string
 generateListType args =
@@ -101,8 +115,8 @@ generateTopLevelType type_ =
             generateType type_
 
         FixedType { name, args } ->
-            if name == "List" then
-                generateType type_
+            if args.length > 0 && args[0].kind == "FixedType" && args[0].args.length > 0 then
+                `${name} (${args.map(generateTopLevelType).join(" ")})`
             else
                 let
                     genericArgs: List Type
@@ -114,8 +128,8 @@ generateTopLevelType type_ =
                     else
                         `${name} ${genericArgs.map(generateType).join(" ")}`
 
-        FunctionType ->
-            generateType type_
+        FunctionType { args } ->
+            `(${args.map(generateTopLevelType).join(" -> ")})`
 
 generateType: Type -> string
 generateType type_ =
@@ -161,7 +175,8 @@ generateObjectLiteral literal =
             if literal.fields.length == 1 then
                 `{ ${fields} }`
             else
-                `{\n   ${fields}\n}`
+                `{\n    ${fields}\n}`
+
         else
             if literal.fields.length == 1 then
                 `{ ${literal.base.body}, ${fields} }`
@@ -184,13 +199,13 @@ generateListValue: ListValue -> string
 generateListValue list =
     case list.items of
         [] ->
-            "An empty list"
+            "[ ]"
 
         x :: [] ->
-            `A list containing ${generateExpression(x)} only`
+            `[ ${generateExpression(x)} ]`
 
         default ->
-            `A list containing:\n${prefixLines(list.items.map(generateExpression).join(",\n"), 4)}`
+            `[\n${prefixLines(list.items.map(generateExpression).join(",\n"), 4)}\n]`
 
 generateListRange: ListRange -> string
 generateListRange list =
@@ -265,7 +280,7 @@ generateIfStatement ifStatement =
             generateExpression ifStatement.elseBody
                 |> (\lines -> prefixLines lines elseIndent)
     in
-        `if ${predicate} then${maybeIfLetBody}\n${ifBody}\nelse${maybeElseLetBody}\n${elseBody}\n`
+        `if ${predicate} then${maybeIfLetBody}\n${ifBody}\nelse${maybeElseLetBody}\n${elseBody}`
 
 generateConstructor: Constructor -> string
 generateConstructor constructor =
@@ -280,7 +295,7 @@ generateListDestructurePart: ListDestructurePart -> string
 generateListDestructurePart part =
     case part of
         EmptyList ->
-            "An empty list"
+            "[]"
 
         StringValue { body } ->
             `"${body}"`
@@ -313,14 +328,14 @@ generateBranchPattern branchPattern =
             "`" + body + "`"
 
         EmptyList ->
-            "An empty list"
+            "[]"
 
         ListDestructure { parts } ->
             List.map generateListDestructurePart parts
-                |> (\y -> y.join " is in a list element from ")
+                |> (\y -> y.join " :: ")
 
         Default ->
-            "Nothing else matches"
+            "default"
 
 generateBranch: Branch -> string
 generateBranch branch =
@@ -334,18 +349,18 @@ generateBranch branch =
             if maybeLetBody == "" then
                 4
             else
-                9
+                8
 
         body: string
         body =
             generateExpression branch.body
-                |> (\y -> prefixLines `return ${y}` bodyIndent)
+                |> (\y -> prefixLines y bodyIndent)
 
         pattern: string
         pattern =
             generateBranchPattern branch.pattern
     in
-        `Is it ${pattern}? ->${maybeLetBody}\n${body}`
+        `${pattern} ->${maybeLetBody}\n${body}`
 
 generateCaseStatement: CaseStatement -> string
 generateCaseStatement caseStatement =
@@ -360,7 +375,23 @@ generateCaseStatement caseStatement =
                 |> (\y -> y.join "\n\n")
                 |> (\y -> prefixLines y 4)
     in
-        `Check the value of ${predicate}\n${branches}`
+        `case ${predicate} of\n${branches}`
+
+needsBrackets: Expression -> boolean
+needsBrackets expression =
+    case expression of
+        FunctionCall ->
+            true
+
+        default ->
+            false
+
+applyBrackets: boolean -> string -> string
+applyBrackets needsBrackets generated =
+    if needsBrackets then
+        "(" + generated + ")"
+    else
+        generated
 
 generateAddition: Addition -> string
 generateAddition addition =
@@ -368,12 +399,14 @@ generateAddition addition =
         left: string
         left =
             generateExpression addition.left
+                |> applyBrackets (needsBrackets addition.left)
 
         right: string
         right =
             generateExpression addition.right
+                |> applyBrackets (needsBrackets addition.right)
     in
-        `${left} plus ${right}`
+        `${left} + ${right}`
 
 generateSubtraction: Subtraction -> string
 generateSubtraction subtraction =
@@ -381,12 +414,14 @@ generateSubtraction subtraction =
         left: string
         left =
             generateExpression subtraction.left
+                |> applyBrackets (needsBrackets subtraction.left)
 
         right: string
         right =
             generateExpression subtraction.right
+                |> applyBrackets (needsBrackets subtraction.right)
     in
-        `${left} subtracts ${right}`
+        `${left} - ${right}`
 
 generateMultiplication: Multiplication -> string
 generateMultiplication multiplication =
@@ -394,12 +429,14 @@ generateMultiplication multiplication =
         left: string
         left =
             generateExpression multiplication.left
+                |> applyBrackets (needsBrackets multiplication.left)
 
         right: string
         right =
             generateExpression multiplication.right
+                |> applyBrackets (needsBrackets multiplication.right)
     in
-        `${left} multiplied by ${right}`
+        `${left} * ${right}`
 
 generateDivision: Division -> string
 generateDivision division =
@@ -407,12 +444,14 @@ generateDivision division =
         left: string
         left =
             generateExpression division.left
+                |> applyBrackets (needsBrackets division.left)
 
         right: string
         right =
             generateExpression division.right
+                |> applyBrackets (needsBrackets division.right)
     in
-        `${left} divided by ${right}`
+        `${left} / ${right}`
 
 generateLeftPipe: LeftPipe -> string
 generateLeftPipe leftPipe =
@@ -425,7 +464,7 @@ generateLeftPipe leftPipe =
         right =
             generateExpression leftPipe.right
     in
-        `Send ${left} as the last argument to ${right}`
+        `${left}\n    |> ${right}`
 
 generateRightPipe: RightPipe -> string
 generateRightPipe rightPipe =
@@ -438,29 +477,42 @@ generateRightPipe rightPipe =
         right =
             generateExpression rightPipe.right
     in
-        `Send ${right} as the last argument to ${left}`
+        `${left}\n    <| ${right}`
 
 generateModuleReference: ModuleReference -> string
 generateModuleReference moduleReference =
-    let
-        left: string
-        left =
-            moduleReference.path.join "."
+    if moduleReference.path.length == 0 then
+        `.${generateExpression(moduleReference.value)}`
+    else
+        let
+            left: string
+            left =
+                moduleReference.path.join "."
 
-        right: string
-        right =
-            generateExpression moduleReference.value
-    in
-        `${left}.${right}`
+            right: string
+            right =
+                generateExpression moduleReference.value
+        in
+            `${left}.${right}`
 
 generateFunctionCallArg: Expression -> string
 generateFunctionCallArg arg =
     case arg of
-        Constructor ->
-            `(${generateExpression(arg)})`
+        Constructor { pattern } ->
+            case pattern.fields of
+                [] ->
+                    generateExpression arg
 
-        FunctionCall ->
-            `(${generateExpression(arg)})`
+                default ->
+                    `(${generateExpression(arg)})`
+
+        FunctionCall { args } ->
+            case args of
+                [] ->
+                    generateExpression arg
+
+                default ->
+                    `(${generateExpression(arg)})`
 
         ModuleReference { value } ->
             case value of
@@ -474,6 +526,42 @@ generateFunctionCallArg arg =
                     generateExpression arg
 
         ListPrepend ->
+            `(${generateExpression(arg)})`
+
+        Addition ->
+            `(${generateExpression(arg)})`
+
+        Subtraction ->
+            `(${generateExpression(arg)})`
+
+        Multiplication ->
+            `(${generateExpression(arg)})`
+
+        Division ->
+            `(${generateExpression(arg)})`
+
+        Equality ->
+            `(${generateExpression(arg)})`
+
+        InEquality ->
+            `(${generateExpression(arg)})`
+
+        LessThan ->
+            `(${generateExpression(arg)})`
+
+        GreaterThan ->
+            `(${generateExpression(arg)})`
+
+        LessThanOrEqual ->
+            `(${generateExpression(arg)})`
+
+        GreaterThanOrEqual ->
+            `(${generateExpression(arg)})`
+
+        LeftPipe ->
+            `(${generateExpression(arg)})`
+
+        RightPipe ->
             `(${generateExpression(arg)})`
 
         default ->
@@ -503,8 +591,16 @@ generateLambda lambda =
         body: string
         body =
             generateExpression lambda.body
+
+        indent: string
+        indent =
+            if isSimpleValue lambda.body.kind then
+                ` ${body}`
+            else
+                prefixLines body 4
+                    |> (\y -> "\n" + y)
     in
-        `(\\${args} -> ${body})`
+        `(\\${args} ->${indent})`
 
 generateLambdaCall: LambdaCall -> string
 generateLambdaCall lambdaCall =
@@ -536,7 +632,7 @@ generateEquality equality =
         right =
             generateExpression equality.right
     in
-        `${left} is equal to ${right}`
+        `${left} == ${right}`
 
 generateInEquality: InEquality -> string
 generateInEquality inEquality =
@@ -549,7 +645,7 @@ generateInEquality inEquality =
         right =
             generateExpression inEquality.right
     in
-        `${left} is not equal to ${right}`
+        `${left} != ${right}`
 
 generateLessThan: LessThan -> string
 generateLessThan lessThan =
@@ -562,7 +658,7 @@ generateLessThan lessThan =
         right =
             generateExpression lessThan.right
     in
-        `${left} is less than ${right}`
+        `${left} < ${right}`
 
 generateLessThanOrEqual: LessThanOrEqual -> string
 generateLessThanOrEqual lessThanOrEqual =
@@ -575,7 +671,7 @@ generateLessThanOrEqual lessThanOrEqual =
         right =
             generateExpression lessThanOrEqual.right
     in
-        `${left} is less than or equal to ${right}`
+        `${left} <= ${right}`
 
 generateGreaterThan: GreaterThan -> string
 generateGreaterThan greaterThan =
@@ -588,7 +684,7 @@ generateGreaterThan greaterThan =
         right =
             generateExpression greaterThan.right
     in
-        `${left} is greater than ${right}`
+        `${left} > ${right}`
 
 generateGreaterThanOrEqual: GreaterThanOrEqual -> string
 generateGreaterThanOrEqual greaterThanOrEqual =
@@ -601,7 +697,7 @@ generateGreaterThanOrEqual greaterThanOrEqual =
         right =
             generateExpression greaterThanOrEqual.right
     in
-        `${left} is greater than or equal to ${right}`
+        `${left} >= ${right}`
 
 generateAnd: And -> string
 generateAnd and =
@@ -614,7 +710,7 @@ generateAnd and =
         right =
             generateExpression and.right
     in
-        `${left} and ${right}`
+        `${left} && ${right}`
 
 generateOr: Or -> string
 generateOr or =
@@ -627,7 +723,7 @@ generateOr or =
         right =
             generateExpression or.right
     in
-        `${left} or ${right}`
+        `${left} || ${right}`
 
 generateListPrepend: ListPrepend -> string
 generateListPrepend prepend =
@@ -640,7 +736,7 @@ generateListPrepend prepend =
         right =
             generateExpression prepend.right
     in
-        `Add ${left} as a list item to the front of ${right}`
+        `${left} :: ${right}`
 
 generateExpression: Expression -> string
 generateExpression expression =
@@ -729,26 +825,72 @@ generateExpression expression =
         GreaterThanOrEqual ->
             generateGreaterThanOrEqual expression
 
+generateDoExpression: DoExpression -> string
+generateDoExpression expression =
+    case expression of
+        Const ->
+            generateConst expression
+
+        Function ->
+            generateFunction expression
+
+        FunctionCall ->
+            generateFunctionCall expression
+
+        ModuleReference ->
+            generateModuleReference expression
+
+        IfStatement ->
+            generateIfStatement expression
+
+generateDoBlock: DoBlock -> string
+generateDoBlock doBody =
+    List.map (\expression -> generateDoExpression expression) doBody.expressions
+        |> (\y -> y.join "\n\n")
+        |> (\y -> prefixLines y 4)
+        |> (\y -> `do\n${y}\nreturn`)
+
 generateFunctionArg: FunctionArgsUnion -> string
 generateFunctionArg arg =
     case arg of
-        FunctionArg { name, type } ->
-            `${name} with the type ${generateType(type)}`
+        FunctionArg ->
+            arg.name
 
-        AnonFunctionArg { index, type } ->
-            `_${index} with the type ${generateType(type)}`
+        AnonFunctionArg ->
+            `_${arg.index}`
+
+generateFunctionArgType: FunctionArgsUnion -> string
+generateFunctionArgType arg =
+    case arg of
+        FunctionArg ->
+            generateTopLevelType arg.type
+
+        AnonFunctionArg ->
+            generateTopLevelType arg.type
 
 generateFunction: Function -> string
 generateFunction function_ =
     let
+        argsTypes: string
+        argsTypes =
+            List.map generateFunctionArgType function_.args
+                |> (\y -> y.join " -> ")
+
         args: string
         args =
             List.map generateFunctionArg function_.args
-                |> (\y -> y.join "\n")
+                |> (\y -> y.join " ")
 
         maybeLetBody: string
         maybeLetBody =
             generateLetBlock function_.letBody
+
+        maybeDoBody: string
+        maybeDoBody =
+            if function_.doBody == null then
+                ""
+            else
+                `\n${prefixLines(generateDoBlock(function_.doBody), 4)}`
 
         returnType: string
         returnType =
@@ -756,7 +898,7 @@ generateFunction function_ =
 
         bodyIndent: number
         bodyIndent =
-            if maybeLetBody == "" then
+            if maybeLetBody == "" && maybeDoBody == "" then
                 4
             else
                 8
@@ -767,10 +909,8 @@ generateFunction function_ =
                 |> (\y -> prefixLines y bodyIndent)
     in
         [
-            `${function_.name} is a function with the arguments:`,
-            prefixLines args 4,
-            `${function_.name} returns a value of the type ${returnType}`,
-            `${function_.name} is defined as: ${maybeLetBody}`,
+            `${function_.name}: ${argsTypes} -> ${returnType}`,
+            `${function_.name} ${args} =${maybeLetBody}${maybeDoBody}`,
             `${body}`
         ]
             |> (\y -> y.join "\n")
@@ -778,18 +918,29 @@ generateFunction function_ =
 generateConst: Const -> string
 generateConst constDef =
     let
+        maybeLetBody: string
+        maybeLetBody =
+            generateLetBlock constDef.letBody
+
+        bodyIndent: number
+        bodyIndent =
+            if maybeLetBody == "" then
+                4
+            else
+                8
+
         body: string
         body =
             generateExpression constDef.value
-                |> (\y -> prefixLines y 4)
+                |> (\y -> prefixLines y bodyIndent)
 
         typeDef: string
         typeDef =
             generateTopLevelType constDef.type
     in
         [
-            `${constDef.name} is a constant with the type ${typeDef}`,
-            `${constDef.name} is assigned to:`,
+            `${constDef.name}: ${typeDef}`,
+            `${constDef.name} =${maybeLetBody}`,
             `${body}`
         ]
             |> (\y -> y.join "\n")
@@ -802,7 +953,7 @@ generateImportModule module =
             if module.exposing.length == 0 then
                 ""
             else
-                ` exposing (${module.exposing.join(", ")} )`
+                ` exposing ( ${module.exposing.join(", ")} )`
     in
         case module.alias of
             Just { value } ->
@@ -819,6 +970,14 @@ generateImportBlock imports =
 generateExportBlock: Export -> string
 generateExportBlock exports =
     `exposing (${exports.names.join(", ")})`
+
+generateComment: Comment -> string
+generateComment comment =
+    `-- ${comment.body}`
+
+generateMultilineComment: MultilineComment -> string
+generateMultilineComment comment =
+    `{-\n${comment.body}\n-}`
 
 generateBlock: Block -> string
 generateBlock syntax =
@@ -842,13 +1001,80 @@ generateBlock syntax =
             generateConst syntax
 
         Comment ->
-            ""
+            generateComment syntax
 
         MultilineComment ->
+            generateMultilineComment syntax
+
+joinBlocks: List Block -> string
+joinBlocks blocks =
+    case blocks of
+        block :: rest ->
+            let
+                generated: string
+                generated =
+                    generateBlock block
+
+                next: string
+                next =
+                    joinBlocks rest
+            in
+                if generated.trim().length == 0 then
+                    next
+                else
+                    case block of
+                        Comment ->
+                            generated + "\n" + next
+
+                        MultilineComment ->
+                            generated + "\n" + next
+
+                        default ->
+                            generated + "\n\n" + next
+
+        default ->
             ""
 
-generateEnglish: Module -> string
-generateEnglish module =
-    List.map generateBlock module.body
-        |> List.filter (\line -> line.length > 0)
-        |> (\y -> y.join "\n\n")
+generateDerw: Module -> string
+generateDerw module =
+    let
+        onlyImports: List Import
+        onlyImports =
+            List.filter (\block -> block.kind == "Import") module.body
+
+        sorter: string -> string -> number
+        sorter a b =
+            if a == b then
+                0
+            else
+                if a < b then
+                    -1
+                else
+                    1
+
+        sortedImports: string
+        sortedImports =
+            List.map generateBlock onlyImports
+                |> List.filter (\line -> line.length > 0)
+                |> (\y -> y.sort sorter)
+                |> (\y -> y.join "\n")
+
+        maybeNewlines: string
+        maybeNewlines =
+            if onlyImports.length == 0 then
+                ""
+            else
+                "\n\n"
+
+        withoutImports: string
+        withoutImports =
+            List.filter (\block -> block.kind != "Import") module.body
+                |> (\y -> joinBlocks y)
+                |> (\y -> y.trim())
+    in
+        [
+            sortedImports,
+            maybeNewlines,
+            withoutImports
+        ]
+            |> (\y -> y.join "")

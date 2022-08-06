@@ -270,7 +270,7 @@ function generateListDestructurePartWithGaps(predicate: string, parts: ListDestr
                 };
             }
             case "Value": {
-                const newOutput: string = output.length === 0 ? `\nconst ${part.body} = _rest;\n                    ` : ( parts[(info.partIndex) - 1].kind === "Destructure" ? output.replace(replaceKey, `const ${part.body} = _rest.slice(_foundIndex, _rest.length);\n${replaceKey}`) : output.replace(replaceKey, `const ${part.body} = _rest;\n${replaceKey}`) );
+                const newOutput: string = output.length === 0 ? `\nconst ${part.body} = _rest;\n                    ` : ( parts[info.partIndex - 1].kind === "Destructure" ? output.replace(replaceKey, `const ${part.body} = _rest.slice(_foundIndex, _rest.length);\n${replaceKey}`) : output.replace(replaceKey, `const ${part.body} = _rest;\n${replaceKey}`) );
                 return {
                 ...info,
                 output: newOutput,

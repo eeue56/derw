@@ -1,6 +1,6 @@
 import { readdir, readFile } from "fs/promises";
 import path from "path";
-import { generateDerw } from "../generators/derw";
+import { generateDerw } from "../generators/Derw";
 import { generateElm } from "../generators/elm";
 import { generateJavascript } from "../generators/Js";
 import { generateTypescript } from "../generators/Ts";

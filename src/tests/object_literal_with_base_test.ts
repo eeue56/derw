@@ -2,7 +2,7 @@ import * as assert from "@eeue56/ts-assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { blockKind, intoBlocks } from "../Blocks";
 import { compileTypescript } from "../compile";
-import { generateDerw } from "../generators/derw";
+import { generateDerw } from "../generators/Derw";
 import { generateElm } from "../generators/elm";
 import { generateJavascript } from "../generators/Js";
 import { generateTypescript } from "../generators/Ts";
