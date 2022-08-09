@@ -406,6 +406,6 @@ exportTests module =
 
         exposeWithoutDuplicates: List string
         exposeWithoutDuplicates =
-            List.filter (\name -> exportNames.includes name) namesToExpose
+            List.filter (\name -> !exportNames.includes name) namesToExpose
     in
         Export { names: exposeWithoutDuplicates }

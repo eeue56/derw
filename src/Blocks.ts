@@ -524,7 +524,7 @@ function exportTests(module: Module): MyExport {
         return List.append(export_.names, allNames);
     }, [ ], exports);
     const exposeWithoutDuplicates: string[] = List.filter(function(name: any) {
-        return exportNames.includes(name);
+        return !exportNames.includes(name);
     }, namesToExpose);
     return Export({ names: exposeWithoutDuplicates });
 }
