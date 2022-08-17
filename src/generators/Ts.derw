@@ -346,6 +346,38 @@ generateTopLevelType type_ imports =
             in
                 `(${parts.join(", ")}) => ${typeToReturn}`
 
+getGenericTypes: Type -> List GenericType
+getGenericTypes type_ =
+    case type_ of
+        GenericType ->
+            [ type_ ]
+
+        FunctionType ->
+            getGenericTypesFromFunctionType type_
+
+        FixedType { args } ->
+            List.foldl (\newType collection -> List.append collection (getGenericTypes newType)) [ ] args
+
+removeDuplicateTypes: List GenericType -> List GenericType
+removeDuplicateTypes xs =
+    case xs of
+        [] ->
+            [ ]
+
+        x :: rest ->
+            let
+                restNames: List string
+                restNames =
+                    List.map (\y -> y.name) rest
+            in
+                if restNames.includes x.name then
+                    removeDuplicateTypes rest
+                else
+                    x :: removeDuplicateTypes rest
+
+        default ->
+            [ ]
+
 generateType: Type -> List Import -> string
 generateType type_ imports =
     case type_ of
@@ -357,21 +389,10 @@ generateType type_ imports =
                 generateListType args imports
             else
                 let
-                    getGenericArgs: Type -> List GenericType
-                    getGenericArgs type_ =
-                        case type_ of
-                            GenericType ->
-                                [ type_ ]
-
-                            FunctionType ->
-                                getGenericTypesFromFunctionType type_
-
-                            FixedType ->
-                                [ ]
-
                     genericArgs: List Type
                     genericArgs =
-                        List.foldl (\arg xs -> List.append xs (getGenericArgs arg)) [ ] args
+                        List.foldl (\arg xs -> List.append xs (getGenericTypes arg)) [ ] args
+                            |> removeDuplicateTypes
 
                     generatedGenericArgs: List string
                     generatedGenericArgs =

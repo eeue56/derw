@@ -313,6 +313,7 @@ function parseUnionType(tokens: Token[]): Result<string, UnionType> {
     let isInBranches = false;
     let branches = [ ];
     let currentBranch = [ ];
+    let inBrackets = false;
 
     for (var i = 1; i < tokens.length; i++) {
         const token = tokens[i];
@@ -341,6 +342,18 @@ function parseUnionType(tokens: Token[]): Result<string, UnionType> {
 
             case "OpenBracketToken":
             case "CloseBracketToken": {
+                if (isInBranches) {
+                    if (
+                        currentBranch[currentBranch.length - 1] === ":" &&
+                        !inBrackets
+                    ) {
+                    } else {
+                        currentBranch.push(
+                            token.kind === "OpenBracketToken" ? "(" : ")"
+                        );
+                        inBrackets = token.kind === "OpenBracketToken";
+                    }
+                }
                 continue;
             }
 

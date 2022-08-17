@@ -325,6 +325,47 @@ function generateTopLevelType(type_: Type, imports: Import[]): string {
     }
 }
 
+function getGenericTypes(type_: Type): GenericType[] {
+    switch (type_.kind) {
+        case "GenericType": {
+            return [ type_ ];
+        }
+        case "FunctionType": {
+            return getGenericTypesFromFunctionType(type_);
+        }
+        case "FixedType": {
+            const { args } = type_;
+            return List.foldl(function(newType: any, collection: any) {
+            return List.append(collection, getGenericTypes(newType));
+        }, [ ], args);
+        }
+    }
+}
+
+function removeDuplicateTypes(xs: GenericType[]): GenericType[] {
+    switch (xs.length) {
+        case 0: {
+            return [ ];
+        }
+        case xs.length: {
+            if (xs.length >= 1) {
+                const [ x, ...rest ] = xs;
+                const restNames: string[] = List.map(function(y: any) {
+                    return y.name;
+                }, rest);
+                if (restNames.includes(x.name)) {
+                return removeDuplicateTypes(rest);
+            } else {
+                return [ x, ...removeDuplicateTypes(rest) ];
+            };
+            }
+        }
+        default: {
+            return [ ];
+        }
+    }
+}
+
 function generateType(type_: Type, imports: Import[]): string {
     switch (type_.kind) {
         case "GenericType": {
@@ -336,22 +377,9 @@ function generateType(type_: Type, imports: Import[]): string {
             if (name === "List") {
                 return generateListType(args, imports);
             } else {
-                function getGenericArgs(type_: Type): GenericType[] {
-                    switch (type_.kind) {
-                        case "GenericType": {
-                            return [ type_ ];
-                        }
-                        case "FunctionType": {
-                            return getGenericTypesFromFunctionType(type_);
-                        }
-                        case "FixedType": {
-                            return [ ];
-                        }
-                    }
-                }
-                const genericArgs: Type[] = List.foldl(function(arg: any, xs: any) {
-                    return List.append(xs, getGenericArgs(arg));
-                }, [ ], args);
+                const genericArgs: Type[] = removeDuplicateTypes(List.foldl(function(arg: any, xs: any) {
+                    return List.append(xs, getGenericTypes(arg));
+                }, [ ], args));
                 const generatedGenericArgs: string[] = List.map(function(arg: any) {
                     return generateType(arg, imports);
                 }, genericArgs);
