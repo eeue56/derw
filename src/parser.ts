@@ -229,7 +229,6 @@ function parseType(tokens: Token[]): Result<string, Type> {
     const rootTypeName = (tokens[index] as IdentifierToken).body;
 
     if (isBuiltinType(rootTypeName) && rootTypeName !== "any") {
-        return Ok(FixedType(rootTypeName, [ ]));
     } else if (rootTypeName.toLowerCase() === rootTypeName) {
         return Ok(GenericType(rootTypeName));
     }
