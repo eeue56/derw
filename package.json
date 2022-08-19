@@ -8,6 +8,7 @@
         "postinstall": "npx ts-node src/cli.ts compile",
         "build": "npx derw compile",
         "test": "npx @eeue56/bach",
+        "test-chromebook": "npx @eeue56/bach --max-old-space-size=500",
         "bench": "npx @eeue56/mainc",
         "format": "npx prettier --write .",
         "prepublish": "npx ts-node src/cli.ts compile && npx tsc -p tsconfig.json",
