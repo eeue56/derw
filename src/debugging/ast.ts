@@ -262,6 +262,11 @@ function blockToString(block: Block): string {
         case "UnionType": {
             return `UnionType(${typeToString(block.type)}, ${block.tags})`;
         }
+        case "UnionUntaggedType": {
+            return `UnionType(${typeToString(block.type)}, [ ${block.values
+                .map((v) => `"${v.body}"`)
+                .join(",")} ])`;
+        }
     }
 }
 
