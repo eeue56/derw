@@ -176,6 +176,9 @@ export function topLevelNamesPerBlock(block: Block): string[] {
         case "UnionType": {
             return [ ];
         }
+        case "UnionUntaggedType": {
+            return [ ];
+        }
     }
 }
 
@@ -218,6 +221,9 @@ export function definedNamesPerBlock(block: Block): string[] {
         case "UnionType": {
             return [ ];
         }
+        case "UnionUntaggedType": {
+            return [ ];
+        }
     }
 }
 
@@ -245,6 +251,9 @@ export function namesPerBlock(block: Block): string[] {
             return [ ];
         }
         case "UnionType": {
+            return [ ];
+        }
+        case "UnionUntaggedType": {
             return [ ];
         }
     }

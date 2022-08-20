@@ -8,6 +8,7 @@ import {
     IdentifierToken,
     OpenBracketToken,
     rootTypeTokensToString,
+    StringToken,
     tokenize,
     tokenizeType,
     WhitespaceToken,
@@ -556,6 +557,21 @@ export function testQualified() {
                 ]),
             ]),
         ])
+    );
+
+    const rootTypeString = rootTypeTokensToString((tokenizedType as any).value);
+    assert.deepStrictEqual(rootTypeString, str);
+}
+
+export function testString() {
+    const str = `"hello"`.trim();
+    const tokenized = tokenize(str);
+    assert.deepStrictEqual(tokenized, [ StringToken(`"hello"`) ]);
+
+    const tokenizedType = tokenizeType(tokenized);
+    assert.deepStrictEqual(
+        tokenizedType,
+        Ok([ BaseTypeToken([ StringToken(`"hello"`) ]) ])
     );
 
     const rootTypeString = rootTypeTokensToString((tokenizedType as any).value);

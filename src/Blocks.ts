@@ -86,6 +86,19 @@ function UnionTypeBlock(args: { lineStart: number, lines: string[] }): UnionType
     };
 }
 
+type UnionUntaggedTypeBlock = {
+    kind: "UnionUntaggedTypeBlock";
+    lineStart: number;
+    lines: string[];
+};
+
+function UnionUntaggedTypeBlock(args: { lineStart: number, lines: string[] }): UnionUntaggedTypeBlock {
+    return {
+        kind: "UnionUntaggedTypeBlock",
+        ...args,
+    };
+}
+
 type TypeAliasBlock = {
     kind: "TypeAliasBlock";
     lineStart: number;
@@ -164,7 +177,7 @@ function UnknownBlock(args: { lineStart: number, lines: string[] }): UnknownBloc
     };
 }
 
-type UnparsedBlock = ImportBlock | ExportBlock | UnionTypeBlock | TypeAliasBlock | FunctionBlock | ConstBlock | CommentBlock | MultilineCommentBlock | UnknownBlock;
+type UnparsedBlock = ImportBlock | ExportBlock | UnionTypeBlock | UnionUntaggedTypeBlock | TypeAliasBlock | FunctionBlock | ConstBlock | CommentBlock | MultilineCommentBlock | UnknownBlock;
 
 function hasTypeLine(block: string): boolean {
     const _res1328002030 = block.split(":");
@@ -222,6 +235,11 @@ const validators: Validator[] = [ {
     return x.startsWith("type alias");
 },
     blockKind: "TypeAlias"
+}, {
+    test: function(x: any) {
+    return x.startsWith("type ") && x.includes(`"`);
+},
+    blockKind: "UnionUntaggedType"
 }, {
     test: function(x: any) {
     return x.startsWith("type ");
@@ -311,6 +329,12 @@ function createUnparsedBlock(blockKind: BlockKinds, lineStart: number, lines: st
         }
         case "UnionType": {
             return UnionTypeBlock({
+            lineStart,
+            lines
+        });
+        }
+        case "UnionUntaggedType": {
+            return UnionUntaggedTypeBlock({
             lineStart,
             lines
         });
@@ -435,7 +459,26 @@ function intoBlocksStep(lineNumber: number, info: IntoBlockInfo, lines: string[]
                                 switch (info.currentBlockKind.kind) {
                                     case "Ok": {
                                         const { value } = info.currentBlockKind;
-                                        const block: UnparsedBlock = createUnparsedBlock(value, info.lineStart, info.currentBlock);
+                                        const hasSpeech: boolean = (function(y: any) {
+                                            return y.length > 0;
+                                        })(info.currentBlock.filter(function(line: any) {
+                                            return line.indexOf(`"`) > -1;
+                                        }));
+                                        const kind: BlockKinds = (function (): any {
+                                            switch (value) {
+                                                case "UnionType": {
+                                                    if (hasSpeech) {
+                                                        return "UnionUntaggedType";
+                                                    } else {
+                                                        return value;
+                                                    };
+                                                }
+                                                default: {
+                                                    return value;
+                                                }
+                                            }
+                                        })();
+                                        const block: UnparsedBlock = createUnparsedBlock(kind, info.lineStart, info.currentBlock);
                                         const nextInfo: IntoBlockInfo = {
                                             previousLine: line,
                                             currentBlock: [ line ],
@@ -490,7 +533,7 @@ function intoBlocks(body: string): UnparsedBlock[] {
 
 function typeBlocks(blocks: Block[]): TypedBlock[] {
     return List.filter(function(block: any) {
-        return block.kind === "UnionType" || block.kind === "TypeAlias";
+        return block.kind === "UnionType" || block.kind === "TypeAlias" || block.kind === "UnionUntaggedType";
     }, blocks);
 }
 

@@ -83,6 +83,7 @@ import {
     TypeAlias,
     TypedBlock,
     UnionType,
+    UnionUntaggedType,
     UnparsedBlock,
     Value,
 } from "./types";
@@ -159,6 +160,7 @@ function parseTypeToken(token: TypeToken): Result<string, Type> {
 
                 return Ok(FixedType(rootType.body, correct));
             }
+
             return Err(`Invalid root type ${rootType.kind}`);
         }
         case "CloseBracketToken": {
@@ -196,6 +198,9 @@ function parseTypeToken(token: TypeToken): Result<string, Type> {
         }
         case "OpenBracketToken": {
             return Err("Unexected open bracket in type");
+        }
+        case "StringToken": {
+            return Err("Unexpected string token");
         }
     }
 }
@@ -299,6 +304,70 @@ function parseType(tokens: Token[]): Result<string, Type> {
                 .map((type_) => (type_ as Ok<Type>).value)
         )
     );
+}
+
+function parseUnionUntaggedType(
+    tokens: Token[]
+): Result<string, UnionUntaggedType> {
+    if (tokens[0].kind === "KeywordToken") {
+        if (tokens[0].body !== "type") {
+            return Err("Expected `type` but got " + tokens[0].body);
+        }
+    }
+
+    const assignIndex = tokens.findIndex((t) => t.kind === "AssignToken");
+
+    const parsedType = parseType(tokens.slice(1, assignIndex - 1));
+
+    if (parsedType.kind === "Err") {
+        return Err(
+            "Failed to parse untagged union type name " + parsedType.error
+        );
+    }
+
+    if (parsedType.value.kind === "GenericType") {
+        return Err(
+            "Expected a fixed type but got a generic type for a union type. Maybe you missed a captal letter?"
+        );
+    }
+
+    if (parsedType.value.kind === "FunctionType") {
+        return Err(
+            "Expected a fixed type but got a function type for a union type. Maybe you missed a captal letter?"
+        );
+    }
+
+    const branches: StringValue[] = [ ];
+
+    for (const token of tokens.slice(assignIndex + 1)) {
+        switch (token.kind) {
+            case "StringToken": {
+                const value = parseStringValue([ token ]);
+                if (value.kind === "Err")
+                    return Err(
+                        "Failed to parse string in untagged union type definiton: " +
+                            value.error
+                    );
+
+                branches.push(value.value);
+
+                break;
+            }
+            case "WhitespaceToken": {
+                continue;
+            }
+            case "PipeToken": {
+                continue;
+            }
+            default: {
+                return Err(
+                    `Expected string, whitespace, or pipe but got ${token.kind} in untagged union type definition.`
+                );
+            }
+        }
+    }
+
+    return Ok(UnionUntaggedType(parsedType.value, branches));
 }
 
 function parseUnionType(tokens: Token[]): Result<string, UnionType> {
@@ -3224,6 +3293,9 @@ ${block.lines.join("\n")}
         }
         case "UnionTypeBlock": {
             return wrapError(parseUnionType(tokens));
+        }
+        case "UnionUntaggedTypeBlock": {
+            return wrapError(parseUnionUntaggedType(tokens));
         }
         case "TypeAliasBlock": {
             return wrapError(parseTypeAlias(tokens));

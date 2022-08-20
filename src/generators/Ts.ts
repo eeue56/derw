@@ -30,7 +30,7 @@ import { Addition, Subtraction, Multiplication, Division, LeftPipe, RightPipe } 
 import * as Values from "../types";
 import { Value, StringValue, FormatStringValue, ListValue, ListRange } from "../types";
 
-import { Tag, UnionType, Type, TagArg, Block, Constructor, Expression, FunctionType, GenericType, FixedType, isSimpleValue } from "../types";
+import { Tag, UnionType, UnionUntaggedType, Type, TagArg, Block, Constructor, Expression, FunctionType, GenericType, FixedType, isSimpleValue } from "../types";
 
 import { prefixLines, destructureLength, patternHasGaps, patternGapPositions } from "./Common";
 
@@ -142,6 +142,15 @@ function generateUnionType(syntax: UnionType, imports: Import[]): string {
     return (function(y: any) {
         return y.join("\n");
     })([ tagCreators, "", `type ${generateType(syntax.type, imports)} = ${tags};` ]);
+}
+
+function generateUnionUntaggedType(syntax: UnionUntaggedType): string {
+    const values: string = (function(y: any) {
+        return y.join(" | ");
+    })(List.map(function(y: any) {
+        return `"${y.body}"`;
+    }, syntax.values));
+    return `type ${generateType(syntax.type, [])} = ${values};`;
 }
 
 function generateProperty(syntax: Property, imports: Import[]): string {
@@ -1248,6 +1257,9 @@ function generateBlock(syntax: Block, parentTypeArguments?: string[], parentType
         }
         case "UnionType": {
             return generateUnionType(syntax, actualImports);
+        }
+        case "UnionUntaggedType": {
+            return generateUnionUntaggedType(syntax);
         }
         case "TypeAlias": {
             return generateTypeAlias(syntax, actualImports);

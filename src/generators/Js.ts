@@ -849,6 +849,9 @@ function generateBlock(syntax: Block, unionTypeNames?: string[]): string {
         case "UnionType": {
             return generateUnionType(syntax);
         }
+        case "UnionUntaggedType": {
+            return "";
+        }
         case "TypeAlias": {
             return generateTypeAlias(syntax);
         }

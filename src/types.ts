@@ -82,6 +82,23 @@ export function UnionType(type: FixedType, tags: Tag[]): UnionType {
     };
 }
 
+export type UnionUntaggedType = {
+    kind: "UnionUntaggedType";
+    type: FixedType;
+    values: StringValue[];
+};
+
+export function UnionUntaggedType(
+    type: FixedType,
+    values: StringValue[]
+): UnionUntaggedType {
+    return {
+        kind: "UnionUntaggedType",
+        type,
+        values,
+    };
+}
+
 export type Property = {
     kind: "Property";
     name: string;
@@ -895,6 +912,7 @@ export type UnparsedBlockTypes =
     | "ExportBlock"
     | "UnionTypeBlock"
     | "TypeAliasBlock"
+    | "UnionUntaggedTypeBlock"
     | "FunctionBlock"
     | "ConstBlock"
     | "CommentBlock"
@@ -923,6 +941,7 @@ export type BlockKinds =
     | "Import"
     | "Export"
     | "UnionType"
+    | "UnionUntaggedType"
     | "TypeAlias"
     | "Function"
     | "Const"
@@ -934,6 +953,7 @@ export type BlockKinds =
 
 export type Block =
     | UnionType
+    | UnionUntaggedType
     | TypeAlias
     | Function
     | Const
@@ -942,7 +962,7 @@ export type Block =
     | Comment
     | MultilineComment;
 
-export type TypedBlock = UnionType | TypeAlias;
+export type TypedBlock = UnionType | TypeAlias | UnionUntaggedType;
 
 export type DoExpression =
     | FunctionCall

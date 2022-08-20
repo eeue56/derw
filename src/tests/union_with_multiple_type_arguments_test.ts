@@ -123,11 +123,17 @@ export function testIntoBlocksMultiLine() {
 }
 
 export function testBlockKind() {
-    assert.deepStrictEqual(blockKind(oneLine), Ok("UnionType"));
+    assert.deepStrictEqual(
+        blockKind(oneLine.split("\n").slice(0, 1).join("\n")),
+        Ok("UnionType")
+    );
 }
 
 export function testBlockKindMultiLine() {
-    assert.deepStrictEqual(blockKind(multiLine), Ok("UnionType"));
+    assert.deepStrictEqual(
+        blockKind(multiLine.split("\n").slice(0, 3).join("\n")),
+        Ok("UnionType")
+    );
 }
 
 export function testParse() {

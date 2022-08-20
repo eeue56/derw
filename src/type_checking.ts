@@ -645,6 +645,88 @@ function typeExistsInNamespace(
     return false;
 }
 
+function finalExpressions(expression: Expression): string[] {
+    switch (expression.kind) {
+        case "Value":
+            return [ ];
+        case "StringValue":
+            return [ expression.body ];
+        case "FormatStringValue":
+            return [ ];
+        case "ListValue":
+            return [ ];
+        case "ListRange":
+            return [ ];
+        case "ObjectLiteral":
+            return [ ];
+        case "IfStatement":
+            return finalExpressions(expression.ifBody).concat(
+                finalExpressions(expression.elseBody)
+            );
+        case "CaseStatement":
+            let expressions: string[] = [ ];
+
+            for (const branch of expression.branches) {
+                expressions = expressions.concat(finalExpressions(branch.body));
+            }
+            return expressions;
+        case "Addition":
+            return [ ];
+        case "Subtraction":
+            return [ ];
+        case "Multiplication":
+            return [ ];
+        case "Division":
+            return [ ];
+        case "And":
+            return [ ];
+        case "Or":
+            return [ ];
+        case "ListPrepend":
+            return [ ];
+        case "LeftPipe":
+            return [ ];
+        case "RightPipe":
+            return [ ];
+        case "ModuleReference":
+            return [ ];
+        case "FunctionCall":
+            return [ ];
+        case "Lambda":
+            return [ ];
+        case "LambdaCall":
+            return [ ];
+        case "Constructor":
+            return [ ];
+        case "Equality":
+            return [ ];
+        case "InEquality":
+            return [ ];
+        case "LessThan":
+            return [ ];
+        case "LessThanOrEqual":
+            return [ ];
+        case "GreaterThan":
+            return [ ];
+        case "GreaterThanOrEqual":
+            return [ ];
+    }
+}
+
+function allFinalExpressions(block: Block): string[] {
+    switch (block.kind) {
+        case "Const": {
+            return finalExpressions(block.value);
+        }
+        case "Function": {
+            return finalExpressions(block.body);
+        }
+        default: {
+            return [ ];
+        }
+    }
+}
+
 export function validateType(
     block: Block,
     typedBlocks: TypedBlock[],
@@ -665,6 +747,41 @@ export function validateType(
             const inferred = inferredRes.value;
             if (isSameType(block.type, inferred, false)) {
                 return Ok(block.type);
+            }
+
+            if (inferred.kind === "FixedType" && inferred.name === "string") {
+                if (block.type.kind === "FixedType") {
+                    const matchingBlocks = typedBlocks.filter((b) =>
+                        isSameType(b.type, block.type, false)
+                    );
+
+                    if (matchingBlocks.length > 0) {
+                        const matchingBlock = matchingBlocks[0];
+                        if (matchingBlock.kind === "UnionUntaggedType") {
+                            const finalExpressions = allFinalExpressions(block);
+
+                            for (const finalExpression of finalExpressions) {
+                                const isCovered =
+                                    matchingBlock.values.filter(
+                                        (v) => v.body === finalExpression
+                                    ).length > 0;
+                                if (!isCovered) {
+                                    return Err(
+                                        `Expected \`${typeToString(
+                                            block.type
+                                        )}, composed of ${matchingBlock.values
+                                            .map((v) => `"${v.body}"`)
+                                            .join(
+                                                " | "
+                                            )}\` but got \`${finalExpression}\` in the body of the function`
+                                    );
+                                }
+                            }
+
+                            return Ok(block.type);
+                        }
+                    }
+                }
             }
 
             return Err(
@@ -705,6 +822,41 @@ export function validateType(
             if (inferredRes.kind === "Err") return inferredRes;
             const inferred = inferredRes.value;
 
+            if (inferred.kind === "FixedType" && inferred.name === "string") {
+                if (block.returnType.kind === "FixedType") {
+                    const matchingBlocks = typedBlocks.filter((b) =>
+                        isSameType(b.type, block.returnType, false)
+                    );
+
+                    if (matchingBlocks.length > 0) {
+                        const matchingBlock = matchingBlocks[0];
+                        if (matchingBlock.kind === "UnionUntaggedType") {
+                            const finalExpressions = allFinalExpressions(block);
+
+                            for (const finalExpression of finalExpressions) {
+                                const isCovered =
+                                    matchingBlock.values.filter(
+                                        (v) => v.body === finalExpression
+                                    ).length > 0;
+                                if (!isCovered) {
+                                    return Err(
+                                        `Expected \`${typeToString(
+                                            block.returnType
+                                        )}, composed of ${matchingBlock.values
+                                            .map((v) => `"${v.body}"`)
+                                            .join(
+                                                " | "
+                                            )}\` but got \`${finalExpression}\` in the body of the function`
+                                    );
+                                }
+                            }
+
+                            return Ok(block.returnType);
+                        }
+                    }
+                }
+            }
+
             if (!isSameType(block.returnType, inferred, false)) {
                 return Err(
                     `Expected \`${typeToString(
@@ -719,6 +871,7 @@ export function validateType(
         }
 
         case "UnionType":
+        case "UnionUntaggedType":
         case "TypeAlias": {
             return Ok(block.type);
         }

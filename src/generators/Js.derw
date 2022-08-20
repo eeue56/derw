@@ -1242,6 +1242,9 @@ generateBlock syntax unionTypeNames? =
         UnionType ->
             generateUnionType syntax
 
+        UnionUntaggedType ->
+            ""
+
         TypeAlias ->
             generateTypeAlias syntax
 

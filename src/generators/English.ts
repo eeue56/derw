@@ -24,7 +24,7 @@ import { Addition, Subtraction, Multiplication, Division, LeftPipe, RightPipe } 
 import * as Values from "../types";
 import { Value, StringValue, FormatStringValue, ListValue, ListRange } from "../types";
 
-import { Tag, UnionType, Type, TagArg, Block, Constructor, Expression } from "../types";
+import { Tag, UnionType, UnionUntaggedType, Type, TagArg, Block, Constructor, Expression } from "../types";
 
 import { prefixLines } from "./Common";
 
@@ -55,6 +55,14 @@ function generateUnionType(syntax: UnionType): string {
     })(List.map(generateTag, syntax.tags));
     const prefixed: string = prefixLines(tags, 4);
     return `type ${generateType(syntax.type)} =\n${tags}`;
+}
+
+function generateUnionUntaggedType(syntax: UnionUntaggedType): string {
+    const values: string = (function(y: any) {
+        return y.join("\n| ");
+    })(List.map(generateStringValue, syntax.values));
+    const prefixed: string = prefixLines(values, 4);
+    return `type ${generateType(syntax.type)} =\n${prefixed}`;
 }
 
 function generateProperty(syntax: Property): string {
@@ -659,6 +667,9 @@ function generateBlock(syntax: Block): string {
         }
         case "UnionType": {
             return generateUnionType(syntax);
+        }
+        case "UnionUntaggedType": {
+            return generateUnionUntaggedType(syntax);
         }
         case "TypeAlias": {
             return generateTypeAlias(syntax);

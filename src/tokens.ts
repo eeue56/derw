@@ -747,13 +747,15 @@ export type TypeTokenRaw =
     | IdentifierToken
     | ArrowToken
     | OpenBracketToken
-    | CloseBracketToken;
+    | CloseBracketToken
+    | StringToken;
 
 export type TypeToken =
     | IdentifierToken
     | ArrowToken
     | OpenBracketToken
     | CloseBracketToken
+    | StringToken
     | BaseTypeToken
     | FunctionTypeToken;
 
@@ -805,6 +807,10 @@ export function tokenizeType(
             case "IdentifierToken": {
                 currentBuffer.push(token);
                 break;
+            }
+
+            case "StringToken": {
+                currentBuffer.push(token);
             }
             default:
                 continue;
@@ -917,6 +923,9 @@ function typeTokenToString(token: TypeToken): string {
         }
         case "OpenBracketToken": {
             return "(";
+        }
+        case "StringToken": {
+            return `${token.body}`;
         }
     }
 }

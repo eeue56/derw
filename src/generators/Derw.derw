@@ -8,7 +8,7 @@ import "../types" as Functions exposing ( FunctionCall, Lambda, LambdaCall )
 import "../types" as Objects exposing ( ObjectLiteral, Field, ModuleReference )
 import "../types" as Operators exposing ( Addition, Subtraction, Multiplication, Division, LeftPipe, RightPipe )
 import "../types" as Values exposing ( Value, StringValue, FormatStringValue, ListValue, ListRange )
-import "../types" exposing ( Tag, UnionType, Type, TagArg, Block, Constructor, Expression, isSimpleValue )
+import "../types" exposing ( Tag, UnionType, UnionUntaggedType, Type, TagArg, Block, Constructor, Expression, isSimpleValue )
 import "./Common" exposing ( prefixLines )
 
 exposing (generateDerw)
@@ -51,6 +51,20 @@ generateUnionType syntax =
         prefixed: string
         prefixed =
             prefixLines tags 4
+    in
+        `type ${generateType(syntax.type)} =\n${prefixed}`
+
+generateUnionUntaggedType: UnionUntaggedType -> string
+generateUnionUntaggedType syntax =
+    let
+        values: string
+        values =
+            List.map generateStringValue syntax.values
+                |> (\y -> y.join "\n| ")
+
+        prefixed: string
+        prefixed =
+            prefixLines values 4
     in
         `type ${generateType(syntax.type)} =\n${prefixed}`
 
@@ -176,7 +190,6 @@ generateObjectLiteral literal =
                 `{ ${fields} }`
             else
                 `{\n    ${fields}\n}`
-
         else
             if literal.fields.length == 1 then
                 `{ ${literal.base.body}, ${fields} }`
@@ -990,6 +1003,9 @@ generateBlock syntax =
 
         UnionType ->
             generateUnionType syntax
+
+        UnionUntaggedType ->
+            generateUnionUntaggedType syntax
 
         TypeAlias ->
             generateTypeAlias syntax

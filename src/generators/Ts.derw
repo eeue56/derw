@@ -10,7 +10,7 @@ import "../types" as Functions exposing ( FunctionCall, Lambda, LambdaCall )
 import "../types" as Objects exposing ( ObjectLiteral, Field, ModuleReference )
 import "../types" as Operators exposing ( Addition, Subtraction, Multiplication, Division, LeftPipe, RightPipe )
 import "../types" as Values exposing ( Value, StringValue, FormatStringValue, ListValue, ListRange )
-import "../types" exposing ( Tag, UnionType, Type, TagArg, Block, Constructor, Expression, FunctionType, GenericType, FixedType, isSimpleValue )
+import "../types" exposing ( Tag, UnionType, UnionUntaggedType, Type, TagArg, Block, Constructor, Expression, FunctionType, GenericType, FixedType, isSimpleValue )
 import "./Common" exposing ( prefixLines, destructureLength, patternHasGaps, patternGapPositions )
 import "./CommonToEcma" exposing ( flattenLeftPipe, generateExportBlock, generateFormatStringValue, generateImportBlock, generateListDestructurePart, generateListRange, generateStringValue, generateValue )
 
@@ -153,6 +153,16 @@ generateUnionType syntax imports =
             `type ${generateType(syntax.type, imports)} = ${tags};`
         ]
             |> (\y -> y.join "\n")
+
+generateUnionUntaggedType: UnionUntaggedType -> string
+generateUnionUntaggedType syntax =
+    let
+        values: string
+        values =
+            List.map (\y -> `"${y.body}"`) syntax.values
+                |> (\y -> y.join " | ")
+    in
+        `type ${generateType(syntax.type, [])} = ${values};`
 
 generateProperty: Property -> List Import -> string
 generateProperty syntax imports =
@@ -1697,6 +1707,9 @@ generateBlock syntax parentTypeArguments? parentTypes? imports? =
 
             UnionType ->
                 generateUnionType syntax actualImports
+
+            UnionUntaggedType ->
+                generateUnionUntaggedType syntax
 
             TypeAlias ->
                 generateTypeAlias syntax actualImports
