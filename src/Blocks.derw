@@ -381,7 +381,25 @@ intoBlocksStep lineNumber info lines =
             if info.currentBlock.length > 0 then
                 case info.currentBlockKind of
                     Ok { value } ->
-                        [ createUnparsedBlock value info.lineStart info.currentBlock ]
+                        let
+                            hasSpeech: boolean
+                            hasSpeech =
+                                info.currentBlock.filter (\line -> line.indexOf `"` > -1)
+                                    |> (\y -> y.length > 0)
+
+                            kind: BlockKinds
+                            kind =
+                                case value of
+                                    "UnionType" ->
+                                        if hasSpeech then
+                                            "UnionUntaggedType"
+                                        else
+                                            value
+
+                                    default ->
+                                        value
+                        in
+                            [ createUnparsedBlock kind info.lineStart info.currentBlock ]
 
                     Err ->
                         [ createUnparsedBlock "Unknown" info.lineStart info.currentBlock ]

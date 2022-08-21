@@ -7,7 +7,6 @@ import { generateJavascript } from "../generators/Js";
 import { generateTypescript } from "../generators/Ts";
 import { parse } from "../parser";
 import {
-    Const,
     FixedType,
     Module,
     StringValue,
@@ -15,21 +14,13 @@ import {
     UnparsedBlock,
 } from "../types";
 
-const functionPart = `
-asIs: Result
-asIs =
-    "Err"
-`.trim();
-
 const rawOneLine = `
 type Result = "Err" | "Ok"
 `.trim();
 
 const oneLine = `
 ${rawOneLine}
-
-${functionPart}
-`;
+`.trim();
 
 const rawMultiLine = `
 type Result =
@@ -37,39 +28,26 @@ type Result =
     | "Ok"
 `.trim();
 
-const multilineFunctionPart = `
-asIs: Result
-asIs =
-    "Err"
-`.trim();
-
 const multiLine = `
 ${rawMultiLine}
-
-${multilineFunctionPart}
 `.trim();
 
 const expectedOutput = `
 type Result = "Err" | "Ok";
-
-const asIs: Result = "Err";
 `.trim();
 
 const expectedOutputJS = `
-const asIs = "Err";
 `.trim();
 
 export function testIntoBlocks() {
     assert.deepStrictEqual(intoBlocks(oneLine), [
-        UnparsedBlock("UnionUntaggedTypeBlock", 1, rawOneLine.split("\n")),
-        UnparsedBlock("ConstBlock", 3, functionPart.split("\n")),
+        UnparsedBlock("UnionUntaggedTypeBlock", 0, rawOneLine.split("\n")),
     ]);
 }
 
 export function testIntoBlocksMultiLine() {
     assert.deepStrictEqual(intoBlocks(multiLine), [
         UnparsedBlock("UnionUntaggedTypeBlock", 0, rawMultiLine.split("\n")),
-        UnparsedBlock("ConstBlock", 4, multilineFunctionPart.split("\n")),
     ]);
 }
 
@@ -78,7 +56,7 @@ export function testBlockKind() {
 
     assert.deepStrictEqual(
         blocks.map((block) => blockKind(block.lines.join("\n"))),
-        [ Ok("UnionUntaggedType"), Ok("Const") ]
+        [ Ok("UnionUntaggedType") ]
     );
 }
 
@@ -87,7 +65,7 @@ export function testBlockKindMultiLine() {
 
     assert.deepStrictEqual(
         blocks.map((block) => blockKind(block.lines.join("\n"))),
-        [ Ok("UnionUntaggedType"), Ok("Const") ]
+        [ Ok("UnionUntaggedType") ]
     );
 }
 
@@ -101,12 +79,6 @@ export function testParse() {
                     StringValue("Err"),
                     StringValue("Ok"),
                 ]),
-                Const(
-                    "asIs",
-                    FixedType("Result", [ ]),
-                    [ ],
-                    StringValue("Err")
-                ),
             ],
             [ ]
         )
@@ -123,12 +95,6 @@ export function testParseMultiLine() {
                     StringValue("Err"),
                     StringValue("Ok"),
                 ]),
-                Const(
-                    "asIs",
-                    FixedType("Result", [ ]),
-                    [ ],
-                    StringValue("Err")
-                ),
             ],
             [ ]
         )

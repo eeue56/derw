@@ -508,7 +508,26 @@ function intoBlocksStep(lineNumber: number, info: IntoBlockInfo, lines: string[]
                 switch (info.currentBlockKind.kind) {
                     case "Ok": {
                         const { value } = info.currentBlockKind;
-                        return [ createUnparsedBlock(value, info.lineStart, info.currentBlock) ];
+                        const hasSpeech: boolean = (function(y: any) {
+                            return y.length > 0;
+                        })(info.currentBlock.filter(function(line: any) {
+                            return line.indexOf(`"`) > -1;
+                        }));
+                        const kind: BlockKinds = (function (): any {
+                            switch (value) {
+                                case "UnionType": {
+                                    if (hasSpeech) {
+                                        return "UnionUntaggedType";
+                                    } else {
+                                        return value;
+                                    };
+                                }
+                                default: {
+                                    return value;
+                                }
+                            }
+                        })();
+                        return [ createUnparsedBlock(kind, info.lineStart, info.currentBlock) ];
                     }
                     case "Err": {
                         return [ createUnparsedBlock("Unknown", info.lineStart, info.currentBlock) ];
