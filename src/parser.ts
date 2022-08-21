@@ -67,6 +67,7 @@ import {
     ListPrepend,
     ListRange,
     ListValue,
+    Mod,
     Module,
     ModuleReference,
     MultilineComment,
@@ -1970,6 +1971,16 @@ function parseDivision(tokens: Token[]): Result<string, Division> {
     return Ok(Division(left.value, right.value));
 }
 
+function parseMod(tokens: Token[]): Result<string, Mod> {
+    const operator = "%";
+    const { left, right } = parseOperator(operator, tokens);
+
+    if (left.kind === "Err") return left;
+    if (right.kind === "Err") return right;
+
+    return Ok(Mod(left.value, right.value));
+}
+
 function parseLeftPipe(tokens: Token[]): Result<string, LeftPipe> {
     const operator = "|>";
     const { left, right } = parseOperator(operator, tokens);
@@ -2618,6 +2629,8 @@ export function parseExpression(
         return parseMultiplcation(tokens);
     } else if (hasTopLevelOperator("/", tokens)) {
         return parseDivision(tokens);
+    } else if (hasTopLevelOperator("%", tokens)) {
+        return parseMod(tokens);
     }
 
     let isDone = false;

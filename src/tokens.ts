@@ -309,6 +309,7 @@ function isOperator(body: string): boolean {
             "+",
             "*",
             "/",
+            "%",
             "|>",
             "<|",
             "&&",

@@ -12,6 +12,7 @@ import {
     FixedType,
     Function,
     FunctionArg,
+    Mod,
     Module,
     Multiplication,
     Subtraction,
@@ -25,6 +26,9 @@ add x y = x + y
 
 sub: number -> number -> number
 sub x y = x - y
+
+mod: number -> number -> number
+mod x y = x % y
 
 addThree: number -> number -> number -> number
 addThree x y z = x + y + z
@@ -42,6 +46,10 @@ sub: number -> number -> number
 sub x y =
     x - y
 
+mod: number -> number -> number
+mod x y =
+    x % y
+
 addThree: number -> number -> number -> number
 addThree x y z =
     x + y + z
@@ -58,6 +66,10 @@ function add(x: number, y: number): number {
 
 function sub(x: number, y: number): number {
     return x - y;
+}
+
+function mod(x: number, y: number): number {
+    return x % y;
 }
 
 function addThree(x: number, y: number, z: number): number {
@@ -78,6 +90,10 @@ function sub(x, y) {
     return x - y;
 }
 
+function mod(x, y) {
+    return x % y;
+}
+
 function addThree(x, y, z) {
     return x + y + z;
 }
@@ -94,6 +110,7 @@ export function testIntoBlocks() {
         UnparsedBlock("FunctionBlock", 3, split.slice(3, 5)),
         UnparsedBlock("FunctionBlock", 6, split.slice(6, 8)),
         UnparsedBlock("FunctionBlock", 9, split.slice(9, 11)),
+        UnparsedBlock("FunctionBlock", 12, split.slice(12, 14)),
     ]);
 }
 
@@ -104,6 +121,7 @@ export function testIntoBlocksMultiLine() {
         UnparsedBlock("FunctionBlock", 4, split.slice(4, 7)),
         UnparsedBlock("FunctionBlock", 8, split.slice(8, 11)),
         UnparsedBlock("FunctionBlock", 12, split.slice(12, 15)),
+        UnparsedBlock("FunctionBlock", 16, split.slice(16, 19)),
     ]);
 }
 
@@ -140,6 +158,16 @@ export function testParse() {
                     ],
                     [ ],
                     Subtraction(Value("x"), Value("y"))
+                ),
+                Function(
+                    "mod",
+                    FixedType("number", [ ]),
+                    [
+                        FunctionArg("x", FixedType("number", [ ])),
+                        FunctionArg("y", FixedType("number", [ ])),
+                    ],
+                    [ ],
+                    Mod(Value("x"), Value("y"))
                 ),
                 Function(
                     "addThree",
@@ -203,6 +231,16 @@ export function testParseMultiLine() {
                     ],
                     [ ],
                     Subtraction(Value("x"), Value("y"))
+                ),
+                Function(
+                    "mod",
+                    FixedType("number", [ ]),
+                    [
+                        FunctionArg("x", FixedType("number", [ ])),
+                        FunctionArg("y", FixedType("number", [ ])),
+                    ],
+                    [ ],
+                    Mod(Value("x"), Value("y"))
                 ),
                 Function(
                     "addThree",

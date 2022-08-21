@@ -28,6 +28,7 @@ import {
     ListPrepend,
     ListRange,
     ListValue,
+    Mod,
     ModuleReference,
     Multiplication,
     ObjectLiteral,
@@ -398,6 +399,22 @@ function inferDivision(
     return left;
 }
 
+function inferMod(value: Mod, typedBlocks: TypedBlock[]): Result<string, Type> {
+    const left = inferType(value.left, typedBlocks);
+    const right = inferType(value.right, typedBlocks);
+
+    if (left.kind === "Err") return left;
+    if (right.kind === "Err") return right;
+
+    if (!isSameType(left.value, right.value, false))
+        return Err(
+            `Mismatching types between ${typeToString(
+                left.value
+            )} and ${typeToString(right.value)}`
+        );
+    return left;
+}
+
 function inferLeftPipe(
     value: LeftPipe,
     typedBlocks: TypedBlock[]
@@ -559,6 +576,8 @@ export function inferType(
             return inferMultiplication(expression, typedBlocks);
         case "Division":
             return inferDivision(expression, typedBlocks);
+        case "Mod":
+            return inferMod(expression, typedBlocks);
         case "And":
             return Ok(inferAnd(expression));
         case "Or":
@@ -677,6 +696,8 @@ function finalExpressions(expression: Expression): string[] {
         case "Multiplication":
             return [ ];
         case "Division":
+            return [ ];
+        case "Mod":
             return [ ];
         case "And":
             return [ ];

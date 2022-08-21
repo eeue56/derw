@@ -8,7 +8,7 @@ import "../types" as Boolean exposing ( Equality, InEquality, LessThan, LessThan
 import "../types" as Control exposing ( IfStatement, Destructure, ListDestructure, ListDestructurePart, BranchPattern, Branch, CaseStatement, DoBlock, DoExpression )
 import "../types" as Functions exposing ( FunctionCall, Lambda, LambdaCall )
 import "../types" as Objects exposing ( ObjectLiteral, Field, ModuleReference )
-import "../types" as Operators exposing ( Addition, Subtraction, Multiplication, Division, LeftPipe, RightPipe )
+import "../types" as Operators exposing ( Addition, Subtraction, Multiplication, Division, Mod, LeftPipe, RightPipe )
 import "../types" as Values exposing ( Value, StringValue, FormatStringValue, ListValue, ListRange )
 import "../types" exposing ( Tag, UnionType, UnionUntaggedType, Type, TagArg, Block, Constructor, Expression, FunctionType, GenericType, FixedType, isSimpleValue )
 import "./Common" exposing ( prefixLines, destructureLength, patternHasGaps, patternGapPositions )
@@ -1142,6 +1142,19 @@ generateDivision division =
     in
         `${left} / ${right}`
 
+generateMod: Mod -> string
+generateMod mod =
+    let
+        left: string
+        left =
+            generateExpression mod.left
+
+        right: string
+        right =
+            generateExpression mod.right
+    in
+        `${left} % ${right}`
+
 generateLeftPipe: LeftPipe -> string
 generateLeftPipe leftPipe =
     flattenLeftPipe leftPipe
@@ -1397,6 +1410,9 @@ generateExpression expression parentTypeArguments? parentTypes? =
 
         Division ->
             generateDivision expression
+
+        Mod ->
+            generateMod expression
 
         And ->
             generateAnd expression

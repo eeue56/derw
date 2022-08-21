@@ -368,6 +368,20 @@ export function Division(left: Expression, right: Expression): Division {
     };
 }
 
+export type Mod = {
+    kind: "Mod";
+    left: Expression;
+    right: Expression;
+};
+
+export function Mod(left: Expression, right: Expression): Mod {
+    return {
+        kind: "Mod",
+        left,
+        right,
+    };
+}
+
 export type And = {
     kind: "And";
     left: Expression;
@@ -681,6 +695,7 @@ export type Expression =
     | Subtraction
     | Multiplication
     | Division
+    | Mod
     | And
     | Or
     | ListPrepend
@@ -714,6 +729,7 @@ export type SimpleValue =
     | "Subtraction"
     | "Multiplication"
     | "Division"
+    | "Mod"
     | "Lambda"
     | "Equality"
     | "InEquality"
@@ -742,6 +758,7 @@ export function isSimpleValue(kind: string): kind is SimpleValue {
             "Subtraction",
             "Multiplication",
             "Division",
+            "Mod",
             "Lambda",
             "Equality",
             "InEquality",

@@ -64,6 +64,11 @@ function namesPerExpression(expression: Expression): string[] {
                 ...namesPerExpression(expression.left),
                 ...namesPerExpression(expression.right),
             ];
+        case "Mod":
+            return [
+                ...namesPerExpression(expression.left),
+                ...namesPerExpression(expression.right),
+            ];
         case "And":
             return [
                 ...namesPerExpression(expression.left),

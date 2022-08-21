@@ -123,6 +123,10 @@ function expressionToString(expression: Expression): string {
             return `Division(${expressionToString(
                 expression.left
             )}, ${expressionToString(expression.right)})`;
+        case "Mod":
+            return `Mod(${expressionToString(
+                expression.left
+            )}, ${expressionToString(expression.right)})`;
         case "And":
             return `And(${expressionToString(
                 expression.left

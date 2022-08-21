@@ -25,7 +25,7 @@ import * as Objects from "../types";
 import { ObjectLiteral, Field, ModuleReference } from "../types";
 
 import * as Operators from "../types";
-import { Addition, Subtraction, Multiplication, Division, LeftPipe, RightPipe } from "../types";
+import { Addition, Subtraction, Multiplication, Division, Mod, LeftPipe, RightPipe } from "../types";
 
 import * as Values from "../types";
 import { Value, StringValue, FormatStringValue, ListValue, ListRange } from "../types";
@@ -853,6 +853,12 @@ function generateDivision(division: Division): string {
     return `${left} / ${right}`;
 }
 
+function generateMod(mod: Mod): string {
+    const left: string = generateExpression(mod.left);
+    const right: string = generateExpression(mod.right);
+    return `${left} % ${right}`;
+}
+
 function generateLeftPipe(leftPipe: LeftPipe): string {
     return generateExpression(flattenLeftPipe(leftPipe));
 }
@@ -1006,6 +1012,9 @@ function generateExpression(expression: Expression, parentTypeArguments?: string
         }
         case "Division": {
             return generateDivision(expression);
+        }
+        case "Mod": {
+            return generateMod(expression);
         }
         case "And": {
             return generateAnd(expression);
