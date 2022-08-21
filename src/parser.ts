@@ -14,6 +14,7 @@ import {
     IdentifierToken,
     OpenBracketToken,
     OpenCurlyBracesToken,
+    OperatorToken,
     RootTypeTokens,
     Token,
     tokenize,
@@ -2325,6 +2326,37 @@ function hasTopLevelOperator(
     return false;
 }
 
+function getFirstTopLevelOperator(tokens: Token[]): OperatorToken | null {
+    let bracketDepth = 0;
+    let curlyBracketDepth = 0;
+    for (const token of tokens) {
+        switch (token.kind) {
+            case "OpenBracketToken": {
+                bracketDepth++;
+                break;
+            }
+            case "CloseBracketToken": {
+                bracketDepth--;
+                break;
+            }
+            case "OpenCurlyBracesToken": {
+                curlyBracketDepth++;
+                break;
+            }
+            case "CloseCurlyBracesToken": {
+                curlyBracketDepth--;
+                break;
+            }
+            case "OperatorToken": {
+                if (bracketDepth === 0 && curlyBracketDepth === 0) {
+                    return token;
+                }
+            }
+        }
+    }
+    return null;
+}
+
 function parseEquality(tokens: Token[]): Result<string, Equality> {
     const operator = "==";
     const { left, right } = parseOperator(operator, tokens);
@@ -2603,34 +2635,52 @@ export function parseExpression(
         }
     }
 
-    if (hasTopLevelOperator("==", tokens)) {
-        return parseEquality(tokens);
-    } else if (hasTopLevelOperator("!=", tokens)) {
-        return parseInEquality(tokens);
-    } else if (hasTopLevelOperator("<", tokens)) {
-        return parseLessThan(tokens);
-    } else if (hasTopLevelOperator("<=", tokens)) {
-        return parseLessThanOrEqual(tokens);
-    } else if (hasTopLevelOperator(">", tokens)) {
-        return parseGreaterThan(tokens);
-    } else if (hasTopLevelOperator(">=", tokens)) {
-        return parseGreaterThanOrEqual(tokens);
-    } else if (hasTopLevelOperator("&&", tokens)) {
-        return parseAnd(tokens);
-    } else if (hasTopLevelOperator("||", tokens)) {
-        return parseOr(tokens);
-    } else if (hasTopLevelOperator("::", tokens)) {
-        return parseListPrepend(tokens);
-    } else if (hasTopLevelOperator("+", tokens)) {
-        return parseAddition(tokens);
-    } else if (hasTopLevelOperator("-", tokens)) {
-        return parseSubtraction(tokens);
-    } else if (hasTopLevelOperator("*", tokens)) {
-        return parseMultiplcation(tokens);
-    } else if (hasTopLevelOperator("/", tokens)) {
-        return parseDivision(tokens);
-    } else if (hasTopLevelOperator("%", tokens)) {
-        return parseMod(tokens);
+    const maybeOperator = getFirstTopLevelOperator(tokens);
+    if (maybeOperator !== null) {
+        switch (maybeOperator.body) {
+            case "==": {
+                return parseEquality(tokens);
+            }
+            case "!=": {
+                return parseInEquality(tokens);
+            }
+            case "<": {
+                return parseLessThan(tokens);
+            }
+            case "<=": {
+                return parseLessThanOrEqual(tokens);
+            }
+            case ">": {
+                return parseGreaterThan(tokens);
+            }
+            case ">=": {
+                return parseGreaterThanOrEqual(tokens);
+            }
+            case "&&": {
+                return parseAnd(tokens);
+            }
+            case "||": {
+                return parseOr(tokens);
+            }
+            case "::": {
+                return parseListPrepend(tokens);
+            }
+            case "+": {
+                return parseAddition(tokens);
+            }
+            case "-": {
+                return parseSubtraction(tokens);
+            }
+            case "*": {
+                return parseMultiplcation(tokens);
+            }
+            case "/": {
+                return parseDivision(tokens);
+            }
+            case "%": {
+                return parseMod(tokens);
+            }
+        }
     }
 
     let isDone = false;
