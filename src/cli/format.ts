@@ -2,7 +2,7 @@ import { bothFlag, empty, help, longFlag, parse, parser } from "@eeue56/baner";
 import * as chokidar from "chokidar";
 import { readFile, writeFile } from "fs/promises";
 import path from "path";
-import { generate } from "../generator";
+import { generate } from "../Generator";
 import { parseWithContext } from "../parser";
 import { contextModuleToModule } from "../types";
 import { getDerwFiles } from "./utils";

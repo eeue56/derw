@@ -1,0 +1,37 @@
+import "./generators/Derw" exposing ( generateDerw )
+import "./generators/Elm" exposing ( generateElm )
+import "./generators/English" exposing ( generateEnglish )
+import "./generators/Js" exposing ( generateJavascript )
+import "./generators/Ts" exposing ( generateTypescript )
+import "./types" exposing ( Module )
+
+exposing (Target, generate)
+
+emptyLineAtEndOfFile: string
+emptyLineAtEndOfFile =
+    "\n"
+
+type Target =
+    "js"
+    | "ts"
+    | "derw"
+    | "elm"
+    | "english"
+
+generate: Target -> Module -> string
+generate target parsed =
+    case target of
+        "js" ->
+            (generateJavascript parsed) + emptyLineAtEndOfFile
+
+        "ts" ->
+            (generateTypescript parsed) + emptyLineAtEndOfFile
+
+        "derw" ->
+            (generateDerw parsed) + emptyLineAtEndOfFile
+
+        "elm" ->
+            (generateElm parsed) + emptyLineAtEndOfFile
+
+        "english" ->
+            (generateEnglish parsed) + emptyLineAtEndOfFile

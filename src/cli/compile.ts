@@ -18,7 +18,7 @@ import { writeFile } from "fs/promises";
 import path from "path";
 import * as util from "util";
 import { addMissingNamesSuggestions } from "../errors/names";
-import { generate, Target } from "../generator";
+import { generate, Target } from "../Generator";
 import * as derwParser from "../parser";
 import { Block, ContextModule, contextModuleToModule, Import } from "../types";
 import { ensureDirectoryExists, fileExists, getDerwFiles } from "./utils";
