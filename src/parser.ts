@@ -89,7 +89,7 @@ import {
     UnparsedBlock,
     Value,
 } from "./types";
-import { validateType } from "./type_checking";
+import { validateAllCasesCovered, validateType } from "./type_checking";
 
 function afterArrow(tokens: TypeToken[]): TypeToken[] {
     let index = 0;
@@ -3515,18 +3515,35 @@ export function addTypeErrors(
 
     const typeErrors = module.body
         .map((block, index) => {
-            const validatedType = validateType(
+            const typedBlocks = [
+                ...typeBlocks([
+                    ...module.body.slice(0, index),
+                    ...module.body.slice(index),
+                ]),
+                ...allOtherTypeBlocks,
+            ];
+            let validatedType = validateType(block, typedBlocks, imports);
+            const maybeUncoveredBranchErrors = validateAllCasesCovered(
                 block,
-                [
-                    ...typeBlocks([
-                        ...module.body.slice(0, index),
-                        ...module.body.slice(index),
-                    ]),
-                    ...allOtherTypeBlocks,
-                ],
-
-                imports
+                typedBlocks
             );
+
+            if (validatedType.kind === "Err") {
+                validatedType = mapError(
+                    (error) =>
+                        maybeUncoveredBranchErrors.length === 0
+                            ? error
+                            : error +
+                              "\n" +
+                              maybeUncoveredBranchErrors.join("\n"),
+                    validatedType
+                );
+            } else {
+                if (maybeUncoveredBranchErrors.length > 0) {
+                    validatedType = Err(maybeUncoveredBranchErrors.join("\n"));
+                }
+            }
+
             const gap = getGap(module.unparsedBody, index);
 
             return mapError(

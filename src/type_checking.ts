@@ -6,12 +6,14 @@ import {
     Block,
     Branch,
     CaseStatement,
+    Const,
     Constructor,
     Division,
     Equality,
     Expression,
     FixedType,
     FormatStringValue,
+    Function,
     FunctionCall,
     FunctionType,
     GenericType,
@@ -746,6 +748,169 @@ function allFinalExpressions(block: Block): string[] {
             return [ ];
         }
     }
+}
+
+function validateAllBranchesCovered(
+    typedBlocks: TypedBlock[],
+    containingBlock: Const | Function,
+    expression: CaseStatement
+): Result<string, true> {
+    const hasDefault =
+        expression.branches.filter((b) => b.pattern.kind === "Default").length >
+        0;
+
+    const casePattern = expression.predicate;
+
+    let predicateType: Type | null = null;
+
+    if (casePattern.kind === "Value") {
+        if (containingBlock.kind === "Function") {
+            for (const arg of containingBlock.args) {
+                if (arg.kind === "FunctionArg") {
+                    if (arg.name === casePattern.body) {
+                        predicateType = arg.type;
+                    }
+                }
+            }
+        }
+    }
+
+    if (predicateType && predicateType?.kind === "FixedType") {
+        const matchingBlocks = typedBlocks.filter((b) =>
+            isSameType(b.type, predicateType as Type, false)
+        );
+
+        if (matchingBlocks.length > 0) {
+            const matchingBlock = matchingBlocks[0];
+            if (matchingBlock.kind === "UnionUntaggedType") {
+                const strings = matchingBlock.values.map((s) => s.body);
+                const seenStrings: string[] = [ ];
+
+                for (const branch of expression.branches) {
+                    if (branch.pattern.kind === "StringValue") {
+                        seenStrings.push(branch.pattern.body);
+                    }
+                }
+
+                const missingBranches = strings.filter(
+                    (s) => seenStrings.indexOf(s) === -1
+                );
+                const extraBranches = seenStrings.filter(
+                    (s) => strings.indexOf(s) === -1
+                );
+
+                let errors = [ ];
+                if (missingBranches.length > 0 && !hasDefault) {
+                    errors.push(
+                        `All possible branches of a untagged union must be covered. I expected a branch for ${missingBranches
+                            .map((s) => `"${s}"`)
+                            .join(
+                                " | "
+                            )} but they were missing. If you don't need one, have a default branch`
+                    );
+                }
+                if (extraBranches.length > 0) {
+                    errors.push(
+                        `I got too many branches. The branches for ${extraBranches
+                            .map((s) => `"${s}"`)
+                            .join(
+                                " | "
+                            )} aren't part of the untagged union so will never be true. Remove them.`
+                    );
+                }
+
+                if (errors.length > 0) {
+                    errors = [
+                        `The case statement did not match the untagged union ${typeToString(
+                            predicateType
+                        )}`,
+                        ...errors,
+                    ];
+                    return Err(errors.join("\n"));
+                }
+
+                return Ok(true);
+            } else if (matchingBlock.kind === "UnionType") {
+                const names = matchingBlock.tags.map((t) => t.name);
+                const seenNames: string[] = [ ];
+
+                for (const branch of expression.branches) {
+                    if (branch.pattern.kind === "Destructure") {
+                        seenNames.push(branch.pattern.constructor);
+                    }
+                }
+
+                const missingBranches = names.filter(
+                    (s) => seenNames.indexOf(s) === -1
+                );
+                const extraBranches = seenNames.filter(
+                    (s) => names.indexOf(s) === -1
+                );
+
+                let errors = [ ];
+                if (missingBranches.length > 0 && !hasDefault) {
+                    errors.push(
+                        `All possible branches of a union must be covered. I expected a branch for ${missingBranches.join(
+                            " | "
+                        )} but they were missing. If you don't need one, have a default branch`
+                    );
+                }
+                if (extraBranches.length > 0) {
+                    errors.push(
+                        `I got too many branches. The branches for ${extraBranches.join(
+                            " | "
+                        )} aren't part of the union so will never be true. Remove them.`
+                    );
+                }
+
+                if (errors.length > 0) {
+                    errors = [
+                        `The case statement did not match the union ${typeToString(
+                            predicateType
+                        )}`,
+                        ...errors,
+                    ];
+                    return Err(errors.join("\n"));
+                }
+
+                return Ok(true);
+            }
+        }
+    }
+
+    return Ok(true);
+}
+
+export function getCasesFromFunction(block: Function): CaseStatement[] {
+    const body = block.body;
+
+    const statements = [ ];
+
+    if (body.kind === "CaseStatement") statements.push(body);
+
+    return statements;
+}
+
+export function validateAllCasesCovered(
+    block: Block,
+    typedBlocks: TypedBlock[]
+): string[] {
+    if (block.kind !== "Function") {
+        return [ ];
+    }
+
+    const cases = getCasesFromFunction(block);
+    const invalidBranches: string[] = [ ];
+
+    for (const case_ of cases) {
+        const valid = validateAllBranchesCovered(typedBlocks, block, case_);
+
+        if (valid.kind === "Err") {
+            invalidBranches.push(valid.error);
+        }
+    }
+
+    return invalidBranches;
 }
 
 export function validateType(
