@@ -3451,17 +3451,36 @@ export function parse(body: string, filename: string = "main"): Module {
     const typeErrors = syntax
         .map((resultBlock, index) => {
             if (resultBlock.kind === "Err") return null;
-
             const block = resultBlock as Ok<Block>;
-            const validatedType = validateType(
-                block.value,
-                typeBlocks(
-                    [ ...syntax.slice(0, index), ...syntax.slice(index) ]
-                        .filter((b) => b.kind === "Ok")
-                        .map((b) => (b as Ok<Block>).value)
-                ),
-                imports
+
+            const typedBlocks: TypedBlock[] = typeBlocks(
+                [ ...syntax.slice(0, index), ...syntax.slice(index) ]
+                    .filter((b) => b.kind === "Ok")
+                    .map((b) => (b as Ok<Block>).value)
             );
+
+            let validatedType = validateType(block.value, typedBlocks, imports);
+            const maybeUncoveredBranchErrors = validateAllCasesCovered(
+                block.value,
+                typedBlocks
+            );
+
+            if (validatedType.kind === "Err") {
+                validatedType = mapError(
+                    (error) =>
+                        maybeUncoveredBranchErrors.length === 0
+                            ? error
+                            : error +
+                              "\n" +
+                              maybeUncoveredBranchErrors.join("\n"),
+                    validatedType
+                );
+            } else {
+                if (maybeUncoveredBranchErrors.length > 0) {
+                    validatedType = Err(maybeUncoveredBranchErrors.join("\n"));
+                }
+            }
+
             const gap = getGap(blocks, index);
 
             return mapError(
