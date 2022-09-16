@@ -3,7 +3,7 @@ import { stdin as input, stdout as output } from "process";
 import * as readline from "readline";
 import { generateTypescript } from "../generators/Ts";
 import { addTypeErrors, parseWithContext } from "../parser";
-import { IdentifierToken, tokenize } from "../tokens";
+import { IdentifierToken, tokenize } from "../Tokens";
 import { ContextModule, contextModuleToModule, Export } from "../types";
 import { ensureDirectoryExists } from "./utils";
 

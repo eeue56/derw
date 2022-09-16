@@ -1,4 +1,4 @@
-import { tokenize } from "../tokens";
+import { tokenize } from "../Tokens";
 
 export function log(x: string): void {
     console.log(x);

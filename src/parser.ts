@@ -22,7 +22,7 @@ import {
     tokensToString,
     TypeToken,
     WhitespaceToken,
-} from "./tokens";
+} from "./Tokens";
 import {
     Addition,
     And,
@@ -517,9 +517,9 @@ function parseProperty(tokens: Token[]): Result<string, Property> {
 
     if (tokens.find((token) => token.kind === "ArrowToken")) {
         bitsAfterName = [
-            OpenBracketToken(),
+            OpenBracketToken({}),
             ...bitsAfterName,
-            CloseBracketToken(),
+            CloseBracketToken({}),
         ];
     }
 
@@ -1037,12 +1037,12 @@ function parseListValue(tokens: Token[]): Result<string, ListValue> {
         const token = innerTokens[innerIndex];
         switch (token.kind) {
             case "OpenCurlyBracesToken": {
-                currentBuffer.push(OpenCurlyBracesToken());
+                currentBuffer.push(OpenCurlyBracesToken({}));
                 depth++;
                 break;
             }
             case "CloseCurlyBracesToken": {
-                currentBuffer.push(CloseCurlyBracesToken());
+                currentBuffer.push(CloseCurlyBracesToken({}));
                 depth--;
                 break;
             }
@@ -2475,7 +2475,7 @@ export function parseExpression(
         return Err(`Expected a token but got "${tokens}"`);
     }
     if (isModuleReference && firstToken.kind === "KeywordToken") {
-        tokens[index] = IdentifierToken(firstToken.body);
+        tokens[index] = IdentifierToken({ body: firstToken.body });
     }
 
     const isKeyword = firstToken.kind === "KeywordToken";
@@ -2754,7 +2754,7 @@ function parseDoBlock(tokens: Token[]): Result<string, DoBlock> {
         }
     }
 
-    let currentBuffer: Token[] = [ WhitespaceToken("        ") ];
+    let currentBuffer: Token[] = [ WhitespaceToken({ body: "        " }) ];
     const baseIndentLevel = 8;
 
     for (const token of tokens.slice(1)) {
@@ -2778,7 +2778,7 @@ function parseDoBlock(tokens: Token[]): Result<string, DoBlock> {
                     currentIndentLevel === baseIndentLevel
                 ) {
                     parseDoExpression(currentBuffer);
-                    currentBuffer = [ WhitespaceToken("        ") ];
+                    currentBuffer = [ WhitespaceToken({ body: "        " }) ];
                 } else {
                     currentBuffer.push(token);
                 }

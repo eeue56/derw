@@ -1,0 +1,1245 @@
+import "./Tokens_types_kernel" exposing ( TypeTokenRaw, TypeToken, BaseTypeToken, FunctionTypeToken, RootTypeTokens )
+import "./stdlib/List" as List
+
+exposing (StringToken, FormatStringToken, KeywordToken, IdentifierToken, LiteralToken, ColonToken, ArrowToken, CommentToken, MultilineCommentToken, AssignToken, CommaToken, OpenCurlyBracesToken, CloseCurlyBracesToken, OpenBracketToken, CloseBracketToken, PipeToken, OperatorToken, WhitespaceToken, Token)
+
+exposing (RootTypeTokens, BaseTypeToken, FunctionTypeToken, TypeToken)
+
+exposing (checkKeywordToken, tokenize, tokenizeType, tokensToString, rootTypeTokensToString)
+
+type State =
+    Empty
+    | InString
+    | InFormatString
+    | InBracket { depth: number }
+    | InSquareBracket { depth: number }
+    | InWhitespace
+    | Keyword
+
+keywords: List string
+keywords =
+    [
+        "if",
+        "then",
+        "else",
+        "type",
+        "alias",
+        "import",
+        "exposing",
+        "as",
+        "let",
+        "in",
+        "case",
+        "of",
+        "do",
+        "return"
+    ]
+
+type MultilineCommentBody =
+    "{-"
+    | "-}"
+
+type Token =
+    StringToken { body: string }
+    | FormatStringToken { body: string }
+    | KeywordToken { body: string }
+    | IdentifierToken { body: string }
+    | LiteralToken { body: string }
+    | ColonToken
+    | ArrowToken
+    | CommentToken
+    | MultilineCommentToken { body: MultilineCommentBody }
+    | AssignToken
+    | CommaToken
+    | OpenCurlyBracesToken
+    | CloseCurlyBracesToken
+    | OpenBracketToken
+    | CloseBracketToken
+    | PipeToken
+    | OperatorToken { body: string }
+    | WhitespaceToken { body: string }
+
+isLiteral: string -> boolean
+isLiteral body =
+    if body == "true" || body == "false" then
+        true
+    else
+        if isNaN (parseFloat body) then
+            false
+        else
+            true
+
+operators: List string
+operators =
+    [
+        "<",
+        "<=",
+        ">",
+        ">=",
+        "==",
+        "!=",
+        "-",
+        "+",
+        "*",
+        "/",
+        "%",
+        "|>",
+        "<|",
+        "&&",
+        "||"
+    ]
+
+isOperator: string -> boolean
+isOperator body =
+    if operators.indexOf body == -1 then
+        false
+    else
+        true
+
+checkKeywordToken: string -> List Token
+checkKeywordToken currentToken =
+    case currentToken of
+        "=" ->
+            [ AssignToken ]
+
+        "{" ->
+            [ OpenCurlyBracesToken ]
+
+        "}" ->
+            [ CloseCurlyBracesToken ]
+
+        "{}" ->
+            [
+                OpenCurlyBracesToken,
+                CloseCurlyBracesToken
+            ]
+
+        "--" ->
+            [ CommentToken ]
+
+        "{-" ->
+            [ MultilineCommentToken { body: "{-" } ]
+
+        "-}" ->
+            [ MultilineCommentToken { body: "-}" } ]
+
+        default ->
+            if keywords.indexOf currentToken > -1 then
+                [ KeywordToken { body: currentToken } ]
+            else
+                if isLiteral currentToken then
+                    [ LiteralToken { body: currentToken } ]
+                else
+                    if isOperator currentToken then
+                        [ OperatorToken { body: currentToken } ]
+                    else
+                        [ IdentifierToken { body: currentToken } ]
+
+type alias TokenizeInfo = {
+    state: State,
+    currentToken: string,
+    tokens: List Token,
+    body: string,
+    index: number
+}
+
+isEscape: string -> boolean
+isEscape char =
+    char.charCodeAt 0 == 92
+
+not: boolean -> boolean
+not a =
+    if a then
+        false
+    else
+        true
+
+tokenizeHelpInWhitespaceOrEmpty: TokenizeInfo -> TokenizeInfo
+tokenizeHelpInWhitespaceOrEmpty initialInfo =
+    let
+        char: string
+        char =
+            initialInfo.body[initialInfo.index]
+
+        info: TokenizeInfo
+        info =
+            if char != " " && char != "\n" && initialInfo.currentToken.length > 0 then
+                {
+                    ...initialInfo,
+                    currentToken: "",
+                    state: Empty,
+                    tokens: List.append initialInfo.tokens [ WhitespaceToken { body: initialInfo.currentToken } ]
+                }
+            else
+                initialInfo
+
+        previousChar: string
+        previousChar =
+            if info.index == 0 then
+                ""
+            else
+                info.body[info.index - 1]
+
+        isLast: boolean
+        isLast =
+            info.body.length - 1 == info.index
+
+        nextInfo: TokenizeInfo
+        nextInfo =
+            case char of
+                `"` ->
+                    {
+                        ...info,
+                        state: InString,
+                        currentToken: info.currentToken + char
+                    }
+
+                "`" ->
+                    {
+                        ...info,
+                        state: InFormatString,
+                        currentToken: info.currentToken + char
+                    }
+
+                "(" ->
+                    {
+                        ...info,
+                        state: InBracket { depth: 0 },
+                        tokens: List.append info.tokens [ OpenBracketToken ]
+                    }
+
+                ")" ->
+                    {
+                        ...info,
+                        state: Empty,
+                        tokens: List.append info.tokens [ CloseBracketToken ]
+                    }
+
+                "[" ->
+                    {
+                        ...info,
+                        state: InSquareBracket { depth: 0 },
+                        currentToken: info.currentToken + char
+                    }
+
+                "\n" ->
+                    {
+                        ...info,
+                        state: InWhitespace,
+                        currentToken: info.currentToken + char
+                    }
+
+                " " ->
+                    {
+                        ...info,
+                        state: InWhitespace,
+                        currentToken: info.currentToken + char
+                    }
+
+                ":" ->
+                    if info.body[info.index + 1] == ":" then
+                        let
+                            token: Token
+                            token =
+                                OperatorToken { body: "::" }
+                        in
+                            {
+                                ...info,
+                                tokens: List.append info.tokens [ token ],
+                                index: info.index + 1
+                            }
+                    else
+                        { ...info, tokens: List.append info.tokens [ ColonToken ] }
+
+                "-" ->
+                    if info.body[info.index + 1] == ">" then
+                        info
+                    else
+                        {
+                            ...info,
+                            state: Keyword,
+                            currentToken: info.currentToken + char
+                        }
+
+                ">" ->
+                    case previousChar of
+                        "-" ->
+                            {
+                                ...info,
+                                tokens: List.append info.tokens [ ArrowToken ],
+                                currentToken: ""
+                            }
+
+                        "|" ->
+                            {
+                                ...info,
+                                tokens: List.append info.tokens [ OperatorToken { body: "|>" } ],
+                                currentToken: ""
+                            }
+
+                        default ->
+                            {
+                                ...info,
+                                state: Keyword,
+                                currentToken: info.currentToken + char
+                            }
+
+                "," ->
+                    { ...info, tokens: List.append info.tokens [ CommaToken ] }
+
+                "|" ->
+                    if info.body[info.index + 1] == ">" || info.body[info.index + 1] == "|" then
+                        info
+                    else
+                        if previousChar == "|" then
+                            {
+                                ...info,
+                                tokens: List.append info.tokens [ OperatorToken { body: "||" } ],
+                                currentToken: ""
+                            }
+                        else
+                            { ...info, tokens: List.append info.tokens [ PipeToken ] }
+
+                "{" ->
+                    if info.body[info.index + 1] == "-" then
+                        {
+                            ...info,
+                            currentToken: info.currentToken + char,
+                            state: Keyword
+                        }
+                    else
+                        {
+                            ...info,
+                            tokens: List.append info.tokens [ OpenCurlyBracesToken ],
+                            currentToken: ""
+                        }
+
+                "}" ->
+                    {
+                        ...info,
+                        tokens: List.append info.tokens [ CloseCurlyBracesToken ],
+                        currentToken: ""
+                    }
+
+                default ->
+                    if isEscape char then
+                        {
+                            ...info,
+                            tokens: List.append info.tokens [ OperatorToken { body: char } ],
+                            currentToken: ""
+                        }
+                    else
+                        let
+                            otherTokens: List Token
+                            otherTokens =
+                                if isLast then
+                                    checkKeywordToken (info.currentToken + char)
+                                else
+                                    [ ]
+                        in
+                            {
+                                ...info,
+                                tokens: List.append info.tokens otherTokens,
+                                currentToken: info.currentToken + char,
+                                state: Keyword
+                            }
+    in
+        { ...nextInfo, index: nextInfo.index + 1 }
+
+tokenizeHelp: TokenizeInfo -> TokenizeInfo
+tokenizeHelp info =
+    let
+        char: string
+        char =
+            info.body[info.index]
+
+        previousChar: string
+        previousChar =
+            if info.index == 0 then
+                ""
+            else
+                info.body[info.index - 1]
+
+        isLast: boolean
+        isLast =
+            info.body.length - 1 == info.index
+    in
+        if info.index >= info.body.length then
+            info
+        else
+            case info.state of
+                InWhitespace ->
+                    tokenizeHelpInWhitespaceOrEmpty info
+
+                Empty ->
+                    tokenizeHelpInWhitespaceOrEmpty info
+
+                InString ->
+                    if char == `"` && not (isEscape previousChar) then
+                        let
+                            token: Token
+                            token =
+                                StringToken { body: info.currentToken + `"` }
+                        in
+                            {
+                                ...info,
+                                state: Empty,
+                                currentToken: "",
+                                tokens: List.append info.tokens [ token ],
+                                index: info.index + 1
+                            }
+                    else
+                        {
+                            ...info,
+                            currentToken: info.currentToken + char,
+                            index: info.index + 1
+                        }
+
+                InFormatString ->
+                    if char == "`" && not (isEscape previousChar) then
+                        let
+                            token: Token
+                            token =
+                                FormatStringToken { body: info.currentToken + "`" }
+                        in
+                            {
+                                ...info,
+                                state: Empty,
+                                currentToken: "",
+                                tokens: List.append info.tokens [ token ],
+                                index: info.index + 1
+                            }
+                    else
+                        {
+                            ...info,
+                            currentToken: info.currentToken + char,
+                            index: info.index + 1
+                        }
+
+                InBracket { depth } ->
+                    if char == ")" then
+                        if depth == 0 then
+                            let
+                                otherTokens: List Token
+                                otherTokens =
+                                    tokenize info.currentToken
+
+                                allTokens: List Token
+                                allTokens =
+                                    List.append info.tokens otherTokens
+                                        |> (\x -> List.append x [ CloseBracketToken ])
+                            in
+                                {
+                                    ...info,
+                                    state: Empty,
+                                    currentToken: "",
+                                    tokens: allTokens,
+                                    index: info.index + 1
+                                }
+                        else
+                            {
+                                ...info,
+                                state: InBracket { depth: depth - 1 },
+                                currentToken: info.currentToken + ")",
+                                index: info.index + 1
+                            }
+                    else
+                        if char == "(" then
+                            {
+                                ...info,
+                                state: InBracket { depth: depth + 1 },
+                                currentToken: info.currentToken + "(",
+                                index: info.index + 1
+                            }
+                        else
+                            {
+                                ...info,
+                                currentToken: info.currentToken + char,
+                                index: info.index + 1
+                            }
+
+                InSquareBracket { depth } ->
+                    if char == "]" then
+                        if depth == 0 then
+                            let
+                                newToken: Token
+                                newToken =
+                                    LiteralToken { body: info.currentToken + "]" }
+
+                                allTokens: List Token
+                                allTokens =
+                                    List.append info.tokens [ newToken ]
+                            in
+                                {
+                                    ...info,
+                                    state: Empty,
+                                    currentToken: "",
+                                    tokens: allTokens,
+                                    index: info.index + 1
+                                }
+                        else
+                            {
+                                ...info,
+                                state: InSquareBracket { depth: depth - 1 },
+                                currentToken: info.currentToken + char,
+                                index: info.index + 1
+                            }
+                    else
+                        if char == "[" then
+                            {
+                                ...info,
+                                state: InSquareBracket { depth: depth + 1 },
+                                currentToken: info.currentToken + char,
+                                index: info.index + 1
+                            }
+                        else
+                            {
+                                ...info,
+                                currentToken: info.currentToken + char,
+                                index: info.index + 1
+                            }
+
+                Keyword ->
+                    let
+                        isWhitespace: boolean
+                        isWhitespace =
+                            char == "\n" || char == " "
+                    in
+                        if isLast then
+                            if char == ")" then
+                                let
+                                    otherTokens: List Token
+                                    otherTokens =
+                                        checkKeywordToken info.currentToken
+
+                                    allTokens: List Token
+                                    allTokens =
+                                        List.append info.tokens otherTokens
+                                            |> (\x -> List.append x [ CloseBracketToken ])
+                                in
+                                    {
+                                        ...info,
+                                        state: Empty,
+                                        currentToken: "",
+                                        tokens: allTokens,
+                                        index: info.index + 1
+                                    }
+                            else
+                                let
+                                    currentToken: string
+                                    currentToken =
+                                        if isWhitespace then
+                                            info.currentToken
+                                        else
+                                            info.currentToken + char
+
+                                    otherTokens: List Token
+                                    otherTokens =
+                                        checkKeywordToken currentToken
+
+                                    maybeWhiteSpaceToken: List Token
+                                    maybeWhiteSpaceToken =
+                                        if isLast && isWhitespace then
+                                            [ WhitespaceToken { body: char } ]
+                                        else
+                                            [ ]
+
+                                    allTokens: List Token
+                                    allTokens =
+                                        List.append info.tokens otherTokens
+                                            |> (\x -> List.append x maybeWhiteSpaceToken)
+                                in
+                                    {
+                                        ...info,
+                                        state: Empty,
+                                        currentToken: "",
+                                        tokens: allTokens,
+                                        index: info.index + 1
+                                    }
+                        else
+                            if isWhitespace then
+                                let
+                                    otherTokens: List Token
+                                    otherTokens =
+                                        checkKeywordToken info.currentToken
+
+                                    maybeWhiteSpaceToken: List Token
+                                    maybeWhiteSpaceToken =
+                                        if isLast then
+                                            [ WhitespaceToken { body: char } ]
+                                        else
+                                            [ ]
+
+                                    allTokens: List Token
+                                    allTokens =
+                                        List.append info.tokens otherTokens
+                                            |> (\x -> List.append x maybeWhiteSpaceToken)
+
+                                    currentToken: string
+                                    currentToken =
+                                        if isLast then
+                                            ""
+                                        else
+                                            char
+                                in
+                                    {
+                                        ...info,
+                                        state: Empty,
+                                        currentToken: currentToken,
+                                        tokens: allTokens,
+                                        index: info.index + 1
+                                    }
+                            else
+                                case char of
+                                    ":" ->
+                                        if info.body[info.index + 1] == ":" then
+                                            let
+                                                allTokens: List Token
+                                                allTokens =
+                                                    List.append info.tokens [
+                                                        IdentifierToken { body: info.currentToken },
+                                                        OperatorToken { body: "::" }
+                                                    ]
+                                            in
+                                                {
+                                                    ...info,
+                                                    currentToken: "",
+                                                    tokens: allTokens,
+                                                    state: Empty,
+                                                    index: info.index + 2
+                                                }
+                                        else
+                                            let
+                                                allTokens: List Token
+                                                allTokens =
+                                                    List.append info.tokens [
+                                                        IdentifierToken { body: info.currentToken },
+                                                        ColonToken
+                                                    ]
+                                            in
+                                                {
+                                                    ...info,
+                                                    currentToken: "",
+                                                    tokens: allTokens,
+                                                    state: Empty,
+                                                    index: info.index + 1
+                                                }
+
+                                    "," ->
+                                        let
+                                            allTokens: List Token
+                                            allTokens =
+                                                List.append info.tokens [
+                                                    IdentifierToken { body: info.currentToken },
+                                                    CommaToken
+                                                ]
+                                        in
+                                            {
+                                                ...info,
+                                                currentToken: "",
+                                                tokens: allTokens,
+                                                state: Empty,
+                                                index: info.index + 1
+                                            }
+
+                                    "(" ->
+                                        let
+                                            otherTokens: List Token
+                                            otherTokens =
+                                                checkKeywordToken info.currentToken
+
+                                            allTokens: List Token
+                                            allTokens =
+                                                List.append info.tokens otherTokens
+                                                    |> (\x -> List.append x [ OpenBracketToken ])
+                                        in
+                                            {
+                                                ...info,
+                                                currentToken: "",
+                                                tokens: allTokens,
+                                                state: Empty,
+                                                index: info.index + 1
+                                            }
+
+                                    ")" ->
+                                        let
+                                            allTokens: List Token
+                                            allTokens =
+                                                List.append info.tokens [
+                                                    IdentifierToken { body: info.currentToken },
+                                                    CloseBracketToken
+                                                ]
+                                        in
+                                            {
+                                                ...info,
+                                                currentToken: "",
+                                                tokens: allTokens,
+                                                state: Empty,
+                                                index: info.index + 1
+                                            }
+
+                                    default ->
+                                        {
+                                            ...info,
+                                            currentToken: info.currentToken + char,
+                                            index: info.index + 1
+                                        }
+
+tokenize: string -> List Token
+tokenize body =
+    let
+        initialState: TokenizeInfo
+        initialState =
+            {
+                state: Empty,
+                currentToken: "",
+                tokens: [ ],
+                body: body,
+                index: 0
+            }
+
+        chars: List string
+        chars =
+            body.split ""
+
+        calculatedState: TokenizeInfo
+        calculatedState =
+            List.statefulFold (\item state -> tokenizeHelp state) initialState chars
+    in
+        calculatedState.tokens
+
+tokenToString: Token -> string
+tokenToString token =
+    case token of
+        ArrowToken ->
+            "->"
+
+        AssignToken ->
+            "="
+
+        CloseBracketToken ->
+            ")"
+
+        CloseCurlyBracesToken ->
+            "}"
+
+        ColonToken ->
+            ":"
+
+        CommaToken ->
+            ","
+
+        CommentToken ->
+            "--"
+
+        FormatStringToken { body } ->
+            body
+
+        IdentifierToken { body } ->
+            body
+
+        MultilineCommentToken { body } ->
+            body
+
+        KeywordToken { body } ->
+            body
+
+        LiteralToken { body } ->
+            body
+
+        OpenBracketToken ->
+            "("
+
+        OpenCurlyBracesToken ->
+            "{"
+
+        OperatorToken { body } ->
+            body
+
+        PipeToken ->
+            "|"
+
+        StringToken { body } ->
+            body
+
+        WhitespaceToken { body } ->
+            body
+
+tokensToString: List Token -> string
+tokensToString tokens =
+    List.map tokenToString tokens
+        |> (\x -> x.join "")
+
+type Result a b =
+    Ok { value: b }
+    | Err { error: a }
+
+type alias TokenizeTypeInfo = {
+    rootTypeTokens: List RootTypeTokens,
+    currentBuffer: List TypeTokenRaw,
+    indent: number,
+    index: number,
+    tokens: List Token,
+    error: List string
+}
+
+type alias ComposeTypeInfo = {
+    buffer: List TypeTokenRaw,
+    index: number,
+    depth: number,
+    inner: List Token,
+    collectedInners: List (List RootTypeTokens),
+    error: List string
+}
+
+finalCompose: ComposeTypeInfo -> Result string (List RootTypeTokens)
+finalCompose info =
+    if info.error.length > 0 then
+        Err { error: info.error[0] }
+    else
+        let
+            flattened: List RootTypeTokens
+            flattened =
+                List.foldl (\x xs -> xs.concat x) [ ] info.collectedInners
+        in
+            Ok { value: [ BaseTypeToken { body: info.buffer[0] :: flattened } ] }
+
+composeType: ComposeTypeInfo -> ComposeTypeInfo
+composeType info =
+    if info.index >= info.buffer.length || info.error.length > 0 then
+        info
+    else
+        let
+            t: TypeTokenRaw
+            t =
+                info.buffer[info.index]
+        in
+            case t of
+                OpenBracketToken ->
+                    if info.depth > 0 then
+                        {
+                            ...info,
+                            inner: List.append info.inner [ t ],
+                            depth: info.depth + 1,
+                            index: info.index + 1
+                        }
+                            |> composeType
+                    else
+                        {
+                            ...info,
+                            depth: info.depth + 1,
+                            index: info.index + 1
+                        }
+                            |> composeType
+
+                CloseBracketToken ->
+                    if info.depth == 1 then
+                        let
+                            innerTokenized: Result string (List RootTypeTokens)
+                            innerTokenized =
+                                tokenizeType info.inner
+                        in
+                            case innerTokenized of
+                                Err { error } ->
+                                    { ...info, error: [ error ] }
+                                        |> composeType
+
+                                Ok { value } ->
+                                    {
+                                        ...info,
+                                        collectedInners: List.append info.collectedInners [ value ],
+                                        inner: [ ],
+                                        depth: 0,
+                                        index: info.index + 1
+                                    }
+                                        |> composeType
+                    else
+                        if info.depth == 0 then
+                            { ...info, index: info.index + 1 }
+                                |> composeType
+                        else
+                            {
+                                ...info,
+                                index: info.index + 1,
+                                inner: List.append info.inner [ t ],
+                                depth: info.depth - 1
+                            }
+                                |> composeType
+
+                IdentifierToken { body } ->
+                    if info.depth == 0 then
+                        let
+                            tokenized: Result string (List RootTypeTokens)
+                            tokenized =
+                                tokenizeType (tokenize body)
+                        in
+                            case tokenized of
+                                Err { error } ->
+                                    { ...info, error: [ error ] }
+                                        |> composeType
+
+                                Ok { value } ->
+                                    {
+                                        ...info,
+                                        index: info.index + 1,
+                                        collectedInners: List.append info.collectedInners [ value ]
+                                    }
+                                        |> composeType
+                    else
+                        {
+                            ...info,
+                            index: info.index + 1,
+                            inner: List.append info.inner [ t ]
+                        }
+                            |> composeType
+
+                ArrowToken ->
+                    if info.depth == 0 then
+                        { ...info, index: info.index + 1 }
+                            |> composeType
+                    else
+                        {
+                            ...info,
+                            index: info.index + 1,
+                            inner: List.append info.inner [ t ]
+                        }
+                            |> composeType
+
+                default ->
+                    { ...info, index: info.index + 1 }
+                        |> composeType
+
+processTokenizeTypeInfo: TokenizeTypeInfo -> Result string (List RootTypeTokens)
+processTokenizeTypeInfo info =
+    let
+        hasOpenBracketToken: boolean
+        hasOpenBracketToken =
+            if info.currentBuffer.find (\t -> t.kind == "OpenBracketToken") then
+                true
+            else
+                false
+
+        isFunction: boolean
+        isFunction =
+            if info.currentBuffer.find (\t -> t.kind == "ArrowToken") then
+                true
+            else
+                false
+    in
+        case info.currentBuffer of
+            first :: rest ->
+                if hasOpenBracketToken then
+                    let
+                        tokenized: Result string (List RootTypeTokens)
+                        tokenized =
+                            if first.kind == "IdentifierToken" && not isFunction then
+                                finalCompose (composeType {
+                                    buffer: info.currentBuffer,
+                                    index: 1,
+                                    depth: 0,
+                                    inner: [ ],
+                                    collectedInners: [ ],
+                                    error: [ ]
+                                })
+                            else
+                                tokenizeType info.currentBuffer
+                    in
+                        case tokenized of
+                            Err { error } ->
+                                Err { error: error }
+
+                            Ok { value } ->
+                                if isFunction then
+                                    Ok { value: List.append info.rootTypeTokens [ FunctionTypeToken { body: value } ] }
+                                else
+                                    Ok { value: List.append info.rootTypeTokens value }
+                else
+                    if isFunction then
+                        let
+                            tokenized: Result string (List RootTypeTokens)
+                            tokenized =
+                                tokenizeType info.currentBuffer
+                        in
+                            case tokenized of
+                                Err { error } ->
+                                    Err { error: error }
+
+                                Ok { value } ->
+                                    Ok { value: List.append info.rootTypeTokens [ FunctionTypeToken { body: value } ] }
+                    else
+                        let
+                            innerHelp: List TypeTokenRaw -> Result string (List TypeToken)
+                            innerHelp tokens =
+                                case tokens of
+                                    [] ->
+                                        Ok { value: [ ] }
+
+                                    x :: rest ->
+                                        let
+                                            tokenized: Result string (List TypeToken)
+                                            tokenized =
+                                                tokenizeType [ x ]
+                                        in
+                                            case tokenized of
+                                                Err { error } ->
+                                                    Err { error: error }
+
+                                                Ok { value } ->
+                                                    case innerHelp rest of
+                                                        Ok { value: other } ->
+                                                            Ok { value: List.append value other }
+
+                                                        Err { error } ->
+                                                            Err { error: error }
+
+                                    default ->
+                                        Ok { value: [ ] }
+
+                            inner: Result string (List TypeToken)
+                            inner =
+                                if info.currentBuffer.length > 1 then
+                                    innerHelp (info.currentBuffer.slice 1)
+                                else
+                                    Ok { value: [ ] }
+
+                            otherTokens: List TypeToken
+                            otherTokens =
+                                case inner of
+                                    Ok { value } ->
+                                        BaseTypeToken { body: List.append [ info.currentBuffer[0] ] value }
+
+                                    Err { error } ->
+                                        [ ]
+                        in
+                            case inner of
+                                Err { error } ->
+                                    inner
+
+                                Ok { value } ->
+                                    List.append info.rootTypeTokens otherTokens
+                                        |> (\x -> Ok { value: x })
+
+            default ->
+                Ok { value: info.rootTypeTokens }
+
+finalTokenizeType: TokenizeTypeInfo -> Result string (List RootTypeTokens)
+finalTokenizeType info =
+    if info.error.length > 0 then
+        Err { error: info.error[0] }
+    else
+        processTokenizeTypeInfo info
+
+tokenizeTypeHelp: TokenizeTypeInfo -> TokenizeTypeInfo
+tokenizeTypeHelp info =
+    if info.index >= info.tokens.length || info.error.length > 0 then
+        info
+    else
+        let
+            token: Token
+            token =
+                info.tokens[info.index]
+
+            nextInfo: TokenizeTypeInfo
+            nextInfo =
+                case token of
+                    OpenBracketToken ->
+                        if info.indent > 0 || info.currentBuffer.length > 0 then
+                            {
+                                ...info,
+                                index: info.index + 1,
+                                indent: info.indent + 1,
+                                currentBuffer: List.append info.currentBuffer [ token ]
+                            }
+                        else
+                            {
+                                ...info,
+                                index: info.index + 1,
+                                indent: info.indent + 1
+                            }
+
+                    CloseBracketToken ->
+                        if info.indent > 0 then
+                            {
+                                ...info,
+                                indent: info.indent - 1,
+                                index: info.index + 1,
+                                currentBuffer: List.append info.currentBuffer [ token ]
+                            }
+                        else
+                            {
+                                ...info,
+                                indent: info.indent - 1,
+                                index: info.index + 1
+                            }
+
+                    ArrowToken ->
+                        if info.indent == 0 then
+                            let
+                                isFunction: boolean
+                                isFunction =
+                                    if info.currentBuffer.find (\t -> t.kind == "ArrowToken") then
+                                        true
+                                    else
+                                        false
+
+                                tokenized: Result string (List RootTypeTokens)
+                                tokenized =
+                                    tokenizeType info.currentBuffer
+                            in
+                                case tokenized of
+                                    Err { error } ->
+                                        { ...info, error: [ error ] }
+
+                                    Ok { value } ->
+                                        if isFunction then
+                                            {
+                                                ...info,
+                                                index: info.index + 1,
+                                                rootTypeTokens: List.append info.rootTypeTokens [ FunctionTypeToken { body: value } ],
+                                                currentBuffer: [ ]
+                                            }
+                                        else
+                                            {
+                                                ...info,
+                                                index: info.index + 1,
+                                                rootTypeTokens: List.append info.rootTypeTokens value,
+                                                currentBuffer: [ ]
+                                            }
+                        else
+                            {
+                                ...info,
+                                index: info.index + 1,
+                                currentBuffer: List.append info.currentBuffer [ token ]
+                            }
+
+                    IdentifierToken ->
+                        {
+                            ...info,
+                            index: info.index + 1,
+                            currentBuffer: List.append info.currentBuffer [ token ]
+                        }
+
+                    StringToken ->
+                        {
+                            ...info,
+                            index: info.index + 1,
+                            currentBuffer: List.append info.currentBuffer [ token ]
+                        }
+
+                    default ->
+                        { ...info, index: info.index + 1 }
+        in
+            nextInfo
+
+tokenizeType: List Token -> Result string (List RootTypeTokens)
+tokenizeType tokens =
+    let
+        initialState: TokenizeTypeInfo
+        initialState =
+            {
+                rootTypeTokens: [ ],
+                currentBuffer: [ ],
+                indent: 0,
+                index: 0,
+                tokens: tokens,
+                error: [ ]
+            }
+
+        calculatedState: TokenizeTypeInfo
+        calculatedState =
+            List.statefulFold (\item state -> tokenizeTypeHelp state) initialState tokens
+    in
+        finalTokenizeType calculatedState
+
+typeTokenToString: TypeToken -> string
+typeTokenToString token =
+    case token of
+        ArrowToken ->
+            "->"
+
+        BaseTypeToken ->
+            rootTypeTokensToString [ token ]
+
+        CloseBracketToken ->
+            ")"
+
+        FunctionTypeToken ->
+            rootTypeTokensToString [ token ]
+
+        IdentifierToken ->
+            token.body
+
+        OpenBracketToken ->
+            "("
+
+        StringToken ->
+            `${token.body}`
+
+isNested: RootTypeTokens -> boolean
+isNested token =
+    case token of
+        BaseTypeToken { body } ->
+            body.length != 1
+
+        FunctionTypeToken ->
+            true
+
+rootTypeTokenToString: RootTypeTokens -> string
+rootTypeTokenToString token =
+    case token of
+        BaseTypeToken ->
+            let
+                valueToString: TypeToken -> string
+                valueToString value =
+                    case value of
+                        BaseTypeToken { body } ->
+                            let
+                                inner: List string
+                                inner =
+                                    List.map typeTokenToString body
+                            in
+                                if isNested value then
+                                    List.append [ typeTokenToString OpenBracketToken ] inner
+                                        |> (\x -> List.append x [ typeTokenToString CloseBracketToken ])
+                                        |> (\x -> x.join " ")
+                                else
+                                    inner
+                                        |> (\x -> x.join " ")
+
+                        default ->
+                            typeTokenToString value
+            in
+                List.map valueToString token.body
+                    |> (\x -> x.join " ")
+
+        FunctionTypeToken ->
+            let
+                valueToString: TypeToken -> number -> string
+                valueToString value index =
+                    if index < token.body.length - 1 then
+                        [
+                            typeTokenToString value,
+                            typeTokenToString ArrowToken
+                        ]
+                            |> (\x -> x.join " ")
+                    else
+                        [ typeTokenToString value ]
+                            |> (\x -> x.join " ")
+
+                mapped: List string
+                mapped =
+                    List.indexedMap valueToString token.body
+            in
+                List.append [ typeTokenToString OpenBracketToken ] mapped
+                    |> (\xs -> List.append xs [ typeTokenToString CloseBracketToken ])
+                    |> (\xs -> xs.join " ")
+
+rootTypeTokensToString: List RootTypeTokens -> string
+rootTypeTokensToString tokens =
+    let
+        arrow: string
+        arrow =
+            typeTokenToString ArrowToken
+    in
+        List.map rootTypeTokenToString tokens
+            |> (\x -> x.join ` ${arrow} `)

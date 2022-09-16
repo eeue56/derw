@@ -9,6 +9,7 @@ import {
     ColonToken,
     CommaToken,
     CommentToken,
+    FormatStringToken,
     FunctionTypeToken,
     IdentifierToken,
     KeywordToken,
@@ -23,80 +24,86 @@ import {
     tokenizeType,
     tokensToString,
     WhitespaceToken,
-} from "../tokens";
+} from "../Tokens";
 
 export function testString() {
     const str = `"hello"`;
-    assert.deepStrictEqual(tokenize(str), [ StringToken(`"hello"`) ]);
+    assert.deepStrictEqual(tokenize(str), [ StringToken({ body: `"hello"` }) ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testNestedString() {
     const str = `"\\"hello\\""`;
-    assert.deepStrictEqual(tokenize(str), [ StringToken(`"\\"hello\\""`) ]);
+    assert.deepStrictEqual(tokenize(str), [
+        StringToken({ body: `"\\"hello\\""` }),
+    ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testInt() {
     const str = `1`;
-    assert.deepStrictEqual(tokenize(str), [ LiteralToken(`1`) ]);
+    assert.deepStrictEqual(tokenize(str), [ LiteralToken({ body: `1` }) ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testFloat() {
     const str = `3.14`;
-    assert.deepStrictEqual(tokenize(str), [ LiteralToken(`3.14`) ]);
+    assert.deepStrictEqual(tokenize(str), [ LiteralToken({ body: `3.14` }) ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testArray() {
     const str = `[ 1, 2 ]`;
-    assert.deepStrictEqual(tokenize(str), [ LiteralToken("[ 1, 2 ]") ]);
+    assert.deepStrictEqual(tokenize(str), [
+        LiteralToken({ body: "[ 1, 2 ]" }),
+    ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testNestedArray() {
     const str = `[ [ 1, 2 ], [ 3, 4 ] ]`;
     assert.deepStrictEqual(tokenize(str), [
-        LiteralToken("[ [ 1, 2 ], [ 3, 4 ] ]"),
+        LiteralToken({ body: "[ [ 1, 2 ], [ 3, 4 ] ]" }),
     ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testRange() {
     const str = `[ 1..2 ]`;
-    assert.deepStrictEqual(tokenize(str), [ LiteralToken("[ 1..2 ]") ]);
+    assert.deepStrictEqual(tokenize(str), [
+        LiteralToken({ body: "[ 1..2 ]" }),
+    ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testTrue() {
     const str = `true`;
-    assert.deepStrictEqual(tokenize(str), [ LiteralToken("true") ]);
+    assert.deepStrictEqual(tokenize(str), [ LiteralToken({ body: "true" }) ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testFalse() {
     const str = `false`;
-    assert.deepStrictEqual(tokenize(str), [ LiteralToken("false") ]);
+    assert.deepStrictEqual(tokenize(str), [ LiteralToken({ body: "false" }) ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testBrackets() {
     const str = `( x + y ) + z`;
     assert.deepStrictEqual(tokenize(str), [
-        OpenBracketToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("x"),
-        WhitespaceToken(" "),
-        OperatorToken("+"),
-        WhitespaceToken(" "),
-        IdentifierToken("y"),
-        WhitespaceToken(" "),
-        CloseBracketToken(),
-        WhitespaceToken(" "),
-        OperatorToken("+"),
-        WhitespaceToken(" "),
-        IdentifierToken("z"),
+        OpenBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "x" }),
+        WhitespaceToken({ body: " " }),
+        OperatorToken({ body: "+" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "y" }),
+        WhitespaceToken({ body: " " }),
+        CloseBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        OperatorToken({ body: "+" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "z" }),
     ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
@@ -120,11 +127,11 @@ export function testOperators() {
     ].forEach((op) => {
         const str = `x ${op} y`;
         assert.deepStrictEqual(tokenize(str), [
-            IdentifierToken("x"),
-            WhitespaceToken(" "),
-            OperatorToken(op),
-            WhitespaceToken(" "),
-            IdentifierToken("y"),
+            IdentifierToken({ body: "x" }),
+            WhitespaceToken({ body: " " }),
+            OperatorToken({ body: op }),
+            WhitespaceToken({ body: " " }),
+            IdentifierToken({ body: "y" }),
         ]);
         assert.deepStrictEqual(tokensToString(tokenize(str)), str);
     });
@@ -138,21 +145,21 @@ else
     y
             `.trim();
     assert.deepStrictEqual(tokenize(str), [
-        KeywordToken("if"),
-        WhitespaceToken(" "),
-        LiteralToken("true"),
-        WhitespaceToken(" "),
-        OperatorToken("=="),
-        WhitespaceToken(" "),
-        LiteralToken("true"),
-        WhitespaceToken(" "),
-        KeywordToken("then"),
-        WhitespaceToken("\n    "),
-        IdentifierToken("x"),
-        WhitespaceToken("\n"),
-        KeywordToken("else"),
-        WhitespaceToken("\n    "),
-        IdentifierToken("y"),
+        KeywordToken({ body: "if" }),
+        WhitespaceToken({ body: " " }),
+        LiteralToken({ body: "true" }),
+        WhitespaceToken({ body: " " }),
+        OperatorToken({ body: "==" }),
+        WhitespaceToken({ body: " " }),
+        LiteralToken({ body: "true" }),
+        WhitespaceToken({ body: " " }),
+        KeywordToken({ body: "then" }),
+        WhitespaceToken({ body: "\n    " }),
+        IdentifierToken({ body: "x" }),
+        WhitespaceToken({ body: "\n" }),
+        KeywordToken({ body: "else" }),
+        WhitespaceToken({ body: "\n    " }),
+        IdentifierToken({ body: "y" }),
     ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
@@ -168,36 +175,36 @@ isTrue x =
 `.trim();
 
     assert.deepStrictEqual(tokenize(str), [
-        IdentifierToken("isTrue"),
-        ColonToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("boolean"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("boolean"),
-        WhitespaceToken("\n"),
-        IdentifierToken("isTrue"),
-        WhitespaceToken(" "),
-        IdentifierToken("x"),
-        WhitespaceToken(" "),
-        AssignToken(),
-        WhitespaceToken("\n    "),
-        KeywordToken("if"),
-        WhitespaceToken(" "),
-        IdentifierToken("x"),
-        WhitespaceToken(" "),
-        OperatorToken("=="),
-        WhitespaceToken(" "),
-        IdentifierToken("x"),
-        WhitespaceToken(" "),
-        KeywordToken("then"),
-        WhitespaceToken("\n        "),
-        LiteralToken("true"),
-        WhitespaceToken("\n    "),
-        KeywordToken("else"),
-        WhitespaceToken("\n        "),
-        LiteralToken("false"),
+        IdentifierToken({ body: "isTrue" }),
+        ColonToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "boolean" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "boolean" }),
+        WhitespaceToken({ body: "\n" }),
+        IdentifierToken({ body: "isTrue" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "x" }),
+        WhitespaceToken({ body: " " }),
+        AssignToken({}),
+        WhitespaceToken({ body: "\n    " }),
+        KeywordToken({ body: "if" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "x" }),
+        WhitespaceToken({ body: " " }),
+        OperatorToken({ body: "==" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "x" }),
+        WhitespaceToken({ body: " " }),
+        KeywordToken({ body: "then" }),
+        WhitespaceToken({ body: "\n        " }),
+        LiteralToken({ body: "true" }),
+        WhitespaceToken({ body: "\n    " }),
+        KeywordToken({ body: "else" }),
+        WhitespaceToken({ body: "\n        " }),
+        LiteralToken({ body: "false" }),
     ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
@@ -210,39 +217,101 @@ type Result a e =
 `.trim();
 
     assert.deepStrictEqual(tokenize(str), [
-        KeywordToken("type"),
-        WhitespaceToken(" "),
-        IdentifierToken("Result"),
-        WhitespaceToken(" "),
-        IdentifierToken("a"),
-        WhitespaceToken(" "),
-        IdentifierToken("e"),
-        WhitespaceToken(" "),
-        AssignToken(),
-        WhitespaceToken("\n    "),
-        IdentifierToken("Ok"),
-        WhitespaceToken(" "),
-        OpenCurlyBracesToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("value"),
-        ColonToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("a"),
-        WhitespaceToken(" "),
-        CloseCurlyBracesToken(),
-        WhitespaceToken("\n    "),
-        PipeToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("Err"),
-        WhitespaceToken(" "),
-        OpenCurlyBracesToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("error"),
-        ColonToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("e"),
-        WhitespaceToken(" "),
-        CloseCurlyBracesToken(),
+        KeywordToken({ body: "type" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "Result" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "a" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "e" }),
+        WhitespaceToken({ body: " " }),
+        AssignToken({}),
+        WhitespaceToken({ body: "\n    " }),
+        IdentifierToken({ body: "Ok" }),
+        WhitespaceToken({ body: " " }),
+        OpenCurlyBracesToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "value" }),
+        ColonToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "a" }),
+        WhitespaceToken({ body: " " }),
+        CloseCurlyBracesToken({}),
+        WhitespaceToken({ body: "\n    " }),
+        PipeToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "Err" }),
+        WhitespaceToken({ body: " " }),
+        OpenCurlyBracesToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "error" }),
+        ColonToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "e" }),
+        WhitespaceToken({ body: " " }),
+        CloseCurlyBracesToken({}),
+    ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
+}
+
+export function testLongUnionType() {
+    const str = `
+type UnparsedBlock =
+    ImportBlock { lineStart: number,
+        lines: List string }
+    | ExportBlock { lineStart: number,
+        lines: List string }
+`.trim();
+
+    // console.log(tokenize(str));
+    assert.deepStrictEqual(tokenize(str), [
+        KeywordToken({ body: "type" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "UnparsedBlock" }),
+        WhitespaceToken({ body: " " }),
+        AssignToken({}),
+        WhitespaceToken({ body: "\n    " }),
+        // import block
+        IdentifierToken({ body: "ImportBlock" }),
+        WhitespaceToken({ body: " " }),
+        OpenCurlyBracesToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "lineStart" }),
+        ColonToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "number" }),
+        CommaToken({}),
+        WhitespaceToken({ body: "\n        " }),
+        IdentifierToken({ body: "lines" }),
+        ColonToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "List" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "string" }),
+        WhitespaceToken({ body: " " }),
+        CloseCurlyBracesToken({}),
+        WhitespaceToken({ body: "\n    " }),
+        // export block
+        PipeToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "ExportBlock" }),
+        WhitespaceToken({ body: " " }),
+        OpenCurlyBracesToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "lineStart" }),
+        ColonToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "number" }),
+        CommaToken({}),
+        WhitespaceToken({ body: "\n        " }),
+        IdentifierToken({ body: "lines" }),
+        ColonToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "List" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "string" }),
+        WhitespaceToken({ body: " " }),
+        CloseCurlyBracesToken({}),
     ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
@@ -256,28 +325,28 @@ type alias Person = {
 `.trim();
 
     assert.deepStrictEqual(tokenize(str), [
-        KeywordToken("type"),
-        WhitespaceToken(" "),
-        KeywordToken("alias"),
-        WhitespaceToken(" "),
-        IdentifierToken("Person"),
-        WhitespaceToken(" "),
-        AssignToken(),
-        WhitespaceToken(" "),
-        OpenCurlyBracesToken(),
-        WhitespaceToken("\n    "),
-        IdentifierToken("name"),
-        ColonToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("string"),
-        CommaToken(),
-        WhitespaceToken("\n    "),
-        IdentifierToken("age"),
-        ColonToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("number"),
-        WhitespaceToken("\n"),
-        CloseCurlyBracesToken(),
+        KeywordToken({ body: "type" }),
+        WhitespaceToken({ body: " " }),
+        KeywordToken({ body: "alias" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "Person" }),
+        WhitespaceToken({ body: " " }),
+        AssignToken({}),
+        WhitespaceToken({ body: " " }),
+        OpenCurlyBracesToken({}),
+        WhitespaceToken({ body: "\n    " }),
+        IdentifierToken({ body: "name" }),
+        ColonToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "string" }),
+        CommaToken({}),
+        WhitespaceToken({ body: "\n    " }),
+        IdentifierToken({ body: "age" }),
+        ColonToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "number" }),
+        WhitespaceToken({ body: "\n" }),
+        CloseCurlyBracesToken({}),
     ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
@@ -288,9 +357,9 @@ import fs
 `.trim();
 
     assert.deepStrictEqual(tokenize(str), [
-        KeywordToken("import"),
-        WhitespaceToken(" "),
-        IdentifierToken("fs"),
+        KeywordToken({ body: "import" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "fs" }),
     ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
@@ -301,15 +370,15 @@ import fs exposing (exists)
 `.trim();
 
     assert.deepStrictEqual(tokenize(str), [
-        KeywordToken("import"),
-        WhitespaceToken(" "),
-        IdentifierToken("fs"),
-        WhitespaceToken(" "),
-        KeywordToken("exposing"),
-        WhitespaceToken(" "),
-        OpenBracketToken(),
-        IdentifierToken("exists"),
-        CloseBracketToken(),
+        KeywordToken({ body: "import" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "fs" }),
+        WhitespaceToken({ body: " " }),
+        KeywordToken({ body: "exposing" }),
+        WhitespaceToken({ body: " " }),
+        OpenBracketToken({}),
+        IdentifierToken({ body: "exists" }),
+        CloseBracketToken({}),
     ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
@@ -320,14 +389,14 @@ import fs exposing(exists)
 `.trim();
 
     assert.deepStrictEqual(tokenize(str), [
-        KeywordToken("import"),
-        WhitespaceToken(" "),
-        IdentifierToken("fs"),
-        WhitespaceToken(" "),
-        KeywordToken("exposing"),
-        OpenBracketToken(),
-        IdentifierToken("exists"),
-        CloseBracketToken(),
+        KeywordToken({ body: "import" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "fs" }),
+        WhitespaceToken({ body: " " }),
+        KeywordToken({ body: "exposing" }),
+        OpenBracketToken({}),
+        IdentifierToken({ body: "exists" }),
+        CloseBracketToken({}),
     ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
@@ -338,14 +407,14 @@ exposing (isTrue, isFalse)
 `.trim();
 
     assert.deepStrictEqual(tokenize(str), [
-        KeywordToken("exposing"),
-        WhitespaceToken(" "),
-        OpenBracketToken(),
-        IdentifierToken("isTrue"),
-        CommaToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("isFalse"),
-        CloseBracketToken(),
+        KeywordToken({ body: "exposing" }),
+        WhitespaceToken({ body: " " }),
+        OpenBracketToken({}),
+        IdentifierToken({ body: "isTrue" }),
+        CommaToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "isFalse" }),
+        CloseBracketToken({}),
     ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
@@ -358,22 +427,22 @@ names =
 `.trim();
 
     assert.deepStrictEqual(tokenize(str), [
-        IdentifierToken("names"),
-        ColonToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("List"),
-        WhitespaceToken(" "),
-        OpenBracketToken(),
-        IdentifierToken("List"),
-        WhitespaceToken(" "),
-        IdentifierToken("string"),
-        CloseBracketToken(),
-        WhitespaceToken("\n"),
-        IdentifierToken("names"),
-        WhitespaceToken(" "),
-        AssignToken(),
-        WhitespaceToken("\n    "),
-        LiteralToken(`[ ["noah"], ["david"] ]`),
+        IdentifierToken({ body: "names" }),
+        ColonToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "List" }),
+        WhitespaceToken({ body: " " }),
+        OpenBracketToken({}),
+        IdentifierToken({ body: "List" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "string" }),
+        CloseBracketToken({}),
+        WhitespaceToken({ body: "\n" }),
+        IdentifierToken({ body: "names" }),
+        WhitespaceToken({ body: " " }),
+        AssignToken({}),
+        WhitespaceToken({ body: "\n    " }),
+        LiteralToken({ body: `[ ["noah"], ["david"] ]` }),
     ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
@@ -386,36 +455,36 @@ map fn x =
 `.trim();
 
     assert.deepStrictEqual(tokenize(str), [
-        IdentifierToken("map"),
-        ColonToken(),
-        WhitespaceToken(" "),
-        OpenBracketToken(),
-        IdentifierToken("a"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("b"),
-        CloseBracketToken(),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("a"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("b"),
-        WhitespaceToken("\n"),
-        IdentifierToken("map"),
-        WhitespaceToken(" "),
-        IdentifierToken("fn"),
-        WhitespaceToken(" "),
-        IdentifierToken("x"),
-        WhitespaceToken(" "),
-        AssignToken(),
-        WhitespaceToken("\n    "),
-        IdentifierToken("fn"),
-        WhitespaceToken(" "),
-        IdentifierToken("x"),
+        IdentifierToken({ body: "map" }),
+        ColonToken({}),
+        WhitespaceToken({ body: " " }),
+        OpenBracketToken({}),
+        IdentifierToken({ body: "a" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "b" }),
+        CloseBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "a" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "b" }),
+        WhitespaceToken({ body: "\n" }),
+        IdentifierToken({ body: "map" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "fn" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "x" }),
+        WhitespaceToken({ body: " " }),
+        AssignToken({}),
+        WhitespaceToken({ body: "\n    " }),
+        IdentifierToken({ body: "fn" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "x" }),
     ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 
@@ -423,12 +492,14 @@ map fn x =
     assert.deepStrictEqual(
         tokenizeType(typeParts),
         Ok([
-            FunctionTypeToken([
-                BaseTypeToken([ IdentifierToken("a") ]),
-                BaseTypeToken([ IdentifierToken("b") ]),
-            ]),
-            BaseTypeToken([ IdentifierToken("a") ]),
-            BaseTypeToken([ IdentifierToken("b") ]),
+            FunctionTypeToken({
+                body: [
+                    BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
+                    BaseTypeToken({ body: [ IdentifierToken({ body: "b" }) ] }),
+                ],
+            }),
+            BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
+            BaseTypeToken({ body: [ IdentifierToken({ body: "b" }) ] }),
         ])
     );
 }
@@ -441,24 +512,24 @@ toString buffer =
 `.trim();
 
     assert.deepStrictEqual(tokenize(str), [
-        IdentifierToken("toString"),
-        ColonToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("Buffer"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("string"),
-        WhitespaceToken("\n"),
-        IdentifierToken("toString"),
-        WhitespaceToken(" "),
-        IdentifierToken("buffer"),
-        WhitespaceToken(" "),
-        AssignToken(),
-        WhitespaceToken("\n    "),
-        IdentifierToken("buffer.toString"),
-        OpenBracketToken(),
-        CloseBracketToken(),
+        IdentifierToken({ body: "toString" }),
+        ColonToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "Buffer" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "string" }),
+        WhitespaceToken({ body: "\n" }),
+        IdentifierToken({ body: "toString" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "buffer" }),
+        WhitespaceToken({ body: " " }),
+        AssignToken({}),
+        WhitespaceToken({ body: "\n    " }),
+        IdentifierToken({ body: "buffer.toString" }),
+        OpenBracketToken({}),
+        CloseBracketToken({}),
     ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
@@ -473,32 +544,32 @@ toString buffer =
 `.trim();
 
     assert.deepStrictEqual(tokenize(str), [
-        CommentToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("hello"),
-        WhitespaceToken("\n"),
-        IdentifierToken("toString"),
-        ColonToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("Buffer"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("string"),
-        WhitespaceToken("\n"),
-        IdentifierToken("toString"),
-        WhitespaceToken(" "),
-        IdentifierToken("buffer"),
-        WhitespaceToken(" "),
-        AssignToken(),
-        WhitespaceToken("\n    "),
-        CommentToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("world"),
-        WhitespaceToken("\n    "),
-        IdentifierToken("buffer.toString"),
-        OpenBracketToken(),
-        CloseBracketToken(),
+        CommentToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "hello" }),
+        WhitespaceToken({ body: "\n" }),
+        IdentifierToken({ body: "toString" }),
+        ColonToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "Buffer" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "string" }),
+        WhitespaceToken({ body: "\n" }),
+        IdentifierToken({ body: "toString" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "buffer" }),
+        WhitespaceToken({ body: " " }),
+        AssignToken({}),
+        WhitespaceToken({ body: "\n    " }),
+        CommentToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "world" }),
+        WhitespaceToken({ body: "\n    " }),
+        IdentifierToken({ body: "buffer.toString" }),
+        OpenBracketToken({}),
+        CloseBracketToken({}),
     ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
@@ -515,32 +586,32 @@ toString buffer =
 `.trim();
 
     assert.deepStrictEqual(tokenize(str), [
-        MultilineCommentToken("{-"),
-        WhitespaceToken("\n    "),
-        IdentifierToken("hello"),
-        WhitespaceToken("\n    "),
-        IdentifierToken("world"),
-        WhitespaceToken("\n"),
-        MultilineCommentToken("-}"),
-        WhitespaceToken("\n"),
-        IdentifierToken("toString"),
-        ColonToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("Buffer"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("string"),
-        WhitespaceToken("\n"),
-        IdentifierToken("toString"),
-        WhitespaceToken(" "),
-        IdentifierToken("buffer"),
-        WhitespaceToken(" "),
-        AssignToken(),
-        WhitespaceToken("\n    "),
-        IdentifierToken("buffer.toString"),
-        OpenBracketToken(),
-        CloseBracketToken(),
+        MultilineCommentToken({ body: "{-" }),
+        WhitespaceToken({ body: "\n    " }),
+        IdentifierToken({ body: "hello" }),
+        WhitespaceToken({ body: "\n    " }),
+        IdentifierToken({ body: "world" }),
+        WhitespaceToken({ body: "\n" }),
+        MultilineCommentToken({ body: "-}" }),
+        WhitespaceToken({ body: "\n" }),
+        IdentifierToken({ body: "toString" }),
+        ColonToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "Buffer" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "string" }),
+        WhitespaceToken({ body: "\n" }),
+        IdentifierToken({ body: "toString" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "buffer" }),
+        WhitespaceToken({ body: " " }),
+        AssignToken({}),
+        WhitespaceToken({ body: "\n    " }),
+        IdentifierToken({ body: "buffer.toString" }),
+        OpenBracketToken({}),
+        CloseBracketToken({}),
     ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
@@ -551,8 +622,8 @@ export function testEmptyObjectLiteral() {
 `.trim();
 
     assert.deepStrictEqual(tokenize(str), [
-        OpenCurlyBracesToken(),
-        CloseCurlyBracesToken(),
+        OpenCurlyBracesToken({}),
+        CloseCurlyBracesToken({}),
     ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
@@ -565,37 +636,37 @@ toString buffer =
 `.trim();
 
     assert.deepStrictEqual(tokenize(str), [
-        IdentifierToken("toString"),
-        ColonToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("Buffer"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("string"),
-        WhitespaceToken("\n"),
-        IdentifierToken("toString"),
-        WhitespaceToken(" "),
-        IdentifierToken("buffer"),
-        WhitespaceToken(" "),
-        AssignToken(),
-        WhitespaceToken("\n    "),
-        OpenCurlyBracesToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("name"),
-        ColonToken(),
-        WhitespaceToken(" "),
-        OpenCurlyBracesToken(),
-        WhitespaceToken(" "),
-        CloseCurlyBracesToken(),
-        CommaToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("buffer"),
-        ColonToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("buffer"),
-        WhitespaceToken(" "),
-        CloseCurlyBracesToken(),
+        IdentifierToken({ body: "toString" }),
+        ColonToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "Buffer" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "string" }),
+        WhitespaceToken({ body: "\n" }),
+        IdentifierToken({ body: "toString" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "buffer" }),
+        WhitespaceToken({ body: " " }),
+        AssignToken({}),
+        WhitespaceToken({ body: "\n    " }),
+        OpenCurlyBracesToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "name" }),
+        ColonToken({}),
+        WhitespaceToken({ body: " " }),
+        OpenCurlyBracesToken({}),
+        WhitespaceToken({ body: " " }),
+        CloseCurlyBracesToken({}),
+        CommaToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "buffer" }),
+        ColonToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "buffer" }),
+        WhitespaceToken({ body: " " }),
+        CloseCurlyBracesToken({}),
     ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
@@ -608,28 +679,28 @@ prepend x =
 `.trim();
 
     assert.deepStrictEqual(tokenize(str), [
-        IdentifierToken("prepend"),
-        ColonToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("number"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("List"),
-        WhitespaceToken(" "),
-        IdentifierToken("number"),
-        WhitespaceToken("\n"),
-        IdentifierToken("prepend"),
-        WhitespaceToken(" "),
-        IdentifierToken("x"),
-        WhitespaceToken(" "),
-        AssignToken(),
-        WhitespaceToken("\n    "),
-        IdentifierToken("x"),
-        WhitespaceToken(" "),
-        OperatorToken("::"),
-        WhitespaceToken(" "),
-        LiteralToken("[ 1, 2 ]"),
+        IdentifierToken({ body: "prepend" }),
+        ColonToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "number" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "List" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "number" }),
+        WhitespaceToken({ body: "\n" }),
+        IdentifierToken({ body: "prepend" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "x" }),
+        WhitespaceToken({ body: " " }),
+        AssignToken({}),
+        WhitespaceToken({ body: "\n    " }),
+        IdentifierToken({ body: "x" }),
+        WhitespaceToken({ body: " " }),
+        OperatorToken({ body: "::" }),
+        WhitespaceToken({ body: " " }),
+        LiteralToken({ body: "[ 1, 2 ]" }),
     ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
@@ -642,26 +713,26 @@ prepend x =
 `.trim();
 
     assert.deepStrictEqual(tokenize(str), [
-        IdentifierToken("prepend"),
-        ColonToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("number"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("List"),
-        WhitespaceToken(" "),
-        IdentifierToken("number"),
-        WhitespaceToken("\n"),
-        IdentifierToken("prepend"),
-        WhitespaceToken(" "),
-        IdentifierToken("x"),
-        WhitespaceToken(" "),
-        AssignToken(),
-        WhitespaceToken("\n    "),
-        IdentifierToken("x"),
-        OperatorToken("::"),
-        LiteralToken("[ 1, 2 ]"),
+        IdentifierToken({ body: "prepend" }),
+        ColonToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "number" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "List" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "number" }),
+        WhitespaceToken({ body: "\n" }),
+        IdentifierToken({ body: "prepend" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "x" }),
+        WhitespaceToken({ body: " " }),
+        AssignToken({}),
+        WhitespaceToken({ body: "\n    " }),
+        IdentifierToken({ body: "x" }),
+        OperatorToken({ body: "::" }),
+        LiteralToken({ body: "[ 1, 2 ]" }),
     ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
@@ -674,28 +745,28 @@ typeOfString x =
 `.trim();
 
     assert.deepStrictEqual(tokenize(str), [
-        IdentifierToken("typeOfString"),
-        ColonToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("number"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("List"),
-        WhitespaceToken(" "),
-        IdentifierToken("number"),
-        WhitespaceToken("\n"),
-        IdentifierToken("typeOfString"),
-        WhitespaceToken(" "),
-        IdentifierToken("x"),
-        WhitespaceToken(" "),
-        AssignToken(),
-        WhitespaceToken("\n    "),
-        IdentifierToken("x"),
-        WhitespaceToken(" "),
-        OperatorToken("::"),
-        WhitespaceToken(" "),
-        LiteralToken("[ 1, 2 ]"),
+        IdentifierToken({ body: "typeOfString" }),
+        ColonToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "number" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "List" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "number" }),
+        WhitespaceToken({ body: "\n" }),
+        IdentifierToken({ body: "typeOfString" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "x" }),
+        WhitespaceToken({ body: " " }),
+        AssignToken({}),
+        WhitespaceToken({ body: "\n    " }),
+        IdentifierToken({ body: "x" }),
+        WhitespaceToken({ body: " " }),
+        OperatorToken({ body: "::" }),
+        WhitespaceToken({ body: " " }),
+        LiteralToken({ body: "[ 1, 2 ]" }),
     ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
@@ -708,24 +779,77 @@ typeOfString fn =
 `.trim();
 
     assert.deepStrictEqual(tokenize(str), [
-        IdentifierToken("typeOfString"),
-        ColonToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("fn"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("void"),
-        WhitespaceToken("\n"),
-        IdentifierToken("typeOfString"),
-        WhitespaceToken(" "),
-        IdentifierToken("fn"),
-        WhitespaceToken(" "),
-        AssignToken(),
-        WhitespaceToken("\n    "),
-        IdentifierToken("promise.then"),
-        WhitespaceToken(" "),
-        IdentifierToken("fn"),
+        IdentifierToken({ body: "typeOfString" }),
+        ColonToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "fn" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "void" }),
+        WhitespaceToken({ body: "\n" }),
+        IdentifierToken({ body: "typeOfString" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "fn" }),
+        WhitespaceToken({ body: " " }),
+        AssignToken({}),
+        WhitespaceToken({ body: "\n    " }),
+        IdentifierToken({ body: "promise.then" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "fn" }),
+    ]);
+    assert.deepStrictEqual(tokensToString(tokenize(str)), str);
+}
+
+export function testCase() {
+    const str = `
+sayHello: string -> string
+sayHello name =
+    case name of
+        "Noah" -> "Hi Noah"
+        \`James\` -> "Greetings"
+        default -> "I don't know you"
+`.trim();
+
+    assert.deepStrictEqual(tokenize(str), [
+        IdentifierToken({ body: "sayHello" }),
+        ColonToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "string" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "string" }),
+        WhitespaceToken({ body: "\n" }),
+        IdentifierToken({ body: "sayHello" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "name" }),
+        WhitespaceToken({ body: " " }),
+        AssignToken({}),
+        WhitespaceToken({ body: "\n    " }),
+        KeywordToken({ body: "case" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "name" }),
+        WhitespaceToken({ body: " " }),
+        KeywordToken({ body: "of" }),
+        WhitespaceToken({ body: "\n        " }),
+        StringToken({ body: '"Noah"' }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        StringToken({ body: '"Hi Noah"' }),
+        WhitespaceToken({ body: "\n        " }),
+        FormatStringToken({ body: "`James`" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        StringToken({ body: '"Greetings"' }),
+        WhitespaceToken({ body: "\n        " }),
+        IdentifierToken({ body: "default" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        StringToken({ body: '"I don\'t know you"' }),
     ]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }

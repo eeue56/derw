@@ -12,31 +12,33 @@ import {
     tokenize,
     tokenizeType,
     WhitespaceToken,
-} from "../tokens";
+} from "../Tokens";
 
 export function testPlainFn() {
     const str = `( a -> b )`.trim();
     const tokenized = tokenize(str);
     assert.deepStrictEqual(tokenized, [
-        OpenBracketToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("a"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("b"),
-        WhitespaceToken(" "),
-        CloseBracketToken(),
+        OpenBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "a" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "b" }),
+        WhitespaceToken({ body: " " }),
+        CloseBracketToken({}),
     ]);
 
     const tokenizedType = tokenizeType(tokenized);
     assert.deepStrictEqual(
         tokenizedType,
         Ok([
-            FunctionTypeToken([
-                BaseTypeToken([ IdentifierToken("a") ]),
-                BaseTypeToken([ IdentifierToken("b") ]),
-            ]),
+            FunctionTypeToken({
+                body: [
+                    BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
+                    BaseTypeToken({ body: [ IdentifierToken({ body: "b" }) ] }),
+                ],
+            }),
         ])
     );
 
@@ -48,35 +50,37 @@ export function testPlainMap() {
     const str = `( a -> b ) -> a -> b`.trim();
     const tokenized = tokenize(str);
     assert.deepStrictEqual(tokenized, [
-        OpenBracketToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("a"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("b"),
-        WhitespaceToken(" "),
-        CloseBracketToken(),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("a"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("b"),
+        OpenBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "a" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "b" }),
+        WhitespaceToken({ body: " " }),
+        CloseBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "a" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "b" }),
     ]);
 
     const tokenizedType = tokenizeType(tokenized);
     assert.deepStrictEqual(
         tokenizedType,
         Ok([
-            FunctionTypeToken([
-                BaseTypeToken([ IdentifierToken("a") ]),
-                BaseTypeToken([ IdentifierToken("b") ]),
-            ]),
-            BaseTypeToken([ IdentifierToken("a") ]),
-            BaseTypeToken([ IdentifierToken("b") ]),
+            FunctionTypeToken({
+                body: [
+                    BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
+                    BaseTypeToken({ body: [ IdentifierToken({ body: "b" }) ] }),
+                ],
+            }),
+            BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
+            BaseTypeToken({ body: [ IdentifierToken({ body: "b" }) ] }),
         ])
     );
 
@@ -88,45 +92,51 @@ export function testListMap() {
     const str = `( a -> b ) -> List a -> List b`.trim();
     const tokenized = tokenize(str);
     assert.deepStrictEqual(tokenized, [
-        OpenBracketToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("a"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("b"),
-        WhitespaceToken(" "),
-        CloseBracketToken(),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("List"),
-        WhitespaceToken(" "),
-        IdentifierToken("a"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("List"),
-        WhitespaceToken(" "),
-        IdentifierToken("b"),
+        OpenBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "a" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "b" }),
+        WhitespaceToken({ body: " " }),
+        CloseBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "List" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "a" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "List" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "b" }),
     ]);
 
     const tokenizedType = tokenizeType(tokenized);
     assert.deepStrictEqual(
         tokenizedType,
         Ok([
-            FunctionTypeToken([
-                BaseTypeToken([ IdentifierToken("a") ]),
-                BaseTypeToken([ IdentifierToken("b") ]),
-            ]),
-            BaseTypeToken([
-                IdentifierToken("List"),
-                BaseTypeToken([ IdentifierToken("a") ]),
-            ]),
-            BaseTypeToken([
-                IdentifierToken("List"),
-                BaseTypeToken([ IdentifierToken("b") ]),
-            ]),
+            FunctionTypeToken({
+                body: [
+                    BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
+                    BaseTypeToken({ body: [ IdentifierToken({ body: "b" }) ] }),
+                ],
+            }),
+            BaseTypeToken({
+                body: [
+                    IdentifierToken({ body: "List" }),
+                    BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
+                ],
+            }),
+            BaseTypeToken({
+                body: [
+                    IdentifierToken({ body: "List" }),
+                    BaseTypeToken({ body: [ IdentifierToken({ body: "b" }) ] }),
+                ],
+            }),
         ])
     );
 
@@ -138,28 +148,34 @@ export function testSimpleNestedList() {
     const str = `List ( List a )`.trim();
     const tokenized = tokenize(str);
     assert.deepStrictEqual(tokenized, [
-        IdentifierToken("List"),
-        WhitespaceToken(" "),
-        OpenBracketToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("List"),
-        WhitespaceToken(" "),
-        IdentifierToken("a"),
-        WhitespaceToken(" "),
-        CloseBracketToken(),
+        IdentifierToken({ body: "List" }),
+        WhitespaceToken({ body: " " }),
+        OpenBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "List" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "a" }),
+        WhitespaceToken({ body: " " }),
+        CloseBracketToken({}),
     ]);
 
     const tokenizedType = tokenizeType(tokenized);
     assert.deepStrictEqual(
         tokenizedType,
         Ok([
-            BaseTypeToken([
-                IdentifierToken("List"),
-                BaseTypeToken([
-                    IdentifierToken("List"),
-                    BaseTypeToken([ IdentifierToken("a") ]),
-                ]),
-            ]),
+            BaseTypeToken({
+                body: [
+                    IdentifierToken({ body: "List" }),
+                    BaseTypeToken({
+                        body: [
+                            IdentifierToken({ body: "List" }),
+                            BaseTypeToken({
+                                body: [ IdentifierToken({ body: "a" }) ],
+                            }),
+                        ],
+                    }),
+                ],
+            }),
         ])
     );
 
@@ -171,63 +187,77 @@ export function testNextedListMap() {
     const str = `( a -> b ) -> List ( List a ) -> List ( List b )`.trim();
     const tokenized = tokenize(str);
     assert.deepStrictEqual(tokenized, [
-        OpenBracketToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("a"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("b"),
-        WhitespaceToken(" "),
-        CloseBracketToken(),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("List"),
-        WhitespaceToken(" "),
-        OpenBracketToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("List"),
-        WhitespaceToken(" "),
-        IdentifierToken("a"),
-        WhitespaceToken(" "),
-        CloseBracketToken(),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("List"),
-        WhitespaceToken(" "),
-        OpenBracketToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("List"),
-        WhitespaceToken(" "),
-        IdentifierToken("b"),
-        WhitespaceToken(" "),
-        CloseBracketToken(),
+        OpenBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "a" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "b" }),
+        WhitespaceToken({ body: " " }),
+        CloseBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "List" }),
+        WhitespaceToken({ body: " " }),
+        OpenBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "List" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "a" }),
+        WhitespaceToken({ body: " " }),
+        CloseBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "List" }),
+        WhitespaceToken({ body: " " }),
+        OpenBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "List" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "b" }),
+        WhitespaceToken({ body: " " }),
+        CloseBracketToken({}),
     ]);
 
     const tokenizedType = tokenizeType(tokenized);
     assert.deepStrictEqual(
         tokenizedType,
         Ok([
-            FunctionTypeToken([
-                BaseTypeToken([ IdentifierToken("a") ]),
-                BaseTypeToken([ IdentifierToken("b") ]),
-            ]),
-            BaseTypeToken([
-                IdentifierToken("List"),
-                BaseTypeToken([
-                    IdentifierToken("List"),
-                    BaseTypeToken([ IdentifierToken("a") ]),
-                ]),
-            ]),
-            BaseTypeToken([
-                IdentifierToken("List"),
-                BaseTypeToken([
-                    IdentifierToken("List"),
-                    BaseTypeToken([ IdentifierToken("b") ]),
-                ]),
-            ]),
+            FunctionTypeToken({
+                body: [
+                    BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
+                    BaseTypeToken({ body: [ IdentifierToken({ body: "b" }) ] }),
+                ],
+            }),
+            BaseTypeToken({
+                body: [
+                    IdentifierToken({ body: "List" }),
+                    BaseTypeToken({
+                        body: [
+                            IdentifierToken({ body: "List" }),
+                            BaseTypeToken({
+                                body: [ IdentifierToken({ body: "a" }) ],
+                            }),
+                        ],
+                    }),
+                ],
+            }),
+            BaseTypeToken({
+                body: [
+                    IdentifierToken({ body: "List" }),
+                    BaseTypeToken({
+                        body: [
+                            IdentifierToken({ body: "List" }),
+                            BaseTypeToken({
+                                body: [ IdentifierToken({ body: "b" }) ],
+                            }),
+                        ],
+                    }),
+                ],
+            }),
         ])
     );
 
@@ -239,51 +269,61 @@ export function testListFilterMap() {
     const str = `( a -> Maybe b ) -> List a -> List b`.trim();
     const tokenized = tokenize(str);
     assert.deepStrictEqual(tokenized, [
-        OpenBracketToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("a"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("Maybe"),
-        WhitespaceToken(" "),
-        IdentifierToken("b"),
-        WhitespaceToken(" "),
-        CloseBracketToken(),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("List"),
-        WhitespaceToken(" "),
-        IdentifierToken("a"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("List"),
-        WhitespaceToken(" "),
-        IdentifierToken("b"),
+        OpenBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "a" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "Maybe" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "b" }),
+        WhitespaceToken({ body: " " }),
+        CloseBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "List" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "a" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "List" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "b" }),
     ]);
 
     const tokenizedType = tokenizeType(tokenized);
     assert.deepStrictEqual(
         tokenizedType,
         Ok([
-            FunctionTypeToken([
-                BaseTypeToken([ IdentifierToken("a") ]),
+            FunctionTypeToken({
+                body: [
+                    BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
 
-                BaseTypeToken([
-                    IdentifierToken("Maybe"),
-                    BaseTypeToken([ IdentifierToken("b") ]),
-                ]),
-            ]),
-            BaseTypeToken([
-                IdentifierToken("List"),
-                BaseTypeToken([ IdentifierToken("a") ]),
-            ]),
-            BaseTypeToken([
-                IdentifierToken("List"),
-                BaseTypeToken([ IdentifierToken("b") ]),
-            ]),
+                    BaseTypeToken({
+                        body: [
+                            IdentifierToken({ body: "Maybe" }),
+                            BaseTypeToken({
+                                body: [ IdentifierToken({ body: "b" }) ],
+                            }),
+                        ],
+                    }),
+                ],
+            }),
+            BaseTypeToken({
+                body: [
+                    IdentifierToken({ body: "List" }),
+                    BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
+                ],
+            }),
+            BaseTypeToken({
+                body: [
+                    IdentifierToken({ body: "List" }),
+                    BaseTypeToken({ body: [ IdentifierToken({ body: "b" }) ] }),
+                ],
+            }),
         ])
     );
 
@@ -295,53 +335,63 @@ export function testListFilterMapWithSpaces() {
     const str = ` ( a -> Maybe b ) -> List a -> List b `;
     const tokenized = tokenize(str);
     assert.deepStrictEqual(tokenized, [
-        WhitespaceToken(" "),
-        OpenBracketToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("a"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("Maybe"),
-        WhitespaceToken(" "),
-        IdentifierToken("b"),
-        WhitespaceToken(" "),
-        CloseBracketToken(),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("List"),
-        WhitespaceToken(" "),
-        IdentifierToken("a"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("List"),
-        WhitespaceToken(" "),
-        IdentifierToken("b"),
-        WhitespaceToken(" "),
+        WhitespaceToken({ body: " " }),
+        OpenBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "a" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "Maybe" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "b" }),
+        WhitespaceToken({ body: " " }),
+        CloseBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "List" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "a" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "List" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "b" }),
+        WhitespaceToken({ body: " " }),
     ]);
 
     const tokenizedType = tokenizeType(tokenized);
     assert.deepStrictEqual(
         tokenizedType,
         Ok([
-            FunctionTypeToken([
-                BaseTypeToken([ IdentifierToken("a") ]),
+            FunctionTypeToken({
+                body: [
+                    BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
 
-                BaseTypeToken([
-                    IdentifierToken("Maybe"),
-                    BaseTypeToken([ IdentifierToken("b") ]),
-                ]),
-            ]),
-            BaseTypeToken([
-                IdentifierToken("List"),
-                BaseTypeToken([ IdentifierToken("a") ]),
-            ]),
-            BaseTypeToken([
-                IdentifierToken("List"),
-                BaseTypeToken([ IdentifierToken("b") ]),
-            ]),
+                    BaseTypeToken({
+                        body: [
+                            IdentifierToken({ body: "Maybe" }),
+                            BaseTypeToken({
+                                body: [ IdentifierToken({ body: "b" }) ],
+                            }),
+                        ],
+                    }),
+                ],
+            }),
+            BaseTypeToken({
+                body: [
+                    IdentifierToken({ body: "List" }),
+                    BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
+                ],
+            }),
+            BaseTypeToken({
+                body: [
+                    IdentifierToken({ body: "List" }),
+                    BaseTypeToken({ body: [ IdentifierToken({ body: "b" }) ] }),
+                ],
+            }),
         ])
     );
 
@@ -354,56 +404,76 @@ export function testListFilterMapWithNesting() {
 
     const tokenized = tokenize(str);
     assert.deepStrictEqual(tokenized, [
-        OpenBracketToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("List"),
-        WhitespaceToken(" "),
-        IdentifierToken("a"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        OpenBracketToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("a"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("Maybe"),
-        WhitespaceToken(" "),
-        IdentifierToken("b"),
-        WhitespaceToken(" "),
-        CloseBracketToken(),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("List"),
-        WhitespaceToken(" "),
-        IdentifierToken("b"),
-        WhitespaceToken(" "),
-        CloseBracketToken(),
+        OpenBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "List" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "a" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        OpenBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "a" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "Maybe" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "b" }),
+        WhitespaceToken({ body: " " }),
+        CloseBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "List" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "b" }),
+        WhitespaceToken({ body: " " }),
+        CloseBracketToken({}),
     ]);
 
     const tokenizedType = tokenizeType(tokenized);
     assert.deepStrictEqual(
         tokenizedType,
         Ok([
-            FunctionTypeToken([
-                BaseTypeToken([
-                    IdentifierToken("List"),
-                    BaseTypeToken([ IdentifierToken("a") ]),
-                ]),
-                FunctionTypeToken([
-                    BaseTypeToken([ IdentifierToken("a") ]),
-                    BaseTypeToken([
-                        IdentifierToken("Maybe"),
-                        BaseTypeToken([ IdentifierToken("b") ]),
-                    ]),
-                ]),
-                BaseTypeToken([
-                    IdentifierToken("List"),
-                    BaseTypeToken([ IdentifierToken("b") ]),
-                ]),
-            ]),
+            FunctionTypeToken({
+                body: [
+                    BaseTypeToken({
+                        body: [
+                            IdentifierToken({ body: "List" }),
+                            BaseTypeToken({
+                                body: [ IdentifierToken({ body: "a" }) ],
+                            }),
+                        ],
+                    }),
+                    FunctionTypeToken({
+                        body: [
+                            BaseTypeToken({
+                                body: [ IdentifierToken({ body: "a" }) ],
+                            }),
+                            BaseTypeToken({
+                                body: [
+                                    IdentifierToken({ body: "Maybe" }),
+                                    BaseTypeToken({
+                                        body: [
+                                            IdentifierToken({ body: "b" }),
+                                        ],
+                                    }),
+                                ],
+                            }),
+                        ],
+                    }),
+                    BaseTypeToken({
+                        body: [
+                            IdentifierToken({ body: "List" }),
+                            BaseTypeToken({
+                                body: [ IdentifierToken({ body: "b" }) ],
+                            }),
+                        ],
+                    }),
+                ],
+            }),
         ])
     );
 
@@ -415,46 +485,58 @@ export function testListFilterMapWithRow() {
     const str = `( Maybe Row -> boolean ) -> Maybe Row -> boolean`.trim();
     const tokenized = tokenize(str);
     assert.deepStrictEqual(tokenized, [
-        OpenBracketToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("Maybe"),
-        WhitespaceToken(" "),
-        IdentifierToken("Row"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("boolean"),
-        WhitespaceToken(" "),
-        CloseBracketToken(),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("Maybe"),
-        WhitespaceToken(" "),
-        IdentifierToken("Row"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("boolean"),
+        OpenBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "Maybe" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "Row" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "boolean" }),
+        WhitespaceToken({ body: " " }),
+        CloseBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "Maybe" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "Row" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "boolean" }),
     ]);
 
     const tokenizedType = tokenizeType(tokenized);
     assert.deepStrictEqual(
         tokenizedType,
         Ok([
-            FunctionTypeToken([
-                BaseTypeToken([
-                    IdentifierToken("Maybe"),
-                    BaseTypeToken([ IdentifierToken("Row") ]),
-                ]),
+            FunctionTypeToken({
+                body: [
+                    BaseTypeToken({
+                        body: [
+                            IdentifierToken({ body: "Maybe" }),
+                            BaseTypeToken({
+                                body: [ IdentifierToken({ body: "Row" }) ],
+                            }),
+                        ],
+                    }),
 
-                BaseTypeToken([ IdentifierToken("boolean") ]),
-            ]),
-            BaseTypeToken([
-                IdentifierToken("Maybe"),
-                BaseTypeToken([ IdentifierToken("Row") ]),
-            ]),
-            BaseTypeToken([ IdentifierToken("boolean") ]),
+                    BaseTypeToken({
+                        body: [ IdentifierToken({ body: "boolean" }) ],
+                    }),
+                ],
+            }),
+            BaseTypeToken({
+                body: [
+                    IdentifierToken({ body: "Maybe" }),
+                    BaseTypeToken({
+                        body: [ IdentifierToken({ body: "Row" }) ],
+                    }),
+                ],
+            }),
+            BaseTypeToken({ body: [ IdentifierToken({ body: "boolean" }) ] }),
         ])
     );
 
@@ -467,22 +549,24 @@ export function testEither() {
 
     const tokenized = tokenize(str);
     assert.deepStrictEqual(tokenized, [
-        IdentifierToken("Either"),
-        WhitespaceToken(" "),
-        IdentifierToken("a"),
-        WhitespaceToken(" "),
-        IdentifierToken("b"),
+        IdentifierToken({ body: "Either" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "a" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "b" }),
     ]);
 
     const tokenizedType = tokenizeType(tokenized);
     assert.deepStrictEqual(
         tokenizedType,
         Ok([
-            BaseTypeToken([
-                IdentifierToken("Either"),
-                BaseTypeToken([ IdentifierToken("a") ]),
-                BaseTypeToken([ IdentifierToken("b") ]),
-            ]),
+            BaseTypeToken({
+                body: [
+                    IdentifierToken({ body: "Either" }),
+                    BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
+                    BaseTypeToken({ body: [ IdentifierToken({ body: "b" }) ] }),
+                ],
+            }),
         ])
     );
 
@@ -495,31 +579,37 @@ export function testNestedEither() {
 
     const tokenized = tokenize(str);
     assert.deepStrictEqual(tokenized, [
-        IdentifierToken("Either"),
-        WhitespaceToken(" "),
-        IdentifierToken("a"),
-        WhitespaceToken(" "),
-        OpenBracketToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("List"),
-        WhitespaceToken(" "),
-        IdentifierToken("b"),
-        WhitespaceToken(" "),
-        CloseBracketToken(),
+        IdentifierToken({ body: "Either" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "a" }),
+        WhitespaceToken({ body: " " }),
+        OpenBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "List" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "b" }),
+        WhitespaceToken({ body: " " }),
+        CloseBracketToken({}),
     ]);
 
     const tokenizedType = tokenizeType(tokenized);
     assert.deepStrictEqual(
         tokenizedType,
         Ok([
-            BaseTypeToken([
-                IdentifierToken("Either"),
-                BaseTypeToken([ IdentifierToken("a") ]),
-                BaseTypeToken([
-                    IdentifierToken("List"),
-                    BaseTypeToken([ IdentifierToken("b") ]),
-                ]),
-            ]),
+            BaseTypeToken({
+                body: [
+                    IdentifierToken({ body: "Either" }),
+                    BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
+                    BaseTypeToken({
+                        body: [
+                            IdentifierToken({ body: "List" }),
+                            BaseTypeToken({
+                                body: [ IdentifierToken({ body: "b" }) ],
+                            }),
+                        ],
+                    }),
+                ],
+            }),
         ])
     );
 
@@ -531,29 +621,37 @@ export function testListToList() {
     const str = `List string -> List Person`.trim();
     const tokenized = tokenize(str);
     assert.deepStrictEqual(tokenized, [
-        IdentifierToken("List"),
-        WhitespaceToken(" "),
-        IdentifierToken("string"),
-        WhitespaceToken(" "),
-        ArrowToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("List"),
-        WhitespaceToken(" "),
-        IdentifierToken("Person"),
+        IdentifierToken({ body: "List" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "string" }),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "List" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "Person" }),
     ]);
 
     const tokenizedType = tokenizeType(tokenized);
     assert.deepStrictEqual(
         tokenizedType,
         Ok([
-            BaseTypeToken([
-                IdentifierToken("List"),
-                BaseTypeToken([ IdentifierToken("string") ]),
-            ]),
-            BaseTypeToken([
-                IdentifierToken("List"),
-                BaseTypeToken([ IdentifierToken("Person") ]),
-            ]),
+            BaseTypeToken({
+                body: [
+                    IdentifierToken({ body: "List" }),
+                    BaseTypeToken({
+                        body: [ IdentifierToken({ body: "string" }) ],
+                    }),
+                ],
+            }),
+            BaseTypeToken({
+                body: [
+                    IdentifierToken({ body: "List" }),
+                    BaseTypeToken({
+                        body: [ IdentifierToken({ body: "Person" }) ],
+                    }),
+                ],
+            }),
         ])
     );
 
@@ -565,34 +663,44 @@ export function testQualified() {
     const str = `Loop.RunningProgram model msg ( View msg )`.trim();
     const tokenized = tokenize(str);
     assert.deepStrictEqual(tokenized, [
-        IdentifierToken("Loop.RunningProgram"),
-        WhitespaceToken(" "),
-        IdentifierToken("model"),
-        WhitespaceToken(" "),
-        IdentifierToken("msg"),
-        WhitespaceToken(" "),
-        OpenBracketToken(),
-        WhitespaceToken(" "),
-        IdentifierToken("View"),
-        WhitespaceToken(" "),
-        IdentifierToken("msg"),
-        WhitespaceToken(" "),
-        CloseBracketToken(),
+        IdentifierToken({ body: "Loop.RunningProgram" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "model" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "msg" }),
+        WhitespaceToken({ body: " " }),
+        OpenBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "View" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "msg" }),
+        WhitespaceToken({ body: " " }),
+        CloseBracketToken({}),
     ]);
 
     const tokenizedType = tokenizeType(tokenized);
     assert.deepStrictEqual(
         tokenizedType,
         Ok([
-            BaseTypeToken([
-                IdentifierToken("Loop.RunningProgram"),
-                BaseTypeToken([ IdentifierToken("model") ]),
-                BaseTypeToken([ IdentifierToken("msg") ]),
-                BaseTypeToken([
-                    IdentifierToken("View"),
-                    BaseTypeToken([ IdentifierToken("msg") ]),
-                ]),
-            ]),
+            BaseTypeToken({
+                body: [
+                    IdentifierToken({ body: "Loop.RunningProgram" }),
+                    BaseTypeToken({
+                        body: [ IdentifierToken({ body: "model" }) ],
+                    }),
+                    BaseTypeToken({
+                        body: [ IdentifierToken({ body: "msg" }) ],
+                    }),
+                    BaseTypeToken({
+                        body: [
+                            IdentifierToken({ body: "View" }),
+                            BaseTypeToken({
+                                body: [ IdentifierToken({ body: "msg" }) ],
+                            }),
+                        ],
+                    }),
+                ],
+            }),
         ])
     );
 
@@ -603,12 +711,12 @@ export function testQualified() {
 export function testString() {
     const str = `"hello"`.trim();
     const tokenized = tokenize(str);
-    assert.deepStrictEqual(tokenized, [ StringToken(`"hello"`) ]);
+    assert.deepStrictEqual(tokenized, [ StringToken({ body: `"hello"` }) ]);
 
     const tokenizedType = tokenizeType(tokenized);
     assert.deepStrictEqual(
         tokenizedType,
-        Ok([ BaseTypeToken([ StringToken(`"hello"`) ]) ])
+        Ok([ BaseTypeToken({ body: [ StringToken({ body: `"hello"` }) ] }) ])
     );
 
     const rootTypeString = rootTypeTokensToString((tokenizedType as any).value);

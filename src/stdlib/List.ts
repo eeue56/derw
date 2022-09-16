@@ -1,4 +1,4 @@
-import { kernelLength, kernelEmptyList, kernelSort, kernelSortBy } from "./List_kernel";
+import { kernelLength, kernelEmptyList, kernelSort, kernelSortBy, kernelStatefulFold } from "./List_kernel";
 
 import { Maybe } from "./Maybe";
 
@@ -7,6 +7,7 @@ export { map };
 export { indexedMap };
 export { filter };
 export { foldl };
+export { statefulFold };
 export { foldr };
 export { filterMap };
 export { append };
@@ -35,6 +36,10 @@ function foldl<a, b>(fn: (arg0: a, arg1: b) => b, init: b, xs: a[]): b {
     return xs.reduce(function(a: any, b: any) {
         return fn(b, a);
     }, init);
+}
+
+function statefulFold<item, state>(fn: (arg0: item, arg1: state) => state, init: state, xs: item[]): state {
+    return kernelStatefulFold(fn, init, xs);
 }
 
 function foldr<a, b>(fn: (arg0: a, arg1: b) => b, init: b, xs: a[]): b {
