@@ -121,6 +121,7 @@ function generateListType(args: Type[]): string {
 }
 
 function generateTopLevelType(type_: Type): string {
+    const blank: void = console.log("top level type", JSON.stringify(type_, null, 4));
     switch (type_.kind) {
         case "GenericType": {
             return generateType(type_);
@@ -136,7 +137,23 @@ function generateTopLevelType(type_: Type): string {
                 if (genericArgs.length === 0) {
                     return name;
                 } else {
-                    return `${name} ${genericArgs.map(generateType).join(" ")}`;
+                    function wrapper(newType: Type): string {
+                        switch (newType.kind) {
+                            case "FixedType": {
+                                const { args } = newType;
+                                if (args.length > 0) {
+                                    return `(${generateTopLevelType(newType)})`;
+                                } else {
+                                    return `${generateTopLevelType(newType)}`;
+                                };
+                            }
+                            default: {
+                                return `${generateTopLevelType(newType)}`;
+                            }
+                        }
+                    }
+                    const wrappedArgs: string[] = genericArgs.map(wrapper);
+                    return `${name} ${wrappedArgs.join(" ")}`;
                 };
             };
         }
