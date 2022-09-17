@@ -219,93 +219,12 @@ function parseRootTypeTokens(token: RootTypeTokens): Result<string, Type> {
 }
 
 function parseType(tokens: Token[]): Result<string, Type> {
-    let index = 0;
-
-    while (index < tokens.length) {
-        if (tokens[index].kind === "IdentifierToken") {
-            break;
-        }
-        index++;
+    const tokenizedTypes = tokenizeType(tokens);
+    if (tokenizedTypes.kind === "Err") return tokenizedTypes;
+    if (tokenizedTypes.value.length < 1) {
+        return Err("Expected a type but couldn't find one");
     }
-
-    if (index === tokens.length || tokens[index].kind !== "IdentifierToken") {
-        return Err(
-            `Missing type definition. Got: \`${tokensToString(tokens)}\``
-        );
-    }
-    const rootTypeName = (tokens[index] as IdentifierToken).body;
-
-    if (isBuiltinType(rootTypeName) && rootTypeName !== "any") {
-    } else if (rootTypeName.toLowerCase() === rootTypeName) {
-        return Ok(GenericType(rootTypeName));
-    }
-
-    index++;
-    let buffer: Token[] = [ ];
-    let bracketDepth = 0;
-    let foundSomething = false;
-    const parsedTypes = [ ];
-
-    while (index < tokens.length) {
-        const token = tokens[index];
-
-        switch (token.kind) {
-            case "WhitespaceToken": {
-                if (bracketDepth === 0) {
-                    if (!foundSomething) break;
-                    if (buffer.length === 0) break;
-                    parsedTypes.push(parseType(buffer));
-                    buffer = [ ];
-                } else {
-                    buffer.push(token);
-                }
-                break;
-            }
-
-            case "OpenBracketToken": {
-                bracketDepth++;
-                if (bracketDepth > 1) buffer.push(token);
-                break;
-            }
-
-            case "CloseBracketToken": {
-                bracketDepth--;
-                if (bracketDepth === 0) {
-                    parsedTypes.push(parseType(buffer));
-                    buffer = [ ];
-                } else {
-                    buffer.push(token);
-                }
-                break;
-            }
-
-            case "IdentifierToken": {
-                foundSomething = true;
-                buffer.push(token);
-                break;
-            }
-
-            default: {
-                return Err(
-                    `Expected identifier, brackets, or whitespace, but got ${token.kind}`
-                );
-            }
-        }
-        index++;
-    }
-
-    if (buffer.length > 0) {
-        buffer.forEach((b) => parsedTypes.push(parseType([ b ])));
-    }
-
-    return Ok(
-        FixedType(
-            rootTypeName,
-            parsedTypes
-                .filter((type_) => type_.kind !== "Err")
-                .map((type_) => (type_ as Ok<Type>).value)
-        )
-    );
+    return parseRootTypeTokens(tokenizedTypes.value[0]);
 }
 
 function parseUnionUntaggedType(

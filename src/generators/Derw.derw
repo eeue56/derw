@@ -124,48 +124,43 @@ generateListType args =
 
 generateTopLevelType: Type -> string
 generateTopLevelType type_ =
-    let
-        blank: void
-        blank =
-            console.log "top level type" (JSON.stringify type_ null 4)
-    in
-        case type_ of
-            GenericType ->
-                generateType type_
+    case type_ of
+        GenericType ->
+            generateType type_
 
-            FixedType { name, args } ->
-                if args.length > 0 && args[0].kind == "FixedType" && args[0].args.length > 0 then
-                    `${name} (${args.map(generateTopLevelType).join(" ")})`
-                else
-                    let
-                        genericArgs: List Type
-                        genericArgs =
-                            List.filter (\type_ -> type_.kind == "GenericType" || type_.kind == "FixedType") args
-                    in
-                        if genericArgs.length == 0 then
-                            name
-                        else
-                            let
-                                wrapper: Type -> string
-                                wrapper newType =
-                                    case newType of
-                                        FixedType { args } ->
-                                            if args.length > 0 then
-                                                `(${generateTopLevelType(newType)})`
-                                            else
-                                                `${generateTopLevelType(newType)}`
-
-                                        default ->
+        FixedType { name, args } ->
+            if args.length > 0 && args[0].kind == "FixedType" && args[0].args.length > 0 then
+                `${name} (${args.map(generateTopLevelType).join(" ")})`
+            else
+                let
+                    genericArgs: List Type
+                    genericArgs =
+                        List.filter (\type_ -> type_.kind == "GenericType" || type_.kind == "FixedType") args
+                in
+                    if genericArgs.length == 0 then
+                        name
+                    else
+                        let
+                            wrapper: Type -> string
+                            wrapper newType =
+                                case newType of
+                                    FixedType { args } ->
+                                        if args.length > 0 then
+                                            `(${generateTopLevelType(newType)})`
+                                        else
                                             `${generateTopLevelType(newType)}`
 
-                                wrappedArgs: List string
-                                wrappedArgs =
-                                    genericArgs.map wrapper
-                            in
-                                `${name} ${wrappedArgs.join(" ")}`
+                                    default ->
+                                        `${generateTopLevelType(newType)}`
 
-            FunctionType { args } ->
-                `(${args.map(generateTopLevelType).join(" -> ")})`
+                            wrappedArgs: List string
+                            wrappedArgs =
+                                genericArgs.map wrapper
+                        in
+                            `${name} ${wrappedArgs.join(" ")}`
+
+        FunctionType { args } ->
+            `(${args.map(generateTopLevelType).join(" -> ")})`
 
 generateType: Type -> string
 generateType type_ =

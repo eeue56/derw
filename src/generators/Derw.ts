@@ -121,7 +121,6 @@ function generateListType(args: Type[]): string {
 }
 
 function generateTopLevelType(type_: Type): string {
-    const blank: void = console.log("top level type", JSON.stringify(type_, null, 4));
     switch (type_.kind) {
         case "GenericType": {
             return generateType(type_);

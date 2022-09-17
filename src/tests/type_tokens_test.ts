@@ -490,6 +490,43 @@ export function testEither() {
     assert.deepStrictEqual(rootTypeString, str.trim());
 }
 
+export function testNestedEither() {
+    const str = `Either a ( List b )`;
+
+    const tokenized = tokenize(str);
+    assert.deepStrictEqual(tokenized, [
+        IdentifierToken("Either"),
+        WhitespaceToken(" "),
+        IdentifierToken("a"),
+        WhitespaceToken(" "),
+        OpenBracketToken(),
+        WhitespaceToken(" "),
+        IdentifierToken("List"),
+        WhitespaceToken(" "),
+        IdentifierToken("b"),
+        WhitespaceToken(" "),
+        CloseBracketToken(),
+    ]);
+
+    const tokenizedType = tokenizeType(tokenized);
+    assert.deepStrictEqual(
+        tokenizedType,
+        Ok([
+            BaseTypeToken([
+                IdentifierToken("Either"),
+                BaseTypeToken([ IdentifierToken("a") ]),
+                BaseTypeToken([
+                    IdentifierToken("List"),
+                    BaseTypeToken([ IdentifierToken("b") ]),
+                ]),
+            ]),
+        ])
+    );
+
+    const rootTypeString = rootTypeTokensToString((tokenizedType as any).value);
+    assert.deepStrictEqual(rootTypeString, str.trim());
+}
+
 export function testListToList() {
     const str = `List string -> List Person`.trim();
     const tokenized = tokenize(str);
