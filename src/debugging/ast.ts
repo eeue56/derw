@@ -32,6 +32,9 @@ function typeToString(type_: Type): string {
         case "GenericType": {
             return `GenericType("${type_.name}")`;
         }
+        case "ObjectLiteralType": {
+            return `ObjectLiteralType(${JSON.stringify(type_.properties)})`;
+        }
     }
 }
 

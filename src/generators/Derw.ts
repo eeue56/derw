@@ -32,6 +32,7 @@ import { Tag, UnionType, UnionUntaggedType, Type, TagArg, Block, Constructor, Ex
 import { prefixLines } from "./Common";
 
 export { generateDerw };
+export { generateExpression };
 
 function generateTag(tag: Tag): string {
     function generateTypeArg(arg: TagArg): string {
@@ -160,6 +161,9 @@ function generateTopLevelType(type_: Type): string {
             const { args } = type_;
             return `(${args.map(generateTopLevelType).join(" -> ")})`;
         }
+        case "ObjectLiteralType": {
+            return ``;
+        }
     }
 }
 
@@ -187,6 +191,9 @@ function generateType(type_: Type): string {
         case "FunctionType": {
             const { args } = type_;
             return `(${args.map(generateType).join(" -> ")})`;
+        }
+        case "ObjectLiteralType": {
+            return ``;
         }
     }
 }

@@ -128,6 +128,9 @@ function generateTopLevelType(type_: Type): string {
         case "FunctionType": {
             return generateType(type_);
         }
+        case "ObjectLiteralType": {
+            return ``;
+        }
     }
 }
 
@@ -155,6 +158,9 @@ function generateType(type_: Type): string {
         case "FunctionType": {
             const { args } = type_;
             return `(${args.map(generateType).join(" -> ")})`;
+        }
+        case "ObjectLiteralType": {
+            return ``;
         }
     }
 }

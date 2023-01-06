@@ -1,5 +1,6 @@
 import { Err, Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
 import { isBuiltinType } from "./builtins";
+import { suggestName } from "./errors/distance";
 import {
     Addition,
     And,
@@ -34,14 +35,19 @@ import {
     ModuleReference,
     Multiplication,
     ObjectLiteral,
+    ObjectLiteralType,
     Or,
     Property,
     RightPipe,
     StringValue,
     Subtraction,
+    Tag,
+    TagArg,
     Type,
     TypeAlias,
     TypedBlock,
+    UnionType,
+    UnionUntaggedType,
     Value,
 } from "./types";
 
@@ -126,16 +132,116 @@ function doesFunctionTypeContainType(
     return false;
 }
 
+function isSameObjectLiteralType(
+    first: ObjectLiteralType,
+    second: ObjectLiteralType
+): boolean {
+    const processedNames = [ ];
+
+    for (const firstPropertyName of Object.keys(first.properties)) {
+        if (second.properties[firstPropertyName]) {
+            // when the types don't match between first and second
+            if (
+                !isSameType(
+                    first.properties[firstPropertyName],
+                    second.properties[firstPropertyName],
+                    false
+                )
+            ) {
+                return false;
+            }
+            processedNames.push(firstPropertyName);
+        } else {
+            // when one property exists on first but not second
+            return false;
+        }
+    }
+
+    for (const secondPropertyName of Object.keys(second.properties)) {
+        if (!processedNames.includes(secondPropertyName)) {
+            // when one property exists on second but not first
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function isSameObjectLiteralTypeAlias(
+    objectLiteral: ObjectLiteralType,
+    expectedType: Type,
+    typedBlocks: TypedBlock[]
+): boolean {
+    const expectedTypeAlias = getTypeAlias(expectedType, typedBlocks);
+    if (expectedTypeAlias.kind === "Err") return false;
+    const typeAlias = expectedTypeAlias.value;
+
+    const processedNames = [ ];
+
+    for (const property of typeAlias.properties) {
+        if (objectLiteral.properties[property.name]) {
+            if (
+                !isSameType(
+                    property.type,
+                    objectLiteral.properties[property.name],
+                    false
+                )
+            ) {
+                return false;
+            } else {
+                processedNames.push(property.name);
+            }
+        } else {
+            return false;
+        }
+    }
+
+    for (const property of Object.keys(objectLiteral.properties)) {
+        if (!processedNames.includes(property)) {
+            // when one property exists on second but not first
+            return false;
+        }
+    }
+
+    return true;
+}
+
 export function isSameType(
     first: Type,
     second: Type,
     topLevel: boolean
 ): boolean {
     if (
-        (first.kind !== "FunctionType" && first.name === "any") ||
-        (second.kind !== "FunctionType" && second.name === "any")
-    )
+        first.kind === "ObjectLiteralType" &&
+        second.kind === "ObjectLiteralType"
+    ) {
+        return isSameObjectLiteralType(first, second);
+    }
+
+    if (
+        (first.kind !== "FunctionType" &&
+            first.kind !== "ObjectLiteralType" &&
+            first.name === "any") ||
+        (second.kind !== "FunctionType" &&
+            second.kind !== "ObjectLiteralType" &&
+            second.name === "any")
+    ) {
         return true;
+    }
+
+    if (
+        (first.kind === "ObjectLiteralType" && second.kind === "GenericType") ||
+        (second.kind === "ObjectLiteralType" && first.kind === "GenericType")
+    ) {
+        return true;
+    }
+
+    if (
+        first.kind === "ObjectLiteralType" ||
+        second.kind === "ObjectLiteralType"
+    ) {
+        return false;
+    }
 
     if (first.kind !== second.kind) {
         if (first.kind === "FunctionType" && second.kind !== "FunctionType") {
@@ -185,6 +291,11 @@ function inferValue(value: Value): Type {
     if (parseInt(value.body, 10)) {
         return FixedType("number", [ ]);
     }
+
+    if (value.body === "true" || value.body === "false") {
+        return FixedType("boolean", [ ]);
+    }
+
     return FixedType("any", [ ]);
 }
 
@@ -210,15 +321,31 @@ function reduceTypes(types: Type[]): Type[] {
 
 function inferListValue(
     value: ListValue,
-    typedBlocks: TypedBlock[]
+    expectedType: Type,
+    typedBlocks: TypedBlock[],
+    imports: Import[]
 ): Result<string, Type> {
     if (value.items.length === 0)
         return Ok(FixedType("List", [ FixedType("any", [ ]) ]));
 
     let types: Type[] = [ ];
 
+    let actualExpectedType: Type = FixedType("_Inferred", [ ]);
+    if (
+        expectedType.kind === "FixedType" &&
+        expectedType.name === "List" &&
+        expectedType.args.length > 0
+    ) {
+        actualExpectedType = expectedType.args[0];
+    }
+
     for (const item of value.items) {
-        const inferred = inferType(item, typedBlocks);
+        const inferred = inferType(
+            item,
+            actualExpectedType,
+            typedBlocks,
+            imports
+        );
         if (inferred.kind === "Err") return inferred;
         types.push(inferred.value);
     }
@@ -232,14 +359,33 @@ function inferListRange(value: ListRange): Type {
     return FixedType("List", [ FixedType("number", [ ]) ]);
 }
 
-function inferObjectLiteral(
+function objectLiteralTypeAlias(
     value: ObjectLiteral,
-    typedBlocks: TypedBlock[]
-): Result<string, Type> {
+    expectedType: Type,
+    typedBlocks: TypedBlock[],
+    imports: Import[]
+): TypeAlias {
+    const expectedTypeAlias = getTypeAlias(expectedType, typedBlocks);
+
     const typeAlias = TypeAlias(
         FixedType("Inferred", [ ]),
         value.fields.map((field) => {
-            const inferred = inferType(field.value, typedBlocks);
+            const listOfExpected =
+                expectedTypeAlias.kind === "Ok"
+                    ? expectedTypeAlias.value.properties.filter(
+                          (prop) => prop.name === field.name
+                      )
+                    : [ ];
+            const expected =
+                listOfExpected.length === 0
+                    ? FixedType("_Inferred", [ ])
+                    : listOfExpected[0].type;
+            const inferred = inferType(
+                field.value,
+                expected,
+                typedBlocks,
+                imports
+            );
             if (inferred.kind === "Err") {
                 return Property(field.name, GenericType("any"));
             }
@@ -248,10 +394,61 @@ function inferObjectLiteral(
         })
     );
 
+    return typeAlias;
+}
+
+function objectLiteralType(typeAlias: TypeAlias): ObjectLiteralType {
+    const fields: Record<string, Type> = {};
+
+    for (const prop of typeAlias.properties) {
+        fields[prop.name] = prop.type;
+    }
+
+    return ObjectLiteralType(fields);
+}
+
+function typeAliasFromObjectLiteralType(
+    objectLiteral: ObjectLiteralType
+): TypeAlias {
+    const fields: Property[] = [ ];
+
+    for (const name of Object.keys(objectLiteral.properties)) {
+        const type_ = objectLiteral.properties[name];
+        fields.push(Property(name, type_));
+    }
+
+    return TypeAlias(FixedType("Inferred", [ ]), fields);
+}
+
+function inferObjectLiteral(
+    value: ObjectLiteral,
+    expectedType: Type,
+    typedBlocks: TypedBlock[],
+    imports: Import[]
+): Result<string, Type> {
+    if (value.base !== null) {
+        return Ok(FixedType("any", [ ]));
+    }
+
+    const typeAlias = objectLiteralTypeAlias(
+        value,
+        expectedType,
+        typedBlocks,
+        imports
+    );
+
+    if (
+        expectedType.kind !== "FixedType" ||
+        expectedType.name === "_Inferred"
+    ) {
+        return Ok(objectLiteralType(typeAlias));
+    }
+
     for (const block of typedBlocks) {
         if (
             block.kind != "TypeAlias" ||
-            block.properties.length !== typeAlias.properties.length
+            block.properties.length !== typeAlias.properties.length ||
+            expectedType.name !== block.type.name
         ) {
             continue;
         }
@@ -277,15 +474,27 @@ function inferObjectLiteral(
         }
     }
 
-    return Ok(FixedType("any", [ ]));
+    return Ok(objectLiteralType(typeAlias));
 }
 
 function inferIfStatement(
     value: IfStatement,
-    typedBlocks: TypedBlock[]
+    expectedType: Type,
+    typedBlocks: TypedBlock[],
+    imports: Import[]
 ): Result<string, Type> {
-    const ifBranch = inferType(value.ifBody, typedBlocks);
-    const elseBranch = inferType(value.elseBody, typedBlocks);
+    const ifBranch = inferType(
+        value.ifBody,
+        expectedType,
+        typedBlocks,
+        imports
+    );
+    const elseBranch = inferType(
+        value.elseBody,
+        expectedType,
+        typedBlocks,
+        imports
+    );
 
     if (ifBranch.kind === "Err") return ifBranch;
     if (elseBranch.kind === "Err") return elseBranch;
@@ -302,19 +511,23 @@ function inferIfStatement(
 
 function inferBranch(
     value: Branch,
-    typedBlocks: TypedBlock[]
+    expectedType: Type,
+    typedBlocks: TypedBlock[],
+    imports: Import[]
 ): Result<string, Type> {
-    return inferType(value.body, typedBlocks);
+    return inferType(value.body, expectedType, typedBlocks, imports);
 }
 
 function inferCaseStatement(
     value: CaseStatement,
-    typedBlocks: TypedBlock[]
+    expectedType: Type,
+    typedBlocks: TypedBlock[],
+    imports: Import[]
 ): Result<string, Type> {
     const typesToReduce = [ ];
 
     for (const branch of value.branches) {
-        const inf = inferBranch(branch, typedBlocks);
+        const inf = inferBranch(branch, expectedType, typedBlocks, imports);
         if (inf.kind === "Err") return inf;
         typesToReduce.push(inf.value);
     }
@@ -327,10 +540,12 @@ function inferCaseStatement(
 
 function inferAddition(
     value: Addition,
-    typedBlocks: TypedBlock[]
+    expectedType: Type,
+    typedBlocks: TypedBlock[],
+    imports: Import[]
 ): Result<string, Type> {
-    const left = inferType(value.left, typedBlocks);
-    const right = inferType(value.right, typedBlocks);
+    const left = inferType(value.left, expectedType, typedBlocks, imports);
+    const right = inferType(value.right, expectedType, typedBlocks, imports);
 
     if (left.kind === "Err") return left;
     if (right.kind === "Err") return right;
@@ -346,10 +561,12 @@ function inferAddition(
 
 function inferSubtraction(
     value: Subtraction,
-    typedBlocks: TypedBlock[]
+    expectedType: Type,
+    typedBlocks: TypedBlock[],
+    imports: Import[]
 ): Result<string, Type> {
-    const left = inferType(value.left, typedBlocks);
-    const right = inferType(value.right, typedBlocks);
+    const left = inferType(value.left, expectedType, typedBlocks, imports);
+    const right = inferType(value.right, expectedType, typedBlocks, imports);
 
     if (left.kind === "Err") return left;
     if (right.kind === "Err") return right;
@@ -365,10 +582,12 @@ function inferSubtraction(
 
 function inferMultiplication(
     value: Multiplication,
-    typedBlocks: TypedBlock[]
+    expectedType: Type,
+    typedBlocks: TypedBlock[],
+    imports: Import[]
 ): Result<string, Type> {
-    const left = inferType(value.left, typedBlocks);
-    const right = inferType(value.right, typedBlocks);
+    const left = inferType(value.left, expectedType, typedBlocks, imports);
+    const right = inferType(value.right, expectedType, typedBlocks, imports);
 
     if (left.kind === "Err") return left;
     if (right.kind === "Err") return right;
@@ -384,10 +603,12 @@ function inferMultiplication(
 
 function inferDivision(
     value: Division,
-    typedBlocks: TypedBlock[]
+    expectedType: Type,
+    typedBlocks: TypedBlock[],
+    imports: Import[]
 ): Result<string, Type> {
-    const left = inferType(value.left, typedBlocks);
-    const right = inferType(value.right, typedBlocks);
+    const left = inferType(value.left, expectedType, typedBlocks, imports);
+    const right = inferType(value.right, expectedType, typedBlocks, imports);
 
     if (left.kind === "Err") return left;
     if (right.kind === "Err") return right;
@@ -401,9 +622,14 @@ function inferDivision(
     return left;
 }
 
-function inferMod(value: Mod, typedBlocks: TypedBlock[]): Result<string, Type> {
-    const left = inferType(value.left, typedBlocks);
-    const right = inferType(value.right, typedBlocks);
+function inferMod(
+    value: Mod,
+    expectedType: Type,
+    typedBlocks: TypedBlock[],
+    imports: Import[]
+): Result<string, Type> {
+    const left = inferType(value.left, expectedType, typedBlocks, imports);
+    const right = inferType(value.right, expectedType, typedBlocks, imports);
 
     if (left.kind === "Err") return left;
     if (right.kind === "Err") return right;
@@ -419,27 +645,33 @@ function inferMod(value: Mod, typedBlocks: TypedBlock[]): Result<string, Type> {
 
 function inferLeftPipe(
     value: LeftPipe,
-    typedBlocks: TypedBlock[]
+    expectedType: Type,
+    typedBlocks: TypedBlock[],
+    imports: Import[]
 ): Result<string, Type> {
-    const right = inferType(value.right, typedBlocks);
+    const right = inferType(value.right, expectedType, typedBlocks, imports);
 
     return right;
 }
 
 function inferRightPipe(
     value: RightPipe,
-    typedBlocks: TypedBlock[]
+    expectedType: Type,
+    typedBlocks: TypedBlock[],
+    imports: Import[]
 ): Result<string, Type> {
-    const left = inferType(value.left, typedBlocks);
+    const left = inferType(value.left, expectedType, typedBlocks, imports);
 
     return left;
 }
 
 function inferModuleReference(
     value: ModuleReference,
-    typedBlocks: TypedBlock[]
+    expectedType: Type,
+    typedBlocks: TypedBlock[],
+    imports: Import[]
 ): Result<string, Type> {
-    return inferType(value.value, typedBlocks);
+    return inferType(value.value, expectedType, typedBlocks, imports);
 }
 
 function inferFunctionCall(value: FunctionCall): Type {
@@ -454,17 +686,132 @@ function inferLambdaCall(value: LambdaCall): Type {
     return FixedType("any", [ ]);
 }
 
-function inferConstructor(value: Constructor, typedBlocks: TypedBlock[]): Type {
+function tagNames(typedBlocks: TypedBlock[]): string[] {
+    const names = [ ];
+
+    for (const block of typedBlocks) {
+        switch (block.kind) {
+            case "TypeAlias": {
+                break;
+            }
+            case "UnionType": {
+                for (const tag of block.tags) {
+                    names.push(tag.name);
+                }
+                break;
+            }
+            case "UnionUntaggedType": {
+                break;
+            }
+        }
+    }
+    return names;
+}
+
+function replaceGenerics(
+    type_: Type,
+    replacements: Record<string, Type>
+): Type {
+    if (
+        type_.kind === "FunctionType" ||
+        type_.kind === "ObjectLiteralType" ||
+        type_.kind === "GenericType"
+    ) {
+        return type_;
+    }
+
+    return {
+        ...type_,
+        args: type_.args.map((arg: Type): Type => {
+            if (arg.kind === "GenericType" && arg.name in replacements) {
+                return replacements[arg.name];
+            } else {
+                return arg;
+            }
+        }),
+    };
+}
+
+function inferConstructor(
+    value: Constructor,
+    expectedType: Type,
+    typedBlocks: TypedBlock[],
+    imports: Import[]
+): Result<string, Type> {
+    let seenNameInOtherBlock = false;
     for (const block of typedBlocks) {
         if (block.kind === "UnionType") {
             for (const tag of block.tags) {
                 if (value.constructor === tag.name) {
-                    return block.type;
+                    const valid = validateConstructor(
+                        value.pattern,
+                        expectedType,
+                        tag,
+                        block,
+                        typedBlocks,
+                        imports
+                    );
+
+                    const inferredGenericTypes: Record<string, Type> = {};
+
+                    for (const arg of tag.args) {
+                        if (arg.type.kind === "GenericType") {
+                            for (const field of value.pattern.fields) {
+                                if (arg.name === field.name) {
+                                    const fieldIsValid = inferType(
+                                        field.value,
+                                        arg.type,
+                                        typedBlocks,
+                                        imports
+                                    );
+                                    if (fieldIsValid.kind === "Ok") {
+                                        if (
+                                            inferredGenericTypes[
+                                                arg.type.name
+                                            ] !== fieldIsValid.value
+                                        ) {
+                                            inferredGenericTypes[
+                                                arg.type.name
+                                            ] = fieldIsValid.value;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (valid.kind === "Err") return valid;
+
+                    return Ok(
+                        replaceGenerics(block.type, inferredGenericTypes)
+                    );
                 }
+            }
+        } else if (block.kind === "TypeAlias") {
+            if (value.constructor === block.type.name) {
+                seenNameInOtherBlock = true;
             }
         }
     }
-    return FixedType("any", [ ]);
+
+    if (isImportedConstructor(value, imports)) {
+        return Ok(GenericType("any"));
+    }
+
+    const suggestions = suggestName(value.constructor, tagNames(typedBlocks));
+
+    const suggestionsErrorMessage =
+        suggestions.length === 0
+            ? ""
+            : `\nPerhaps you meant one of these? ${suggestions.join(", ")}`;
+
+    const hasBeenSeenErrorMesssage = seenNameInOtherBlock
+        ? `\n${value.constructor} refers to a type alias, not a union type constructor.`
+        : "";
+
+    return Err(
+        `Did not find constructor ${value.constructor} in scope.${hasBeenSeenErrorMesssage}${suggestionsErrorMessage}`
+    );
 }
 
 function inferEquality(value: Equality): Type {
@@ -501,12 +848,31 @@ function inferOr(value: Or): Type {
 
 function inferListPrepend(
     value: ListPrepend,
-    typedBlocks: TypedBlock[]
+    expectedType: Type,
+    typedBlocks: TypedBlock[],
+    imports: Import[]
 ): Result<string, Type> {
-    const leftInfer = inferType(value.left, typedBlocks);
-    const rightInfer = inferType(value.right, typedBlocks);
+    const leftInfer = inferType(value.left, expectedType, typedBlocks, imports);
+    const rightInfer = inferType(
+        value.right,
+        expectedType,
+        typedBlocks,
+        imports
+    );
 
-    if (leftInfer.kind === "Err") return leftInfer;
+    if (leftInfer.kind === "Err") {
+        if (value.left.kind === "ObjectLiteral") {
+            const err = validateObjectLiteral(
+                value.left,
+                FixedType("_Inferred", [ ]),
+                typedBlocks,
+                imports
+            );
+
+            if (err.kind === "Err") return err;
+        }
+        return leftInfer;
+    }
     if (rightInfer.kind === "Err") return rightInfer;
 
     if (
@@ -515,10 +881,16 @@ function inferListPrepend(
             rightInfer.value.name === "any")
     )
         return Ok(FixedType("List", [ GenericType("any") ]));
-    if (rightInfer.value.kind === "FunctionType")
+    if (rightInfer.value.kind === "FunctionType") {
         return Err(
             "Inferred list on right hand side of :: to be a function, not a list"
         );
+    }
+    if (rightInfer.value.kind === "ObjectLiteralType") {
+        return Err(
+            "Inferred list on right hand side of :: to be an object literal, not a list"
+        );
+    }
 
     if (rightInfer.value.name === "List" && rightInfer.value.args.length > 0) {
         const isEmptyList =
@@ -551,7 +923,9 @@ function inferListPrepend(
 
 export function inferType(
     expression: Expression,
-    typedBlocks: TypedBlock[]
+    expectedType: Type,
+    typedBlocks: TypedBlock[],
+    imports: Import[]
 ): Result<string, Type> {
     switch (expression.kind) {
         case "Value":
@@ -561,37 +935,97 @@ export function inferType(
         case "FormatStringValue":
             return Ok(inferFormatStringValue(expression));
         case "ListValue":
-            return inferListValue(expression, typedBlocks);
+            return inferListValue(
+                expression,
+                expectedType,
+                typedBlocks,
+                imports
+            );
         case "ListRange":
             return Ok(inferListRange(expression));
         case "ObjectLiteral":
-            return inferObjectLiteral(expression, typedBlocks);
+            return inferObjectLiteral(
+                expression,
+                expectedType,
+                typedBlocks,
+                imports
+            );
         case "IfStatement":
-            return inferIfStatement(expression, typedBlocks);
+            return inferIfStatement(
+                expression,
+                expectedType,
+                typedBlocks,
+                imports
+            );
         case "CaseStatement":
-            return inferCaseStatement(expression, typedBlocks);
+            return inferCaseStatement(
+                expression,
+                expectedType,
+                typedBlocks,
+                imports
+            );
         case "Addition":
-            return inferAddition(expression, typedBlocks);
+            return inferAddition(
+                expression,
+                expectedType,
+                typedBlocks,
+                imports
+            );
         case "Subtraction":
-            return inferSubtraction(expression, typedBlocks);
+            return inferSubtraction(
+                expression,
+                expectedType,
+                typedBlocks,
+                imports
+            );
         case "Multiplication":
-            return inferMultiplication(expression, typedBlocks);
+            return inferMultiplication(
+                expression,
+                expectedType,
+                typedBlocks,
+                imports
+            );
         case "Division":
-            return inferDivision(expression, typedBlocks);
+            return inferDivision(
+                expression,
+                expectedType,
+                typedBlocks,
+                imports
+            );
         case "Mod":
-            return inferMod(expression, typedBlocks);
+            return inferMod(expression, expectedType, typedBlocks, imports);
         case "And":
             return Ok(inferAnd(expression));
         case "Or":
             return Ok(inferOr(expression));
         case "ListPrepend":
-            return inferListPrepend(expression, typedBlocks);
+            return inferListPrepend(
+                expression,
+                expectedType,
+                typedBlocks,
+                imports
+            );
         case "LeftPipe":
-            return inferLeftPipe(expression, typedBlocks);
+            return inferLeftPipe(
+                expression,
+                expectedType,
+                typedBlocks,
+                imports
+            );
         case "RightPipe":
-            return inferRightPipe(expression, typedBlocks);
+            return inferRightPipe(
+                expression,
+                expectedType,
+                typedBlocks,
+                imports
+            );
         case "ModuleReference":
-            return inferModuleReference(expression, typedBlocks);
+            return inferModuleReference(
+                expression,
+                expectedType,
+                typedBlocks,
+                imports
+            );
         case "FunctionCall":
             return Ok(inferFunctionCall(expression));
         case "Lambda":
@@ -599,7 +1033,12 @@ export function inferType(
         case "LambdaCall":
             return Ok(inferLambdaCall(expression));
         case "Constructor":
-            return Ok(inferConstructor(expression, typedBlocks));
+            return inferConstructor(
+                expression,
+                expectedType,
+                typedBlocks,
+                imports
+            );
         case "Equality":
             return Ok(inferEquality(expression));
         case "InEquality":
@@ -630,6 +1069,13 @@ function typeToString(type: Type): string {
         case "FunctionType": {
             return type.args.map(typeToString).join("->");
         }
+        case "ObjectLiteralType": {
+            const out = [ ];
+            for (const name of Object.keys(type.properties)) {
+                out.push(`${name}: ${typeToString(type.properties[name])}`);
+            }
+            return "{ " + out.join(", ") + " }";
+        }
     }
 }
 
@@ -639,6 +1085,7 @@ function typeExistsInNamespace(
     imports: Import[]
 ): boolean {
     if (type.kind === "FunctionType") return true;
+    if (type.kind === "ObjectLiteralType") return true;
     if (isBuiltinType(type.name)) return true;
     if (type.name === "List") return true;
     if (type.kind === "GenericType") return true;
@@ -913,6 +1360,851 @@ export function validateAllCasesCovered(
     return invalidBranches;
 }
 
+export function validateObjectLiteralType(
+    objectLiteralType: ObjectLiteralType,
+    expectedType: Type,
+    typedBlocks: TypedBlock[],
+    imports: Import[]
+): Result<string, null> {
+    const typeAlias = typeAliasFromObjectLiteralType(objectLiteralType);
+
+    if (expectedType.kind !== "FixedType") return Ok(null);
+
+    for (const typeBlock of typedBlocks) {
+        if (
+            typeBlock.kind === "UnionType" ||
+            typeBlock.kind === "UnionUntaggedType" ||
+            typeBlock.type.name !== expectedType.name
+        )
+            continue;
+
+        const missingPropertyFromTypeAlias: Property[] = [ ];
+        const addedProperties: Property[] = [ ];
+        const incorrectProperties: string[] = [ ];
+
+        for (const property of typeAlias.properties) {
+            let found = false;
+            for (const typeProperty of typeBlock.properties) {
+                if (property.name === typeProperty.name) {
+                    if (
+                        isImportedType(typeProperty.type, imports) ||
+                        isImportedType(property.type, imports)
+                    ) {
+                        found = true;
+                        continue;
+                    } else if (
+                        !isSameType(property.type, typeProperty.type, false)
+                    ) {
+                        incorrectProperties.push(
+                            `${property.name}: Expected ${typeToString(
+                                typeProperty.type
+                            )} but got ${typeToString(property.type)}`
+                        );
+                    }
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                addedProperties.push(property);
+            }
+        }
+        for (const typeProperty of typeBlock.properties) {
+            let found = false;
+            for (const property of typeAlias.properties) {
+                if (property.name === typeProperty.name) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                missingPropertyFromTypeAlias.push(typeProperty);
+            }
+        }
+
+        if (
+            missingPropertyFromTypeAlias.length > 0 ||
+            addedProperties.length > 0 ||
+            incorrectProperties.length > 0
+        ) {
+            let errorMessage = "";
+            if (missingPropertyFromTypeAlias.length > 0) {
+                if (errorMessage.length > 0) errorMessage += "\n";
+                errorMessage += `The type alias had these properties which are missing in this object literal: ${missingPropertyFromTypeAlias
+                    .map((prop) => `${prop.name}: ${typeToString(prop.type)}`)
+                    .join(" | ")}`;
+            }
+            if (addedProperties.length > 0) {
+                if (errorMessage.length > 0) errorMessage += "\n";
+                errorMessage += `The object literal had these properties which aren't in the type alias: ${addedProperties
+                    .map((prop) => `${prop.name}: ${typeToString(prop.type)}`)
+                    .join(" | ")}`;
+            }
+            if (incorrectProperties.length > 0) {
+                if (errorMessage.length > 0) errorMessage += "\n";
+                errorMessage += `Invalid properties: ${incorrectProperties.join(
+                    " | "
+                )}`;
+            }
+            return Err(
+                `Object literal type alias ${typeToString(
+                    typeBlock.type
+                )} did not match the value due to:\n${errorMessage}`
+            );
+        }
+    }
+    return Ok(null);
+}
+
+function getUntaggedUnion(
+    type_: Type,
+    typedBlocks: TypedBlock[]
+): Result<null, UnionUntaggedType> {
+    if (type_.kind !== "FixedType") return Err(null);
+
+    for (const block of typedBlocks) {
+        if (block.kind !== "UnionUntaggedType") continue;
+        if (block.type.name === type_.name) {
+            return Ok(block);
+        }
+    }
+
+    return Err(null);
+}
+
+function getTypeAlias(
+    type_: Type,
+    typedBlocks: TypedBlock[]
+): Result<null, TypeAlias> {
+    if (type_.kind !== "FixedType") return Err(null);
+
+    for (const block of typedBlocks) {
+        if (block.kind !== "TypeAlias") continue;
+        if (block.type.name === type_.name) {
+            return Ok(block);
+        }
+    }
+
+    return Err(null);
+}
+
+function validateObjectLiteral(
+    objectLiteral: ObjectLiteral,
+    expectedType: Type,
+    typedBlocks: TypedBlock[],
+    imports: Import[]
+): Result<string, null> {
+    if (objectLiteral.base !== null) {
+        return Ok(null);
+    }
+
+    if (expectedType.kind !== "FixedType") return Ok(null);
+
+    const typeAlias = objectLiteralTypeAlias(
+        objectLiteral,
+        expectedType,
+        typedBlocks,
+        imports
+    );
+
+    for (const typeBlock of typedBlocks) {
+        if (
+            typeBlock.kind === "UnionType" ||
+            typeBlock.kind === "UnionUntaggedType" ||
+            typeBlock.type.name !== expectedType.name
+        )
+            continue;
+
+        const missingPropertyFromTypeAlias: Property[] = [ ];
+        const addedProperties: Property[] = [ ];
+        const incorrectProperties: string[] = [ ];
+
+        for (const property of typeAlias.properties) {
+            let found = false;
+            for (const typeProperty of typeBlock.properties) {
+                if (property.name === typeProperty.name) {
+                    const maybeUntaggedUnionBlock = getUntaggedUnion(
+                        typeProperty.type,
+                        typedBlocks
+                    );
+                    if (maybeUntaggedUnionBlock.kind === "Ok") {
+                        const fieldValue = objectLiteral.fields.filter(
+                            (field) => field.name === property.name
+                        )[0];
+
+                        if (!fieldValue) continue;
+                        if (fieldValue.value.kind !== "StringValue") continue;
+                        const stringFieldValue = (
+                            fieldValue.value as StringValue
+                        ).body;
+
+                        const isCovered =
+                            maybeUntaggedUnionBlock.value.values.filter(
+                                (v) => v.body === stringFieldValue
+                            ).length > 0;
+                        if (!isCovered) {
+                            incorrectProperties.push(
+                                `${fieldValue.name}: Expected ${typeToString(
+                                    maybeUntaggedUnionBlock.value.type
+                                )}, composed of ${maybeUntaggedUnionBlock.value.values
+                                    .map((v) => `"${v.body}"`)
+                                    .join(
+                                        " | "
+                                    )}\` but got "${stringFieldValue}"`
+                            );
+                        }
+                    } else if (
+                        !isSameType(property.type, typeProperty.type, false)
+                    ) {
+                        incorrectProperties.push(
+                            `${property.name}: Expected ${typeToString(
+                                typeProperty.type
+                            )} but got ${typeToString(property.type)}`
+                        );
+                    }
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                addedProperties.push(property);
+            }
+        }
+        for (const typeProperty of typeBlock.properties) {
+            let found = false;
+            for (const property of typeAlias.properties) {
+                if (property.name === typeProperty.name) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                missingPropertyFromTypeAlias.push(typeProperty);
+            }
+        }
+
+        if (
+            missingPropertyFromTypeAlias.length > 0 ||
+            addedProperties.length > 0 ||
+            incorrectProperties.length > 0
+        ) {
+            let errorMessage = "";
+            if (missingPropertyFromTypeAlias.length > 0) {
+                if (errorMessage.length > 0) errorMessage += "\n";
+                errorMessage += `The type alias had these properties which are missing in this object literal: ${missingPropertyFromTypeAlias
+                    .map((prop) => `${prop.name}: ${typeToString(prop.type)}`)
+                    .join(" | ")}`;
+            }
+            if (addedProperties.length > 0) {
+                if (errorMessage.length > 0) errorMessage += "\n";
+                errorMessage += `The object literal had these properties which aren't in the type alias: ${addedProperties
+                    .map((prop) => `${prop.name}: ${typeToString(prop.type)}`)
+                    .join(" | ")}`;
+            }
+            if (incorrectProperties.length > 0) {
+                if (errorMessage.length > 0) errorMessage += "\n";
+                errorMessage += `Invalid properties: ${incorrectProperties.join(
+                    " | "
+                )}`;
+            }
+
+            return Err(
+                `Mismatching type for type alias ${typeToString(
+                    typeBlock.type
+                )}\n${errorMessage}`
+            );
+        }
+    }
+    return Ok(null);
+}
+
+function unifyType(type_: Type, typeReplacements: Record<string, Type>): Type {
+    switch (type_.kind) {
+        case "FixedType": {
+            return {
+                ...type_,
+                args: type_.args.map((arg) => {
+                    return unifyType(arg, typeReplacements);
+                }),
+            };
+        }
+        case "FunctionType": {
+            return {
+                ...type_,
+                args: type_.args.map((arg) => {
+                    return unifyType(arg, typeReplacements);
+                }),
+            };
+        }
+        case "GenericType": {
+            return typeReplacements[type_.name] || type_;
+        }
+        case "ObjectLiteralType": {
+            const newProperties: Record<string, Type> = {};
+
+            for (const propName of Object.keys(type_.properties)) {
+                const propValue = type_.properties[propName];
+                newProperties[propName] = unifyType(
+                    propValue,
+                    typeReplacements
+                );
+            }
+
+            return {
+                ...type_,
+                properties: newProperties,
+            };
+        }
+    }
+}
+
+function unifyTag(tag: Tag, typeReplacements: Record<string, Type>): Tag {
+    return {
+        ...tag,
+        args: tag.args.map((arg: TagArg): TagArg => {
+            return {
+                ...arg,
+                type: unifyType(arg.type, typeReplacements),
+            };
+        }),
+    };
+}
+
+function unifyUnionType(unionType: UnionType, expectedType: Type): UnionType {
+    if (expectedType.kind !== "FixedType") return unionType;
+    if (unionType.type.name !== expectedType.name) {
+        return unionType;
+    }
+
+    const toBeReplaced: Record<string, Type> = {};
+
+    for (var i = 0; i < expectedType.args.length; i++) {
+        const currentGenericArg = unionType.type.args[i];
+        if (currentGenericArg.kind !== "GenericType") {
+            continue;
+        }
+        const actualFixedArg = expectedType.args[i];
+
+        toBeReplaced[currentGenericArg.name] = actualFixedArg;
+    }
+
+    return {
+        ...unionType,
+        tags: unionType.tags.map((tag) => {
+            return unifyTag(tag, toBeReplaced);
+        }),
+    };
+}
+
+function tagTypeAlias(
+    tag: Tag,
+    genericUnionType: UnionType,
+    expectedType: Type,
+    typedBlocks: TypedBlock[]
+): TypeAlias {
+    const unionType = unifyUnionType(genericUnionType, expectedType);
+
+    const tagToUse =
+        unionType.tags.filter((localTag) => localTag.name === tag.name)[0] ||
+        tag;
+
+    const typeAlias = TypeAlias(
+        FixedType("Inferred", [ ]),
+        tagToUse.args.map((arg) => {
+            return Property(arg.name, arg.type);
+        })
+    );
+    return typeAlias;
+}
+
+export function findReplacement(
+    inferredType: Type,
+    expectedType: Type,
+    typedBlocks: TypedBlock[]
+): Type {
+    switch (inferredType.kind) {
+        case "FixedType": {
+            if (
+                expectedType.kind !== "FixedType" ||
+                expectedType.name !== inferredType.name ||
+                expectedType.args.length !== inferredType.args.length
+            ) {
+                return inferredType;
+            }
+
+            const args: Type[] = [ ];
+
+            for (let i = 0; i < inferredType.args.length; i++) {
+                const inferredArg = inferredType.args[i];
+                const expectedArg = expectedType.args[i];
+
+                args.push(
+                    findReplacement(inferredArg, expectedArg, typedBlocks)
+                );
+            }
+
+            return {
+                ...inferredType,
+                args: args,
+            };
+        }
+        case "FunctionType": {
+            return inferredType;
+        }
+        case "GenericType": {
+            return expectedType;
+        }
+        case "ObjectLiteralType": {
+            if (expectedType.kind !== "FixedType") return inferredType;
+            let original = null;
+
+            for (const block of typedBlocks) {
+                if (block.type.name === expectedType.name) {
+                    original = block;
+                    break;
+                }
+            }
+            if (original === null) return inferredType;
+
+            switch (original.kind) {
+                case "UnionUntaggedType": {
+                    return inferredType;
+                }
+                case "UnionType": {
+                    return inferredType;
+                }
+                case "TypeAlias": {
+                    const seenNames: string[] = [ ];
+                    for (const originalProperty of original.properties) {
+                        seenNames.push(originalProperty.name);
+                        const property =
+                            inferredType.properties[originalProperty.name];
+
+                        if (!property) return inferredType;
+
+                        if (
+                            !isSameType(originalProperty.type, property, false)
+                        ) {
+                            return inferredType;
+                        }
+                    }
+
+                    for (const name of Object.keys(inferredType.properties)) {
+                        if (seenNames.indexOf(name) === -1) {
+                            return inferredType;
+                        }
+                    }
+
+                    return expectedType;
+                }
+            }
+        }
+    }
+}
+
+/*
+Takes an object literal which is used within a tag as the constructor
+Takes the expected type of the constructor
+Ensures that the expected type matches the object literal
+*/
+function validateConstructor(
+    objectLiteral: ObjectLiteral,
+    expectedType: Type,
+    tag: Tag,
+    unionType: UnionType,
+    typedBlocks: TypedBlock[],
+    imports: Import[]
+): Result<string, null> {
+    const typeAlias = objectLiteralTypeAlias(
+        objectLiteral,
+        expectedType,
+        typedBlocks,
+        imports
+    );
+    const typeBlock = tagTypeAlias(tag, unionType, expectedType, typedBlocks);
+
+    const missingPropertyFromTypeAlias: Property[] = [ ];
+    const addedProperties: Property[] = [ ];
+    const incorrectProperties: string[] = [ ];
+
+    for (const property of typeAlias.properties) {
+        let found = false;
+        for (const typeProperty of typeBlock.properties) {
+            if (property.name === typeProperty.name) {
+                const maybeUntaggedUnionBlock = getUntaggedUnion(
+                    typeProperty.type,
+                    typedBlocks
+                );
+
+                if (maybeUntaggedUnionBlock.kind === "Ok") {
+                    const fieldValue = objectLiteral.fields.filter(
+                        (field) => field.name === property.name
+                    )[0];
+
+                    if (!fieldValue) continue;
+                    if (fieldValue.value.kind !== "StringValue") continue;
+                    const stringFieldValue = (fieldValue.value as StringValue)
+                        .body;
+
+                    const isCovered =
+                        maybeUntaggedUnionBlock.value.values.filter(
+                            (v) => v.body === stringFieldValue
+                        ).length > 0;
+                    if (!isCovered) {
+                        incorrectProperties.push(
+                            `${fieldValue.name}: Expected ${typeToString(
+                                maybeUntaggedUnionBlock.value.type
+                            )}, composed of ${maybeUntaggedUnionBlock.value.values
+                                .map((v) => `"${v.body}"`)
+                                .join(" | ")}\` but got "${stringFieldValue}"`
+                        );
+                    }
+                } else if (
+                    !isSameType(
+                        findReplacement(
+                            property.type,
+                            typeProperty.type,
+                            typedBlocks
+                        ),
+                        typeProperty.type,
+                        false
+                    ) ||
+                    (property.type.kind === "ObjectLiteralType" &&
+                        !isSameObjectLiteralTypeAlias(
+                            property.type,
+                            typeProperty.type,
+                            typedBlocks
+                        ))
+                ) {
+                    incorrectProperties.push(
+                        `${property.name}: Expected ${typeToString(
+                            typeProperty.type
+                        )} but got ${typeToString(property.type)}`
+                    );
+                }
+
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            addedProperties.push(property);
+        }
+    }
+    for (const typeProperty of typeBlock.properties) {
+        let found = false;
+        for (const property of typeAlias.properties) {
+            if (property.name === typeProperty.name) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            missingPropertyFromTypeAlias.push(typeProperty);
+        }
+    }
+
+    if (
+        missingPropertyFromTypeAlias.length > 0 ||
+        addedProperties.length > 0 ||
+        incorrectProperties.length > 0
+    ) {
+        let errorMessage = "";
+        if (missingPropertyFromTypeAlias.length > 0) {
+            if (errorMessage.length > 0) errorMessage += "\n";
+            errorMessage += `The tag ${
+                tag.name
+            } had these properties which are missing in this constructor object literal: ${missingPropertyFromTypeAlias
+                .map((prop) => `${prop.name}: ${typeToString(prop.type)}`)
+                .join(" | ")}`;
+        }
+        if (addedProperties.length > 0) {
+            if (errorMessage.length > 0) errorMessage += "\n";
+            errorMessage += `The constructor object literal had these properties which aren't in the tag ${
+                tag.name
+            }: ${addedProperties
+                .map((prop) => `${prop.name}: ${typeToString(prop.type)}`)
+                .join(" | ")}`;
+        }
+        if (incorrectProperties.length > 0) {
+            if (errorMessage.length > 0) errorMessage += "\n";
+            errorMessage += `Invalid properties: ${incorrectProperties.join(
+                " | "
+            )}`;
+        }
+        return Err(errorMessage);
+    }
+
+    return Ok(null);
+}
+
+function isImportedType(type_: Type, imports: Import[]): boolean {
+    if (type_.kind !== "FixedType") return false;
+    for (const import_ of imports) {
+        for (const module of import_.modules) {
+            for (const importedType of module.exposing) {
+                if (type_.name === importedType) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+function isImportedConstructor(
+    constructor: Constructor,
+    imports: Import[]
+): boolean {
+    for (const import_ of imports) {
+        for (const module of import_.modules) {
+            for (const importedName of module.exposing) {
+                if (constructor.constructor === importedName) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+function validateConst(
+    block: Const,
+    typedBlocks: TypedBlock[],
+    imports: Import[]
+): Result<string, Type> {
+    if (!typeExistsInNamespace(block.type, typedBlocks, imports)) {
+        return Err(
+            `Type ${typeToString(block.type)} did not exist in the namespace`
+        );
+    }
+
+    const inferredRes = inferType(
+        block.value,
+        block.type,
+        typedBlocks,
+        imports
+    );
+
+    if (inferredRes.kind === "Err") return inferredRes;
+    const inferred = inferredRes.value;
+
+    if (isSameType(block.type, inferred, false)) {
+        return Ok(block.type);
+    }
+
+    if (inferred.kind === "FixedType") {
+        if (inferred.name === "string") {
+            if (block.type.kind === "FixedType") {
+                const matchingBlocks = typedBlocks.filter((b) =>
+                    isSameType(b.type, block.type, false)
+                );
+
+                if (matchingBlocks.length > 0) {
+                    const matchingBlock = matchingBlocks[0];
+                    if (matchingBlock.kind === "UnionUntaggedType") {
+                        const finalExpressions = allFinalExpressions(block);
+
+                        for (const finalExpression of finalExpressions) {
+                            const isCovered =
+                                matchingBlock.values.filter(
+                                    (v) => v.body === finalExpression
+                                ).length > 0;
+                            if (!isCovered) {
+                                return Err(
+                                    `Expected \`${typeToString(
+                                        block.type
+                                    )}, composed of ${matchingBlock.values
+                                        .map((v) => `"${v.body}"`)
+                                        .join(
+                                            " | "
+                                        )}\` but got \`${finalExpression}\` in the body of the const`
+                                );
+                            }
+                        }
+
+                        return Ok(block.type);
+                    }
+                }
+            }
+        } else if (inferred.args.length > 0) {
+            if (inferred.args[0].kind === "ObjectLiteralType") {
+                const maybeNestedType =
+                    block.type.kind === "FixedType" &&
+                    block.type.args.length > 0
+                        ? block.type.args[0]
+                        : block.type;
+
+                const valid = validateObjectLiteralType(
+                    inferred.args[0],
+                    maybeNestedType,
+                    typedBlocks,
+                    imports
+                );
+
+                if (valid.kind === "Err") {
+                    return Err(
+                        `Expected ${typeToString(block.type)} but ${valid.error
+                            .slice(0, 1)
+                            .toLowerCase()}${valid.error.slice(1)}`
+                    );
+                }
+                return Ok(block.type);
+            }
+        }
+    } else if (inferred.kind === "ObjectLiteralType") {
+        if (isImportedType(block.type, imports)) {
+            return Ok(block.type);
+        }
+
+        const maybeNestedType =
+            block.type.kind === "FixedType" && block.type.name === "List"
+                ? block.type.args[0]
+                : block.type;
+        const validation = validateObjectLiteral(
+            block.value as ObjectLiteral,
+            maybeNestedType,
+            typedBlocks,
+            imports
+        );
+        if (validation.kind === "Err") {
+            return validation;
+        }
+    }
+
+    const replacement = findReplacement(
+        inferredRes.value,
+        block.type,
+        typedBlocks
+    );
+
+    if (isSameType(replacement, block.type, false)) {
+        return Ok(replacement);
+    }
+
+    return Err(
+        `Expected \`${typeToString(block.type)}\` but got \`${typeToString(
+            inferred
+        )}\``
+    );
+}
+
+function validateFunction(
+    block: Function,
+    typedBlocks: TypedBlock[],
+    imports: Import[]
+): Result<string, Type> {
+    const notExistingErrors = [ ];
+
+    if (!typeExistsInNamespace(block.returnType, typedBlocks, imports)) {
+        notExistingErrors.push(
+            `Type ${typeToString(
+                block.returnType
+            )} did not exist in the namespace`
+        );
+    }
+
+    for (const arg of block.args) {
+        if (!typeExistsInNamespace(arg.type, typedBlocks, imports)) {
+            notExistingErrors.push(
+                `Type ${typeToString(arg.type)} did not exist in the namespace`
+            );
+        }
+    }
+
+    if (notExistingErrors.length > 0) {
+        return Err(notExistingErrors.join("\n"));
+    }
+
+    const inferredRes = inferType(
+        block.body,
+        block.returnType,
+        typedBlocks,
+        imports
+    );
+    if (inferredRes.kind === "Err") return inferredRes;
+    const inferred = inferredRes.value;
+
+    if (inferred.kind === "FixedType" && inferred.name === "string") {
+        if (block.returnType.kind === "FixedType") {
+            const matchingBlocks = typedBlocks.filter((b) =>
+                isSameType(b.type, block.returnType, false)
+            );
+
+            if (matchingBlocks.length > 0) {
+                const matchingBlock = matchingBlocks[0];
+                if (matchingBlock.kind === "UnionUntaggedType") {
+                    const finalExpressions = allFinalExpressions(block);
+
+                    for (const finalExpression of finalExpressions) {
+                        const isCovered =
+                            matchingBlock.values.filter(
+                                (v) => v.body === finalExpression
+                            ).length > 0;
+                        if (!isCovered) {
+                            return Err(
+                                `Expected \`${typeToString(
+                                    block.returnType
+                                )}, composed of ${matchingBlock.values
+                                    .map((v) => `"${v.body}"`)
+                                    .join(
+                                        " | "
+                                    )}\` but got \`${finalExpression}\` in the body of the function`
+                            );
+                        }
+                    }
+
+                    return Ok(block.returnType);
+                }
+            }
+        }
+    } else if (inferred.kind === "ObjectLiteralType") {
+        if (isImportedType(block.returnType, imports)) {
+            return Ok(block.returnType);
+        }
+
+        if (block.body.kind === "ObjectLiteral") {
+            const maybeNestedType =
+                block.returnType.kind === "FixedType" &&
+                block.returnType.name === "List"
+                    ? block.returnType.args[0]
+                    : block.returnType;
+
+            const validation = validateObjectLiteral(
+                block.body,
+                maybeNestedType,
+                typedBlocks,
+                imports
+            );
+            if (validation.kind === "Err") {
+                return validation;
+            }
+            return Ok(block.returnType);
+        }
+    }
+
+    const replacement = findReplacement(
+        inferredRes.value,
+        block.returnType,
+        typedBlocks
+    );
+
+    if (
+        !isSameType(replacement, block.returnType, false) &&
+        !isSameType(block.returnType, inferred, false)
+    ) {
+        return Err(
+            `Expected \`${typeToString(
+                block.returnType
+            )}\` but got \`${typeToString(
+                inferred
+            )}\` in the body of the function`
+        );
+    }
+
+    return Ok(block.returnType);
+}
+
 export function validateType(
     block: Block,
     typedBlocks: TypedBlock[],
@@ -920,140 +2212,11 @@ export function validateType(
 ): Result<string, Type> {
     switch (block.kind) {
         case "Const": {
-            if (!typeExistsInNamespace(block.type, typedBlocks, imports)) {
-                return Err(
-                    `Type ${typeToString(
-                        block.type
-                    )} did not exist in the namespace`
-                );
-            }
-
-            const inferredRes = inferType(block.value, typedBlocks);
-            if (inferredRes.kind === "Err") return inferredRes;
-            const inferred = inferredRes.value;
-            if (isSameType(block.type, inferred, false)) {
-                return Ok(block.type);
-            }
-
-            if (inferred.kind === "FixedType" && inferred.name === "string") {
-                if (block.type.kind === "FixedType") {
-                    const matchingBlocks = typedBlocks.filter((b) =>
-                        isSameType(b.type, block.type, false)
-                    );
-
-                    if (matchingBlocks.length > 0) {
-                        const matchingBlock = matchingBlocks[0];
-                        if (matchingBlock.kind === "UnionUntaggedType") {
-                            const finalExpressions = allFinalExpressions(block);
-
-                            for (const finalExpression of finalExpressions) {
-                                const isCovered =
-                                    matchingBlock.values.filter(
-                                        (v) => v.body === finalExpression
-                                    ).length > 0;
-                                if (!isCovered) {
-                                    return Err(
-                                        `Expected \`${typeToString(
-                                            block.type
-                                        )}, composed of ${matchingBlock.values
-                                            .map((v) => `"${v.body}"`)
-                                            .join(
-                                                " | "
-                                            )}\` but got \`${finalExpression}\` in the body of the function`
-                                    );
-                                }
-                            }
-
-                            return Ok(block.type);
-                        }
-                    }
-                }
-            }
-
-            return Err(
-                `Expected \`${typeToString(
-                    block.type
-                )}\` but got \`${typeToString(inferred)}\``
-            );
+            return validateConst(block, typedBlocks, imports);
         }
 
         case "Function": {
-            const notExistingErrors = [ ];
-
-            if (
-                !typeExistsInNamespace(block.returnType, typedBlocks, imports)
-            ) {
-                notExistingErrors.push(
-                    `Type ${typeToString(
-                        block.returnType
-                    )} did not exist in the namespace`
-                );
-            }
-
-            for (const arg of block.args) {
-                if (!typeExistsInNamespace(arg.type, typedBlocks, imports)) {
-                    notExistingErrors.push(
-                        `Type ${typeToString(
-                            arg.type
-                        )} did not exist in the namespace`
-                    );
-                }
-            }
-
-            if (notExistingErrors.length > 0) {
-                return Err(notExistingErrors.join("\n"));
-            }
-
-            const inferredRes = inferType(block.body, typedBlocks);
-            if (inferredRes.kind === "Err") return inferredRes;
-            const inferred = inferredRes.value;
-
-            if (inferred.kind === "FixedType" && inferred.name === "string") {
-                if (block.returnType.kind === "FixedType") {
-                    const matchingBlocks = typedBlocks.filter((b) =>
-                        isSameType(b.type, block.returnType, false)
-                    );
-
-                    if (matchingBlocks.length > 0) {
-                        const matchingBlock = matchingBlocks[0];
-                        if (matchingBlock.kind === "UnionUntaggedType") {
-                            const finalExpressions = allFinalExpressions(block);
-
-                            for (const finalExpression of finalExpressions) {
-                                const isCovered =
-                                    matchingBlock.values.filter(
-                                        (v) => v.body === finalExpression
-                                    ).length > 0;
-                                if (!isCovered) {
-                                    return Err(
-                                        `Expected \`${typeToString(
-                                            block.returnType
-                                        )}, composed of ${matchingBlock.values
-                                            .map((v) => `"${v.body}"`)
-                                            .join(
-                                                " | "
-                                            )}\` but got \`${finalExpression}\` in the body of the function`
-                                    );
-                                }
-                            }
-
-                            return Ok(block.returnType);
-                        }
-                    }
-                }
-            }
-
-            if (!isSameType(block.returnType, inferred, false)) {
-                return Err(
-                    `Expected \`${typeToString(
-                        block.returnType
-                    )}\` but got \`${typeToString(
-                        inferred
-                    )}\` in the body of the function`
-                );
-            }
-
-            return Ok(block.returnType);
+            return validateFunction(block, typedBlocks, imports);
         }
 
         case "UnionType":

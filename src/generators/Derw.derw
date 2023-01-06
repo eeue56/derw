@@ -11,7 +11,7 @@ import "../types" as Values exposing ( Value, StringValue, FormatStringValue, Li
 import "../types" exposing ( Tag, UnionType, UnionUntaggedType, Type, TagArg, Block, Constructor, Expression, isSimpleValue )
 import "./Common" exposing ( prefixLines )
 
-exposing (generateDerw)
+exposing (generateDerw, generateExpression)
 
 generateTag: Tag -> string
 generateTag tag =
@@ -162,6 +162,9 @@ generateTopLevelType type_ =
         FunctionType { args } ->
             `(${args.map(generateTopLevelType).join(" -> ")})`
 
+        ObjectLiteralType ->
+            ``
+
 generateType: Type -> string
 generateType type_ =
     case type_ of
@@ -184,6 +187,9 @@ generateType type_ =
 
         FunctionType { args } ->
             `(${args.map(generateType).join(" -> ")})`
+
+        ObjectLiteralType ->
+            ``
 
 generateField: Field -> string
 generateField field =

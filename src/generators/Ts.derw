@@ -324,6 +324,9 @@ generateTopLevelType type_ imports =
                                 FixedType ->
                                     [ type_ ]
 
+                                ObjectLiteralType ->
+                                    [ ]
+
                         genericArgs: List Type
                         genericArgs =
                             List.foldl (\arg xs -> List.append xs (getGenericArgs arg)) [ ] args
@@ -356,6 +359,9 @@ generateTopLevelType type_ imports =
             in
                 `(${parts.join(", ")}) => ${typeToReturn}`
 
+        ObjectLiteralType ->
+            ``
+
 getGenericTypes: Type -> List GenericType
 getGenericTypes type_ =
     case type_ of
@@ -367,6 +373,9 @@ getGenericTypes type_ =
 
         FixedType { args } ->
             List.foldl (\newType collection -> List.append collection (getGenericTypes newType)) [ ] args
+
+        ObjectLiteralType ->
+            [ ]
 
 removeDuplicateTypes: List GenericType -> List GenericType
 removeDuplicateTypes xs =
@@ -431,6 +440,9 @@ generateType type_ imports =
                     List.indexedMap (\arg index -> `arg${index}: ${generateType(arg, imports)}`) (args.slice 0 -1)
             in
                 `(${parts.join(", ")}) => ${typeToReturn}`
+
+        ObjectLiteralType ->
+            ``
 
 generateField: Field -> string
 generateField field =
@@ -1481,6 +1493,9 @@ collectTypeArguments type_ =
         FunctionType { args } ->
             List.map collectTypeArguments args
                 |> List.foldl (\xs ys -> List.append ys xs) [ ]
+
+        ObjectLiteralType ->
+            [ ]
 
 generateDoExpression: DoExpression -> List string -> List Type -> List Import -> string
 generateDoExpression expression parentTypeArguments parentTypes imports =

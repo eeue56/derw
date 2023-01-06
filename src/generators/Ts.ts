@@ -306,6 +306,9 @@ function generateTopLevelType(type_: Type, imports: Import[]): string {
                             case "FixedType": {
                                 return [ type_ ];
                             }
+                            case "ObjectLiteralType": {
+                                return [ ];
+                            }
                         }
                     }
                     const genericArgs: Type[] = List.foldl(function(arg: any, xs: any) {
@@ -331,6 +334,9 @@ function generateTopLevelType(type_: Type, imports: Import[]): string {
             }, args.slice(0, -1));
             return `(${parts.join(", ")}) => ${typeToReturn}`;
         }
+        case "ObjectLiteralType": {
+            return ``;
+        }
     }
 }
 
@@ -347,6 +353,9 @@ function getGenericTypes(type_: Type): GenericType[] {
             return List.foldl(function(newType: any, collection: any) {
             return List.append(collection, getGenericTypes(newType));
         }, [ ], args);
+        }
+        case "ObjectLiteralType": {
+            return [ ];
         }
     }
 }
@@ -407,6 +416,9 @@ function generateType(type_: Type, imports: Import[]): string {
                 return `arg${index}: ${generateType(arg, imports)}`;
             }, args.slice(0, -1));
             return `(${parts.join(", ")}) => ${typeToReturn}`;
+        }
+        case "ObjectLiteralType": {
+            return ``;
         }
     }
 }
@@ -1092,6 +1104,9 @@ function collectTypeArguments(type_: Type): string[] {
             return List.foldl(function(xs: any, ys: any) {
             return List.append(ys, xs);
         }, [ ], List.map(collectTypeArguments, args));
+        }
+        case "ObjectLiteralType": {
+            return [ ];
         }
     }
 }

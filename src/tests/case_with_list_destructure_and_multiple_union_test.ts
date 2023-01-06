@@ -206,7 +206,18 @@ export function testParse() {
                     ])
                 ),
             ],
-            [ ]
+            [
+                "Error on lines 0 - 6\n" +
+                    "Did not find constructor Just in scope.:\n" +
+                    "```\n" +
+                    "basic: List (Maybe string) -> List (Maybe string)\n" +
+                    "basic xs =\n" +
+                    "    case xs of\n" +
+                    "        Just { value } :: Just { value: otherValue } :: rest -> Just { value: value } :: Just { value: otherValue } :: basic rest\n" +
+                    "        Nothing :: Just { value } :: rest -> Just { value: value } :: basic rest\n" +
+                    "        default -> []\n" +
+                    "```",
+            ]
         )
     );
 }
@@ -280,7 +291,23 @@ export function testParseMultiLine() {
                     ])
                 ),
             ],
-            [ ]
+            [
+                "Error on lines 0 - 11\n" +
+                    "Did not find constructor Just in scope.:\n" +
+                    "```\n" +
+                    "basic: List (Maybe string) -> List (Maybe string)\n" +
+                    "basic xs =\n" +
+                    "    case xs of\n" +
+                    "        Just { value } :: Just { value: otherValue } :: rest ->\n" +
+                    "            Just { value: value } :: Just { value: otherValue } :: basic rest\n" +
+                    "\n" +
+                    "        Nothing :: Just { value } :: rest ->\n" +
+                    "            Just { value: value } :: basic rest\n" +
+                    "\n" +
+                    "        default ->\n" +
+                    "            [ ]\n" +
+                    "```",
+            ]
         )
     );
 }
