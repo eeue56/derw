@@ -79,7 +79,14 @@ export function testParse() {
                     )
                 ),
             ],
-            [ ]
+            [
+                "Error on lines 0 - 2\n" +
+                    "Did not find constructor Just in scope.:\n" +
+                    "```\n" +
+                    "helloWorld: List (Maybe number)\n" +
+                    "helloWorld = Just { value: 1 } :: [ ]\n" +
+                    "```",
+            ]
         )
     );
 }
@@ -105,7 +112,15 @@ export function testParseMultiLine() {
                     )
                 ),
             ],
-            [ ]
+            [
+                "Error on lines 0 - 3\n" +
+                    "Did not find constructor Just in scope.:\n" +
+                    "```\n" +
+                    "helloWorld: List (Maybe number)\n" +
+                    "helloWorld =\n" +
+                    "    Just { value: 1 } :: [ ]\n" +
+                    "```",
+            ]
         )
     );
 }

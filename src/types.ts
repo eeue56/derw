@@ -26,6 +26,20 @@ export function FixedType(name: string, args: Type[]): FixedType {
     };
 }
 
+export type ObjectLiteralType = {
+    kind: "ObjectLiteralType";
+    properties: Record<string, Type>;
+};
+
+export function ObjectLiteralType(
+    properties: Record<string, Type>
+): ObjectLiteralType {
+    return {
+        kind: "ObjectLiteralType",
+        properties,
+    };
+}
+
 export type FunctionType = {
     kind: "FunctionType";
     args: Type[];
@@ -38,7 +52,7 @@ export function FunctionType(args: Type[]): FunctionType {
     };
 }
 
-export type Type = GenericType | FixedType | FunctionType;
+export type Type = GenericType | FixedType | FunctionType | ObjectLiteralType;
 
 export type TagArg = {
     kind: "TagArg";

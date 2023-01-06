@@ -161,6 +161,9 @@ generateTopLevelType type_ =
         FunctionType { args } ->
             `(${args.map(generateTopLevelType).join(" -> ")})`
 
+        ObjectLiteralType ->
+            ``
+
 generateType: Type -> string
 generateType type_ =
     case type_ of
@@ -183,6 +186,9 @@ generateType type_ =
 
         FunctionType { args } ->
             `(${args.map(generateType).join(" -> ")})`
+
+        ObjectLiteralType ->
+            ``
 
 generateField: Field -> string
 generateField field =

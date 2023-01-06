@@ -1,4 +1,5 @@
 import * as assert from "@eeue56/ts-assert";
+import { Just } from "@eeue56/ts-core/build/main/lib/maybe";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { blockKind, intoBlocks } from "../Blocks";
 import { compileTypescript } from "../compile";
@@ -17,6 +18,8 @@ import {
     Function,
     FunctionArg,
     FunctionCall,
+    Import,
+    ImportModule,
     ListDestructure,
     ListPrepend,
     ListValue,
@@ -27,6 +30,8 @@ import {
 } from "../types";
 
 const oneLine = `
+import "../Maybe" as Maybe exposing ( Maybe, Just, Nothing )
+
 basic: List (Maybe string) -> List (Maybe string)
 basic xs =
     case xs of
@@ -36,6 +41,8 @@ basic xs =
 `.trim();
 
 const multiLine = `
+import "../Maybe" as Maybe exposing ( Maybe, Just, Nothing )
+
 basic: List (Maybe string) -> List (Maybe string)
 basic xs =
     case xs of
@@ -50,7 +57,10 @@ basic xs =
 `.trim();
 
 const expectedOutput = `
-function basic(xs: Maybe<string>[]): Maybe<string>[] {
+import * as Maybe from "../Maybe";
+import { Just, Nothing } from "../Maybe";
+
+function basic(xs: Maybe.Maybe<string>[]): Maybe.Maybe<string>[] {
     switch (xs.length) {
         case xs.length: {
             if (xs.length >= 1) {
@@ -77,6 +87,9 @@ function basic(xs: Maybe<string>[]): Maybe<string>[] {
 `.trim();
 
 const expectedOutputJS = `
+import * as Maybe from "../Maybe";
+import { Just, Nothing } from "../Maybe";
+
 function basic(xs) {
     switch (xs.length) {
         case xs.length: {
@@ -105,13 +118,15 @@ function basic(xs) {
 
 export function testIntoBlocks() {
     assert.deepStrictEqual(intoBlocks(oneLine), [
-        UnparsedBlock("FunctionBlock", 0, oneLine.split("\n")),
+        UnparsedBlock("ImportBlock", 0, oneLine.split("\n").slice(0, 1)),
+        UnparsedBlock("FunctionBlock", 2, oneLine.split("\n").slice(2)),
     ]);
 }
 
 export function testIntoBlocksMultiLine() {
     assert.deepStrictEqual(intoBlocks(multiLine), [
-        UnparsedBlock("FunctionBlock", 0, multiLine.split("\n")),
+        UnparsedBlock("ImportBlock", 0, multiLine.split("\n").slice(0, 1)),
+        UnparsedBlock("FunctionBlock", 2, multiLine.split("\n").slice(2)),
     ]);
 }
 
@@ -120,7 +135,7 @@ export function testBlockKind() {
 
     assert.deepStrictEqual(
         blocks.map((block) => blockKind(block.lines.join("\n"))),
-        [ Ok("Function") ]
+        [ Ok("Import"), Ok("Function") ]
     );
 }
 
@@ -129,7 +144,7 @@ export function testBlockKindMultiLine() {
 
     assert.deepStrictEqual(
         blocks.map((block) => blockKind(block.lines.join("\n"))),
-        [ Ok("Function") ]
+        [ Ok("Import"), Ok("Function") ]
     );
 }
 
@@ -139,6 +154,14 @@ export function testParse() {
         Module(
             "main",
             [
+                Import([
+                    ImportModule(
+                        '"../Maybe"',
+                        Just("Maybe"),
+                        [ "Maybe", "Just", "Nothing" ],
+                        "Relative"
+                    ),
+                ]),
                 Function(
                     "basic",
                     FixedType("List", [
@@ -195,6 +218,14 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
+                Import([
+                    ImportModule(
+                        '"../Maybe"',
+                        Just("Maybe"),
+                        [ "Maybe", "Just", "Nothing" ],
+                        "Relative"
+                    ),
+                ]),
                 Function(
                     "basic",
                     FixedType("List", [

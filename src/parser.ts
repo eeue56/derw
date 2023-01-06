@@ -258,6 +258,12 @@ function parseUnionUntaggedType(
         );
     }
 
+    if (parsedType.value.kind === "ObjectLiteralType") {
+        return Err(
+            "Expected a fixed type but got a object lieral type for a union type. Maybe you missed a captal letter?"
+        );
+    }
+
     const branches: StringValue[] = [ ];
 
     for (const token of tokens.slice(assignIndex + 1)) {
@@ -473,6 +479,12 @@ function parseUnionType(tokens: Token[]): Result<string, UnionType> {
     if (parsedType.value.kind === "FunctionType") {
         return Err(
             "Expected a fixed type but got a function type for a union type. Maybe you missed a captal letter?"
+        );
+    }
+
+    if (parsedType.value.kind === "ObjectLiteralType") {
+        return Err(
+            "Expected a fixed type but got a object literal type for a union type. Maybe you missed a captal letter?"
         );
     }
 
@@ -744,6 +756,12 @@ function parseTypeAlias(tokens: Token[]): Result<string, TypeAlias> {
     if (aliasName.kind === "FunctionType") {
         return Err(
             "Expected a fixed type but got a function type for a type alias. Maybe you missed a captal letter?"
+        );
+    }
+
+    if (aliasName.kind === "ObjectLiteralType") {
+        return Err(
+            "Expected a fixed type but got an object literal type for a type alias. Maybe you missed a captal letter?"
         );
     }
 
