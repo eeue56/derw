@@ -4,7 +4,6 @@ import { parseExpression } from "../parser";
 import {
     Expression,
     FixedType,
-    GenericType,
     ObjectLiteralType,
     Property,
     Tag,
@@ -498,25 +497,6 @@ function unifyTag(expectedType: Type, unionType: UnionType, tag: Tag): Tag {
     }
 
     return tag;
-}
-
-export async function testComparingObjectLiteralTypeWithGenerics() {
-    const expectedType = FixedType("Maybe", [ FixedType("number", [ ]) ]);
-    const genericType = UnionType(FixedType("Maybe", [ GenericType("a") ]), [
-        Tag("Just", [ TagArg("value", GenericType("a")) ]),
-        Tag("Nothing", [ ]),
-    ]);
-    const qualifiedType = UnionType(
-        FixedType("Maybe", [ FixedType("number", [ ]) ]),
-        [
-            Tag("Just", [ TagArg("value", FixedType("number", [ ])) ]),
-            Tag("Nothing", [ ]),
-        ]
-    );
-}
-
-export function testUnifyingOfObjectLiteralType() {
-    // validateObjectLiteralType()
 }
 
 export function testFindReplacement() {
