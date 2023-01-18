@@ -150,7 +150,7 @@ export async function compileFiles(
 
     if (!program.flags.files.isPresent && !isInPackageDirectory) {
         console.log("You must provide at least one file via --files");
-        console.log("Or be in a directory wit derw-package.json.");
+        console.log("Or be in a directory with derw-package.json.");
         process.exit(1);
     }
 
