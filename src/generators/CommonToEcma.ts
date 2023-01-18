@@ -55,7 +55,7 @@ function generateFormatStringValue(string: FormatStringValue): string {
 
 function generateListRange(list: ListRange): string {
     const gap: string = `${list.end.body} - ${list.start.body} + 1`;
-    return `Array.from({ length: ${gap} }, (x, i) => i + ${list.start.body})`;
+    return `Array.from({ length: ${gap} }, (_ReservedX, _ReservedI) => _ReservedI + ${list.start.body})`;
 }
 
 function generateListDestructurePart(part: ListDestructurePart): string {

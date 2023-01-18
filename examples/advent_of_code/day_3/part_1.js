@@ -44,7 +44,7 @@ function commonBits(xs) {
     }
     return (function(x) {
         return x.map(commoner);
-    })(Array.from({ length: lengthMinusOne - 0 + 1 }, (x, i) => i + 0));
+    })(Array.from({ length: lengthMinusOne - 0 + 1 }, (_ReservedX, _ReservedI) => _ReservedI + 0));
 }
 
 function gammaToString(common) {

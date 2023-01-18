@@ -29,13 +29,13 @@ range start end =
 
 const expectedOutput = `
 function range(start: number, end: number): number[] {
-    return Array.from({ length: end - start + 1 }, (x, i) => i + start);
+    return Array.from({ length: end - start + 1 }, (_ReservedX, _ReservedI) => _ReservedI + start);
 }
 `.trim();
 
 const expectedOutputJS = `
 function range(start, end) {
-    return Array.from({ length: end - start + 1 }, (x, i) => i + start);
+    return Array.from({ length: end - start + 1 }, (_ReservedX, _ReservedI) => _ReservedI + start);
 }
 `.trim();
 

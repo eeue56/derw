@@ -29,7 +29,7 @@ generateListRange list =
         gap =
             `${list.end.body} - ${list.start.body} + 1`
     in
-        `Array.from({ length: ${gap} }, (x, i) => i + ${list.start.body})`
+        `Array.from({ length: ${gap} }, (_ReservedX, _ReservedI) => _ReservedI + ${list.start.body})`
 
 generateListDestructurePart: ListDestructurePart -> string
 generateListDestructurePart part =

@@ -29,11 +29,11 @@ helloWorld =
 `.trim();
 
 const expectedOutput = `
-const helloWorld: number[] = fn([ 1, ...Array.from({ length: 5 - 2 + 1 }, (x, i) => i + 2) ]);
+const helloWorld: number[] = fn([ 1, ...Array.from({ length: 5 - 2 + 1 }, (_ReservedX, _ReservedI) => _ReservedI + 2) ]);
 `.trim();
 
 const expectedOutputJS = `
-const helloWorld = fn([ 1, ...Array.from({ length: 5 - 2 + 1 }, (x, i) => i + 2) ]);
+const helloWorld = fn([ 1, ...Array.from({ length: 5 - 2 + 1 }, (_ReservedX, _ReservedI) => _ReservedI + 2) ]);
 `.trim();
 
 export function testIntoBlocks() {

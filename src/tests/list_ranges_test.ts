@@ -27,11 +27,11 @@ helloWorld =
 `.trim();
 
 const expectedOutput = `
-const helloWorld: number[] = Array.from({ length: 5 - 1 + 1 }, (x, i) => i + 1);
+const helloWorld: number[] = Array.from({ length: 5 - 1 + 1 }, (_ReservedX, _ReservedI) => _ReservedI + 1);
 `.trim();
 
 const expectedOutputJS = `
-const helloWorld = Array.from({ length: 5 - 1 + 1 }, (x, i) => i + 1);
+const helloWorld = Array.from({ length: 5 - 1 + 1 }, (_ReservedX, _ReservedI) => _ReservedI + 1);
 `.trim();
 
 export function testIntoBlocks() {
