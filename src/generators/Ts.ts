@@ -1229,7 +1229,7 @@ function generateInlineCase(expression: CaseStatement): string {
 function generateNestedConst(constDef: Const, body: string, imports: Import[]): string {
     const typeDef: string = generateTopLevelType(constDef.type, imports);
     const generatedBlocks: string[] = List.map(function(block: any) {
-        return generateBlock(block, [ ], [ ]);
+        return generateBlock(block, [ ], [ ], imports);
     }, constDef.letBody);
     const joinedBlocks: string = (function(y: any) {
         return prefixLines(y, 4);

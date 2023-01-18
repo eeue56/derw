@@ -1668,7 +1668,7 @@ generateNestedConst constDef body imports =
 
         generatedBlocks: List string
         generatedBlocks =
-            List.map (\block -> generateBlock block [ ] [ ]) constDef.letBody
+            List.map (\block -> generateBlock block [ ] [ ] imports) constDef.letBody
 
         joinedBlocks: string
         joinedBlocks =
