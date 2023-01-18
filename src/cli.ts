@@ -10,7 +10,8 @@ type CliCommand =
     | "repl"
     | "bundle"
     | "format"
-    | "template";
+    | "template"
+    | "version";
 
 function parseCliCommand(): Result<string, CliCommand> {
     if (typeof process.argv[2] === "undefined") {
@@ -36,6 +37,8 @@ function parseCliCommand(): Result<string, CliCommand> {
             return Ok("format");
         case "template":
             return Ok("template");
+        case "version":
+            return Ok("version");
         default: {
             return Err(`Unknown command \`${process.argv[2]}\``);
         }
@@ -122,6 +125,11 @@ export async function main(): Promise<number> {
         case "template": {
             const { template } = await import("./cli/template");
             await template(isInPackageDirectory, argv);
+            return 0;
+        }
+        case "version": {
+            const { version } = await import("./cli/version");
+            await version(isInPackageDirectory, argv);
             return 0;
         }
     }
