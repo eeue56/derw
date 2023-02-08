@@ -89,7 +89,11 @@ import {
     UnparsedBlock,
     Value,
 } from "./types";
-import { validateAllCasesCovered, validateType } from "./type_checking";
+import {
+    getValuesInTopLevelScope,
+    validateAllCasesCovered,
+    validateType,
+} from "./type_checking";
 
 function afterArrow(tokens: TypeToken[]): TypeToken[] {
     let index = 0;
@@ -3396,7 +3400,14 @@ export function parse(body: string, filename: string = "main"): Module {
                     .map((b) => (b as Ok<Block>).value)
             );
 
-            let validatedType = validateType(block.value, typedBlocks, imports);
+            const valuesInScope = getValuesInTopLevelScope(successes);
+
+            let validatedType = validateType(
+                block.value,
+                typedBlocks,
+                imports,
+                valuesInScope
+            );
             const maybeUncoveredBranchErrors = validateAllCasesCovered(
                 block.value,
                 typedBlocks
@@ -3478,7 +3489,14 @@ export function addTypeErrors(
                 ]),
                 ...allOtherTypeBlocks,
             ];
-            let validatedType = validateType(block, typedBlocks, imports);
+
+            const valuesInScope = getValuesInTopLevelScope(module.body);
+            let validatedType = validateType(
+                block,
+                typedBlocks,
+                imports,
+                valuesInScope
+            );
             const maybeUncoveredBranchErrors = validateAllCasesCovered(
                 block,
                 typedBlocks

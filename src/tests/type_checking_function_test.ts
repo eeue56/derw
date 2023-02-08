@@ -44,6 +44,32 @@ value a = [ ]
     );
 }
 
+export async function testInvalidEmptyList() {
+    const exampleInput = `
+value: boolean -> List any
+value a = a
+`.trim();
+    const block = UnparsedBlock("FunctionBlock", 0, exampleInput.split("\n"));
+    const parsed = parseBlock(block);
+    assert.deepStrictEqual(parsed.kind, "Ok");
+
+    const value = (parsed as Ok<Block>).value;
+    assert.deepStrictEqual(
+        validateType(
+            value,
+            [ ],
+            [
+                Import([
+                    ImportModule("List", Nothing(), [ "List" ], "Global"),
+                ]),
+            ]
+        ),
+        Err(
+            "Expected `List (any)` but got `boolean` in the body of the function"
+        )
+    );
+}
+
 export async function testStringList() {
     const exampleInput = `
 value: boolean -> List string

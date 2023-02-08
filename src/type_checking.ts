@@ -51,6 +51,8 @@ import {
     Value,
 } from "./types";
 
+type ScopedValues = Record<string, Type>;
+
 function isSameGenericType(
     first: GenericType,
     second: GenericType,
@@ -287,13 +289,29 @@ export function isSameType(
     }
 }
 
-function inferValue(value: Value): Type {
+function inferValue(
+    value: Value,
+    expectedType: Type,
+    typedBlocks: TypedBlock[],
+    imports: Import[],
+    valuesInScope: ScopedValues
+): Type {
     if (parseInt(value.body, 10)) {
         return FixedType("number", [ ]);
     }
 
     if (value.body === "true" || value.body === "false") {
         return FixedType("boolean", [ ]);
+    }
+
+    if (value.body === "toString") {
+        if (valuesInScope[`_${value.body}`]) {
+            return valuesInScope[`_${value.body}`];
+        }
+    } else {
+        if (valuesInScope[value.body]) {
+            return valuesInScope[value.body];
+        }
     }
 
     return FixedType("any", [ ]);
@@ -323,7 +341,8 @@ function inferListValue(
     value: ListValue,
     expectedType: Type,
     typedBlocks: TypedBlock[],
-    imports: Import[]
+    imports: Import[],
+    valuesInScope: ScopedValues
 ): Result<string, Type> {
     if (value.items.length === 0)
         return Ok(FixedType("List", [ FixedType("any", [ ]) ]));
@@ -344,7 +363,8 @@ function inferListValue(
             item,
             actualExpectedType,
             typedBlocks,
-            imports
+            imports,
+            valuesInScope
         );
         if (inferred.kind === "Err") return inferred;
         types.push(inferred.value);
@@ -363,7 +383,8 @@ function objectLiteralTypeAlias(
     value: ObjectLiteral,
     expectedType: Type,
     typedBlocks: TypedBlock[],
-    imports: Import[]
+    imports: Import[],
+    valuesInScope: ScopedValues
 ): TypeAlias {
     const expectedTypeAlias = getTypeAlias(expectedType, typedBlocks);
 
@@ -384,7 +405,8 @@ function objectLiteralTypeAlias(
                 field.value,
                 expected,
                 typedBlocks,
-                imports
+                imports,
+                valuesInScope
             );
             if (inferred.kind === "Err") {
                 return Property(field.name, GenericType("any"));
@@ -424,7 +446,8 @@ function inferObjectLiteral(
     value: ObjectLiteral,
     expectedType: Type,
     typedBlocks: TypedBlock[],
-    imports: Import[]
+    imports: Import[],
+    valuesInScope: ScopedValues
 ): Result<string, Type> {
     if (value.base !== null) {
         return Ok(FixedType("any", [ ]));
@@ -434,7 +457,8 @@ function inferObjectLiteral(
         value,
         expectedType,
         typedBlocks,
-        imports
+        imports,
+        valuesInScope
     );
 
     if (
@@ -481,19 +505,22 @@ function inferIfStatement(
     value: IfStatement,
     expectedType: Type,
     typedBlocks: TypedBlock[],
-    imports: Import[]
+    imports: Import[],
+    valuesInScope: ScopedValues
 ): Result<string, Type> {
     const ifBranch = inferType(
         value.ifBody,
         expectedType,
         typedBlocks,
-        imports
+        imports,
+        valuesInScope
     );
     const elseBranch = inferType(
         value.elseBody,
         expectedType,
         typedBlocks,
-        imports
+        imports,
+        valuesInScope
     );
 
     if (ifBranch.kind === "Err") return ifBranch;
@@ -513,21 +540,35 @@ function inferBranch(
     value: Branch,
     expectedType: Type,
     typedBlocks: TypedBlock[],
-    imports: Import[]
+    imports: Import[],
+    valuesInScope: ScopedValues
 ): Result<string, Type> {
-    return inferType(value.body, expectedType, typedBlocks, imports);
+    return inferType(
+        value.body,
+        expectedType,
+        typedBlocks,
+        imports,
+        valuesInScope
+    );
 }
 
 function inferCaseStatement(
     value: CaseStatement,
     expectedType: Type,
     typedBlocks: TypedBlock[],
-    imports: Import[]
+    imports: Import[],
+    valuesInScope: ScopedValues
 ): Result<string, Type> {
     const typesToReduce = [ ];
 
     for (const branch of value.branches) {
-        const inf = inferBranch(branch, expectedType, typedBlocks, imports);
+        const inf = inferBranch(
+            branch,
+            expectedType,
+            typedBlocks,
+            imports,
+            valuesInScope
+        );
         if (inf.kind === "Err") return inf;
         typesToReduce.push(inf.value);
     }
@@ -542,10 +583,23 @@ function inferAddition(
     value: Addition,
     expectedType: Type,
     typedBlocks: TypedBlock[],
-    imports: Import[]
+    imports: Import[],
+    valuesInScope: ScopedValues
 ): Result<string, Type> {
-    const left = inferType(value.left, expectedType, typedBlocks, imports);
-    const right = inferType(value.right, expectedType, typedBlocks, imports);
+    const left = inferType(
+        value.left,
+        expectedType,
+        typedBlocks,
+        imports,
+        valuesInScope
+    );
+    const right = inferType(
+        value.right,
+        expectedType,
+        typedBlocks,
+        imports,
+        valuesInScope
+    );
 
     if (left.kind === "Err") return left;
     if (right.kind === "Err") return right;
@@ -563,10 +617,23 @@ function inferSubtraction(
     value: Subtraction,
     expectedType: Type,
     typedBlocks: TypedBlock[],
-    imports: Import[]
+    imports: Import[],
+    valuesInScope: ScopedValues
 ): Result<string, Type> {
-    const left = inferType(value.left, expectedType, typedBlocks, imports);
-    const right = inferType(value.right, expectedType, typedBlocks, imports);
+    const left = inferType(
+        value.left,
+        expectedType,
+        typedBlocks,
+        imports,
+        valuesInScope
+    );
+    const right = inferType(
+        value.right,
+        expectedType,
+        typedBlocks,
+        imports,
+        valuesInScope
+    );
 
     if (left.kind === "Err") return left;
     if (right.kind === "Err") return right;
@@ -584,10 +651,23 @@ function inferMultiplication(
     value: Multiplication,
     expectedType: Type,
     typedBlocks: TypedBlock[],
-    imports: Import[]
+    imports: Import[],
+    valuesInScope: ScopedValues
 ): Result<string, Type> {
-    const left = inferType(value.left, expectedType, typedBlocks, imports);
-    const right = inferType(value.right, expectedType, typedBlocks, imports);
+    const left = inferType(
+        value.left,
+        expectedType,
+        typedBlocks,
+        imports,
+        valuesInScope
+    );
+    const right = inferType(
+        value.right,
+        expectedType,
+        typedBlocks,
+        imports,
+        valuesInScope
+    );
 
     if (left.kind === "Err") return left;
     if (right.kind === "Err") return right;
@@ -605,10 +685,23 @@ function inferDivision(
     value: Division,
     expectedType: Type,
     typedBlocks: TypedBlock[],
-    imports: Import[]
+    imports: Import[],
+    valuesInScope: ScopedValues
 ): Result<string, Type> {
-    const left = inferType(value.left, expectedType, typedBlocks, imports);
-    const right = inferType(value.right, expectedType, typedBlocks, imports);
+    const left = inferType(
+        value.left,
+        expectedType,
+        typedBlocks,
+        imports,
+        valuesInScope
+    );
+    const right = inferType(
+        value.right,
+        expectedType,
+        typedBlocks,
+        imports,
+        valuesInScope
+    );
 
     if (left.kind === "Err") return left;
     if (right.kind === "Err") return right;
@@ -626,10 +719,23 @@ function inferMod(
     value: Mod,
     expectedType: Type,
     typedBlocks: TypedBlock[],
-    imports: Import[]
+    imports: Import[],
+    valuesInScope: ScopedValues
 ): Result<string, Type> {
-    const left = inferType(value.left, expectedType, typedBlocks, imports);
-    const right = inferType(value.right, expectedType, typedBlocks, imports);
+    const left = inferType(
+        value.left,
+        expectedType,
+        typedBlocks,
+        imports,
+        valuesInScope
+    );
+    const right = inferType(
+        value.right,
+        expectedType,
+        typedBlocks,
+        imports,
+        valuesInScope
+    );
 
     if (left.kind === "Err") return left;
     if (right.kind === "Err") return right;
@@ -647,9 +753,16 @@ function inferLeftPipe(
     value: LeftPipe,
     expectedType: Type,
     typedBlocks: TypedBlock[],
-    imports: Import[]
+    imports: Import[],
+    valuesInScope: ScopedValues
 ): Result<string, Type> {
-    const right = inferType(value.right, expectedType, typedBlocks, imports);
+    const right = inferType(
+        value.right,
+        expectedType,
+        typedBlocks,
+        imports,
+        valuesInScope
+    );
 
     return right;
 }
@@ -658,20 +771,82 @@ function inferRightPipe(
     value: RightPipe,
     expectedType: Type,
     typedBlocks: TypedBlock[],
-    imports: Import[]
+    imports: Import[],
+    valuesInScope: ScopedValues
 ): Result<string, Type> {
-    const left = inferType(value.left, expectedType, typedBlocks, imports);
+    const left = inferType(
+        value.left,
+        expectedType,
+        typedBlocks,
+        imports,
+        valuesInScope
+    );
 
     return left;
+}
+
+function getTypeAliasAtPath(
+    value: ModuleReference,
+    expectedType: Type,
+    typedBlocks: TypedBlock[],
+    imports: Import[],
+    valuesInScope: ScopedValues
+): Result<string, TypeAlias> {
+    let currentType = valuesInScope[value.path[0]];
+    if (!currentType) return Err("");
+    let currentTypeAlias = getTypeAlias(currentType, typedBlocks);
+
+    for (const path of value.path.slice(1)) {
+        if (currentTypeAlias.kind === "Err") return Err("");
+
+        let found = false;
+        for (const prop of currentTypeAlias.value.properties) {
+            if (prop.name === path) {
+                currentType = prop.type;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            return Err("");
+        }
+
+        currentTypeAlias = getTypeAlias(currentType, typedBlocks);
+    }
+
+    if (currentTypeAlias.kind === "Err") return Err("");
+    return Ok(currentTypeAlias.value);
 }
 
 function inferModuleReference(
     value: ModuleReference,
     expectedType: Type,
     typedBlocks: TypedBlock[],
-    imports: Import[]
+    imports: Import[],
+    valuesInScope: ScopedValues
 ): Result<string, Type> {
-    return inferType(value.value, expectedType, typedBlocks, imports);
+    if (value.path.length > 0) {
+        const isAVariablePath =
+            value.path[0][0].toLowerCase() === value.path[0][0];
+        if (isAVariablePath && value.value.kind === "Value") {
+            const typeAlias = getTypeAliasAtPath(
+                value,
+                expectedType,
+                typedBlocks,
+                imports,
+                valuesInScope
+            );
+
+            if (typeAlias.kind === "Ok") {
+                for (const prop of typeAlias.value.properties) {
+                    if (prop.name === value.value.body) {
+                        return Ok(prop.type);
+                    }
+                }
+            }
+        }
+    }
+    return Ok(FixedType("any", [ ]));
 }
 
 function inferFunctionCall(value: FunctionCall): Type {
@@ -736,7 +911,8 @@ function inferConstructor(
     value: Constructor,
     expectedType: Type,
     typedBlocks: TypedBlock[],
-    imports: Import[]
+    imports: Import[],
+    valuesInScope: ScopedValues
 ): Result<string, Type> {
     let seenNameInOtherBlock = false;
     for (const block of typedBlocks) {
@@ -749,7 +925,8 @@ function inferConstructor(
                         tag,
                         block,
                         typedBlocks,
-                        imports
+                        imports,
+                        valuesInScope
                     );
 
                     const inferredGenericTypes: Record<string, Type> = {};
@@ -762,7 +939,8 @@ function inferConstructor(
                                         field.value,
                                         arg.type,
                                         typedBlocks,
-                                        imports
+                                        imports,
+                                        valuesInScope
                                     );
                                     if (fieldIsValid.kind === "Ok") {
                                         if (
@@ -850,14 +1028,22 @@ function inferListPrepend(
     value: ListPrepend,
     expectedType: Type,
     typedBlocks: TypedBlock[],
-    imports: Import[]
+    imports: Import[],
+    valuesInScope: ScopedValues
 ): Result<string, Type> {
-    const leftInfer = inferType(value.left, expectedType, typedBlocks, imports);
+    const leftInfer = inferType(
+        value.left,
+        expectedType,
+        typedBlocks,
+        imports,
+        valuesInScope
+    );
     const rightInfer = inferType(
         value.right,
         expectedType,
         typedBlocks,
-        imports
+        imports,
+        valuesInScope
     );
 
     if (leftInfer.kind === "Err") {
@@ -866,7 +1052,8 @@ function inferListPrepend(
                 value.left,
                 FixedType("_Inferred", [ ]),
                 typedBlocks,
-                imports
+                imports,
+                valuesInScope
             );
 
             if (err.kind === "Err") return err;
@@ -925,11 +1112,20 @@ export function inferType(
     expression: Expression,
     expectedType: Type,
     typedBlocks: TypedBlock[],
-    imports: Import[]
+    imports: Import[],
+    valuesInScope: ScopedValues
 ): Result<string, Type> {
     switch (expression.kind) {
         case "Value":
-            return Ok(inferValue(expression));
+            return Ok(
+                inferValue(
+                    expression,
+                    expectedType,
+                    typedBlocks,
+                    imports,
+                    valuesInScope
+                )
+            );
         case "StringValue":
             return Ok(inferStringValue(expression));
         case "FormatStringValue":
@@ -939,7 +1135,8 @@ export function inferType(
                 expression,
                 expectedType,
                 typedBlocks,
-                imports
+                imports,
+                valuesInScope
             );
         case "ListRange":
             return Ok(inferListRange(expression));
@@ -948,52 +1145,65 @@ export function inferType(
                 expression,
                 expectedType,
                 typedBlocks,
-                imports
+                imports,
+                valuesInScope
             );
         case "IfStatement":
             return inferIfStatement(
                 expression,
                 expectedType,
                 typedBlocks,
-                imports
+                imports,
+                valuesInScope
             );
         case "CaseStatement":
             return inferCaseStatement(
                 expression,
                 expectedType,
                 typedBlocks,
-                imports
+                imports,
+                valuesInScope
             );
         case "Addition":
             return inferAddition(
                 expression,
                 expectedType,
                 typedBlocks,
-                imports
+                imports,
+                valuesInScope
             );
         case "Subtraction":
             return inferSubtraction(
                 expression,
                 expectedType,
                 typedBlocks,
-                imports
+                imports,
+                valuesInScope
             );
         case "Multiplication":
             return inferMultiplication(
                 expression,
                 expectedType,
                 typedBlocks,
-                imports
+                imports,
+                valuesInScope
             );
         case "Division":
             return inferDivision(
                 expression,
                 expectedType,
                 typedBlocks,
-                imports
+                imports,
+                valuesInScope
             );
         case "Mod":
-            return inferMod(expression, expectedType, typedBlocks, imports);
+            return inferMod(
+                expression,
+                expectedType,
+                typedBlocks,
+                imports,
+                valuesInScope
+            );
         case "And":
             return Ok(inferAnd(expression));
         case "Or":
@@ -1003,28 +1213,32 @@ export function inferType(
                 expression,
                 expectedType,
                 typedBlocks,
-                imports
+                imports,
+                valuesInScope
             );
         case "LeftPipe":
             return inferLeftPipe(
                 expression,
                 expectedType,
                 typedBlocks,
-                imports
+                imports,
+                valuesInScope
             );
         case "RightPipe":
             return inferRightPipe(
                 expression,
                 expectedType,
                 typedBlocks,
-                imports
+                imports,
+                valuesInScope
             );
         case "ModuleReference":
             return inferModuleReference(
                 expression,
                 expectedType,
                 typedBlocks,
-                imports
+                imports,
+                valuesInScope
             );
         case "FunctionCall":
             return Ok(inferFunctionCall(expression));
@@ -1037,7 +1251,8 @@ export function inferType(
                 expression,
                 expectedType,
                 typedBlocks,
-                imports
+                imports,
+                valuesInScope
             );
         case "Equality":
             return Ok(inferEquality(expression));
@@ -1492,7 +1707,8 @@ function validateObjectLiteral(
     objectLiteral: ObjectLiteral,
     expectedType: Type,
     typedBlocks: TypedBlock[],
-    imports: Import[]
+    imports: Import[],
+    valuesInScope: ScopedValues
 ): Result<string, null> {
     if (objectLiteral.base !== null) {
         return Ok(null);
@@ -1504,7 +1720,8 @@ function validateObjectLiteral(
         objectLiteral,
         expectedType,
         typedBlocks,
-        imports
+        imports,
+        valuesInScope
     );
 
     for (const typeBlock of typedBlocks) {
@@ -1813,13 +2030,15 @@ function validateConstructor(
     tag: Tag,
     unionType: UnionType,
     typedBlocks: TypedBlock[],
-    imports: Import[]
+    imports: Import[],
+    valuesInScope: ScopedValues
 ): Result<string, null> {
     const typeAlias = objectLiteralTypeAlias(
         objectLiteral,
         expectedType,
         typedBlocks,
-        imports
+        imports,
+        valuesInScope
     );
     const typeBlock = tagTypeAlias(tag, unionType, expectedType, typedBlocks);
 
@@ -1968,10 +2187,130 @@ function isImportedConstructor(
     return false;
 }
 
+export function getValuesInTopLevelScope(blocks: Block[]): ScopedValues {
+    const valuesInScope: ScopedValues = {};
+
+    for (const block of blocks) {
+        switch (block.kind) {
+            case "Const": {
+                valuesInScope[
+                    block.name === "toString" ? `_${block.name}` : block.name
+                ] = block.type;
+                continue;
+            }
+
+            case "Function": {
+                valuesInScope[
+                    block.name === "toString" ? `_${block.name}` : block.name
+                ] = block.returnType;
+            }
+
+            case "UnionType":
+            case "UnionUntaggedType":
+            case "TypeAlias": {
+                continue;
+            }
+
+            case "MultilineComment":
+            case "Comment":
+            case "Export":
+            case "Import": {
+                continue;
+            }
+        }
+    }
+
+    return valuesInScope;
+}
+
+function getValuesInBlockScope(block: Block): ScopedValues {
+    const valuesInScope: ScopedValues = {};
+
+    switch (block.kind) {
+        case "Const": {
+            for (const letBlock of block.letBody) {
+                switch (letBlock.kind) {
+                    case "Const": {
+                        valuesInScope[
+                            letBlock.name === "toString"
+                                ? `_${letBlock.name}`
+                                : letBlock.name
+                        ] = letBlock.type;
+                        break;
+                    }
+                    case "Function": {
+                        valuesInScope[
+                            letBlock.name === "toString"
+                                ? `_${letBlock.name}`
+                                : letBlock.name
+                        ] = letBlock.returnType;
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+
+        case "Function": {
+            for (const arg of block.args) {
+                switch (arg.kind) {
+                    case "AnonFunctionArg": {
+                        break;
+                    }
+                    case "FunctionArg": {
+                        valuesInScope[
+                            arg.name === "toString" ? `_${arg.name}` : arg.name
+                        ] = arg.type;
+                        break;
+                    }
+                }
+            }
+
+            for (const letBlock of block.letBody) {
+                switch (letBlock.kind) {
+                    case "Const": {
+                        valuesInScope[
+                            letBlock.name === "toString"
+                                ? `_${letBlock.name}`
+                                : letBlock.name
+                        ] = letBlock.type;
+                        break;
+                    }
+                    case "Function": {
+                        valuesInScope[
+                            letBlock.name === "toString"
+                                ? `_${letBlock.name}`
+                                : letBlock.name
+                        ] = letBlock.returnType;
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+
+        case "UnionType":
+        case "UnionUntaggedType":
+        case "TypeAlias": {
+            break;
+        }
+
+        case "MultilineComment":
+        case "Comment":
+        case "Export":
+        case "Import": {
+            break;
+        }
+    }
+
+    return valuesInScope;
+}
+
 function validateConst(
     block: Const,
     typedBlocks: TypedBlock[],
-    imports: Import[]
+    imports: Import[],
+    valuesInTopLevelScope: ScopedValues
 ): Result<string, Type> {
     if (!typeExistsInNamespace(block.type, typedBlocks, imports)) {
         return Err(
@@ -1979,11 +2318,17 @@ function validateConst(
         );
     }
 
+    const valuesInScope = {
+        ...valuesInTopLevelScope,
+        ...getValuesInBlockScope(block),
+    };
+
     const inferredRes = inferType(
         block.value,
         block.type,
         typedBlocks,
-        imports
+        imports,
+        valuesInScope
     );
 
     if (inferredRes.kind === "Err") return inferredRes;
@@ -2065,7 +2410,8 @@ function validateConst(
             block.value as ObjectLiteral,
             maybeNestedType,
             typedBlocks,
-            imports
+            imports,
+            valuesInScope
         );
         if (validation.kind === "Err") {
             return validation;
@@ -2092,7 +2438,8 @@ function validateConst(
 function validateFunction(
     block: Function,
     typedBlocks: TypedBlock[],
-    imports: Import[]
+    imports: Import[],
+    valuesInTopLevelScope: ScopedValues
 ): Result<string, Type> {
     const notExistingErrors = [ ];
 
@@ -2116,11 +2463,17 @@ function validateFunction(
         return Err(notExistingErrors.join("\n"));
     }
 
+    const valuesInScope = {
+        ...valuesInTopLevelScope,
+        ...getValuesInBlockScope(block),
+    };
+
     const inferredRes = inferType(
         block.body,
         block.returnType,
         typedBlocks,
-        imports
+        imports,
+        valuesInScope
     );
     if (inferredRes.kind === "Err") return inferredRes;
     const inferred = inferredRes.value;
@@ -2174,7 +2527,8 @@ function validateFunction(
                 block.body,
                 maybeNestedType,
                 typedBlocks,
-                imports
+                imports,
+                valuesInScope
             );
             if (validation.kind === "Err") {
                 return validation;
@@ -2208,15 +2562,16 @@ function validateFunction(
 export function validateType(
     block: Block,
     typedBlocks: TypedBlock[],
-    imports: Import[]
+    imports: Import[],
+    valuesInScope: ScopedValues = {}
 ): Result<string, Type> {
     switch (block.kind) {
         case "Const": {
-            return validateConst(block, typedBlocks, imports);
+            return validateConst(block, typedBlocks, imports, valuesInScope);
         }
 
         case "Function": {
-            return validateFunction(block, typedBlocks, imports);
+            return validateFunction(block, typedBlocks, imports, valuesInScope);
         }
 
         case "UnionType":
