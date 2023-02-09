@@ -2223,7 +2223,7 @@ export function getValuesInTopLevelScope(blocks: Block[]): ScopedValues {
     return valuesInScope;
 }
 
-function getValuesInBlockScope(block: Block): ScopedValues {
+function getValuesInBlockScope(block: Block, imports: Import[]): ScopedValues {
     const valuesInScope: ScopedValues = {};
 
     switch (block.kind) {
@@ -2231,6 +2231,9 @@ function getValuesInBlockScope(block: Block): ScopedValues {
             for (const letBlock of block.letBody) {
                 switch (letBlock.kind) {
                     case "Const": {
+                        if (isImportedType(letBlock.type, imports)) {
+                            break;
+                        }
                         valuesInScope[
                             letBlock.name === "toString"
                                 ? `_${letBlock.name}`
@@ -2239,6 +2242,9 @@ function getValuesInBlockScope(block: Block): ScopedValues {
                         break;
                     }
                     case "Function": {
+                        if (isImportedType(letBlock.returnType, imports)) {
+                            break;
+                        }
                         valuesInScope[
                             letBlock.name === "toString"
                                 ? `_${letBlock.name}`
@@ -2258,6 +2264,9 @@ function getValuesInBlockScope(block: Block): ScopedValues {
                         break;
                     }
                     case "FunctionArg": {
+                        if (isImportedType(arg.type, imports)) {
+                            break;
+                        }
                         valuesInScope[
                             arg.name === "toString" ? `_${arg.name}` : arg.name
                         ] = arg.type;
@@ -2269,6 +2278,9 @@ function getValuesInBlockScope(block: Block): ScopedValues {
             for (const letBlock of block.letBody) {
                 switch (letBlock.kind) {
                     case "Const": {
+                        if (isImportedType(letBlock.type, imports)) {
+                            break;
+                        }
                         valuesInScope[
                             letBlock.name === "toString"
                                 ? `_${letBlock.name}`
@@ -2277,6 +2289,9 @@ function getValuesInBlockScope(block: Block): ScopedValues {
                         break;
                     }
                     case "Function": {
+                        if (isImportedType(letBlock.returnType, imports)) {
+                            break;
+                        }
                         valuesInScope[
                             letBlock.name === "toString"
                                 ? `_${letBlock.name}`
@@ -2320,7 +2335,7 @@ function validateConst(
 
     const valuesInScope = {
         ...valuesInTopLevelScope,
-        ...getValuesInBlockScope(block),
+        ...getValuesInBlockScope(block, imports),
     };
 
     const inferredRes = inferType(
@@ -2465,7 +2480,7 @@ function validateFunction(
 
     const valuesInScope = {
         ...valuesInTopLevelScope,
-        ...getValuesInBlockScope(block),
+        ...getValuesInBlockScope(block, imports),
     };
 
     const inferredRes = inferType(

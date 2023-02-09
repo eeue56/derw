@@ -2,7 +2,16 @@ import * as assert from "@eeue56/ts-assert";
 import { Err, Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { intoBlocks } from "../Blocks";
 import { parseBlock } from "../parser";
-import { Block, FixedType, GenericType, Property, TypeAlias } from "../types";
+import { Nothing } from "../stdlib/Maybe";
+import {
+    Block,
+    FixedType,
+    GenericType,
+    Import,
+    ImportModule,
+    Property,
+    TypeAlias,
+} from "../types";
 import { getValuesInTopLevelScope, validateType } from "../type_checking";
 
 export async function testEmptyList() {
@@ -501,5 +510,61 @@ value parent =
             valuesInScope
         ),
         Err("Expected `Parent` but got `Person` in the body of the function")
+    );
+}
+
+export async function testImportedType() {
+    const exampleBlocksInScope = `
+    `;
+
+    const exampleInput = `
+getGenericTypes: Type -> List GenericType
+getGenericTypes type_ =
+    case type_ of
+        GenericType ->
+            [ type_ ]
+
+        FunctionType ->
+            getGenericTypesFromFunctionType type_
+
+        FixedType { args } ->
+            List.foldl (\\newType collection -> List.append collection (getGenericTypes newType)) [ ] args
+
+        ObjectLiteralType ->
+            [ ]
+`.trim();
+
+    const blocks = intoBlocks(exampleBlocksInScope);
+    const parsedScope = blocks.map(parseBlock);
+    assert.deepStrictEqual(
+        parsedScope.filter((block) => block.kind === "Ok").length,
+        parsedScope.length
+    );
+    const valuesInScope = getValuesInTopLevelScope(
+        parsedScope.map((block) => (block as Ok<Block>).value)
+    );
+
+    const block = intoBlocks(exampleInput)[0];
+    const parsed = parseBlock(block);
+    assert.deepStrictEqual(parsed.kind, "Ok");
+
+    const value = (parsed as Ok<Block>).value;
+    assert.deepStrictEqual(
+        validateType(
+            value,
+            [ ],
+            [
+                Import([
+                    ImportModule(
+                        "Types",
+                        Nothing({}),
+                        [ "GenericType", "Type" ],
+                        "Global"
+                    ),
+                ]),
+            ],
+            valuesInScope
+        ),
+        Ok(FixedType("List", [ FixedType("GenericType", [ ]) ]))
     );
 }
