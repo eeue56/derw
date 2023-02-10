@@ -4,7 +4,7 @@ import {
     IdentifierToken,
     OpenBracketToken,
     StringToken,
-} from "./Tokens_derw";
+} from "./Tokens";
 
 export type TypeTokenRaw =
     | IdentifierToken
