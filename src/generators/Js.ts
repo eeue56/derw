@@ -106,7 +106,20 @@ function generateObjectLiteral(literal: ObjectLiteral): string {
 }
 
 function generateListValue(list: ListValue): string {
-    const items: string[] = List.map(generateExpression, list.items);
+    function generator(expression: Expression): string {
+        switch (expression.kind) {
+            case "IfStatement": {
+                return generateInlineIf(expression);
+            }
+            case "CaseStatement": {
+                return generateInlineCase(expression);
+            }
+            default: {
+                return generateExpression(expression);
+            }
+        }
+    }
+    const items: string[] = List.map(generator, list.items);
     switch (items.length) {
         case 0: {
             return "[ ]";

@@ -93,9 +93,21 @@ generateObjectLiteral literal =
 generateListValue: ListValue -> string
 generateListValue list =
     let
+        generator: Expression -> string
+        generator expression =
+            case expression of
+                IfStatement ->
+                    generateInlineIf expression
+
+                CaseStatement ->
+                    generateInlineCase expression
+
+                default ->
+                    generateExpression expression
+
         items: List string
         items =
-            List.map generateExpression list.items
+            List.map generator list.items
     in
         case items of
             [] ->
