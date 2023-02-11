@@ -2171,6 +2171,18 @@ function isImportedType(type_: Type, imports: Import[]): boolean {
     return false;
 }
 
+function isInTypeBlockType(type_: Type, typedBlocks: TypedBlock[]): boolean {
+    if (type_.kind !== "FixedType") return false;
+
+    for (const block of typedBlocks) {
+        if (isSameType(block.type, type_, true)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 function isImportedConstructor(
     constructor: Constructor,
     imports: Import[]
@@ -2223,7 +2235,21 @@ export function getValuesInTopLevelScope(blocks: Block[]): ScopedValues {
     return valuesInScope;
 }
 
-function getValuesInBlockScope(block: Block, imports: Import[]): ScopedValues {
+function isImportedTypeScriptType(
+    type_: Type,
+    typedBlocks: TypedBlock[],
+    imports: Import[]
+): boolean {
+    return (
+        isImportedType(type_, imports) && !isInTypeBlockType(type_, typedBlocks)
+    );
+}
+
+function getValuesInBlockScope(
+    block: Block,
+    typedBlocks: TypedBlock[],
+    imports: Import[]
+): ScopedValues {
     const valuesInScope: ScopedValues = {};
 
     switch (block.kind) {
@@ -2231,7 +2257,13 @@ function getValuesInBlockScope(block: Block, imports: Import[]): ScopedValues {
             for (const letBlock of block.letBody) {
                 switch (letBlock.kind) {
                     case "Const": {
-                        if (isImportedType(letBlock.type, imports)) {
+                        if (
+                            isImportedTypeScriptType(
+                                letBlock.type,
+                                typedBlocks,
+                                imports
+                            )
+                        ) {
                             break;
                         }
                         valuesInScope[
@@ -2242,7 +2274,13 @@ function getValuesInBlockScope(block: Block, imports: Import[]): ScopedValues {
                         break;
                     }
                     case "Function": {
-                        if (isImportedType(letBlock.returnType, imports)) {
+                        if (
+                            isImportedTypeScriptType(
+                                letBlock.returnType,
+                                typedBlocks,
+                                imports
+                            )
+                        ) {
                             break;
                         }
                         valuesInScope[
@@ -2264,7 +2302,13 @@ function getValuesInBlockScope(block: Block, imports: Import[]): ScopedValues {
                         break;
                     }
                     case "FunctionArg": {
-                        if (isImportedType(arg.type, imports)) {
+                        if (
+                            isImportedTypeScriptType(
+                                arg.type,
+                                typedBlocks,
+                                imports
+                            )
+                        ) {
                             break;
                         }
                         valuesInScope[
@@ -2278,7 +2322,13 @@ function getValuesInBlockScope(block: Block, imports: Import[]): ScopedValues {
             for (const letBlock of block.letBody) {
                 switch (letBlock.kind) {
                     case "Const": {
-                        if (isImportedType(letBlock.type, imports)) {
+                        if (
+                            isImportedTypeScriptType(
+                                letBlock.type,
+                                typedBlocks,
+                                imports
+                            )
+                        ) {
                             break;
                         }
                         valuesInScope[
@@ -2289,7 +2339,13 @@ function getValuesInBlockScope(block: Block, imports: Import[]): ScopedValues {
                         break;
                     }
                     case "Function": {
-                        if (isImportedType(letBlock.returnType, imports)) {
+                        if (
+                            isImportedTypeScriptType(
+                                letBlock.returnType,
+                                typedBlocks,
+                                imports
+                            )
+                        ) {
                             break;
                         }
                         valuesInScope[
@@ -2335,7 +2391,7 @@ function validateConst(
 
     const valuesInScope = {
         ...valuesInTopLevelScope,
-        ...getValuesInBlockScope(block, imports),
+        ...getValuesInBlockScope(block, typedBlocks, imports),
     };
 
     const inferredRes = inferType(
@@ -2480,7 +2536,7 @@ function validateFunction(
 
     const valuesInScope = {
         ...valuesInTopLevelScope,
-        ...getValuesInBlockScope(block, imports),
+        ...getValuesInBlockScope(block, typedBlocks, imports),
     };
 
     const inferredRes = inferType(

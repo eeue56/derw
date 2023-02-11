@@ -11,6 +11,7 @@ import {
     ImportModule,
     Property,
     TypeAlias,
+    UnionType,
 } from "../types";
 import { getValuesInTopLevelScope, validateType } from "../type_checking";
 
@@ -566,5 +567,66 @@ getGenericTypes type_ =
             valuesInScope
         ),
         Ok(FixedType("List", [ FixedType("GenericType", [ ]) ]))
+    );
+}
+
+export async function testInvalidImportedType() {
+    const exampleBlocksInScope = `
+    `;
+
+    const exampleInput = `
+getGenericTypes: Type -> List GenericType
+getGenericTypes type_ =
+    case type_ of
+        GenericType ->
+            [ type_ ]
+
+        FunctionType ->
+            getGenericTypesFromFunctionType type_
+
+        FixedType { args } ->
+            List.foldl (\\newType collection -> List.append collection (getGenericTypes newType)) [ ] args
+
+        ObjectLiteralType ->
+            [ ]
+`.trim();
+
+    const blocks = intoBlocks(exampleBlocksInScope);
+    const parsedScope = blocks.map(parseBlock);
+    assert.deepStrictEqual(
+        parsedScope.filter((block) => block.kind === "Ok").length,
+        parsedScope.length
+    );
+    const valuesInScope = getValuesInTopLevelScope(
+        parsedScope.map((block) => (block as Ok<Block>).value)
+    );
+
+    const block = intoBlocks(exampleInput)[0];
+    const parsed = parseBlock(block);
+    assert.deepStrictEqual(parsed.kind, "Ok");
+
+    const value = (parsed as Ok<Block>).value;
+    assert.deepStrictEqual(
+        validateType(
+            value,
+            [
+                UnionType(FixedType("Type", [ ]), [ ]),
+                UnionType(FixedType("GenericType", [ ]), [ ]),
+            ],
+            [
+                Import([
+                    ImportModule(
+                        "Types",
+                        Nothing({}),
+                        [ "GenericType", "Type" ],
+                        "Global"
+                    ),
+                ]),
+            ],
+            valuesInScope
+        ),
+        Err(
+            "Expected `List (GenericType)` but got `List (Type)` in the body of the function"
+        )
     );
 }
