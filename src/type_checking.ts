@@ -211,7 +211,9 @@ function isSameObjectLiteralTypeAlias(
 function tagToFixedType(tag: Tag): FixedType {
     return FixedType(
         tag.name,
-        tag.args.map((arg) => arg.type)
+        tag.args
+            .filter((tag) => tag.type.kind === "GenericType")
+            .map((arg) => arg.type)
     );
 }
 

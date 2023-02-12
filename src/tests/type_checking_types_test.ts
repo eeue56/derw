@@ -356,3 +356,77 @@ hello str =
         Ok(FixedType("Just", [ FixedType("string", [ ]) ]))
     );
 }
+
+export async function testUnionTypeTagExpression() {
+    const exampleInput = `
+type Expression =
+    Value { body: string }
+    | Nothing
+`.trim();
+
+    const exampleInstance = `
+hello: Value
+hello =
+    Value { body: "str" }
+`.trim();
+
+    const unparsedTypeBlock = UnparsedBlock(
+        "UnionTypeBlock",
+        0,
+        exampleInput.split("\n")
+    );
+    const parsedTypeBlock = parseBlock(unparsedTypeBlock);
+    assert.deepStrictEqual(parsedTypeBlock.kind, "Ok");
+    const typeValue = (parsedTypeBlock as Ok<Block>).value as TypedBlock;
+
+    const unparsedInstance = UnparsedBlock(
+        "FunctionBlock",
+        0,
+        exampleInstance.split("\n")
+    );
+    const parsedInstance = parseBlock(unparsedInstance);
+    assert.deepStrictEqual(parsedInstance.kind, "Ok");
+    const instanceValue = (parsedInstance as Ok<Block>).value as TypedBlock;
+
+    assert.deepStrictEqual(
+        validateType(instanceValue, [ typeValue ], [ ]),
+        Ok(FixedType("Value", [ ]))
+    );
+}
+
+export async function testUnionTypeTagExpressionFunction() {
+    const exampleInput = `
+type Expression =
+    Value { body: string }
+    | Nothing
+`.trim();
+
+    const exampleInstance = `
+hello: string -> Value
+hello str =
+    Value { body: str }
+`.trim();
+
+    const unparsedTypeBlock = UnparsedBlock(
+        "UnionTypeBlock",
+        0,
+        exampleInput.split("\n")
+    );
+    const parsedTypeBlock = parseBlock(unparsedTypeBlock);
+    assert.deepStrictEqual(parsedTypeBlock.kind, "Ok");
+    const typeValue = (parsedTypeBlock as Ok<Block>).value as TypedBlock;
+
+    const unparsedInstance = UnparsedBlock(
+        "FunctionBlock",
+        0,
+        exampleInstance.split("\n")
+    );
+    const parsedInstance = parseBlock(unparsedInstance);
+    assert.deepStrictEqual(parsedInstance.kind, "Ok");
+    const instanceValue = (parsedInstance as Ok<Block>).value as TypedBlock;
+
+    assert.deepStrictEqual(
+        validateType(instanceValue, [ typeValue ], [ ]),
+        Ok(FixedType("Value", [ ]))
+    );
+}
