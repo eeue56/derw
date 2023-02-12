@@ -33,13 +33,13 @@ moduleNames index module =
     in
         {
             modules: [ {
-            name: moduleName,
-            indexes: [ index ]
-        } ],
+                name: moduleName,
+                indexes: [ index ]
+            } ],
             values: List.map (\name -> {
-            indexes: [ index ],
-            name: name
-        }) module.exposing
+                indexes: [ index ],
+                name: name
+            }) module.exposing
         }
 
 blockNames: Block -> number -> Names
@@ -49,36 +49,36 @@ blockNames block index =
             {
                 modules: [ ],
                 values: [ {
-                name: name,
-                indexes: [ index ]
-            } ]
+                    name: name,
+                    indexes: [ index ]
+                } ]
             }
 
         Const { name } ->
             {
                 modules: [ ],
                 values: [ {
-                name: name,
-                indexes: [ index ]
-            } ]
+                    name: name,
+                    indexes: [ index ]
+                } ]
             }
 
         UnionType { type } ->
             {
                 modules: [ ],
                 values: [ {
-                name: type.name,
-                indexes: [ index ]
-            } ]
+                    name: type.name,
+                    indexes: [ index ]
+                } ]
             }
 
         TypeAlias { type } ->
             {
                 modules: [ ],
                 values: [ {
-                name: type.name,
-                indexes: [ index ]
-            } ]
+                    name: type.name,
+                    indexes: [ index ]
+                } ]
             }
 
         Import { modules } ->

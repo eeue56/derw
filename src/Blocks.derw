@@ -115,7 +115,7 @@ validators =
         },
         {
             test: (\x -> x.split "="
-            |> (\y -> y.length > 1)),
+                |> (\y -> y.length > 1)),
             blockKind: "Definition"
         }
     ]

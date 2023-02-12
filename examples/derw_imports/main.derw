@@ -6,4 +6,4 @@ oneThing =
 
 dontKnowWhy: Other.Other
 dontKnowWhy =
-    { name: "noah" }
+    Other.Other { name: "noah" }
