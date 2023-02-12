@@ -2,6 +2,7 @@ import * as assert from "@eeue56/ts-assert";
 import { Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { blockKind, intoBlocks } from "../Blocks";
 import { compileTypescript } from "../compile";
+import { generateDerw } from "../generators/Derw";
 import { generateJavascript } from "../generators/Js";
 import { generateTypescript } from "../generators/Ts";
 import { parse } from "../parser";
@@ -14,6 +15,7 @@ import {
     Module,
     ObjectLiteral,
     Property,
+    StringValue,
     TypeAlias,
     UnparsedBlock,
     Value,
@@ -26,7 +28,7 @@ type alias Person = {
 }
 
 person: Person
-person = { name: { }, age: 28 }
+person = { name: { mine: "hello" }, age: 28 }
 `.trim();
 
 const multiLine = `
@@ -38,9 +40,7 @@ type alias Person = {
 person: Person
 person =
     {
-        name: {
-
-    },
+        name: { mine: "hello" },
         age: 28
     }
 `.trim();
@@ -58,7 +58,7 @@ function Person(args: { name: any, age: number }): Person {
 }
 
 const person: Person = {
-    name: { },
+    name: { mine: "hello" },
     age: 28
 };
 `.trim();
@@ -71,7 +71,7 @@ function Person(args) {
 }
 
 const person = {
-    name: { },
+    name: { mine: "hello" },
     age: 28
 };
 `.trim();
@@ -119,7 +119,12 @@ export function testParse() {
                     FixedType("Person", [ ]),
                     [ ],
                     ObjectLiteral(null, [
-                        Field("name", ObjectLiteral(null, [ ])),
+                        Field(
+                            "name",
+                            ObjectLiteral(null, [
+                                Field("mine", StringValue("hello")),
+                            ])
+                        ),
                         Field("age", Value("28")),
                     ])
                 ),
@@ -144,7 +149,12 @@ export function testParseMultiLine() {
                     FixedType("Person", [ ]),
                     [ ],
                     ObjectLiteral(null, [
-                        Field("name", ObjectLiteral(null, [ ])),
+                        Field(
+                            "name",
+                            ObjectLiteral(null, [
+                                Field("mine", StringValue("hello")),
+                            ])
+                        ),
                         Field("age", Value("28")),
                     ])
                 ),
@@ -198,4 +208,10 @@ export function testGenerateOneLineJS() {
     const parsed = parse(oneLine);
     const generated = generateJavascript(parsed);
     assert.strictEqual(generated, expectedOutputJS);
+}
+
+export function testGenerateDerw() {
+    const parsed = parse(multiLine);
+    const generated = generateDerw(parsed);
+    assert.strictEqual(generated, multiLine);
 }

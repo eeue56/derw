@@ -206,18 +206,22 @@ generateObjectLiteral literal =
         fields: string
         fields =
             literal.fields.map generateField
-                |> (\y -> y.join ",\n    ")
+                |> (\y -> y.join ",\n")
+
+        maybePrefixed: string
+        maybePrefixed =
+            prefixLines fields 4
     in
         if literal.base == null then
             if literal.fields.length == 1 then
                 `{ ${fields} }`
             else
-                `{\n    ${fields}\n}`
+                `{\n${maybePrefixed}\n}`
         else
             if literal.fields.length == 1 then
                 `{ ${literal.base.body}, ${fields} }`
             else
-                `{\n    ${literal.base.body},\n    ${fields}\n}`
+                `{\n    ${literal.base.body},\n${maybePrefixed}\n}`
 
 generateValue: Value -> string
 generateValue value =

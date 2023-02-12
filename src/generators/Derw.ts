@@ -205,19 +205,20 @@ function generateField(field: Field): string {
 
 function generateObjectLiteral(literal: ObjectLiteral): string {
     const fields: string = (function(y: any) {
-        return y.join(",\n    ");
+        return y.join(",\n");
     })(literal.fields.map(generateField));
+    const maybePrefixed: string = prefixLines(fields, 4);
     if (literal.base === null) {
         if (literal.fields.length === 1) {
             return `{ ${fields} }`;
         } else {
-            return `{\n    ${fields}\n}`;
+            return `{\n${maybePrefixed}\n}`;
         };
     } else {
         if (literal.fields.length === 1) {
             return `{ ${literal.base.body}, ${fields} }`;
         } else {
-            return `{\n    ${literal.base.body},\n    ${fields}\n}`;
+            return `{\n    ${literal.base.body},\n${maybePrefixed}\n}`;
         };
     }
 }
