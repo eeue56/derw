@@ -9,7 +9,7 @@ import { parse } from "../parser";
 import { BlockKinds, Export, UnparsedBlock } from "../types";
 
 const oneLine = `
-exposing (isValid, Animal)
+exposing ( isValid, Animal )
 
 type Animal = Cat { name: string } | Dog { name: string }
 
@@ -19,9 +19,9 @@ isValid animal =
 `.trim();
 
 const multiLine = `
-exposing (isValid)
+exposing ( isValid )
 
-exposing (Animal)
+exposing ( Animal )
 
 type Animal =
     Cat { name: string }

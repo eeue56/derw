@@ -11,7 +11,7 @@ import "../types" as Values exposing ( Value, StringValue, FormatStringValue, Li
 import "../types" exposing ( Tag, UnionType, UnionUntaggedType, Type, TagArg, Block, Constructor, Expression, isSimpleValue )
 import "./Common" exposing ( prefixLines )
 
-exposing (generateElm)
+exposing ( generateElm )
 
 generateTag: Tag -> string
 generateTag tag =

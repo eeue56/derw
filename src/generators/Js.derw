@@ -14,7 +14,7 @@ import "../types" exposing ( Tag, UnionType, Type, TagArg, Block, Constructor, E
 import "./Common" exposing ( prefixLines, destructureLength, patternHasGaps, patternGapPositions )
 import "./CommonToEcma" exposing ( flattenLeftPipe, generateExportBlock, generateFormatStringValue, generateImportBlock, generateListDestructurePart, generateListRange, generateStringValue, generateValue )
 
-exposing (generateJavascript)
+exposing ( generateJavascript )
 
 generateTagCreator: Tag -> string
 generateTagCreator tag =

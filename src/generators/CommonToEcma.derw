@@ -2,7 +2,7 @@ import "../Utils" exposing ( getNameFromPath )
 import "../stdlib/List" as List
 import "../types" exposing ( Value, StringValue, FormatStringValue, ListRange, ListDestructurePart, ModuleReference, Expression, LeftPipe, Lambda, Export, ImportModule, Import )
 
-exposing (generateValue, generateStringValue, generateFormatStringValue, generateListRange, generateListDestructurePart, flattenLeftPipe, generateImportBlock, generateExportBlock)
+exposing ( generateValue, generateStringValue, generateFormatStringValue, generateListRange, generateListDestructurePart, flattenLeftPipe, generateImportBlock, generateExportBlock )
 
 type MyExpressions =
     FunctionCall { name: string,

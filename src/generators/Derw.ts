@@ -828,7 +828,7 @@ function generateImportBlock(imports: Import): string {
 }
 
 function generateExportBlock(exports: Export): string {
-    return `exposing (${exports.names.join(", ")})`;
+    return `exposing ( ${exports.names.join(", ")} )`;
 }
 
 function generateComment(comment: Comment): string {

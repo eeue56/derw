@@ -1,7 +1,7 @@
 import "./stdlib/Bitwise_kernel" as Bitwise
 import "./stdlib/List" as List
 
-exposing (getNameFromPath, isTestFile, hashCode)
+exposing ( getNameFromPath, isTestFile, hashCode )
 
 getNameFromPath: string -> string
 getNameFromPath path =

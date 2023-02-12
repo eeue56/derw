@@ -1,7 +1,7 @@
 import "./List_kernel" exposing ( kernelLength, kernelEmptyList, kernelSort, kernelSortBy, kernelStatefulFold )
 import "./Maybe" exposing ( Maybe )
 
-exposing (emptyList, map, indexedMap, filter, foldl, statefulFold, foldr, filterMap, append, reverse, length, take, drop, sort, sortBy)
+exposing ( emptyList, map, indexedMap, filter, foldl, statefulFold, foldr, filterMap, append, reverse, length, take, drop, sort, sortBy )
 
 emptyList: List any
 emptyList =

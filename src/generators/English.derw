@@ -10,7 +10,7 @@ import "../types" as Values exposing ( Value, StringValue, FormatStringValue, Li
 import "../types" exposing ( Tag, UnionType, UnionUntaggedType, Type, TagArg, Block, Constructor, Expression )
 import "./Common" exposing ( prefixLines )
 
-exposing (generateEnglish)
+exposing ( generateEnglish )
 
 generateTag: Tag -> string
 generateTag tag =

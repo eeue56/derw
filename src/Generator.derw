@@ -5,7 +5,7 @@ import "./generators/Js" exposing ( generateJavascript )
 import "./generators/Ts" exposing ( generateTypescript )
 import "./types" exposing ( Module )
 
-exposing (Target, generate)
+exposing ( Target, generate )
 
 emptyLineAtEndOfFile: string
 emptyLineAtEndOfFile =

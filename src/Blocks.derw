@@ -2,7 +2,7 @@ import "./Utils" exposing ( isTestFile )
 import "./stdlib/List" as List
 import "./types" exposing ( BlockKinds, Block, TypedBlock, Module )
 
-exposing (blockKind, createUnparsedBlock, intoBlocks, typeBlocks, exportTests)
+exposing ( blockKind, createUnparsedBlock, intoBlocks, typeBlocks, exportTests )
 
 type alias Validator = {
     test: string -> boolean,

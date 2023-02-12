@@ -1,4 +1,4 @@
-exposing (Maybe, Just, Nothing, map, withDefault, andThen)
+exposing ( Maybe, Just, Nothing, map, withDefault, andThen )
 
 type Maybe a =
     Just { value: a }

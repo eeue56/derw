@@ -1,7 +1,7 @@
 import "../stdlib/List" as List
 import "../types" exposing ( ListDestructure, ListDestructurePart )
 
-exposing (prefixLines, destructureLength, patternGapPositions, patternHasGaps)
+exposing ( prefixLines, destructureLength, patternGapPositions, patternHasGaps )
 
 prefixLines: string -> number -> string
 prefixLines body indent =

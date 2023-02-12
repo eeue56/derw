@@ -11,7 +11,7 @@ import "../types" as Values exposing ( Value, StringValue, FormatStringValue, Li
 import "../types" exposing ( Tag, UnionType, UnionUntaggedType, Type, TagArg, Block, Constructor, Expression, isSimpleValue )
 import "./Common" exposing ( prefixLines )
 
-exposing (generateDerw, generateExpression)
+exposing ( generateDerw, generateExpression )
 
 generateTag: Tag -> string
 generateTag tag =
@@ -1027,7 +1027,7 @@ generateImportBlock imports =
 
 generateExportBlock: Export -> string
 generateExportBlock exports =
-    `exposing (${exports.names.join(", ")})`
+    `exposing ( ${exports.names.join(", ")} )`
 
 generateComment: Comment -> string
 generateComment comment =

@@ -14,7 +14,7 @@ import "../types" exposing ( Tag, UnionType, UnionUntaggedType, Type, TagArg, Bl
 import "./Common" exposing ( prefixLines, destructureLength, patternHasGaps, patternGapPositions )
 import "./CommonToEcma" exposing ( flattenLeftPipe, generateExportBlock, generateFormatStringValue, generateImportBlock, generateListDestructurePart, generateListRange, generateStringValue, generateValue )
 
-exposing (generateTypescript)
+exposing ( generateTypescript )
 
 generateTypeArg: TagArg -> List Import -> string
 generateTypeArg arg imports =

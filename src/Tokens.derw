@@ -1,11 +1,11 @@
 import "./Tokens_types_kernel" exposing ( TypeTokenRaw, TypeToken, BaseTypeToken, FunctionTypeToken, RootTypeTokens )
 import "./stdlib/List" as List
 
-exposing (StringToken, FormatStringToken, KeywordToken, IdentifierToken, LiteralToken, ColonToken, ArrowToken, CommentToken, MultilineCommentToken, AssignToken, CommaToken, OpenCurlyBracesToken, CloseCurlyBracesToken, OpenBracketToken, CloseBracketToken, PipeToken, OperatorToken, WhitespaceToken, Token)
+exposing ( StringToken, FormatStringToken, KeywordToken, IdentifierToken, LiteralToken, ColonToken, ArrowToken, CommentToken, MultilineCommentToken, AssignToken, CommaToken, OpenCurlyBracesToken, CloseCurlyBracesToken, OpenBracketToken, CloseBracketToken, PipeToken, OperatorToken, WhitespaceToken, Token )
 
-exposing (RootTypeTokens, BaseTypeToken, FunctionTypeToken, TypeToken)
+exposing ( RootTypeTokens, BaseTypeToken, FunctionTypeToken, TypeToken )
 
-exposing (checkKeywordToken, tokenize, tokenizeType, tokensToString, rootTypeTokensToString)
+exposing ( checkKeywordToken, tokenize, tokenizeType, tokensToString, rootTypeTokensToString )
 
 type State =
     Empty

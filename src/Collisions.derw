@@ -2,7 +2,7 @@ import "./stdlib/List" as List
 import "./stdlib/Maybe" as Maybe exposing ( Just, Nothing, Maybe )
 import "./types" exposing ( Block, ImportModule )
 
-exposing (Collision, collisions)
+exposing ( Collision, collisions )
 
 type alias Collision = {
     name: string,
