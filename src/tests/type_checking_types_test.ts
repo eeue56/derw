@@ -282,3 +282,77 @@ person =
         )
     );
 }
+
+export async function testUnionTypeTag() {
+    const exampleInput = `
+type Maybe a =
+    Just { value: a }
+    | Nothing
+`.trim();
+
+    const exampleInstance = `
+hello: Just string
+hello =
+    Just { value: "hello" }
+`.trim();
+
+    const unparsedTypeBlock = UnparsedBlock(
+        "UnionTypeBlock",
+        0,
+        exampleInput.split("\n")
+    );
+    const parsedTypeBlock = parseBlock(unparsedTypeBlock);
+    assert.deepStrictEqual(parsedTypeBlock.kind, "Ok");
+    const typeValue = (parsedTypeBlock as Ok<Block>).value as TypedBlock;
+
+    const unparsedInstance = UnparsedBlock(
+        "ConstBlock",
+        0,
+        exampleInstance.split("\n")
+    );
+    const parsedInstance = parseBlock(unparsedInstance);
+    assert.deepStrictEqual(parsedInstance.kind, "Ok");
+    const instanceValue = (parsedInstance as Ok<Block>).value as TypedBlock;
+
+    assert.deepStrictEqual(
+        validateType(instanceValue, [ typeValue ], [ ]),
+        Ok(FixedType("Just", [ FixedType("string", [ ]) ]))
+    );
+}
+
+export async function testUnionTypeTagFunction() {
+    const exampleInput = `
+type Maybe a =
+    Just { value: a }
+    | Nothing
+`.trim();
+
+    const exampleInstance = `
+hello: string -> Just string
+hello str =
+    Just { value: str }
+`.trim();
+
+    const unparsedTypeBlock = UnparsedBlock(
+        "UnionTypeBlock",
+        0,
+        exampleInput.split("\n")
+    );
+    const parsedTypeBlock = parseBlock(unparsedTypeBlock);
+    assert.deepStrictEqual(parsedTypeBlock.kind, "Ok");
+    const typeValue = (parsedTypeBlock as Ok<Block>).value as TypedBlock;
+
+    const unparsedInstance = UnparsedBlock(
+        "FunctionBlock",
+        0,
+        exampleInstance.split("\n")
+    );
+    const parsedInstance = parseBlock(unparsedInstance);
+    assert.deepStrictEqual(parsedInstance.kind, "Ok");
+    const instanceValue = (parsedInstance as Ok<Block>).value as TypedBlock;
+
+    assert.deepStrictEqual(
+        validateType(instanceValue, [ typeValue ], [ ]),
+        Ok(FixedType("Just", [ FixedType("string", [ ]) ]))
+    );
+}

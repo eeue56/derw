@@ -208,10 +208,35 @@ function isSameObjectLiteralTypeAlias(
     return true;
 }
 
+function tagToFixedType(tag: Tag): FixedType {
+    return FixedType(
+        tag.name,
+        tag.args.map((arg) => arg.type)
+    );
+}
+
+function isATag(type_: Type, typedBlocks: TypedBlock[]): Result<null, Type> {
+    for (const block of typedBlocks) {
+        switch (block.kind) {
+            case "UnionType": {
+                for (const tag of block.tags) {
+                    const tagType = tagToFixedType(tag);
+
+                    if (isSameType(type_, tagType, false))
+                        return Ok(block.type);
+                }
+            }
+        }
+    }
+
+    return Err(null);
+}
+
 export function isSameType(
     first: Type,
     second: Type,
-    topLevel: boolean
+    topLevel: boolean,
+    typedBlocks: TypedBlock[] = [ ]
 ): boolean {
     if (
         first.kind === "ObjectLiteralType" &&
@@ -278,7 +303,30 @@ export function isSameType(
                 };
             }
 
-            return isSameFixedType(first, second, topLevel);
+            if (isSameFixedType(first, second, topLevel)) {
+                return true;
+            }
+
+            const isFirstATag = isATag(first, typedBlocks);
+            const isSecondATag = isATag(second, typedBlocks);
+
+            if (isFirstATag.kind === "Ok") {
+                if (
+                    isSameType(isFirstATag.value, second, topLevel, typedBlocks)
+                ) {
+                    return true;
+                }
+            }
+
+            if (isSecondATag.kind === "Ok") {
+                if (
+                    isSameType(first, isSecondATag.value, topLevel, typedBlocks)
+                ) {
+                    return true;
+                }
+            }
+
+            return false;
         }
         case "GenericType": {
             return isSameGenericType(first, second as GenericType, topLevel);
@@ -1307,6 +1355,15 @@ function typeExistsInNamespace(
 
     for (const block of blocks) {
         if (isSameType(type, block.type, true)) return true;
+
+        switch (block.kind) {
+            case "UnionType": {
+                for (const tag of block.tags) {
+                    if (isSameType(type, tagToFixedType(tag), true))
+                        return true;
+                }
+            }
+        }
     }
 
     for (const import_ of imports) {
@@ -2405,7 +2462,7 @@ function validateConst(
     if (inferredRes.kind === "Err") return inferredRes;
     const inferred = inferredRes.value;
 
-    if (isSameType(block.type, inferred, false)) {
+    if (isSameType(block.type, inferred, false, typedBlocks)) {
         return Ok(block.type);
     }
 
@@ -2615,8 +2672,8 @@ function validateFunction(
     );
 
     if (
-        !isSameType(replacement, block.returnType, false) &&
-        !isSameType(block.returnType, inferred, false)
+        !isSameType(replacement, block.returnType, false, typedBlocks) &&
+        !isSameType(block.returnType, inferred, false, typedBlocks)
     ) {
         return Err(
             `Expected \`${typeToString(
