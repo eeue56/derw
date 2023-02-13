@@ -3,6 +3,7 @@
 An Elm-inspired language that transpiles to TypeScript
 
 Homepage: https://www.derw-lang.com/
+
 Check out the Gitbook for more info: https://docs.derw-lang.com/
 
 Follow Derw on Twitter: https://twitter.com/derwlang
