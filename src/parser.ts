@@ -515,6 +515,11 @@ function parseProperty(tokens: Token[]): Result<string, Property> {
             name = token.body;
         } else if (token.kind === "ColonToken") {
             break;
+        } else if (token.kind === "KeywordToken" && token.body === "type") {
+            if (name) {
+                return Err("Got too many identifiers for property name");
+            }
+            name = token.body;
         } else {
             return Err(
                 `Expected identifier in property name but got ${token.kind}`
