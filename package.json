@@ -33,7 +33,7 @@
         "@eeue56/mainc": "^0.0.6",
         "@eeue56/ts-assert": "^0.0.2",
         "@types/node": "^16.3.1",
-        "prettier": "github:eeue56/prettier#feat/spacing-around-square-brackets"
+        "prettier": "github:eeue56/prettier#feat-eeue56/brackets"
     },
     "dependencies": {
         "@eeue56/adeilad": "^0.0.2",
