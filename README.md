@@ -46,3 +46,7 @@ Homepage: https://www.derw-lang.com/
 Blog: http://derw.substack.com/
 
 Follow Derw on Twitter: https://twitter.com/derwlang
+
+# Name
+
+derw (/ˈdeːruː/, Welsh “oak”) is one of the native trees in Wales, famous for long life, tall stature, and hard, good quality wood. An English speaker might pronounce it as “deh-ru”.
