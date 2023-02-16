@@ -213,10 +213,15 @@ generateObjectLiteral literal =
             prefixLines fields 4
     in
         if literal.base == null then
-            if literal.fields.length == 1 then
-                `{ ${fields} }`
-            else
-                `{\n${maybePrefixed}\n}`
+            case `${literal.fields.length}` of
+                "0" ->
+                    "{ }"
+
+                "1" ->
+                    `{ ${fields} }`
+
+                default ->
+                    `{\n${maybePrefixed}\n}`
         else
             if literal.fields.length == 1 then
                 `{ ${literal.base.body}, ${fields} }`

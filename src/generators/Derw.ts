@@ -209,10 +209,17 @@ function generateObjectLiteral(literal: ObjectLiteral): string {
     })(literal.fields.map(generateField));
     const maybePrefixed: string = prefixLines(fields, 4);
     if (literal.base === null) {
-        if (literal.fields.length === 1) {
-            return `{ ${fields} }`;
-        } else {
-            return `{\n${maybePrefixed}\n}`;
+        const _res1477476904 = `${literal.fields.length}`;
+        switch (_res1477476904) {
+            case "0": {
+                return "{ }";
+            }
+            case "1": {
+                return `{ ${fields} }`;
+            }
+            default: {
+                return `{\n${maybePrefixed}\n}`;
+            }
         };
     } else {
         if (literal.fields.length === 1) {
