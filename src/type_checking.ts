@@ -174,6 +174,7 @@ function isSameObjectLiteralTypeAlias(
     expectedType: Type,
     typedBlocks: TypedBlock[]
 ): boolean {
+    if (expectedType.kind === "GenericType") return true;
     const expectedTypeAlias = getTypeAlias(expectedType, typedBlocks);
     if (expectedTypeAlias.kind === "Err") return false;
     const typeAlias = expectedTypeAlias.value;

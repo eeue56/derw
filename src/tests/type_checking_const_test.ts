@@ -1100,6 +1100,43 @@ value =
     );
 }
 
+export async function testListPrependWithinCaseWithNestedConstructor() {
+    const exampleInput = `
+value: List (Maybe People)
+value =
+    case "hello" of
+        "hello" ->
+            Just { value: { name: "hello" } } :: [ ]
+        default ->
+            [ ]
+`.trim();
+    const block = UnparsedBlock("ConstBlock", 0, exampleInput.split("\n"));
+    const parsed = parseBlock(block);
+
+    assert.deepStrictEqual(parsed.kind, "Ok");
+
+    const value = (parsed as Ok<Block>).value;
+    assert.deepStrictEqual(
+        validateType(
+            value,
+            [
+                TypeAlias(FixedType("People", [ ]), [
+                    Property("name", FixedType("string", [ ])),
+                ]),
+                UnionType(FixedType("Maybe", [ GenericType("a") ]), [
+                    Tag("Just", [ TagArg("value", GenericType("a")) ]),
+                ]),
+            ],
+            [ ]
+        ),
+        Ok(
+            FixedType("List", [
+                FixedType("Maybe", [ FixedType("People", [ ]) ]),
+            ])
+        )
+    );
+}
+
 export async function testListPrependWithinCaseWithObjectLiteral() {
     const exampleInput = `
 value: List Person
