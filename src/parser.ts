@@ -1982,6 +1982,16 @@ function parseModuleReference(
     );
 }
 
+function nextNonWhitespaceToken(tokens: Token[], index: number): number {
+    for (index; index < tokens.length; index++) {
+        if (tokens[index].kind !== "WhitespaceToken") {
+            return index;
+        }
+    }
+
+    return index;
+}
+
 function parseFunctionCall(
     tokens: Token[]
 ): Result<string, FunctionCall | Constructor> {
@@ -2049,7 +2059,27 @@ function parseFunctionCall(
                             args.push(`${token.body}()`);
                             i += 2;
                         } else {
-                            args.push(token.body);
+                            const isConstructor =
+                                token.kind === "IdentifierToken" &&
+                                token.body[0] === token.body[0].toUpperCase();
+                            const nextNonWhitespace = nextNonWhitespaceToken(
+                                tokens,
+                                i + 1
+                            );
+                            if (
+                                isConstructor &&
+                                tokens[nextNonWhitespace] &&
+                                tokens[nextNonWhitespace].kind ===
+                                    "OpenCurlyBracesToken"
+                            ) {
+                                currentArg.push(token.body);
+                                currentArg.push(" ");
+                                currentArg.push("{");
+                                i = nextNonWhitespace;
+                                break;
+                            } else {
+                                args.push(token.body);
+                            }
                         }
                         currentArg = [ ];
                     } else {
