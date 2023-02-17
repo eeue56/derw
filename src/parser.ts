@@ -2062,6 +2062,7 @@ function parseFunctionCall(
                             const isConstructor =
                                 token.kind === "IdentifierToken" &&
                                 token.body[0] === token.body[0].toUpperCase();
+
                             const nextNonWhitespace = nextNonWhitespaceToken(
                                 tokens,
                                 i + 1
@@ -2128,7 +2129,9 @@ function parseFunctionCall(
             }
             case "ColonToken": {
                 currentArg.push(":");
-                colonDepth++;
+                if (curlyBracketDepth > colonDepth) {
+                    colonDepth++;
+                }
                 break;
             }
             case "CommaToken": {
