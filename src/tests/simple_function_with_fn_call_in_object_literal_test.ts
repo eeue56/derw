@@ -28,6 +28,15 @@ hello locations =
     }) locations
 `.trim();
 
+const multiLine = `
+hello: List Location -> List LocationWithDistance
+hello locations =
+    List.map (\\location -> { name: fn location {
+        lat: location.lat,
+        lon: location.lon
+    } }) locations
+`.trim();
+
 const expectedOutput = `
 function hello(locations: Location[]): LocationWithDistance[] {
     return List.map(function(location: any) {
@@ -50,15 +59,6 @@ function hello(locations) {
 }
 `.trim();
 
-const multiLine = `
-hello: List Location -> List LocationWithDistance
-hello locations =
-    List.map (\\location -> { name: fn location {
-        lat: location.lat,
-        lon: location.lon
-    } }) locations
-`.trim();
-
 export function testIntoBlocks() {
     assert.deepStrictEqual(intoBlocks(oneLine), [
         UnparsedBlock("FunctionBlock", 0, oneLine.split("\n")),
@@ -79,7 +79,6 @@ export function testBlockKindMultiLine() {
 }
 
 export function testParse() {
-    // console.log(JSON.stringify(parse(oneLine).body, null, 4));
     assert.deepStrictEqual(
         parse(oneLine),
         Module(

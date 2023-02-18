@@ -899,6 +899,16 @@ function parseObjectLiteral(tokens: Token[]): Result<string, ObjectLiteral> {
                 break;
             }
 
+            case "OpenBracketToken": {
+                innermostBuffer += "(";
+                break;
+            }
+
+            case "CloseBracketToken": {
+                innermostBuffer += ")";
+                break;
+            }
+
             case "ArrowToken": {
                 innermostBuffer += "->";
             }
