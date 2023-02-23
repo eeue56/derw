@@ -30,7 +30,7 @@ add =
 
 const multiLineExpected = `
 add: number -> number -> number
-add _0 _1 =
+add number number =
     (\\x y -> x + y)
 `.trim();
 

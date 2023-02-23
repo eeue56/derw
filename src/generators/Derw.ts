@@ -762,13 +762,67 @@ function generateDoBlock(doBody: DoBlock): string {
     }, doBody.expressions))));
 }
 
-function generateFunctionArg(arg: FunctionArgsUnion): string {
+const openParens: string = "(";
+
+const closeParens: string = ")";
+
+function typeToArg(type_: Type): string {
+    return (function(y: any) {
+        return y.replace(closeParens, "");
+    })((function(y: any) {
+        return y.replace(openParens, "");
+    })((function(y: any) {
+        return y.replace(" ", "_");
+    })((function(y: any) {
+        return y[0].toLowerCase() + y.slice(1);
+    })(generateTopLevelType(type_)))));
+}
+
+function generateFunctionArg(knownNames: string[], arg: FunctionArgsUnion): string {
     switch (arg.kind) {
         case "FunctionArg": {
             return arg.name;
         }
         case "AnonFunctionArg": {
-            return `_${arg.index}`;
+            const tempName: string = (function (): any {
+                switch (arg.type.kind) {
+                    case "FunctionType": {
+                        return "fn";
+                    }
+                    default: {
+                        return `${typeToArg(arg.type)}`;
+                    }
+                }
+            })();
+            if (knownNames.indexOf(tempName) === -1) {
+                return tempName;
+            } else {
+                return `_${tempName}`;
+            };
+        }
+    }
+}
+
+function knownArgNames(args: FunctionArgsUnion[]): string[] {
+    switch (args.length) {
+        case 0: {
+            return [ ];
+        }
+        case args.length: {
+            if (args.length >= 1) {
+                const [ arg, ...rest ] = args;
+                switch (arg.kind) {
+                case "FunctionArg": {
+                    return [ arg.name, ...knownArgNames(rest) ];
+                }
+                case "AnonFunctionArg": {
+                    return knownArgNames(rest);
+                }
+            };
+            }
+        }
+        default: {
+            return [ ];
         }
     }
 }
@@ -788,9 +842,12 @@ function generateFunction(function_: Function): string {
     const argsTypes: string = (function(y: any) {
         return y.join(" -> ");
     })(List.map(generateFunctionArgType, function_.args));
+    const knownNames: string[] = knownArgNames(function_.args);
     const args: string = (function(y: any) {
         return y.join(" ");
-    })(List.map(generateFunctionArg, function_.args));
+    })(List.map(function(x: any) {
+        return generateFunctionArg(knownNames, x);
+    }, function_.args));
     const maybeLetBody: string = generateLetBlock(function_.letBody);
     const maybeDoBody: string = function_.doBody === null ? "" : `\n${prefixLines(generateDoBlock(function_.doBody), 4)}`;
     const returnType: string = generateTopLevelType(function_.returnType);

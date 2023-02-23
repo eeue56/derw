@@ -913,14 +913,60 @@ generateDoBlock doBody =
         |> (\y -> prefixLines y 4)
         |> (\y -> `do\n${y}\nreturn`)
 
-generateFunctionArg: FunctionArgsUnion -> string
-generateFunctionArg arg =
+openParens: string
+openParens =
+    "("
+
+closeParens: string
+closeParens =
+    ")"
+
+typeToArg: Type -> string
+typeToArg type_ =
+    generateTopLevelType type_
+        |> (\y -> y[0].toLowerCase() + y.slice 1)
+        |> (\y -> y.replace " " "_")
+        |> (\y -> y.replace openParens "")
+        |> (\y -> y.replace closeParens "")
+
+generateFunctionArg: List string -> FunctionArgsUnion -> string
+generateFunctionArg knownNames arg =
     case arg of
         FunctionArg ->
             arg.name
 
         AnonFunctionArg ->
-            `_${arg.index}`
+            let
+                tempName: string
+                tempName =
+                    case arg.type of
+                        FunctionType ->
+                            "fn"
+
+                        default ->
+                            `${typeToArg(arg.type)}`
+            in
+                if knownNames.indexOf tempName == -1 then
+                    tempName
+                else
+                    `_${tempName}`
+
+knownArgNames: List FunctionArgsUnion -> List string
+knownArgNames args =
+    case args of
+        [] ->
+            [ ]
+
+        arg :: rest ->
+            case arg of
+                FunctionArg ->
+                    arg.name :: knownArgNames rest
+
+                AnonFunctionArg ->
+                    knownArgNames rest
+
+        default ->
+            [ ]
 
 generateFunctionArgType: FunctionArgsUnion -> string
 generateFunctionArgType arg =
@@ -939,9 +985,13 @@ generateFunction function_ =
             List.map generateFunctionArgType function_.args
                 |> (\y -> y.join " -> ")
 
+        knownNames: List string
+        knownNames =
+            knownArgNames function_.args
+
         args: string
         args =
-            List.map generateFunctionArg function_.args
+            List.map (\x -> generateFunctionArg knownNames x) function_.args
                 |> (\y -> y.join " ")
 
         maybeLetBody: string
