@@ -49,30 +49,27 @@ export async function testExamples() {
             };
         });
 
-    await Promise.all(
-        filePairs.map(async ({ derw, ts, js, elm }) => {
-            const derwContents = (await readFile(derw)).toString();
-            const tsContents = (await readFile(ts)).toString();
-            const jsContents = (await readFile(js)).toString();
-            const elmContents = (await readFile(elm)).toString();
+    for (const filePair of filePairs) {
+        const { derw, ts, js, elm } = filePair;
+        const derwContents = (await readFile(derw)).toString();
+        const tsContents = (await readFile(ts)).toString();
+        const jsContents = (await readFile(js)).toString();
+        const elmContents = (await readFile(elm)).toString();
 
-            const parsed = parse(derwContents, derw);
-            const generatedTS =
-                generateTypescript(parsed) + emptyLineAtEndOfFile;
-            const generatedJS =
-                generateJavascript(parsed) + emptyLineAtEndOfFile;
-            const generatedElm = generateElm(parsed) + emptyLineAtEndOfFile;
+        const parsed = parse(derwContents, derw);
+        const generatedTS = generateTypescript(parsed) + emptyLineAtEndOfFile;
+        const generatedJS = generateJavascript(parsed) + emptyLineAtEndOfFile;
+        const generatedElm = generateElm(parsed) + emptyLineAtEndOfFile;
 
-            try {
-                assert.deepStrictEqual(tsContents, generatedTS);
-                assert.deepStrictEqual(jsContents, generatedJS);
-                assert.deepStrictEqual(elmContents, generatedElm);
-            } catch (e) {
-                console.log(`Failed to correctly generate ${derw}`);
-                throw e;
-            }
-        })
-    );
+        try {
+            assert.deepStrictEqual(tsContents, generatedTS);
+            assert.deepStrictEqual(jsContents, generatedJS);
+            assert.deepStrictEqual(elmContents, generatedElm);
+        } catch (e) {
+            console.log(`Failed to correctly generate ${derw}`);
+            throw e;
+        }
+    }
 }
 
 export async function testExamplesAreConsistentlyParsed() {
@@ -88,28 +85,26 @@ export async function testExamplesAreConsistentlyParsed() {
 
     const filePairs = files.filter((file) => file.endsWith("derw"));
 
-    await Promise.all(
-        filePairs.map(async (derw) => {
-            const derwContents = (await readFile(derw)).toString();
+    for (const derw of filePairs) {
+        const derwContents = (await readFile(derw)).toString();
 
-            const parsed = parse(derwContents);
-            const generated = generateDerw(parsed) + emptyLineAtEndOfFile;
-            const secondParsed = parse(generated);
-            const secondGenerated =
-                generateDerw(secondParsed) + emptyLineAtEndOfFile;
+        const parsed = parse(derwContents);
+        const generated = generateDerw(parsed) + emptyLineAtEndOfFile;
+        const secondParsed = parse(generated);
+        const secondGenerated =
+            generateDerw(secondParsed) + emptyLineAtEndOfFile;
 
-            try {
-                assert.deepStrictEqual(parsed.errors, [ ]);
-                assert.deepStrictEqual(generated, secondGenerated);
-                assert.deepStrictEqual(parsed, secondParsed);
-            } catch (e) {
-                console.log("generated", generated);
-                console.log("second generated", secondGenerated);
-                console.log(`Failed to correctly generate ${derw}`);
-                throw e;
-            }
-        })
-    );
+        try {
+            assert.deepStrictEqual(parsed.errors, [ ]);
+            assert.deepStrictEqual(generated, secondGenerated);
+            assert.deepStrictEqual(parsed, secondParsed);
+        } catch (e) {
+            console.log("generated", generated);
+            console.log("second generated", secondGenerated);
+            console.log(`Failed to correctly generate ${derw}`);
+            throw e;
+        }
+    }
 }
 
 export async function testMismatchingTypesGivesErrors() {
