@@ -874,13 +874,27 @@ function generateConst(constDef: Const): string {
 
 function generateImportModule(module: ImportModule): string {
     const partExposing: string = module.exposing.length === 0 ? "" : ` exposing ( ${module.exposing.join(", ")} )`;
+    const moduleName: string = (function (): any {
+        switch (module.namespace) {
+            case "Global": {
+                if (module.name.includes("/")) {
+                    return `"${module.name}"`;
+                } else {
+                    return module.name;
+                };
+            }
+            case "Relative": {
+                return module.name;
+            }
+        }
+    })();
     switch (module.alias.kind) {
         case "Just": {
             const { value } = module.alias;
-            return `import ${module.name} as ${value}${partExposing}`;
+            return `import ${moduleName} as ${value}${partExposing}`;
         }
         case "Nothing": {
-            return `import ${module.name}${partExposing}`;
+            return `import ${moduleName}${partExposing}`;
         }
     }
 }

@@ -1067,13 +1067,25 @@ generateImportModule module =
                 ""
             else
                 ` exposing ( ${module.exposing.join(", ")} )`
+
+        moduleName: string
+        moduleName =
+            case module.namespace of
+                "Global" ->
+                    if module.name.includes "/" then
+                        `"${module.name}"`
+                    else
+                        module.name
+
+                "Relative" ->
+                    module.name
     in
         case module.alias of
             Just { value } ->
-                `import ${module.name} as ${value}${partExposing}`
+                `import ${moduleName} as ${value}${partExposing}`
 
             Nothing ->
-                `import ${module.name}${partExposing}`
+                `import ${moduleName}${partExposing}`
 
 generateImportBlock: Import -> string
 generateImportBlock imports =

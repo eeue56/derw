@@ -3275,9 +3275,16 @@ function parseImport(tokens: Token[]): Result<string, Import> {
         }
     }
 
-    const namespace = moduleName.startsWith('"') ? "Relative" : "Global";
+    const isLocal = moduleName.startsWith(`".`) || moduleName.startsWith(`"/`);
+    const namespace = isLocal ? "Relative" : "Global";
+    const isQuotedGlobalImport =
+        namespace === "Global" && moduleName.startsWith(`"`);
 
-    imports.push(ImportModule(moduleName, alias, exposing, namespace));
+    const cleanedName = isQuotedGlobalImport
+        ? moduleName.slice(1, -1)
+        : moduleName;
+
+    imports.push(ImportModule(cleanedName, alias, exposing, namespace));
 
     return Ok(Import(imports));
 }
