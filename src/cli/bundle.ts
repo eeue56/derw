@@ -114,13 +114,13 @@ export async function bundle(
 
     if (program.flags.watch.isPresent) {
         console.log("Watching src and derw-packages...");
-        let timer: any;
+        let timer: NodeJS.Timeout;
         chokidar
             .watch([
                 path.join(process.cwd(), "src"),
                 path.join(process.cwd(), "derw-packages"),
             ])
-            .on("all", async (event: Event, path: string): Promise<any> => {
+            .on("all", async (event: Event, path: string): Promise<void> => {
                 if (path.endsWith(".derw")) {
                     if (timer !== null) {
                         clearTimeout(timer);

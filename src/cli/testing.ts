@@ -52,7 +52,7 @@ export async function runTests(
     if (program.flags.watch.isPresent) {
         console.log("Watching src and derw-packages...");
         argv.push("--clean-exit");
-        let timer: any;
+        let timer: NodeJS.Timeout;
         chokidar
             .watch([
                 path.join(process.cwd(), "src"),
@@ -61,7 +61,7 @@ export async function runTests(
             .on("error", () => {
                 console.log("Got an error");
             })
-            .on("all", async (event: Event, path: string): Promise<any> => {
+            .on("all", async (event: Event, path: string): Promise<void> => {
                 if (path.endsWith(".derw")) {
                     if (timer !== null) {
                         clearTimeout(timer);

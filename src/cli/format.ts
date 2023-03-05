@@ -60,7 +60,7 @@ export async function format(
             await formatFile(file);
         }
 
-        let timer: any;
+        let timer: NodeJS.Timeout;
         chokidar
             .watch(path.join(process.cwd(), "src"))
             .on(
@@ -68,7 +68,7 @@ export async function format(
                 async (
                     event: "add" | "addDir" | "change" | "unlink" | "unlinkDir",
                     path: string
-                ): Promise<any> => {
+                ): Promise<void> => {
                     if (event === "add" || event === "change") {
                         if (path.endsWith(".derw")) {
                             if (timer !== null) {
