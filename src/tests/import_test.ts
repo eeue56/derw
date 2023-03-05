@@ -18,6 +18,7 @@ import {
 const oneLine = `import path
 import fs
 import "fs/promises" exposing ( readFile )
+import "fs/promises" as promises
 import "./other"
 import "./something" as banana
 import "./another" exposing (isTrue, isFalse)
@@ -27,6 +28,7 @@ const multiLine = `
 import path
 import fs
 import "fs/promises" exposing ( readFile )
+import "fs/promises" as promises
 import "./other"
 import "./something" as banana
 import "./another" exposing (isTrue, isFalse)
@@ -37,6 +39,7 @@ const sortedMultiLine = `import "./another" exposing ( isTrue, isFalse )
 import "./nothing" exposing ( isNothing )
 import "./other"
 import "./something" as banana
+import "fs/promises" as promises
 import "fs/promises" exposing ( readFile )
 import fs
 import path
@@ -49,6 +52,8 @@ import * as path from "path";
 import * as fs from "fs";
 
 import { readFile } from "fs/promises";
+
+import * as promises from "fs/promises";
 
 import * as other from "./other";
 
@@ -65,6 +70,8 @@ import * as path from "path";
 import * as fs from "fs";
 
 import { readFile } from "fs/promises";
+
+import * as promises from "fs/promises";
 
 import * as other from "./other";
 
@@ -84,6 +91,7 @@ export function testIntoBlocks() {
         UnparsedBlock("ImportBlock", 4, [ oneLine.split("\n")[4] ]),
         UnparsedBlock("ImportBlock", 5, [ oneLine.split("\n")[5] ]),
         UnparsedBlock("ImportBlock", 6, [ oneLine.split("\n")[6] ]),
+        UnparsedBlock("ImportBlock", 7, [ oneLine.split("\n")[7] ]),
     ]);
 }
 
@@ -96,6 +104,7 @@ export function testIntoBlocksMultiLine() {
         UnparsedBlock("ImportBlock", 4, [ multiLine.split("\n")[4] ]),
         UnparsedBlock("ImportBlock", 5, [ multiLine.split("\n")[5] ]),
         UnparsedBlock("ImportBlock", 6, [ multiLine.split("\n")[6] ]),
+        UnparsedBlock("ImportBlock", 7, [ multiLine.split("\n")[7] ]),
     ]);
 }
 
@@ -126,6 +135,14 @@ export function testParse() {
                         "fs/promises",
                         Nothing(),
                         [ "readFile" ],
+                        "Global"
+                    ),
+                ]),
+                Import([
+                    ImportModule(
+                        "fs/promises",
+                        Just("promises"),
+                        [ ],
                         "Global"
                     ),
                 ]),
@@ -175,6 +192,14 @@ export function testParseMultiLine() {
                         "fs/promises",
                         Nothing(),
                         [ "readFile" ],
+                        "Global"
+                    ),
+                ]),
+                Import([
+                    ImportModule(
+                        "fs/promises",
+                        Just("promises"),
+                        [ ],
                         "Global"
                     ),
                 ]),
