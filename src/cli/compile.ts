@@ -44,6 +44,7 @@ const compileParser = parser([
     longFlag("only", "Only show a particular object", string()),
     longFlag("run", "Should be run via ts-node/node", empty()),
     longFlag("names", "Check for missing names out of scope", empty()),
+    longFlag("check", "Only run typechecking, not file generation", empty()),
     longFlag("watch", "Watch the files for changes", empty()),
     longFlag("quiet", "Keep it short and sweet", empty()),
     bothFlag("h", "help", "This help text", empty()),
@@ -169,8 +170,9 @@ export async function compileFiles(
         ? (program.flags.output.arguments as Ok<string>).value
         : "./";
     const isStdout = outputDir === "/dev/stdout";
+    const isCheck = outputDir === "/dev/null" || program.flags.check.isPresent;
 
-    if (!isStdout) {
+    if (!isStdout && !isCheck) {
         await ensureDirectoryExists(outputDir);
     }
 
@@ -345,6 +347,10 @@ export async function compileFiles(
                     } else {
                         console.log(`Successfully compiled ${fileName}`);
                     }
+                }
+
+                if (isCheck) {
+                    return;
                 }
 
                 if (isStdout) {
