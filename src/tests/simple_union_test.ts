@@ -163,3 +163,9 @@ export function testGenerateDerw() {
     const generated = generateDerw(parsed);
     assert.strictEqual(generated, multiLine);
 }
+
+export function snapshotGeneratedDerw() {
+    const parsed = parse(multiLine);
+    const generated = generateDerw(parsed);
+    return generated;
+}
