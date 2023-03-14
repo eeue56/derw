@@ -439,7 +439,7 @@ exportTests module =
             if isTest then
                 List.filter (\block -> block.kind == "Function" || block.kind == "Const") module.body
                     |> List.map (\block -> block.name)
-                    |> List.filter (\name -> name.startsWith "test")
+                    |> List.filter (\name -> name.startsWith "test" || name.startsWith "snapshot")
             else
                 [ ]
 

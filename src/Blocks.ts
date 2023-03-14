@@ -573,7 +573,7 @@ type MyExport = Export;
 function exportTests(module: Module): MyExport {
     const isTest: boolean = isTestFile(module.name);
     const namesToExpose: string[] = isTest ? List.filter(function(name: any) {
-        return name.startsWith("test");
+        return name.startsWith("test") || name.startsWith("snapshot");
     }, List.map(function(block: any) {
         return block.name;
     }, List.filter(function(block: any) {
