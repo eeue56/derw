@@ -9,3 +9,5 @@ build/debugging
 src/bench
 build/bench
 .github/workflows/
+build/__snapshots__
+src/__snapshots__
