@@ -1,0 +1,11 @@
+import "./Bitwise_kernel" as Kernel
+
+exposing ( leftShift, or )
+
+leftShift: number -> number -> number
+leftShift a b =
+    Kernel.leftShift a b
+
+or: number -> number -> number
+or a b =
+    Kernel.or a b

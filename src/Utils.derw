@@ -1,4 +1,4 @@
-import "./stdlib/Bitwise_kernel" as Bitwise
+import "./stdlib/Bitwise" as Bitwise
 import "./stdlib/List" as List
 
 exposing ( getNameFromPath, isTestFile, hashCode )

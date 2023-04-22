@@ -1,4 +1,4 @@
-import * as Bitwise from "./stdlib/Bitwise_kernel";
+import * as Bitwise from "./stdlib/Bitwise";
 
 import * as List from "./stdlib/List";
 
