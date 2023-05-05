@@ -1,12 +1,11 @@
 import { Just, Maybe, Nothing } from "@eeue56/ts-core/build/main/lib/maybe";
 import {
     Err,
-    mapError,
     Ok,
     Result,
+    mapError,
 } from "@eeue56/ts-core/build/main/lib/result";
 import { intoBlocks, typeBlocks } from "./Blocks";
-import { isBuiltinType, isReservedName } from "./builtins";
 import { collisions } from "./Collisions";
 import {
     CloseBracketToken,
@@ -17,12 +16,18 @@ import {
     OperatorToken,
     RootTypeTokens,
     Token,
+    TypeToken,
+    WhitespaceToken,
     tokenize,
     tokenizeType,
     tokensToString,
-    TypeToken,
-    WhitespaceToken,
 } from "./Tokens";
+import { isBuiltinType, isReservedName } from "./builtins";
+import {
+    getValuesInTopLevelScope,
+    validateAllCasesCovered,
+    validateType,
+} from "./type_checking";
 import {
     Addition,
     And,
@@ -59,7 +64,6 @@ import {
     Import,
     ImportModule,
     InEquality,
-    isLeftPipeableExpression,
     Lambda,
     LeftPipe,
     LessThan,
@@ -88,12 +92,8 @@ import {
     UnionUntaggedType,
     UnparsedBlock,
     Value,
+    isLeftPipeableExpression,
 } from "./types";
-import {
-    getValuesInTopLevelScope,
-    validateAllCasesCovered,
-    validateType,
-} from "./type_checking";
 
 function afterArrow(tokens: TypeToken[]): TypeToken[] {
     let index = 0;
@@ -2970,7 +2970,6 @@ function parseFunction(tokens: Token[]): Result<string, Function> {
     }
 
     const tokenizedTypes = tokenizeType(currentType);
-
     if (tokenizedTypes.kind === "Err") return tokenizedTypes;
     const types = tokenizedTypes.value;
 

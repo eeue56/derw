@@ -129,7 +129,10 @@ function generateTopLevelType(type_: Type): string {
         case "FixedType": {
             const { name, args } = type_;
             if (args.length > 0 && args[0].kind === "FixedType" && args[0].args.length > 0) {
-                return `${name} (${args.map(generateTopLevelType).join(" ")})`;
+                function wrapper(x: string): string {
+                    return `(${x})`;
+                }
+                return `${name} ${args.map(generateTopLevelType).map(wrapper).join(" ")}`;
             } else {
                 const genericArgs: Type[] = List.filter(function(type_: any) {
                     return type_.kind === "GenericType" || type_.kind === "FixedType";

@@ -722,3 +722,89 @@ export function testString() {
     const rootTypeString = rootTypeTokensToString((tokenizedType as any).value);
     assert.deepStrictEqual(rootTypeString, str);
 }
+
+export function testNestedResultType() {
+    const str = `List ( Result a b ) -> Result ( List a ) ( List b )`.trim();
+    const tokenized = tokenize(str);
+    assert.deepStrictEqual(tokenized, [
+        IdentifierToken({ body: "List" }),
+        WhitespaceToken({ body: " " }),
+        OpenBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "Result" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "a" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "b" }),
+        WhitespaceToken({ body: " " }),
+        CloseBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        ArrowToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "Result" }),
+        WhitespaceToken({ body: " " }),
+        OpenBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "List" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "a" }),
+        WhitespaceToken({ body: " " }),
+        CloseBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        OpenBracketToken({}),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "List" }),
+        WhitespaceToken({ body: " " }),
+        IdentifierToken({ body: "b" }),
+        WhitespaceToken({ body: " " }),
+        CloseBracketToken({}),
+    ]);
+
+    const tokenizedType = tokenizeType(tokenized);
+
+    assert.deepStrictEqual(
+        tokenizedType,
+        Ok([
+            BaseTypeToken({
+                body: [
+                    IdentifierToken({ body: "List" }),
+                    BaseTypeToken({
+                        body: [
+                            IdentifierToken({ body: "Result" }),
+                            BaseTypeToken({
+                                body: [ IdentifierToken({ body: "a" }) ],
+                            }),
+                            BaseTypeToken({
+                                body: [ IdentifierToken({ body: "b" }) ],
+                            }),
+                        ],
+                    }),
+                ],
+            }),
+            BaseTypeToken({
+                body: [
+                    IdentifierToken({ body: "Result" }),
+                    BaseTypeToken({
+                        body: [
+                            IdentifierToken({ body: "List" }),
+                            BaseTypeToken({
+                                body: [ IdentifierToken({ body: "a" }) ],
+                            }),
+                        ],
+                    }),
+                    BaseTypeToken({
+                        body: [
+                            IdentifierToken({ body: "List" }),
+                            BaseTypeToken({
+                                body: [ IdentifierToken({ body: "b" }) ],
+                            }),
+                        ],
+                    }),
+                ],
+            }),
+        ])
+    );
+
+    const rootTypeString = rootTypeTokensToString((tokenizedType as any).value);
+    assert.deepStrictEqual(rootTypeString, str);
+}

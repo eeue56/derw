@@ -130,7 +130,12 @@ generateTopLevelType type_ =
 
         FixedType { name, args } ->
             if args.length > 0 && args[0].kind == "FixedType" && args[0].args.length > 0 then
-                `${name} (${args.map(generateTopLevelType).join(" ")})`
+                let
+                    wrapper: string -> string
+                    wrapper x =
+                        `(${x})`
+                in
+                    `${name} ${args.map(generateTopLevelType).map(wrapper).join(" ")}`
             else
                 let
                     genericArgs: List Type
