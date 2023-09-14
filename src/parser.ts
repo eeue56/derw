@@ -1532,7 +1532,7 @@ function parseIfStatement(body: string): Result<string, IfStatement> {
         }
     }
 
-    const elseIfs = elseIfBodies.map(
+    const elseIfs: Result<string, ElseIfStatement>[] = elseIfBodies.map(
         (body): Result<string, ElseIfStatement> => {
             return parseElseIfStatement(body.join("\n"));
         }
