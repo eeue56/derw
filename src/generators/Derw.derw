@@ -3,7 +3,7 @@ import "../types" as Aliases exposing ( TypeAlias, Property )
 import "../types" as Blocks exposing ( Function, FunctionArg, FunctionArgsUnion, Const, ImportModule, Import, Export, Module )
 import "../types" as Boolean exposing ( Equality, InEquality, LessThan, LessThanOrEqual, GreaterThan, GreaterThanOrEqual, And, Or, ListPrepend )
 import "../types" as Comments exposing ( Comment, MultilineComment )
-import "../types" as Control exposing ( IfStatement, ListDestructurePart, BranchPattern, Branch, CaseStatement, DoBlock, DoExpression )
+import "../types" as Control exposing ( IfStatement, ElseIfStatement, ListDestructurePart, BranchPattern, Branch, CaseStatement, DoBlock, DoExpression )
 import "../types" as Functions exposing ( FunctionCall, Lambda, LambdaCall )
 import "../types" as Objects exposing ( ObjectLiteral, Field, ModuleReference )
 import "../types" as Operators exposing ( Addition, Subtraction, Multiplication, Division, Mod, LeftPipe, RightPipe )
@@ -291,6 +291,20 @@ generateLetBlock body =
         default ->
             ""
 
+generateElseIfStatement: ElseIfStatement -> string
+generateElseIfStatement elseIfStatement =
+    let
+        predicate: string
+        predicate =
+            generateExpression elseIfStatement.predicate
+
+        body: string
+        body =
+            generateExpression elseIfStatement.body
+                |> (\lines -> prefixLines lines 4)
+    in
+        `else if ${predicate} then\n${body}`
+
 generateIfStatement: IfStatement -> string
 generateIfStatement ifStatement =
     let
@@ -329,8 +343,20 @@ generateIfStatement ifStatement =
         elseBody =
             generateExpression ifStatement.elseBody
                 |> (\lines -> prefixLines lines elseIndent)
+
+        elseIfs: string
+        elseIfs =
+            List.map generateElseIfStatement ifStatement.elseIf
+                |> (\y -> y.join "\n")
+
+        prefixedElseIfs: string
+        prefixedElseIfs =
+            if elseIfs == "" then
+                ""
+            else
+                `${elseIfs}\n`
     in
-        `if ${predicate} then${maybeIfLetBody}\n${ifBody}\nelse${maybeElseLetBody}\n${elseBody}`
+        `if ${predicate} then${maybeIfLetBody}\n${ifBody}\n${prefixedElseIfs}else${maybeElseLetBody}\n${elseBody}`
 
 generateConstructor: Constructor -> string
 generateConstructor constructor =

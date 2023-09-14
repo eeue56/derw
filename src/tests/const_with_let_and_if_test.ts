@@ -92,6 +92,7 @@ export function testParse() {
                                 Value("true"),
                                 StringValue("noah"),
                                 [ ],
+                                [ ],
                                 StringValue("james"),
                                 [ ]
                             )
@@ -122,6 +123,7 @@ export function testParseMultiLine() {
                             IfStatement(
                                 Value("true"),
                                 StringValue("noah"),
+                                [ ],
                                 [ ],
                                 StringValue("james"),
                                 [ ]

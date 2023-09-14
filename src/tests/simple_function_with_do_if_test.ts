@@ -122,6 +122,7 @@ export function testParse() {
                                 FunctionCall("log", [ StringValue("true") ])
                             ),
                             [ ],
+                            [ ],
                             ModuleReference(
                                 [ "console" ],
                                 FunctionCall("log", [ StringValue("false") ])
@@ -184,6 +185,7 @@ export function testParseMultiLine() {
                                 [ "console" ],
                                 FunctionCall("log", [ StringValue("true") ])
                             ),
+                            [ ],
                             [ ],
                             ModuleReference(
                                 [ "console" ],

@@ -7,12 +7,12 @@ import { generateJavascript } from "../generators/Js";
 import { generateTypescript } from "../generators/Ts";
 import { parse } from "../parser";
 import {
+    ElseIfStatement,
     Equality,
     FixedType,
     Function,
     FunctionArg,
     FunctionCall,
-    GenericType,
     IfStatement,
     Module,
     ModuleReference,
@@ -22,52 +22,40 @@ import {
 } from "../types";
 
 const oneLine = `
-reducer: a -> string -> boolean
+reducer: number -> string -> boolean
 reducer index line =
     if line.charAt index == "0" then
-        let
-            x: a -> string
-            x y = "hello"
-        in
-            true
+        true
+    else if line.charAt index == "1" then
+        true
+    else if line.charAt index == "2" then
+        true
     else
-        let
-            y: string -> a
-            y x = "world"
-        in
-            false
+        false
 `.trim();
 
 const multiLine = `
-reducer: a -> string -> boolean
+reducer: number -> string -> boolean
 reducer index line =
     if line.charAt index == "0" then
-        let
-            x: a -> string
-            x y =
-                "hello"
-        in
-            true
+        true
+    else if line.charAt index == "1" then
+        true
+    else if line.charAt index == "2" then
+        true
     else
-        let
-            y: string -> a
-            y x =
-                "world"
-        in
-            false
+        false
 `.trim();
 
 const expectedOutput = `
-function reducer<a>(index: a, line: string): boolean {
+function reducer(index: number, line: string): boolean {
     if (line.charAt(index) === "0") {
-        function x(y: a): string {
-            return "hello";
-        }
+        return true;
+    } else if (line.charAt(index) === "1") {
+        return true;
+    } else if (line.charAt(index) === "2") {
         return true;
     } else {
-        function y(x: string): a {
-            return "world";
-        }
         return false;
     }
 }
@@ -76,14 +64,12 @@ function reducer<a>(index: a, line: string): boolean {
 const expectedOutputJS = `
 function reducer(index, line) {
     if (line.charAt(index) === "0") {
-        function x(y) {
-            return "hello";
-        }
+        return true;
+    } else if (line.charAt(index) === "1") {
+        return true;
+    } else if (line.charAt(index) === "2") {
         return true;
     } else {
-        function y(x) {
-            return "world";
-        }
         return false;
     }
 }
@@ -119,7 +105,7 @@ export function testParse() {
                     "reducer",
                     FixedType("boolean", [ ]),
                     [
-                        FunctionArg("index", GenericType("a")),
+                        FunctionArg("index", FixedType("number", [ ])),
                         FunctionArg("line", FixedType("string", [ ])),
                     ],
                     [ ],
@@ -132,26 +118,37 @@ export function testParse() {
                             StringValue("0")
                         ),
                         Value("true"),
+                        [ ],
                         [
-                            Function(
-                                "x",
-                                FixedType("string", [ ]),
-                                [ FunctionArg("y", GenericType("a")) ],
-                                [ ],
-                                StringValue("hello")
+                            ElseIfStatement(
+                                Equality(
+                                    ModuleReference(
+                                        [ "line" ],
+                                        FunctionCall("charAt", [
+                                            Value("index"),
+                                        ])
+                                    ),
+                                    StringValue("1")
+                                ),
+                                Value("true"),
+                                [ ]
+                            ),
+                            ElseIfStatement(
+                                Equality(
+                                    ModuleReference(
+                                        [ "line" ],
+                                        FunctionCall("charAt", [
+                                            Value("index"),
+                                        ])
+                                    ),
+                                    StringValue("2")
+                                ),
+                                Value("true"),
+                                [ ]
                             ),
                         ],
-                        [ ],
                         Value("false"),
-                        [
-                            Function(
-                                "y",
-                                GenericType("a"),
-                                [ FunctionArg("x", FixedType("string", [ ])) ],
-                                [ ],
-                                StringValue("world")
-                            ),
-                        ]
+                        [ ]
                     )
                 ),
             ],
@@ -170,7 +167,7 @@ export function testParseMultiLine() {
                     "reducer",
                     FixedType("boolean", [ ]),
                     [
-                        FunctionArg("index", GenericType("a")),
+                        FunctionArg("index", FixedType("number", [ ])),
                         FunctionArg("line", FixedType("string", [ ])),
                     ],
                     [ ],
@@ -183,26 +180,38 @@ export function testParseMultiLine() {
                             StringValue("0")
                         ),
                         Value("true"),
+                        [ ],
                         [
-                            Function(
-                                "x",
-                                FixedType("string", [ ]),
-                                [ FunctionArg("y", GenericType("a")) ],
-                                [ ],
-                                StringValue("hello")
+                            ElseIfStatement(
+                                Equality(
+                                    ModuleReference(
+                                        [ "line" ],
+                                        FunctionCall("charAt", [
+                                            Value("index"),
+                                        ])
+                                    ),
+                                    StringValue("1")
+                                ),
+                                Value("true"),
+                                [ ]
+                            ),
+
+                            ElseIfStatement(
+                                Equality(
+                                    ModuleReference(
+                                        [ "line" ],
+                                        FunctionCall("charAt", [
+                                            Value("index"),
+                                        ])
+                                    ),
+                                    StringValue("2")
+                                ),
+                                Value("true"),
+                                [ ]
                             ),
                         ],
-                        [ ],
                         Value("false"),
-                        [
-                            Function(
-                                "y",
-                                GenericType("a"),
-                                [ FunctionArg("x", FixedType("string", [ ])) ],
-                                [ ],
-                                StringValue("world")
-                            ),
-                        ]
+                        [ ]
                     )
                 ),
             ],

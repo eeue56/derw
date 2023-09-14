@@ -86,6 +86,7 @@ export function testParse() {
                         Value("value"),
                         FunctionCall("empty", [ ]),
                         [ ],
+                        [ ],
                         FunctionCall("string", [ ]),
                         [ ]
                     )
@@ -110,6 +111,7 @@ export function testParseMultiLine() {
                     IfStatement(
                         Value("value"),
                         FunctionCall("empty", [ ]),
+                        [ ],
                         [ ],
                         FunctionCall("string", [ ]),
                         [ ]

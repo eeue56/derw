@@ -13,7 +13,7 @@ import * as Comments from "../types";
 import { Comment, MultilineComment } from "../types";
 
 import * as Control from "../types";
-import { IfStatement, ListDestructurePart, BranchPattern, Branch, CaseStatement, DoBlock, DoExpression } from "../types";
+import { IfStatement, ElseIfStatement, ListDestructurePart, BranchPattern, Branch, CaseStatement, DoBlock, DoExpression } from "../types";
 
 import * as Functions from "../types";
 import { FunctionCall, Lambda, LambdaCall } from "../types";
@@ -289,6 +289,14 @@ function generateLetBlock(body: Block[]): string {
     }
 }
 
+function generateElseIfStatement(elseIfStatement: ElseIfStatement): string {
+    const predicate: string = generateExpression(elseIfStatement.predicate);
+    const body: string = (function(lines: any) {
+        return prefixLines(lines, 4);
+    })(generateExpression(elseIfStatement.body));
+    return `else if ${predicate} then\n${body}`;
+}
+
 function generateIfStatement(ifStatement: IfStatement): string {
     const maybeIfLetBody: string = generateLetBlock(ifStatement.ifLetBody);
     const maybeElseLetBody: string = generateLetBlock(ifStatement.elseLetBody);
@@ -301,7 +309,11 @@ function generateIfStatement(ifStatement: IfStatement): string {
     const elseBody: string = (function(lines: any) {
         return prefixLines(lines, elseIndent);
     })(generateExpression(ifStatement.elseBody));
-    return `if ${predicate} then${maybeIfLetBody}\n${ifBody}\nelse${maybeElseLetBody}\n${elseBody}`;
+    const elseIfs: string = (function(y: any) {
+        return y.join("\n");
+    })(List.map(generateElseIfStatement, ifStatement.elseIf));
+    const prefixedElseIfs: string = elseIfs === "" ? "" : `${elseIfs}\n`;
+    return `if ${predicate} then${maybeIfLetBody}\n${ifBody}\n${prefixedElseIfs}else${maybeElseLetBody}\n${elseBody}`;
 }
 
 function generateConstructor(constructor: Constructor): string {

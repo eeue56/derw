@@ -132,6 +132,7 @@ export function testParse() {
                                 StringValue("hello")
                             ),
                         ],
+                        [ ],
                         Value("false"),
                         [
                             Const(
@@ -180,6 +181,7 @@ export function testParseMultiLine() {
                                 StringValue("hello")
                             ),
                         ],
+                        [ ],
                         Value("false"),
                         [
                             Const(

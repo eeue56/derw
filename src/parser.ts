@@ -45,6 +45,7 @@ import {
     Division,
     DoBlock,
     DoExpression,
+    ElseIfStatement,
     EmptyList,
     Equality,
     Export,
@@ -1299,6 +1300,36 @@ function parseIfBody(tokens: Token[]): Result<string, Expression> {
     return parseExpression(tokensToString(inbetweenTokens));
 }
 
+function parseElseIfBody(tokens: Token[]): Result<string, Expression> {
+    const inbetweenTokens = [ ];
+
+    let state: "WaitingForThen" | "BetweenThenAndElse" | "PastElse" =
+        "WaitingForThen";
+
+    for (const token of tokens) {
+        switch (token.kind) {
+            case "KeywordToken": {
+                if (token.body === "then") {
+                    state = "BetweenThenAndElse";
+                    break;
+                } else if (token.body === "else") {
+                    state = "PastElse";
+                    break;
+                }
+            }
+            default: {
+                if (state === "BetweenThenAndElse") {
+                    inbetweenTokens.push(token);
+                }
+            }
+        }
+
+        if (state === "PastElse") break;
+    }
+
+    return parseExpression(tokensToString(inbetweenTokens));
+}
+
 function parseElseBody(tokens: Token[]): Result<string, Expression> {
     const inbetweenTokens = [ ];
 
@@ -1343,6 +1374,7 @@ function parseIfStatementSingleLine(body: string): Result<string, IfStatement> {
             (parsedPredicate as Ok<Expression>).value,
             (parsedIfBody as Ok<Expression>).value,
             [ ],
+            [ ],
             (parsedElseBody as Ok<Expression>).value,
             [ ]
         )
@@ -1369,6 +1401,64 @@ function getIndentLevel(line: string): number {
     ).indentLevel;
 }
 
+function parseElseIfStatement(body: string): Result<string, ElseIfStatement> {
+    const tokens = tokenize(body);
+    let startIndex = -1;
+    let seenElse = false;
+
+    for (let index = 1; index < tokens.length; index++) {
+        const token = tokens[index];
+        if (token.kind === "KeywordToken" && token.body === "else") {
+            seenElse = true;
+        } else if (
+            token.kind === "KeywordToken" &&
+            token.body === "if" &&
+            seenElse
+        ) {
+            startIndex = index + 1;
+            break;
+        }
+    }
+
+    if (startIndex === -1) {
+        return Err("Was expecting to find an else if but failed to find one.");
+    }
+
+    let firstThenIndex = -1;
+
+    for (let index = startIndex; index < tokens.length; index++) {
+        const token = tokens[index];
+        if (token.kind === "KeywordToken" && token.body === "then") {
+            firstThenIndex = index;
+        }
+    }
+
+    if (firstThenIndex === -1) {
+        return Err(
+            "Was expecting to find a then after an else if but failed to find one."
+        );
+    }
+
+    const predicate = parseExpression(
+        tokensToString(tokens.slice(startIndex, firstThenIndex))
+    );
+
+    if (predicate.kind === "Err") {
+        return Err(
+            `Failed to parse else if predicate due to ${predicate.error}`
+        );
+    }
+
+    const elseIfBody = tokens.slice(firstThenIndex + 1);
+    const parsedBody = parseExpression(tokensToString(elseIfBody));
+
+    if (parsedBody.kind === "Err") {
+        return Err(`Failed to parse else if body due to ${parsedBody.error}`);
+    }
+
+    return Ok(ElseIfStatement(predicate.value, parsedBody.value, [ ]));
+}
+
 function parseIfStatement(body: string): Result<string, IfStatement> {
     const isSingleLine = body.trim().split("\n").length === 1;
 
@@ -1380,11 +1470,42 @@ function parseIfStatement(body: string): Result<string, IfStatement> {
     const parsedPredicate = parseIfPredicate(tokenize(body));
 
     const indentLevel = getIndentLevel(lines[0]);
+
+    type ElseIfIndexing = {
+        indexes: number[];
+    };
+
+    const elseIfIndexes: number[] = lines.reduce(
+        (
+            previous: ElseIfIndexing,
+            currentLine: string,
+            index: number
+        ): ElseIfIndexing => {
+            if (currentLine.startsWith(" ".repeat(indentLevel) + "else if")) {
+                return {
+                    indexes: [ ...previous.indexes, index ],
+                };
+            } else {
+                return previous;
+            }
+        },
+        { indexes: [ ] }
+    ).indexes;
+
+    type ElseIndexing = {
+        found: boolean;
+        index: number;
+    };
+
     const elseIndex = lines.reduce(
-        (previous, current, index) => {
+        (
+            previous: ElseIndexing,
+            currentLine: string,
+            index: number
+        ): ElseIndexing => {
             if (previous.found) return previous;
 
-            if (current.trimEnd() === " ".repeat(indentLevel) + "else") {
+            if (currentLine.trimEnd() === " ".repeat(indentLevel) + "else") {
                 return {
                     found: true,
                     index,
@@ -1400,7 +1521,27 @@ function parseIfStatement(body: string): Result<string, IfStatement> {
         return Err("Missing else block");
     }
 
-    const ifBody = lines.slice(1, elseIndex);
+    const elseIfBodies: string[][] = [ ];
+
+    for (var i = 0; i < elseIfIndexes.length; i++) {
+        const index = elseIfIndexes[i];
+        if (i === elseIfIndexes.length - 1) {
+            elseIfBodies.push(lines.slice(index, elseIndex));
+        } else {
+            elseIfBodies.push(lines.slice(index, elseIfIndexes[i + 1]));
+        }
+    }
+
+    const elseIfs = elseIfBodies.map(
+        (body): Result<string, ElseIfStatement> => {
+            return parseElseIfStatement(body.join("\n"));
+        }
+    );
+
+    const ifBody =
+        elseIfIndexes.length > 0
+            ? lines.slice(1, elseIfIndexes[0])
+            : lines.slice(1, elseIndex);
 
     const ifLetStart = ifBody.findIndex(
         (line) =>
@@ -1462,9 +1603,19 @@ function parseIfStatement(body: string): Result<string, IfStatement> {
         elseBody.slice(elseLetEnd === -1 ? 0 : elseLetEnd + 1).join("\n")
     );
 
-    const errors = [ ];
+    const errors: string[] = [ ];
     if (parsedPredicate.kind === "Err") errors.push(parsedPredicate.error);
     if (parsedIfBody.kind === "Err") errors.push(parsedIfBody.error);
+
+    const parsedElseIfBodies: ElseIfStatement[] = [ ];
+    for (const parsedElseIfBody of elseIfs) {
+        if (parsedElseIfBody.kind === "Err") {
+            errors.push(parsedElseIfBody.error);
+        } else {
+            parsedElseIfBodies.push(parsedElseIfBody.value);
+        }
+    }
+
     if (parsedElseBody.kind === "Err") errors.push(parsedElseBody.error);
 
     if (errors.length > 0) {
@@ -1476,6 +1627,7 @@ function parseIfStatement(body: string): Result<string, IfStatement> {
             (parsedPredicate as Ok<Expression>).value,
             (parsedIfBody as Ok<Expression>).value,
             ifLetBlock,
+            parsedElseIfBodies,
             (parsedElseBody as Ok<Expression>).value,
             elseLetBlock
         )

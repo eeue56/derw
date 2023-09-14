@@ -5,7 +5,7 @@ import "../stdlib/List" as List
 import "../types" as Aliases exposing ( TypeAlias, Property )
 import "../types" as Blocks exposing ( Function, FunctionArg, FunctionArgsUnion, Const, ImportModule, Import, Export, Module )
 import "../types" as Boolean exposing ( Equality, InEquality, LessThan, LessThanOrEqual, GreaterThan, GreaterThanOrEqual, And, Or, ListPrepend )
-import "../types" as Control exposing ( IfStatement, Destructure, ListDestructure, ListDestructurePart, BranchPattern, Branch, CaseStatement, DoBlock, DoExpression )
+import "../types" as Control exposing ( IfStatement, ElseIfStatement, Destructure, ListDestructure, ListDestructurePart, BranchPattern, Branch, CaseStatement, DoBlock, DoExpression )
 import "../types" as Functions exposing ( FunctionCall, Lambda, LambdaCall )
 import "../types" as Objects exposing ( ObjectLiteral, Field, ModuleReference )
 import "../types" as Operators exposing ( Addition, Subtraction, Multiplication, Division, Mod, LeftPipe, RightPipe )
@@ -536,6 +536,32 @@ generateLetBlock body parentTypeArguments imports =
         default ->
             ""
 
+generateElseIfStatement: ElseIfStatement -> List string -> string
+generateElseIfStatement elseIfStatement parentTypeArguments =
+    let
+        isSimpleBody: boolean
+        isSimpleBody =
+            isSimpleValue elseIfStatement.body.kind
+
+        bodyPrefix: string
+        bodyPrefix =
+            if isSimpleBody then
+                "return "
+            else
+                ""
+
+        predicate: string
+        predicate =
+            generateExpression elseIfStatement.predicate
+
+        body: string
+        body =
+            generateExpression elseIfStatement.body parentTypeArguments
+                |> (\y -> bodyPrefix + y)
+                |> (\y -> prefixLines y 4)
+    in
+        `} else if (${predicate}) {\n${body};`
+
 generateIfStatement: IfStatement -> List string -> boolean -> boolean -> string
 generateIfStatement ifStatement parentTypeArguments isAsync neverSimple =
     let
@@ -631,8 +657,20 @@ generateIfStatement ifStatement parentTypeArguments isAsync neverSimple =
 
                 default ->
                     elseBody
+
+        elseIfs: string
+        elseIfs =
+            List.map (\elseIf -> generateElseIfStatement elseIf parentTypeArguments) ifStatement.elseIf
+                |> (\y -> y.join "\n")
+
+        prefixedElseIfs: string
+        prefixedElseIfs =
+            if elseIfs == "" then
+                "}"
+            else
+                `${elseIfs}\n}`
     in
-        `if (${predicate}) {${maybeIfLetBody}\n    ${ifBodyPrefix}${asyncPrefix}${indentedIfBody};\n} else {${maybeElseLetBody}\n    ${elseBodyPrefix}${asyncPrefix}${indentedElseBody};\n}`
+        `if (${predicate}) {${maybeIfLetBody}\n    ${ifBodyPrefix}${asyncPrefix}${indentedIfBody};\n${prefixedElseIfs} else {${maybeElseLetBody}\n    ${elseBodyPrefix}${asyncPrefix}${indentedElseBody};\n}`
 
 generateConstructor: Constructor -> string
 generateConstructor constructor =

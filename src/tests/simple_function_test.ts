@@ -85,6 +85,7 @@ export function testParse() {
                         Value("value"),
                         Value("true"),
                         [ ],
+                        [ ],
                         Value("false"),
                         [ ]
                     )
@@ -109,6 +110,7 @@ export function testParseMultiLine() {
                     IfStatement(
                         Value("value"),
                         Value("true"),
+                        [ ],
                         [ ],
                         Value("false"),
                         [ ]

@@ -7,8 +7,8 @@ import { generateJavascript } from "../generators/Js";
 import { generateTypescript } from "../generators/Ts";
 import { parse } from "../parser";
 import {
-    Const,
-    DoBlock,
+    ElseIfStatement,
+    Equality,
     FixedType,
     Function,
     FunctionArg,
@@ -22,58 +22,32 @@ import {
 } from "../types";
 
 const oneLine = `
-isTrue: boolean -> boolean
-isTrue value =
-    let
-        name: string
-        name =
-            "Noah"
-    in
-    do
-        globalThis.console.log "hello" name
-
-        x: number
-        x =
-            5
-
-        globalThis.console.log x
-    return
-        if value then
-            true
-        else
-            false
+reducer: number -> string -> boolean
+reducer index line =
+    if line.charAt index == "0" then
+        true
+    else if line.charAt index == "1" then
+        true
+    else
+        false
 `.trim();
 
 const multiLine = `
-isTrue: boolean -> boolean
-isTrue value =
-    let
-        name: string
-        name =
-            "Noah"
-    in
-    do
-        globalThis.console.log "hello" name
-
-        x: number
-        x =
-            5
-
-        globalThis.console.log x
-    return
-        if value then
-            true
-        else
-            false
+reducer: number -> string -> boolean
+reducer index line =
+    if line.charAt index == "0" then
+        true
+    else if line.charAt index == "1" then
+        true
+    else
+        false
 `.trim();
 
 const expectedOutput = `
-async function isTrue(value: boolean): Promise<boolean> {
-    const name: string = "Noah";
-    await globalThis.console.log("hello", name);
-    const x: number = await 5;
-    await globalThis.console.log(x);
-    if (value) {
+function reducer(index: number, line: string): boolean {
+    if (line.charAt(index) === "0") {
+        return true;
+    } else if (line.charAt(index) === "1") {
         return true;
     } else {
         return false;
@@ -82,12 +56,10 @@ async function isTrue(value: boolean): Promise<boolean> {
 `.trim();
 
 const expectedOutputJS = `
-async function isTrue(value) {
-    const name = "Noah";
-    await globalThis.console.log("hello", name);
-    const x = await 5;
-    await globalThis.console.log(x);
-    if (value) {
+function reducer(index, line) {
+    if (line.charAt(index) === "0") {
+        return true;
+    } else if (line.charAt(index) === "1") {
         return true;
     } else {
         return false;
@@ -122,39 +94,41 @@ export function testParse() {
             "main",
             [
                 Function(
-                    "isTrue",
+                    "reducer",
                     FixedType("boolean", [ ]),
-                    [ FunctionArg("value", FixedType("boolean", [ ])) ],
                     [
-                        Const(
-                            "name",
-                            FixedType("string", [ ]),
-                            [ ],
-                            StringValue("Noah")
-                        ),
+                        FunctionArg("index", FixedType("number", [ ])),
+                        FunctionArg("line", FixedType("string", [ ])),
                     ],
+                    [ ],
                     IfStatement(
-                        Value("value"),
+                        Equality(
+                            ModuleReference(
+                                [ "line" ],
+                                FunctionCall("charAt", [ Value("index") ])
+                            ),
+                            StringValue("0")
+                        ),
                         Value("true"),
                         [ ],
-                        [ ],
+                        [
+                            ElseIfStatement(
+                                Equality(
+                                    ModuleReference(
+                                        [ "line" ],
+                                        FunctionCall("charAt", [
+                                            Value("index"),
+                                        ])
+                                    ),
+                                    StringValue("1")
+                                ),
+                                Value("true"),
+                                [ ]
+                            ),
+                        ],
                         Value("false"),
                         [ ]
-                    ),
-                    DoBlock([
-                        ModuleReference(
-                            [ "globalThis", "console" ],
-                            FunctionCall("log", [
-                                StringValue("hello"),
-                                Value("name"),
-                            ])
-                        ),
-                        Const("x", FixedType("number", [ ]), [ ], Value("5")),
-                        ModuleReference(
-                            [ "globalThis", "console" ],
-                            FunctionCall("log", [ Value("x") ])
-                        ),
-                    ])
+                    )
                 ),
             ],
             [ ]
@@ -169,39 +143,41 @@ export function testParseMultiLine() {
             "main",
             [
                 Function(
-                    "isTrue",
+                    "reducer",
                     FixedType("boolean", [ ]),
-                    [ FunctionArg("value", FixedType("boolean", [ ])) ],
                     [
-                        Const(
-                            "name",
-                            FixedType("string", [ ]),
-                            [ ],
-                            StringValue("Noah")
-                        ),
+                        FunctionArg("index", FixedType("number", [ ])),
+                        FunctionArg("line", FixedType("string", [ ])),
                     ],
+                    [ ],
                     IfStatement(
-                        Value("value"),
+                        Equality(
+                            ModuleReference(
+                                [ "line" ],
+                                FunctionCall("charAt", [ Value("index") ])
+                            ),
+                            StringValue("0")
+                        ),
                         Value("true"),
                         [ ],
-                        [ ],
+                        [
+                            ElseIfStatement(
+                                Equality(
+                                    ModuleReference(
+                                        [ "line" ],
+                                        FunctionCall("charAt", [
+                                            Value("index"),
+                                        ])
+                                    ),
+                                    StringValue("1")
+                                ),
+                                Value("true"),
+                                [ ]
+                            ),
+                        ],
                         Value("false"),
                         [ ]
-                    ),
-                    DoBlock([
-                        ModuleReference(
-                            [ "globalThis", "console" ],
-                            FunctionCall("log", [
-                                StringValue("hello"),
-                                Value("name"),
-                            ])
-                        ),
-                        Const("x", FixedType("number", [ ]), [ ], Value("5")),
-                        ModuleReference(
-                            [ "globalThis", "console" ],
-                            FunctionCall("log", [ Value("x") ])
-                        ),
-                    ])
+                    )
                 ),
             ],
             [ ]

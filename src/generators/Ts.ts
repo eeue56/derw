@@ -16,7 +16,7 @@ import * as Boolean from "../types";
 import { Equality, InEquality, LessThan, LessThanOrEqual, GreaterThan, GreaterThanOrEqual, And, Or, ListPrepend } from "../types";
 
 import * as Control from "../types";
-import { IfStatement, Destructure, ListDestructure, ListDestructurePart, BranchPattern, Branch, CaseStatement, DoBlock, DoExpression } from "../types";
+import { IfStatement, ElseIfStatement, Destructure, ListDestructure, ListDestructurePart, BranchPattern, Branch, CaseStatement, DoBlock, DoExpression } from "../types";
 
 import * as Functions from "../types";
 import { FunctionCall, Lambda, LambdaCall } from "../types";
@@ -523,6 +523,18 @@ function generateLetBlock(body: Block[], parentTypeArguments: string[], imports:
     }
 }
 
+function generateElseIfStatement(elseIfStatement: ElseIfStatement, parentTypeArguments: string[]): string {
+    const isSimpleBody: boolean = isSimpleValue(elseIfStatement.body.kind);
+    const bodyPrefix: string = isSimpleBody ? "return " : "";
+    const predicate: string = generateExpression(elseIfStatement.predicate);
+    const body: string = (function(y: any) {
+        return prefixLines(y, 4);
+    })((function(y: any) {
+        return bodyPrefix + y;
+    })(generateExpression(elseIfStatement.body, parentTypeArguments)));
+    return `} else if (${predicate}) {\n${body};`;
+}
+
 function generateIfStatement(ifStatement: IfStatement, parentTypeArguments: string[], isAsync: boolean, neverSimple: boolean): string {
     const isSimpleIfBody: boolean = neverSimple ? false : isSimpleValue(ifStatement.ifBody.kind);
     const isSimpleElseBody: boolean = neverSimple ? false : isSimpleValue(ifStatement.elseBody.kind);
@@ -584,7 +596,13 @@ function generateIfStatement(ifStatement: IfStatement, parentTypeArguments: stri
             }
         }
     })();
-    return `if (${predicate}) {${maybeIfLetBody}\n    ${ifBodyPrefix}${asyncPrefix}${indentedIfBody};\n} else {${maybeElseLetBody}\n    ${elseBodyPrefix}${asyncPrefix}${indentedElseBody};\n}`;
+    const elseIfs: string = (function(y: any) {
+        return y.join("\n");
+    })(List.map(function(elseIf: any) {
+        return generateElseIfStatement(elseIf, parentTypeArguments);
+    }, ifStatement.elseIf));
+    const prefixedElseIfs: string = elseIfs === "" ? "}" : `${elseIfs}\n}`;
+    return `if (${predicate}) {${maybeIfLetBody}\n    ${ifBodyPrefix}${asyncPrefix}${indentedIfBody};\n${prefixedElseIfs} else {${maybeElseLetBody}\n    ${elseBodyPrefix}${asyncPrefix}${indentedElseBody};\n}`;
 }
 
 function generateConstructor(constructor: Constructor): string {

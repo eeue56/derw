@@ -297,11 +297,31 @@ export function Constructor(
     };
 }
 
+export type ElseIfStatement = {
+    predicate: Expression;
+    body: Expression;
+    letBody: Block[];
+};
+
+export function ElseIfStatement(
+    predicate: Expression,
+    body: Expression,
+    letBody: Block[]
+) {
+    return {
+        kind: "ElseIfStatement",
+        predicate,
+        body,
+        letBody,
+    };
+}
+
 export type IfStatement = {
     kind: "IfStatement";
     predicate: Expression;
     ifBody: Expression;
     ifLetBody: Block[];
+    elseIf: ElseIfStatement[];
     elseBody: Expression;
     elseLetBody: Block[];
 };
@@ -310,6 +330,7 @@ export function IfStatement(
     predicate: Expression,
     ifBody: Expression,
     ifLetBody: Block[],
+    elseIf: ElseIfStatement[],
     elseBody: Expression,
     elseLetBody: Block[]
 ): IfStatement {
@@ -318,6 +339,7 @@ export function IfStatement(
         predicate,
         ifBody,
         ifLetBody,
+        elseIf,
         elseBody,
         elseLetBody,
     };

@@ -102,6 +102,7 @@ export function testParse() {
                         ),
                         Value("true"),
                         [ ],
+                        [ ],
                         Value("false"),
                         [ ]
                     )
@@ -135,6 +136,7 @@ export function testParseMultiLine() {
                             StringValue("0")
                         ),
                         Value("true"),
+                        [ ],
                         [ ],
                         Value("false"),
                         [ ]

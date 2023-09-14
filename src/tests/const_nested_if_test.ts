@@ -85,9 +85,11 @@ export function testParse() {
                             Equality(Value("2"), Value("2")),
                             StringValue("Noah"),
                             [ ],
+                            [ ],
                             StringValue("Mary"),
                             [ ]
                         ),
+                        [ ],
                         [ ],
                         StringValue("James"),
                         [ ]
@@ -115,9 +117,11 @@ export function testParseMultiLine() {
                             Equality(Value("2"), Value("2")),
                             StringValue("Noah"),
                             [ ],
+                            [ ],
                             StringValue("Mary"),
                             [ ]
                         ),
+                        [ ],
                         [ ],
                         StringValue("James"),
                         [ ]

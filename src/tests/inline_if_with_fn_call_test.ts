@@ -112,6 +112,7 @@ export function testParse() {
                                     ),
                                     FunctionCall("text", [ StringValue("") ]),
                                     [ ],
+                                    [ ],
                                     FunctionCall("viewFooter", [
                                         Value("model"),
                                     ]),
@@ -175,6 +176,7 @@ export function testParseMultiLine() {
                                         Value("0")
                                     ),
                                     FunctionCall("text", [ StringValue("") ]),
+                                    [ ],
                                     [ ],
                                     FunctionCall("viewFooter", [
                                         Value("model"),

@@ -77,6 +77,7 @@ export function testParse() {
                         Equality(Value("1"), Value("1")),
                         StringValue("Noah"),
                         [ ],
+                        [ ],
                         StringValue("James"),
                         [ ]
                     )
@@ -100,6 +101,7 @@ export function testParseMultiLine() {
                     IfStatement(
                         Equality(Value("1"), Value("1")),
                         StringValue("Noah"),
+                        [ ],
                         [ ],
                         StringValue("James"),
                         [ ]
