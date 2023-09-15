@@ -10,11 +10,16 @@ import { collisions } from "./Collisions";
 import {
     CloseBracketToken,
     CloseCurlyBracesToken,
+    FormatStringToken,
     IdentifierToken,
+    KeywordToken,
+    LiteralToken,
+    MultilineCommentToken,
     OpenBracketToken,
     OpenCurlyBracesToken,
     OperatorToken,
     RootTypeTokens,
+    StringToken,
     Token,
     TypeToken,
     WhitespaceToken,
@@ -1300,36 +1305,6 @@ function parseIfBody(tokens: Token[]): Result<string, Expression> {
     return parseExpression(tokensToString(inbetweenTokens));
 }
 
-function parseElseIfBody(tokens: Token[]): Result<string, Expression> {
-    const inbetweenTokens = [ ];
-
-    let state: "WaitingForThen" | "BetweenThenAndElse" | "PastElse" =
-        "WaitingForThen";
-
-    for (const token of tokens) {
-        switch (token.kind) {
-            case "KeywordToken": {
-                if (token.body === "then") {
-                    state = "BetweenThenAndElse";
-                    break;
-                } else if (token.body === "else") {
-                    state = "PastElse";
-                    break;
-                }
-            }
-            default: {
-                if (state === "BetweenThenAndElse") {
-                    inbetweenTokens.push(token);
-                }
-            }
-        }
-
-        if (state === "PastElse") break;
-    }
-
-    return parseExpression(tokensToString(inbetweenTokens));
-}
-
 function parseElseBody(tokens: Token[]): Result<string, Expression> {
     const inbetweenTokens = [ ];
 
@@ -1401,43 +1376,120 @@ function getIndentLevel(line: string): number {
     ).indentLevel;
 }
 
-function parseElseIfStatement(body: string): Result<string, ElseIfStatement> {
-    const tokens = tokenize(body);
-    let startIndex = -1;
-    let seenElse = false;
+function equalTokens(first: Token, second: Token): boolean {
+    if (first.kind !== second.kind) return false;
 
-    for (let index = 1; index < tokens.length; index++) {
-        const token = tokens[index];
-        if (token.kind === "KeywordToken" && token.body === "else") {
-            seenElse = true;
-        } else if (
-            token.kind === "KeywordToken" &&
-            token.body === "if" &&
-            seenElse
-        ) {
-            startIndex = index + 1;
-            break;
+    switch (first.kind) {
+        case "ArrowToken":
+        case "AssignToken":
+        case "CloseBracketToken":
+        case "ColonToken":
+        case "CloseCurlyBracesToken":
+        case "CommaToken":
+        case "CommentToken":
+        case "OpenBracketToken":
+        case "OpenCurlyBracesToken":
+        case "PipeToken": {
+            return true;
+        }
+        case "FormatStringToken": {
+            return first.body === (second as FormatStringToken).body;
+        }
+        case "IdentifierToken": {
+            return first.body === (second as IdentifierToken).body;
+        }
+        case "KeywordToken": {
+            return first.body === (second as KeywordToken).body;
+        }
+        case "LiteralToken": {
+            return first.body === (second as LiteralToken).body;
+        }
+        case "MultilineCommentToken": {
+            return first.body === (second as MultilineCommentToken).body;
+        }
+        case "OperatorToken": {
+            return first.body === (second as OperatorToken).body;
+        }
+        case "StringToken": {
+            return first.body === (second as StringToken).body;
+        }
+        case "WhitespaceToken": {
+            return first.body === (second as WhitespaceToken).body;
         }
     }
+}
+
+function goToTheStartOfPattern(
+    tokens: Token[],
+    patternToFind: Token[]
+): number {
+    let patternTokenIndex = 0;
+
+    for (let i = 0; i < tokens.length; i++) {
+        const token = tokens[i];
+        const patternToken = patternToFind[patternTokenIndex];
+
+        if (equalTokens(token, patternToken)) {
+            if (patternTokenIndex === patternToFind.length - 1) {
+                return i - patternToFind.length;
+            } else {
+                patternTokenIndex++;
+            }
+        } else {
+            patternTokenIndex = 0;
+        }
+    }
+
+    return -1;
+}
+
+function goToTheEndOfPattern(tokens: Token[], patternToFind: Token[]): number {
+    let patternTokenIndex = 0;
+
+    for (let i = 0; i < tokens.length; i++) {
+        const token = tokens[i];
+        const patternToken = patternToFind[patternTokenIndex];
+
+        if (equalTokens(token, patternToken)) {
+            if (patternTokenIndex === patternToFind.length - 1) {
+                return i;
+            } else {
+                patternTokenIndex++;
+            }
+        } else {
+            patternTokenIndex = 0;
+        }
+    }
+
+    return -1;
+}
+
+function parseElseIfStatement(body: string): Result<string, ElseIfStatement> {
+    const tokens = tokenize(body);
+    let startIndex = goToTheEndOfPattern(tokens, [
+        KeywordToken({ body: "else" }),
+        WhitespaceToken({ body: " " }),
+        KeywordToken({ body: "if" }),
+    ]);
 
     if (startIndex === -1) {
         return Err("Was expecting to find an else if but failed to find one.");
     }
 
-    let firstThenIndex = -1;
+    startIndex++;
 
-    for (let index = startIndex; index < tokens.length; index++) {
-        const token = tokens[index];
-        if (token.kind === "KeywordToken" && token.body === "then") {
-            firstThenIndex = index;
-        }
-    }
+    let firstThenIndex = goToTheStartOfPattern(
+        tokens.slice(startIndex, tokens.length),
+        [ KeywordToken({ body: "then" }) ]
+    );
 
     if (firstThenIndex === -1) {
         return Err(
             "Was expecting to find a then after an else if but failed to find one."
         );
     }
+
+    firstThenIndex = startIndex + firstThenIndex + 1;
 
     const predicate = parseExpression(
         tokensToString(tokens.slice(startIndex, firstThenIndex))
