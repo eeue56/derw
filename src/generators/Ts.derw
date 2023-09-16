@@ -559,8 +559,15 @@ generateElseIfStatement elseIfStatement parentTypeArguments =
             generateExpression elseIfStatement.body parentTypeArguments
                 |> (\y -> bodyPrefix + y)
                 |> (\y -> prefixLines y 4)
+
+        bodySuffix: string
+        bodySuffix =
+            if isSimpleBody then
+                ";"
+            else
+                ""
     in
-        `} else if (${predicate}) {\n${body};`
+        `} else if (${predicate}) {\n${body}${bodySuffix}`
 
 generateIfStatement: IfStatement -> List string -> boolean -> boolean -> string
 generateIfStatement ifStatement parentTypeArguments isAsync neverSimple =

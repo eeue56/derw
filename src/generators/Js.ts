@@ -168,7 +168,8 @@ function generateElseIfStatement(elseIfStatement: ElseIfStatement): string {
     })((function(y: any) {
         return bodyPrefix + y;
     })(generateExpression(elseIfStatement.body)));
-    return `} else if (${predicate}) {\n${body};`;
+    const bodySuffix: string = isSimpleBody ? ";" : "";
+    return `} else if (${predicate}) {\n${body}${bodySuffix}`;
 }
 
 function generateIfStatement(ifStatement: IfStatement, isAsync: boolean, neverSimple: boolean): string {

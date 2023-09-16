@@ -532,7 +532,8 @@ function generateElseIfStatement(elseIfStatement: ElseIfStatement, parentTypeArg
     })((function(y: any) {
         return bodyPrefix + y;
     })(generateExpression(elseIfStatement.body, parentTypeArguments)));
-    return `} else if (${predicate}) {\n${body};`;
+    const bodySuffix: string = isSimpleBody ? ";" : "";
+    return `} else if (${predicate}) {\n${body}${bodySuffix}`;
 }
 
 function generateIfStatement(ifStatement: IfStatement, parentTypeArguments: string[], isAsync: boolean, neverSimple: boolean): string {
