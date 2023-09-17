@@ -291,10 +291,12 @@ function generateLetBlock(body: Block[]): string {
 
 function generateElseIfStatement(elseIfStatement: ElseIfStatement): string {
     const predicate: string = generateExpression(elseIfStatement.predicate);
+    const maybeLetBody: string = generateLetBlock(elseIfStatement.letBody);
+    const indent: number = maybeLetBody === "" ? 4 : 8;
     const body: string = (function(lines: any) {
-        return prefixLines(lines, 4);
+        return prefixLines(lines, indent);
     })(generateExpression(elseIfStatement.body));
-    return `else if ${predicate} then\n${body}`;
+    return `else if ${predicate} then${maybeLetBody}\n${body}`;
 }
 
 function generateIfStatement(ifStatement: IfStatement): string {

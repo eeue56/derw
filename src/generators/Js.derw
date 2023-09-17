@@ -171,8 +171,12 @@ generateElseIfStatement elseIfStatement =
                 ";"
             else
                 ""
+
+        maybeLetBody: string
+        maybeLetBody =
+            generateLetBlock elseIfStatement.letBody
     in
-        `} else if (${predicate}) {\n${body}${bodySuffix}`
+        `} else if (${predicate}) {${maybeLetBody}\n${body}${bodySuffix}`
 
 generateIfStatement: IfStatement -> boolean -> boolean -> string
 generateIfStatement ifStatement isAsync neverSimple =

@@ -169,7 +169,8 @@ function generateElseIfStatement(elseIfStatement: ElseIfStatement): string {
         return bodyPrefix + y;
     })(generateExpression(elseIfStatement.body)));
     const bodySuffix: string = isSimpleBody ? ";" : "";
-    return `} else if (${predicate}) {\n${body}${bodySuffix}`;
+    const maybeLetBody: string = generateLetBlock(elseIfStatement.letBody);
+    return `} else if (${predicate}) {${maybeLetBody}\n${body}${bodySuffix}`;
 }
 
 function generateIfStatement(ifStatement: IfStatement, isAsync: boolean, neverSimple: boolean): string {

@@ -1464,6 +1464,18 @@ function goToTheEndOfPattern(tokens: Token[], patternToFind: Token[]): number {
     return -1;
 }
 
+function deIndentTokens(tokens: Token[], level: number): Token[] {
+    return tokens.map((token: Token): Token => {
+        if (token.kind === "WhitespaceToken") {
+            const lines = token.body.split("\n").map((line: string): string => {
+                return line.slice(level, line.length);
+            });
+            return WhitespaceToken({ body: lines.join("\n") });
+        }
+        return token;
+    });
+}
+
 function parseElseIfStatement(body: string): Result<string, ElseIfStatement> {
     const tokens = tokenize(body);
     let startIndex = goToTheEndOfPattern(tokens, [
@@ -1501,14 +1513,75 @@ function parseElseIfStatement(body: string): Result<string, ElseIfStatement> {
         );
     }
 
-    const elseIfBody = tokens.slice(firstThenIndex + 1);
+    let letIndex = goToTheStartOfPattern(
+        tokens.slice(firstThenIndex, tokens.length),
+        [ KeywordToken({ body: "let" }) ]
+    );
+
+    let letEnd = firstThenIndex + 1;
+    let blocks: Block[] = [ ];
+
+    if (letIndex > -1) {
+        letIndex += firstThenIndex;
+        const whitespaceToken = tokens[letIndex];
+
+        if (whitespaceToken.kind !== "WhitespaceToken") {
+            return Err(
+                `Failed to parse let..in in else if block, unexpected ${whitespaceToken.kind}`
+            );
+        }
+
+        const indent = whitespaceToken.body.split("\n")[1].length;
+        letEnd = goToTheEndOfPattern(
+            tokens.slice(firstThenIndex, tokens.length),
+            [ whitespaceToken, KeywordToken({ body: "in" }) ]
+        );
+
+        if (letEnd === -1) {
+            return Err("Failed to parse let..in in else if block");
+        }
+
+        letEnd += firstThenIndex + 1;
+
+        const unparsedBlocks = intoBlocks(
+            tokensToString(
+                deIndentTokens(
+                    tokens.slice(letIndex + 2, letEnd - 1),
+                    indent + 4
+                )
+            )
+        );
+
+        const parsedBlocks = unparsedBlocks.map((block) => parseBlock(block));
+
+        const blockErrors: string[] = [ ];
+
+        for (const block of parsedBlocks) {
+            if (block.kind === "Err") {
+                blockErrors.push(block.error);
+            } else {
+                blocks.push(block.value);
+            }
+        }
+
+        if (blockErrors.length > 0) {
+            return Err(
+                `Failed to parse let..in due to: ${blockErrors.join("\n\n")}`
+            );
+        }
+    }
+
+    const elseIfBody =
+        blocks.length === 0
+            ? tokens.slice(firstThenIndex + 1)
+            : tokens.slice(letEnd);
     const parsedBody = parseExpression(tokensToString(elseIfBody));
 
     if (parsedBody.kind === "Err") {
-        return Err(`Failed to parse else if body due to ${parsedBody.error}`);
+        return Err(`Failed to parse else if body due to: ${parsedBody.error}`);
     }
 
-    return Ok(ElseIfStatement(predicate.value, parsedBody.value, [ ]));
+    return Ok(ElseIfStatement(predicate.value, parsedBody.value, blocks));
 }
 
 function parseIfStatement(body: string): Result<string, IfStatement> {

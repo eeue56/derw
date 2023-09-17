@@ -298,12 +298,23 @@ generateElseIfStatement elseIfStatement =
         predicate =
             generateExpression elseIfStatement.predicate
 
+        maybeLetBody: string
+        maybeLetBody =
+            generateLetBlock elseIfStatement.letBody
+
+        indent: number
+        indent =
+            if maybeLetBody == "" then
+                4
+            else
+                8
+
         body: string
         body =
             generateExpression elseIfStatement.body
-                |> (\lines -> prefixLines lines 4)
+                |> (\lines -> prefixLines lines indent)
     in
-        `else if ${predicate} then\n${body}`
+        `else if ${predicate} then${maybeLetBody}\n${body}`
 
 generateIfStatement: IfStatement -> string
 generateIfStatement ifStatement =

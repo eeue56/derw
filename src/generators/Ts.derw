@@ -566,8 +566,12 @@ generateElseIfStatement elseIfStatement parentTypeArguments =
                 ";"
             else
                 ""
+
+        maybeLetBody: string
+        maybeLetBody =
+            generateLetBlock elseIfStatement.letBody parentTypeArguments [ ]
     in
-        `} else if (${predicate}) {\n${body}${bodySuffix}`
+        `} else if (${predicate}) {${maybeLetBody}\n${body}${bodySuffix}`
 
 generateIfStatement: IfStatement -> List string -> boolean -> boolean -> string
 generateIfStatement ifStatement parentTypeArguments isAsync neverSimple =
