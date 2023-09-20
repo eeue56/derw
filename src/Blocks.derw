@@ -24,6 +24,10 @@ type UnparsedBlock =
         lines: List string }
     | TypeAliasBlock { lineStart: number,
         lines: List string }
+    | TypeclassBlock { lineStart: number,
+        lines: List string }
+    | ImplBlock { lineStart: number,
+        lines: List string }
     | FunctionBlock { lineStart: number,
         lines: List string }
     | ConstBlock { lineStart: number,
@@ -84,6 +88,14 @@ validators =
         {
             test: (\x -> x.startsWith "type alias"),
             blockKind: "TypeAlias"
+        },
+        {
+            test: (\x -> x.startsWith "typeclass "),
+            blockKind: "Typeclass"
+        },
+        {
+            test: (\x -> x.startsWith "impl "),
+            blockKind: "Impl"
         },
         {
             test: (\x -> x.startsWith "type " && x.includes `"`),
@@ -177,6 +189,18 @@ createUnparsedBlock blockKind lineStart lines =
 
         "TypeAlias" ->
             TypeAliasBlock {
+                lineStart: lineStart,
+                lines: lines
+            }
+
+        "Typeclass" ->
+            TypeclassBlock {
+                lineStart: lineStart,
+                lines: lines
+            }
+
+        "Impl" ->
+            ImplBlock {
                 lineStart: lineStart,
                 lines: lines
             }

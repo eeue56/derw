@@ -112,6 +112,32 @@ function TypeAliasBlock(args: { lineStart: number, lines: string[] }): TypeAlias
     };
 }
 
+type TypeclassBlock = {
+    kind: "TypeclassBlock";
+    lineStart: number;
+    lines: string[];
+};
+
+function TypeclassBlock(args: { lineStart: number, lines: string[] }): TypeclassBlock {
+    return {
+        kind: "TypeclassBlock",
+        ...args,
+    };
+}
+
+type ImplBlock = {
+    kind: "ImplBlock";
+    lineStart: number;
+    lines: string[];
+};
+
+function ImplBlock(args: { lineStart: number, lines: string[] }): ImplBlock {
+    return {
+        kind: "ImplBlock",
+        ...args,
+    };
+}
+
 type FunctionBlock = {
     kind: "FunctionBlock";
     lineStart: number;
@@ -177,7 +203,7 @@ function UnknownBlock(args: { lineStart: number, lines: string[] }): UnknownBloc
     };
 }
 
-type UnparsedBlock = ImportBlock | ExportBlock | UnionTypeBlock | UnionUntaggedTypeBlock | TypeAliasBlock | FunctionBlock | ConstBlock | CommentBlock | MultilineCommentBlock | UnknownBlock;
+type UnparsedBlock = ImportBlock | ExportBlock | UnionTypeBlock | UnionUntaggedTypeBlock | TypeAliasBlock | TypeclassBlock | ImplBlock | FunctionBlock | ConstBlock | CommentBlock | MultilineCommentBlock | UnknownBlock;
 
 function hasTypeLine(block: string): boolean {
     const _res1328002030 = block.split(":");
@@ -235,6 +261,16 @@ const validators: Validator[] = [ {
     return x.startsWith("type alias");
 },
     blockKind: "TypeAlias"
+}, {
+    test: function(x: any) {
+    return x.startsWith("typeclass ");
+},
+    blockKind: "Typeclass"
+}, {
+    test: function(x: any) {
+    return x.startsWith("impl ");
+},
+    blockKind: "Impl"
 }, {
     test: function(x: any) {
     return x.startsWith("type ") && x.includes(`"`);
@@ -341,6 +377,18 @@ function createUnparsedBlock(blockKind: BlockKinds, lineStart: number, lines: st
         }
         case "TypeAlias": {
             return TypeAliasBlock({
+            lineStart,
+            lines
+        });
+        }
+        case "Typeclass": {
+            return TypeclassBlock({
+            lineStart,
+            lines
+        });
+        }
+        case "Impl": {
+            return ImplBlock({
             lineStart,
             lines
         });

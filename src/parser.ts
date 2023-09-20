@@ -8,8 +8,10 @@ import {
 import { intoBlocks, typeBlocks } from "./Blocks";
 import { collisions } from "./Collisions";
 import {
+    ArrowToken,
     CloseBracketToken,
     CloseCurlyBracesToken,
+    ColonToken,
     FormatStringToken,
     IdentifierToken,
     KeywordToken,
@@ -67,6 +69,7 @@ import {
     GreaterThan,
     GreaterThanOrEqual,
     IfStatement,
+    Impl,
     Import,
     ImportModule,
     InEquality,
@@ -93,6 +96,8 @@ import {
     TagArg,
     Type,
     TypeAlias,
+    Typeclass,
+    TypeclassFunction,
     TypedBlock,
     UnionType,
     UnionUntaggedType,
@@ -788,6 +793,213 @@ function parseTypeAlias(tokens: Token[]): Result<string, TypeAlias> {
     );
 }
 
+function splitOnNewlines(tokens: Token[]): Token[][] {
+    const lines: Token[][] = [ ];
+    let currentLine: Token[] = [ ];
+
+    for (const token of tokens) {
+        if (token.kind === "WhitespaceToken" && token.body.indexOf("\n") > -1) {
+            lines.push(currentLine);
+            currentLine = [ ];
+        } else {
+            currentLine.push(token);
+        }
+    }
+    if (currentLine.length > 0) {
+        lines.push(currentLine);
+    }
+    return lines;
+}
+
+function splitOn(tokens: Token[], splitToken: Token): Token[][] {
+    const pieces: Token[][] = [ ];
+    let currentPiece: Token[] = [ ];
+
+    for (const token of tokens) {
+        if (equalTokens(token, splitToken)) {
+            pieces.push(currentPiece);
+            currentPiece = [ ];
+        } else {
+            currentPiece.push(token);
+        }
+    }
+
+    if (currentPiece.length > 0) {
+        pieces.push(currentPiece);
+    }
+
+    return pieces;
+}
+
+function parseTypeclassFunction(
+    tokens: Token[]
+): Result<string, TypeclassFunction> {
+    const functionNameToken = tokens[0];
+
+    if (functionNameToken.kind !== "IdentifierToken") {
+        return Err(
+            `Expected identifier token for function name but got ${functionNameToken.kind}`
+        );
+    }
+    const functionName = functionNameToken.body;
+
+    const typeSignatureIndex = goToTheEndOfPattern(tokens, [ ColonToken({}) ]);
+    if (typeSignatureIndex === -1) {
+        return Err("Unable to find colon in type signature");
+    }
+
+    const typeSignature = tokens.slice(typeSignatureIndex + 1, tokens.length);
+    const typePieces = splitOn(typeSignature, ArrowToken({}));
+    const types = typePieces.map(parseType);
+    const parsedTypes: Type[] = [ ];
+    const errors: string[] = [ ];
+
+    for (const type of types) {
+        if (type.kind === "Err") {
+            errors.push(type.error);
+        } else {
+            parsedTypes.push(type.value);
+        }
+    }
+
+    if (errors.length > 0) {
+        return Err(errors.join("\n"));
+    }
+
+    return Ok(
+        TypeclassFunction(
+            functionName,
+            parsedTypes[parsedTypes.length - 1],
+            parsedTypes.slice(0, parsedTypes.length - 1)
+        )
+    );
+}
+
+function parseTypeclass(tokens: Token[]): Result<string, Typeclass> {
+    const typeclassNameIndex = goToTheEndOfPattern(tokens, [
+        KeywordToken({ body: "typeclass" }),
+        WhitespaceToken({ body: " " }),
+    ]);
+
+    if (typeclassNameIndex === -1) return Err("Failed to find typeclass name");
+
+    const typeclassNameToken = tokens[typeclassNameIndex + 1];
+    if (typeclassNameToken.kind !== "IdentifierToken") {
+        return Err(
+            `Expected an identifier for the typeclass name but got ${typeclassNameToken.kind}`
+        );
+    }
+    const typeclassName = typeclassNameToken.body;
+
+    const variableIndex = goToTheEndOfPattern(tokens, [
+        KeywordToken({ body: "typeclass" }),
+        WhitespaceToken({ body: " " }),
+        typeclassNameToken,
+        WhitespaceToken({ body: " " }),
+    ]);
+
+    if (variableIndex === -1) return Err("Failed to find typeclass variable");
+
+    const variableToken = tokens[variableIndex + 1];
+    if (variableToken.kind !== "IdentifierToken") {
+        return Err(
+            `Expected an identifier for the typeclass variable name but got ${variableToken.kind}`
+        );
+    }
+    const variable = GenericType(variableToken.body);
+
+    const functionsStartIndex = goToTheEndOfPattern(tokens, [
+        KeywordToken({ body: "typeclass" }),
+        WhitespaceToken({ body: " " }),
+        typeclassNameToken,
+        WhitespaceToken({ body: " " }),
+        variableToken,
+        WhitespaceToken({ body: "\n    " }),
+    ]);
+
+    const functionsAsTokens = splitOnNewlines(
+        tokens.slice(functionsStartIndex + 1, tokens.length)
+    );
+    const functions = functionsAsTokens.map(parseTypeclassFunction);
+
+    const parsedFunctions: TypeclassFunction[] = [ ];
+    const errors: string[] = [ ];
+
+    for (const type of functions) {
+        if (type.kind === "Err") {
+            errors.push(type.error);
+        } else {
+            parsedFunctions.push(type.value);
+        }
+    }
+
+    if (errors.length > 0) {
+        return Err(errors.join("\n"));
+    }
+
+    return Ok(Typeclass(typeclassName, [ variable ], parsedFunctions));
+}
+
+function goUpToNewline(tokens: Token[]): number {
+    for (var i = 0; i < tokens.length; i++) {
+        const token = tokens[i];
+
+        if (token.kind === "WhitespaceToken" && token.body.indexOf("\n") > -1) {
+            return i - 1;
+        }
+    }
+
+    return i;
+}
+
+function parseImpl(tokens: Token[]): Result<string, Impl> {
+    const implIndex = goToTheEndOfPattern(tokens, [
+        KeywordToken({ body: "impl" }),
+        WhitespaceToken({ body: " " }),
+    ]);
+
+    if (implIndex === -1) return Err("Failed to find impl name");
+
+    const implNameToken = tokens[implIndex + 1];
+    if (implNameToken.kind !== "IdentifierToken") {
+        return Err(
+            `Expected an identifier for the impl name but got ${implNameToken.kind}`
+        );
+    }
+    const implName = implNameToken.body;
+
+    const typesEndIndex = goUpToNewline(tokens);
+    const types = parseType(tokens.slice(implIndex + 2, typesEndIndex + 1));
+
+    if (types.kind === "Err") {
+        return types;
+    }
+    const parsedTypes = types.value;
+
+    const functionBlocks = intoBlocks(
+        tokensToString(
+            deIndentTokens(tokens.slice(typesEndIndex + 2, tokens.length), 4)
+        )
+    );
+
+    const parsedBlocks = functionBlocks.map(parseBlock);
+
+    const errors: string[] = [ ];
+    const blocks: Function[] = [ ];
+
+    for (const block of parsedBlocks) {
+        if (block.kind === "Err") {
+            errors.push(block.error);
+        } else if (block.value.kind !== "Function") {
+            errors.push(`Expected a function but got ${block.value.kind}`);
+        } else {
+            blocks.push(block.value);
+        }
+    }
+
+    return Ok(Impl(implName, parsedTypes, blocks));
+}
+
 function parseObjectLiteral(tokens: Token[]): Result<string, ObjectLiteral> {
     const fields: Field[] = [ ];
 
@@ -1467,7 +1679,10 @@ function goToTheEndOfPattern(tokens: Token[], patternToFind: Token[]): number {
 function deIndentTokens(tokens: Token[], level: number): Token[] {
     return tokens.map((token: Token): Token => {
         if (token.kind === "WhitespaceToken") {
-            const lines = token.body.split("\n").map((line: string): string => {
+            const lines = token.body.split("\n").map((line): string => {
+                if (token.body.indexOf("\n") === -1) {
+                    return line;
+                }
                 return line.slice(level, line.length);
             });
             return WhitespaceToken({ body: lines.join("\n") });
@@ -3634,6 +3849,12 @@ ${block.lines.join("\n")}
         }
         case "TypeAliasBlock": {
             return wrapError(parseTypeAlias(tokens));
+        }
+        case "TypeclassBlock": {
+            return wrapError(parseTypeclass(tokens));
+        }
+        case "ImplBlock": {
+            return wrapError(parseImpl(tokens));
         }
         case "FunctionBlock": {
             return wrapError(parseFunction(tokens));

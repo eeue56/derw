@@ -1325,6 +1325,12 @@ generateBlock syntax unionTypeNames? =
         TypeAlias ->
             generateTypeAlias syntax
 
+        Typeclass ->
+            ""
+
+        Impl ->
+            ""
+
         Function ->
             generateFunction syntax
 

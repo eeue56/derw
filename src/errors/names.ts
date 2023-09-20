@@ -178,6 +178,12 @@ export function topLevelNamesPerBlock(block: Block): string[] {
         case "TypeAlias": {
             return [ ];
         }
+        case "Typeclass": {
+            return [ ];
+        }
+        case "Impl": {
+            return [ ];
+        }
         case "UnionType": {
             return [ ];
         }
@@ -223,6 +229,12 @@ export function definedNamesPerBlock(block: Block): string[] {
         case "TypeAlias": {
             return [ ];
         }
+        case "Typeclass": {
+            return [ ];
+        }
+        case "Impl": {
+            return [ ];
+        }
         case "UnionType": {
             return [ ];
         }
@@ -253,6 +265,12 @@ export function namesPerBlock(block: Block): string[] {
             return [ ];
         }
         case "TypeAlias": {
+            return [ ];
+        }
+        case "Typeclass": {
+            return [ ];
+        }
+        case "Impl": {
             return [ ];
         }
         case "UnionType": {

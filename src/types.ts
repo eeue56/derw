@@ -141,6 +141,62 @@ export function TypeAlias(type: FixedType, properties: Property[]): TypeAlias {
     };
 }
 
+export type TypeclassFunction = {
+    kind: "TypeclassFunction";
+    name: string;
+    returnType: Type;
+    args: Type[];
+};
+
+export function TypeclassFunction(
+    name: string,
+    returnType: Type,
+    args: Type[]
+): TypeclassFunction {
+    return {
+        kind: "TypeclassFunction",
+        name,
+        returnType,
+        args,
+    };
+}
+
+export type Typeclass = {
+    kind: "Typeclass";
+    name: string;
+    variables: GenericType[];
+    functions: TypeclassFunction[];
+};
+
+export function Typeclass(
+    name: string,
+    variables: GenericType[],
+    functions: TypeclassFunction[]
+): Typeclass {
+    return {
+        kind: "Typeclass",
+        name,
+        variables,
+        functions,
+    };
+}
+
+export type Impl = {
+    kind: "Impl";
+    name: string;
+    qualifier: Type;
+    functions: Block[];
+};
+
+export function Impl(name: string, qualifier: Type, functions: Block[]): Impl {
+    return {
+        kind: "Impl",
+        name,
+        qualifier,
+        functions,
+    };
+}
+
 export type FunctionArg = {
     kind: "FunctionArg";
     name: string;
@@ -965,6 +1021,8 @@ export type UnparsedBlockTypes =
     | "ExportBlock"
     | "UnionTypeBlock"
     | "TypeAliasBlock"
+    | "TypeclassBlock"
+    | "ImplBlock"
     | "UnionUntaggedTypeBlock"
     | "FunctionBlock"
     | "ConstBlock"
@@ -996,6 +1054,8 @@ export type BlockKinds =
     | "UnionType"
     | "UnionUntaggedType"
     | "TypeAlias"
+    | "Typeclass"
+    | "Impl"
     | "Function"
     | "Const"
     | "Indent"
@@ -1008,6 +1068,8 @@ export type Block =
     | UnionType
     | UnionUntaggedType
     | TypeAlias
+    | Typeclass
+    | Impl
     | Function
     | Const
     | Import

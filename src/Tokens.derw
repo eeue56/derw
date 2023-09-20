@@ -32,7 +32,9 @@ keywords =
         "case",
         "of",
         "do",
-        "return"
+        "return",
+        "typeclass",
+        "impl"
     ]
 
 type MultilineCommentBody =

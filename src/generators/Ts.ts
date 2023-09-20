@@ -1321,6 +1321,12 @@ function generateBlock(syntax: Block, parentTypeArguments?: string[], parentType
         case "TypeAlias": {
             return generateTypeAlias(syntax, actualImports);
         }
+        case "Typeclass": {
+            return "";
+        }
+        case "Impl": {
+            return "";
+        }
         case "Function": {
             return generateFunction(syntax, actualParentTypeArguments, actualParentTypes, actualImports);
         }

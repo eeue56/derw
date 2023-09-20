@@ -1806,6 +1806,12 @@ generateBlock syntax parentTypeArguments? parentTypes? imports? =
             TypeAlias ->
                 generateTypeAlias syntax actualImports
 
+            Typeclass ->
+                ""
+
+            Impl ->
+                ""
+
             Function ->
                 generateFunction syntax actualParentTypeArguments actualParentTypes actualImports
 

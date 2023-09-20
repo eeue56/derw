@@ -114,7 +114,7 @@ function Keyword(args: {}): Keyword {
 
 type State = Empty | InString | InFormatString | InBracket | InSquareBracket | InWhitespace | Keyword;
 
-const keywords: string[] = [ "if", "then", "else", "type", "alias", "import", "exposing", "as", "let", "in", "case", "of", "do", "return" ];
+const keywords: string[] = [ "if", "then", "else", "type", "alias", "import", "exposing", "as", "let", "in", "case", "of", "do", "return", "typeclass", "impl" ];
 
 type MultilineCommentBody = "{-" | "-}";
 

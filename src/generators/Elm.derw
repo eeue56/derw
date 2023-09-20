@@ -1058,6 +1058,12 @@ generateBlock syntax =
         TypeAlias ->
             generateTypeAlias syntax
 
+        Typeclass ->
+            ""
+
+        Impl ->
+            ""
+
         Function ->
             generateFunction syntax
 

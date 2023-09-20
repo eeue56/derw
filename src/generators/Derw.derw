@@ -1,5 +1,5 @@
 import "../stdlib/List" as List
-import "../types" as Aliases exposing ( TypeAlias, Property )
+import "../types" as Aliases exposing ( TypeAlias, Property, Typeclass, TypeclassFunction, Impl )
 import "../types" as Blocks exposing ( Function, FunctionArg, FunctionArgsUnion, Const, ImportModule, Import, Export, Module )
 import "../types" as Boolean exposing ( Equality, InEquality, LessThan, LessThanOrEqual, GreaterThan, GreaterThanOrEqual, And, Or, ListPrepend )
 import "../types" as Comments exposing ( Comment, MultilineComment )
@@ -98,6 +98,55 @@ generateTypeAlias syntax =
             `type alias ${typeDef} = {\n}`
         else
             `type alias ${typeDef} = {\n    ${properties}\n}`
+
+generateTypeclassFunction: TypeclassFunction -> string
+generateTypeclassFunction syntax =
+    let
+        argTypes: List string
+        argTypes =
+            List.map generateTopLevelType syntax.args
+
+        returnType: string
+        returnType =
+            generateTopLevelType syntax.returnType
+
+        types: string
+        types =
+            List.append argTypes [ returnType ]
+                |> (\y -> y.join " -> ")
+    in
+        `${syntax.name}: ${types}`
+
+generateTypeclass: Typeclass -> string
+generateTypeclass syntax =
+    let
+        variables: string
+        variables =
+            List.map generateType syntax.variables
+                |> (\y -> y.join " ")
+
+        functions: string
+        functions =
+            List.map generateTypeclassFunction syntax.functions
+                |> List.map (\line -> prefixLines line 4)
+                |> (\y -> y.join "\n\n")
+    in
+        `typeclass ${syntax.name} ${variables}\n${functions}`
+
+generateImpl: Impl -> string
+generateImpl syntax =
+    let
+        qualifier: string
+        qualifier =
+            generateType syntax.qualifier
+
+        blocks: string
+        blocks =
+            List.map generateBlock syntax.functions
+                |> List.map (\line -> prefixLines line 4)
+                |> (\y -> y.join "\n\n")
+    in
+        `impl ${syntax.name} ${qualifier}\n${blocks}`
 
 generateListType: List Type -> string
 generateListType args =
@@ -1163,6 +1212,12 @@ generateBlock syntax =
 
         TypeAlias ->
             generateTypeAlias syntax
+
+        Typeclass ->
+            generateTypeclass syntax
+
+        Impl ->
+            generateImpl syntax
 
         Function ->
             generateFunction syntax

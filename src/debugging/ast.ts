@@ -266,6 +266,12 @@ function blockToString(block: Block): string {
                 block.properties
             })`;
         }
+        case "Typeclass": {
+            return `Typeclass()`;
+        }
+        case "Impl": {
+            return `Impl()`;
+        }
         case "UnionType": {
             return `UnionType(${typeToString(block.type)}, ${block.tags})`;
         }

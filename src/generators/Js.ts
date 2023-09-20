@@ -897,6 +897,12 @@ function generateBlock(syntax: Block, unionTypeNames?: string[]): string {
         case "TypeAlias": {
             return generateTypeAlias(syntax);
         }
+        case "Typeclass": {
+            return "";
+        }
+        case "Impl": {
+            return "";
+        }
         case "Function": {
             return generateFunction(syntax);
         }

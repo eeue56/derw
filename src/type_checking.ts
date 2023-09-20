@@ -2714,7 +2714,9 @@ export function validateType(
         case "MultilineComment":
         case "Comment":
         case "Export":
-        case "Import": {
+        case "Import":
+        case "Typeclass":
+        case "Impl": {
             return Ok(FixedType("any", [ ]));
         }
     }

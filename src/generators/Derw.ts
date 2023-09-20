@@ -1,7 +1,7 @@
 import * as List from "../stdlib/List";
 
 import * as Aliases from "../types";
-import { TypeAlias, Property } from "../types";
+import { TypeAlias, Property, Typeclass, TypeclassFunction, Impl } from "../types";
 
 import * as Blocks from "../types";
 import { Function, FunctionArg, FunctionArgsUnion, Const, ImportModule, Import, Export, Module } from "../types";
@@ -91,6 +91,37 @@ function generateTypeAlias(syntax: TypeAlias): string {
     } else {
         return `type alias ${typeDef} = {\n    ${properties}\n}`;
     }
+}
+
+function generateTypeclassFunction(syntax: TypeclassFunction): string {
+    const argTypes: string[] = List.map(generateTopLevelType, syntax.args);
+    const returnType: string = generateTopLevelType(syntax.returnType);
+    const types: string = (function(y: any) {
+        return y.join(" -> ");
+    })(List.append(argTypes, [ returnType ]));
+    return `${syntax.name}: ${types}`;
+}
+
+function generateTypeclass(syntax: Typeclass): string {
+    const variables: string = (function(y: any) {
+        return y.join(" ");
+    })(List.map(generateType, syntax.variables));
+    const functions: string = (function(y: any) {
+        return y.join("\n\n");
+    })(List.map(function(line: any) {
+        return prefixLines(line, 4);
+    }, List.map(generateTypeclassFunction, syntax.functions)));
+    return `typeclass ${syntax.name} ${variables}\n${functions}`;
+}
+
+function generateImpl(syntax: Impl): string {
+    const qualifier: string = generateType(syntax.qualifier);
+    const blocks: string = (function(y: any) {
+        return y.join("\n\n");
+    })(List.map(function(line: any) {
+        return prefixLines(line, 4);
+    }, List.map(generateBlock, syntax.functions)));
+    return `impl ${syntax.name} ${qualifier}\n${blocks}`;
 }
 
 function generateListType(args: Type[]): string {
@@ -950,6 +981,12 @@ function generateBlock(syntax: Block): string {
         }
         case "TypeAlias": {
             return generateTypeAlias(syntax);
+        }
+        case "Typeclass": {
+            return generateTypeclass(syntax);
+        }
+        case "Impl": {
+            return generateImpl(syntax);
         }
         case "Function": {
             return generateFunction(syntax);
