@@ -1,6 +1,8 @@
+import { Err, Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
 import { promises } from "fs";
 import { readdir } from "fs/promises";
 import path from "path";
+import { suggestName } from "../errors/distance";
 
 export async function fileExists(name: string): Promise<boolean> {
     try {
@@ -22,13 +24,17 @@ export async function ensureDirectoryExists(directory: string): Promise<void> {
     }
 }
 
-export async function getDerwFiles(dir: string): Promise<string[]> {
+export async function getDerwFiles(
+    dir: string
+): Promise<Result<string, string[]>> {
     try {
         const lstat = await promises.lstat(dir);
         if (!lstat.isDirectory()) {
-            return [ dir ];
+            return Ok([ dir ]);
         }
-    } catch (error) {}
+    } catch (error) {
+        return Err(`${error}`);
+    }
 
     let files: string[] = [ ];
 
@@ -40,12 +46,34 @@ export async function getDerwFiles(dir: string): Promise<string[]> {
         } else if (file.isDirectory()) {
             if (file.name === "node_modules") {
             } else {
-                files = files.concat(
-                    await getDerwFiles(path.join(dir, file.name))
-                );
+                const nested = await getDerwFiles(path.join(dir, file.name));
+                if (nested.kind === "Ok") {
+                    files = files.concat(nested.value);
+                } else {
+                    return nested;
+                }
             }
         }
     }
 
-    return files;
+    return Ok(files);
+}
+
+export async function suggestFileNames(fullPath: string): Promise<string> {
+    const dir = path.dirname(fullPath);
+    const files = await getDerwFiles(dir);
+
+    if (files.kind === "Err") {
+        return `I couldn't find a directory called ${dir}`;
+    }
+
+    const suggestions = suggestName(fullPath, files.value);
+
+    if (suggestions.length === 0) {
+        return `I couldn't find the file ${fullPath} and have no suggestions.`;
+    }
+
+    return `I couldn't find the file ${fullPath}. Maybe you meant ${suggestions.join(
+        ","
+    )}?`;
 }

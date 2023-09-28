@@ -10,18 +10,23 @@ import {
     string,
     variableList,
 } from "@eeue56/baner";
-import { Ok } from "@eeue56/ts-core/build/main/lib/result";
+import { Err, Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
 import { spawnSync } from "child_process";
 import * as chokidar from "chokidar";
 import { promises } from "fs";
 import { writeFile } from "fs/promises";
 import path from "path";
 import * as util from "util";
+import { Target, generate } from "../Generator";
 import { addMissingNamesSuggestions } from "../errors/names";
-import { generate, Target } from "../Generator";
 import * as derwParser from "../parser";
-import { Block, ContextModule, contextModuleToModule, Import } from "../types";
-import { ensureDirectoryExists, fileExists, getDerwFiles } from "./utils";
+import { Block, ContextModule, Import, contextModuleToModule } from "../types";
+import {
+    ensureDirectoryExists,
+    fileExists,
+    getDerwFiles,
+    suggestFileNames,
+} from "./utils";
 
 const compileParser = parser([
     longFlag(
@@ -118,17 +123,23 @@ function filterBodyForName(module: ContextModule, name: string): Block[] {
 
 export type ProcessedFiles = Record<string, ContextModule>;
 
-async function getFlatFiles(files: string[]): Promise<string[]> {
+async function getFlatFiles(
+    files: string[]
+): Promise<Result<string, string[]>> {
     const nestedFiles = await Promise.all(
         files.map(async (file) => await getDerwFiles(file))
     );
     let returnedFiles: string[] = [ ];
 
     for (const innerFiles of nestedFiles) {
-        returnedFiles = returnedFiles.concat(innerFiles);
+        if (innerFiles.kind === "Err") {
+            return Err(`Failed to find the file ${innerFiles.error}`);
+        } else {
+            returnedFiles = returnedFiles.concat(innerFiles.value);
+        }
     }
 
-    return returnedFiles;
+    return Ok(returnedFiles);
 }
 
 export async function compileFiles(
@@ -160,11 +171,28 @@ export async function compileFiles(
     const isPackageDirectoryAndNoFilesPassed =
         isInPackageDirectory && !program.flags.files.isPresent;
 
-    const files = isPackageDirectoryAndNoFilesPassed
-        ? await getDerwFiles("./src")
-        : await getFlatFiles(
-              (program.flags.files.arguments as Ok<string[]>).value
-          );
+    const maybeFiles: Result<string, string[]> =
+        isPackageDirectoryAndNoFilesPassed
+            ? await getDerwFiles("./src")
+            : await getFlatFiles(
+                  (program.flags.files.arguments as Ok<string[]>).value
+              );
+
+    if (maybeFiles.kind === "Err") {
+        const filesToFind = isPackageDirectoryAndNoFilesPassed
+            ? [ "./src" ]
+            : (program.flags.files.arguments as Ok<string[]>).value;
+
+        for (const file of filesToFind) {
+            const suggestion = await suggestFileNames(file);
+            if (suggestion !== file) {
+                console.error(suggestion);
+            }
+        }
+        process.exit(1);
+    }
+
+    const files = maybeFiles.value;
 
     const outputDir = program.flags.output.isPresent
         ? (program.flags.output.arguments as Ok<string>).value
