@@ -839,7 +839,7 @@ sayHello name =
         WhitespaceToken({ body: " " }),
         StringToken({ body: '"Hi Noah"' }),
         WhitespaceToken({ body: "\n        " }),
-        FormatStringToken({ body: "`James`" }),
+        FormatStringToken({ body: "`James`", indentLevel: 8 }),
         WhitespaceToken({ body: " " }),
         ArrowToken({}),
         WhitespaceToken({ body: " " }),

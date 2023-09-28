@@ -74,7 +74,7 @@ function append<a>(xs: a[], ys: a[]): a[] {
 }
 
 function reverse<a>(xs: a[]): a[] {
-    return xs.reverse();
+    return xs.slice().reverse();
 }
 
 function length<a>(xs: a[]): number {

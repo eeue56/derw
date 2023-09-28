@@ -292,7 +292,30 @@ generateStringValue string =
 
 generateFormatStringValue: FormatStringValue -> string
 generateFormatStringValue string =
-    "`" + string.body + "`"
+    let
+        split: List string
+        split =
+            string.body.split "\n"
+    in
+        case split of
+            firstLine :: [] ->
+                "`" + firstLine + "`"
+
+            firstLine :: rest ->
+                let
+                    indentedSplit: List string
+                    indentedSplit =
+                        List.map (\line -> "    " + line) split
+
+                    joined: string
+                    joined =
+                        indentedSplit
+                            |> (\y -> y.join "\n")
+                in
+                    "`\n" + joined + "\n`"
+
+            default ->
+                "`" + string.body + "`"
 
 generateListValue: ListValue -> string
 generateListValue list =

@@ -273,7 +273,30 @@ function generateStringValue(string: StringValue): string {
 }
 
 function generateFormatStringValue(string: FormatStringValue): string {
-    return "`" + string.body + "`";
+    const split: string[] = string.body.split("\n");
+    switch (split.length) {
+        case split.length: {
+            if (split.length === 1) {
+                const [ firstLine ] = split;
+                return "`" + firstLine + "`";
+            }
+        }
+        case split.length: {
+            if (split.length >= 1) {
+                const [ firstLine, ...rest ] = split;
+                const indentedSplit: string[] = List.map(function(line: any) {
+                    return "    " + line;
+                }, split);
+                const joined: string = (function(y: any) {
+                    return y.join("\n");
+                })(indentedSplit);
+                return "`\n" + joined + "\n`";
+            }
+        }
+        default: {
+            return "`" + string.body + "`";
+        }
+    }
 }
 
 function generateListValue(list: ListValue): string {

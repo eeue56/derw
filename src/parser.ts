@@ -1343,13 +1343,35 @@ function parseListValue(tokens: Token[]): Result<string, ListValue> {
     }
 }
 
+function replaceNewlinesInFormatString(str: string, depth: number): string {
+    const lines: string[] = [ ];
+    const split = str.split("\n");
+    for (const line of split.slice(1, split.length - 1)) {
+        lines.push(deIndent(line, depth + 4));
+    }
+
+    return lines.join("\n");
+}
+
 function parseFormatStringValue(
     tokens: Token[]
 ): Result<string, FormatStringValue> {
-    if (tokens[0].kind === "FormatStringToken")
-        return Ok(FormatStringValue(tokens[0].body.slice(1, -1)));
+    if (tokens[0].kind === "FormatStringToken") {
+        if (tokens[0].body.indexOf("\n") === -1) {
+            return Ok(FormatStringValue(tokens[0].body.slice(1, -1)));
+        } else {
+            return Ok(
+                FormatStringValue(
+                    replaceNewlinesInFormatString(
+                        tokens[0].body.slice(1, -1),
+                        tokens[0].indentLevel
+                    )
+                )
+            );
+        }
+    }
 
-    return Err(`Expected string literal, got ${tokens[0].kind}`);
+    return Err(`Expected format string literal, got ${tokens[0].kind}`);
 }
 
 function parseDestructure(tokens: Token[]): Result<string, Destructure> {
@@ -3395,7 +3417,9 @@ function isTokenAtIndentLevel(
 
 function parseFunction(tokens: Token[]): Result<string, Function> {
     if (tokens[0].kind !== "IdentifierToken") {
-        return Err("Expected identfier, got " + tokens[0].kind);
+        return Err(
+            "Expected identifier for function definition, got " + tokens[0].kind
+        );
     }
 
     const functionName = tokens[0].body;
@@ -3593,7 +3617,9 @@ But I seemed to only find the \`foo: string -> string\` line.
 
 function parseConst(tokens: Token[]): Result<string, Const> {
     if (tokens[0].kind !== "IdentifierToken") {
-        return Err("Expected identfier, got " + tokens[0].kind);
+        return Err(
+            "Expected identifier for const definition, got " + tokens[0].kind
+        );
     }
 
     const constName = tokens[0].body;

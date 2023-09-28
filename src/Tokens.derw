@@ -10,7 +10,7 @@ exposing ( checkKeywordToken, tokenize, tokenizeType, tokensToString, rootTypeTo
 type State =
     Empty
     | InString
-    | InFormatString
+    | InFormatString { indentLevel: number }
     | InBracket { depth: number }
     | InSquareBracket { depth: number }
     | InWhitespace
@@ -43,7 +43,8 @@ type MultilineCommentBody =
 
 type Token =
     StringToken { body: string }
-    | FormatStringToken { body: string }
+    | FormatStringToken { body: string,
+        indentLevel: number }
     | KeywordToken { body: string }
     | IdentifierToken { body: string }
     | LiteralToken { body: string }
@@ -156,6 +157,56 @@ not a =
     else
         true
 
+findIndentLevelHelper: List Token -> number
+findIndentLevelHelper tokens =
+    case tokens of
+        token :: [] ->
+            case token of
+                WhitespaceToken { body } ->
+                    if body.indexOf "\n" > -1 then
+                        let
+                            split: List string
+                            split =
+                                body.split "\n"
+
+                            last: string
+                            last =
+                                split[split.length - 1]
+                        in
+                            last.length
+                    else
+                        body.length
+
+                default ->
+                    0
+
+        token :: rest ->
+            case token of
+                WhitespaceToken { body } ->
+                    if body.indexOf "\n" > -1 then
+                        let
+                            split: List string
+                            split =
+                                body.split "\n"
+
+                            last: string
+                            last =
+                                split[split.length - 1]
+                        in
+                            last.length
+                    else
+                        findIndentLevelHelper rest
+
+                default ->
+                    findIndentLevelHelper rest
+
+        default ->
+            0
+
+findIndentLevel: TokenizeInfo -> number
+findIndentLevel info =
+    findIndentLevelHelper (List.reverse info.tokens)
+
 tokenizeHelpInWhitespaceOrEmpty: TokenizeInfo -> TokenizeInfo
 tokenizeHelpInWhitespaceOrEmpty initialInfo =
     let
@@ -199,7 +250,7 @@ tokenizeHelpInWhitespaceOrEmpty initialInfo =
                 "`" ->
                     {
                         ...info,
-                        state: InFormatString,
+                        state: InFormatString { indentLevel: findIndentLevel info },
                         currentToken: info.currentToken + char
                     }
 
@@ -397,12 +448,15 @@ tokenizeHelp info =
                             index: info.index + 1
                         }
 
-                InFormatString ->
+                InFormatString { indentLevel } ->
                     if char == "`" && not (isEscape previousChar) then
                         let
                             token: Token
                             token =
-                                FormatStringToken { body: info.currentToken + "`" }
+                                FormatStringToken {
+                                    body: info.currentToken + "`",
+                                    indentLevel: indentLevel
+                                }
                         in
                             {
                                 ...info,

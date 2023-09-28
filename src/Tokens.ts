@@ -57,9 +57,10 @@ function InString(args: {}): InString {
 
 type InFormatString = {
     kind: "InFormatString";
+    indentLevel: number;
 };
 
-function InFormatString(args: {}): InFormatString {
+function InFormatString(args: { indentLevel: number }): InFormatString {
     return {
         kind: "InFormatString",
         ...args,
@@ -133,9 +134,10 @@ function StringToken(args: { body: string }): StringToken {
 type FormatStringToken = {
     kind: "FormatStringToken";
     body: string;
+    indentLevel: number;
 };
 
-function FormatStringToken(args: { body: string }): FormatStringToken {
+function FormatStringToken(args: { body: string, indentLevel: number }): FormatStringToken {
     return {
         kind: "FormatStringToken",
         ...args,
@@ -415,6 +417,58 @@ function not(a: boolean): boolean {
     }
 }
 
+function findIndentLevelHelper(tokens: Token[]): number {
+    switch (tokens.length) {
+        case tokens.length: {
+            if (tokens.length === 1) {
+                const [ token ] = tokens;
+                switch (token.kind) {
+                case "WhitespaceToken": {
+                    const { body } = token;
+                    if (body.indexOf("\n") > -1) {
+                        const split: string[] = body.split("\n");
+                        const last: string = split[split.length - 1];
+                        return last.length;
+                    } else {
+                        return body.length;
+                    };
+                }
+                default: {
+                    return 0;
+                }
+            };
+            }
+        }
+        case tokens.length: {
+            if (tokens.length >= 1) {
+                const [ token, ...rest ] = tokens;
+                switch (token.kind) {
+                case "WhitespaceToken": {
+                    const { body } = token;
+                    if (body.indexOf("\n") > -1) {
+                        const split: string[] = body.split("\n");
+                        const last: string = split[split.length - 1];
+                        return last.length;
+                    } else {
+                        return findIndentLevelHelper(rest);
+                    };
+                }
+                default: {
+                    return findIndentLevelHelper(rest);
+                }
+            };
+            }
+        }
+        default: {
+            return 0;
+        }
+    }
+}
+
+function findIndentLevel(info: TokenizeInfo): number {
+    return findIndentLevelHelper(List.reverse(info.tokens));
+}
+
 function tokenizeHelpInWhitespaceOrEmpty(initialInfo: TokenizeInfo): TokenizeInfo {
     const char: string = initialInfo.body[initialInfo.index];
     const info: TokenizeInfo = char !== " " && char !== "\n" && initialInfo.currentToken.length > 0 ? {
@@ -437,7 +491,7 @@ function tokenizeHelpInWhitespaceOrEmpty(initialInfo: TokenizeInfo): TokenizeInf
             case "`": {
                 return {
                 ...info,
-                state: InFormatString({ }),
+                state: InFormatString({ indentLevel: findIndentLevel(info) }),
                 currentToken: info.currentToken + char
             };
             }
@@ -619,8 +673,12 @@ function tokenizeHelp(info: TokenizeInfo): TokenizeInfo {
                 };
             }
             case "InFormatString": {
+                const { indentLevel } = info.state;
                 if (char === "`" && not(isEscape(previousChar))) {
-                    const token: Token = FormatStringToken({ body: info.currentToken + "`" });
+                    const token: Token = FormatStringToken({
+                        body: info.currentToken + "`",
+                        indentLevel
+                    });
                     return {
                         ...info,
                         state: Empty({ }),
