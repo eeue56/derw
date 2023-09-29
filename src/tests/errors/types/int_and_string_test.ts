@@ -64,3 +64,72 @@ doSomething x =
             "```",
     ]);
 }
+
+export function testStringPlusIntError() {
+    const str = `
+something: string
+something =
+    "hello" + 99
+`.trim();
+    let parsed = parseWithContext(str, "Main");
+    parsed = addTypeErrors(parsed, [ ]);
+
+    deepStrictEqual(parsed.errors, [
+        "Error on lines 0 - 3\n" +
+            "Mismatching types between the left of the addition: string and the right of the addition: number\n" +
+            "In Derw, types of both sides of an addition must be the same.\n" +
+            "Try using a format string via `` instead\n" +
+            "For example, `hello${99}`:\n" +
+            "```\n" +
+            "something: string\n" +
+            "something =\n" +
+            '    "hello" + 99\n' +
+            "```",
+    ]);
+}
+
+export function testStringPlusIntFunctionError() {
+    const str = `
+something: string -> number -> string
+something x y =
+    x + y
+`.trim();
+    let parsed = parseWithContext(str, "Main");
+    parsed = addTypeErrors(parsed, [ ]);
+
+    deepStrictEqual(parsed.errors, [
+        "Error on lines 0 - 3\n" +
+            "Mismatching types between the left of the addition: string and the right of the addition: number\n" +
+            "In Derw, types of both sides of an addition must be the same.\n" +
+            "Try using a format string via `` instead\n" +
+            "For example, `${x}${y}`:\n" +
+            "```\n" +
+            "something: string -> number -> string\n" +
+            "something x y =\n" +
+            "    x + y\n" +
+            "```",
+    ]);
+}
+
+export function testIntPlusStringFunctionError() {
+    const str = `
+something: number -> string -> string
+something x y =
+    x + y
+`.trim();
+    let parsed = parseWithContext(str, "Main");
+    parsed = addTypeErrors(parsed, [ ]);
+
+    deepStrictEqual(parsed.errors, [
+        "Error on lines 0 - 3\n" +
+            "Mismatching types between the left of the addition: number and the right of the addition: string\n" +
+            "In Derw, types of both sides of an addition must be the same.\n" +
+            "Try using a format string via `` instead\n" +
+            "For example, `${x}${y}`:\n" +
+            "```\n" +
+            "something: number -> string -> string\n" +
+            "something x y =\n" +
+            "    x + y\n" +
+            "```",
+    ]);
+}

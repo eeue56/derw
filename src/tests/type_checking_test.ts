@@ -1,6 +1,7 @@
 import * as assert from "@eeue56/ts-assert";
 import { Err, Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { parseExpression } from "../parser";
+import { findReplacement, inferType } from "../type_checking";
 import {
     Expression,
     FixedType,
@@ -11,7 +12,6 @@ import {
     TypeAlias,
     UnionType,
 } from "../types";
-import { findReplacement, inferType } from "../type_checking";
 
 export async function testEmptyList() {
     const exampleInput = `
@@ -242,7 +242,12 @@ export async function testMultiAddition() {
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
         inferType(value, FixedType("number", [ ]), [ ], [ ], {}),
-        Err("Mismatching types between number and string")
+        Err(
+            "Mismatching types between the left of the addition: number and the right of the addition: string\n" +
+                "In Derw, types of both sides of an addition must be the same.\n" +
+                "Try using a format string via `` instead\n" +
+                "For example, `${1}hello`"
+        )
     );
 }
 

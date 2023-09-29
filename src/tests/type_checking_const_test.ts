@@ -2,6 +2,7 @@ import * as assert from "@eeue56/ts-assert";
 import { Nothing } from "@eeue56/ts-core/build/main/lib/maybe";
 import { Err, Ok } from "@eeue56/ts-core/build/main/lib/result";
 import { parseBlock } from "../parser";
+import { validateType } from "../type_checking";
 import {
     Block,
     FixedType,
@@ -17,7 +18,6 @@ import {
     UnionUntaggedType,
     UnparsedBlock,
 } from "../types";
-import { validateType } from "../type_checking";
 
 export async function testEmptyList() {
     const exampleInput = `
@@ -788,7 +788,12 @@ value =
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
         validateType(value, [ ], [ ]),
-        Err("Mismatching types between number and string")
+        Err(
+            "Mismatching types between the left of the addition: number and the right of the addition: string\n" +
+                "In Derw, types of both sides of an addition must be the same.\n" +
+                "Try using a format string via `` instead\n" +
+                "For example, `${1}hello`"
+        )
     );
 }
 

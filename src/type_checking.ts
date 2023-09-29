@@ -1,6 +1,7 @@
 import { Err, Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
 import { isBuiltinType } from "./builtins";
 import { suggestName } from "./errors/distance";
+import { generateExpression } from "./generators/Derw";
 import {
     Addition,
     And,
@@ -655,12 +656,47 @@ function inferAddition(
     if (left.kind === "Err") return left;
     if (right.kind === "Err") return right;
 
-    if (!isSameType(left.value, right.value, false))
+    if (!isSameType(left.value, right.value, false)) {
+        let maybeStringErrorMessage = "";
+
+        if (
+            value.left.kind === "StringValue" ||
+            value.left.kind === "FormatStringValue"
+        ) {
+            maybeStringErrorMessage = `\nTry using a format string via \`\` instead\nFor example, \`${
+                value.left.body
+            }\${${generateExpression(value.right)}}\``;
+        } else if (
+            value.right.kind === "StringValue" ||
+            value.right.kind === "FormatStringValue"
+        ) {
+            maybeStringErrorMessage = `\nTry using a format string via \`\` instead\nFor example, \`\${${generateExpression(
+                value.left
+            )}}${value.right.body}\``;
+        } else if (
+            left.value.kind === "FixedType" &&
+            left.value.name === "string"
+        ) {
+            maybeStringErrorMessage = `\nTry using a format string via \`\` instead\nFor example, \`\${${generateExpression(
+                value.left
+            )}}\${${generateExpression(value.right)}}\``;
+        } else if (
+            right.value.kind === "FixedType" &&
+            right.value.name === "string"
+        ) {
+            maybeStringErrorMessage = `\nTry using a format string via \`\` instead\nFor example, \`\${${generateExpression(
+                value.left
+            )}}\${${generateExpression(value.right)}}\``;
+        }
+
         return Err(
-            `Mismatching types between ${typeToString(
+            `Mismatching types between the left of the addition: ${typeToString(
                 left.value
-            )} and ${typeToString(right.value)}`
+            )} and the right of the addition: ${typeToString(
+                right.value
+            )}\nIn Derw, types of both sides of an addition must be the same.${maybeStringErrorMessage}`
         );
+    }
     return left;
 }
 
