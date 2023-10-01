@@ -135,6 +135,12 @@ export async function main(): Promise<number> {
     }
 }
 
-if (require.main === module) {
-    main();
+if (process.versions.bun) {
+    if (require.main === process.mainModule) {
+        main();
+    }
+} else {
+    if (require.main === module) {
+        main();
+    }
 }
