@@ -10,7 +10,7 @@ import {
     string,
     variableList,
 } from "@eeue56/baner";
-import { Err, Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
+import { Ok, Result } from "@eeue56/ts-core/build/main/lib/result";
 import { spawnSync } from "child_process";
 import * as chokidar from "chokidar";
 import { promises } from "fs";
@@ -25,6 +25,7 @@ import {
     ensureDirectoryExists,
     fileExists,
     getDerwFiles,
+    getFlatFiles,
     suggestFileNames,
 } from "./utils";
 
@@ -122,25 +123,6 @@ function filterBodyForName(module: ContextModule, name: string): Block[] {
 }
 
 export type ProcessedFiles = Record<string, ContextModule>;
-
-async function getFlatFiles(
-    files: string[]
-): Promise<Result<string, string[]>> {
-    const nestedFiles = await Promise.all(
-        files.map(async (file) => await getDerwFiles(file))
-    );
-    let returnedFiles: string[] = [ ];
-
-    for (const innerFiles of nestedFiles) {
-        if (innerFiles.kind === "Err") {
-            return Err(`Failed to find the file ${innerFiles.error}`);
-        } else {
-            returnedFiles = returnedFiles.concat(innerFiles.value);
-        }
-    }
-
-    return Ok(returnedFiles);
-}
 
 export async function compileFiles(
     isInPackageDirectory: boolean,

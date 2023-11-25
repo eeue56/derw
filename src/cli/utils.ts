@@ -59,6 +59,25 @@ export async function getDerwFiles(
     return Ok(files);
 }
 
+export async function getFlatFiles(
+    files: string[]
+): Promise<Result<string, string[]>> {
+    const nestedFiles = await Promise.all(
+        files.map(async (file) => await getDerwFiles(file))
+    );
+    let returnedFiles: string[] = [ ];
+
+    for (const innerFiles of nestedFiles) {
+        if (innerFiles.kind === "Err") {
+            return Err(`Failed to find the file ${innerFiles.error}`);
+        } else {
+            returnedFiles = returnedFiles.concat(innerFiles.value);
+        }
+    }
+
+    return Ok(returnedFiles);
+}
+
 export async function suggestFileNames(fullPath: string): Promise<string> {
     const dir = path.dirname(fullPath);
     const files = await getDerwFiles(dir);
