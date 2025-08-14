@@ -33,18 +33,18 @@ const compileParser = parser([
     longFlag(
         "files",
         "File names or folders to be compiled",
-        variableList(string())
+        variableList(string()),
     ),
     longFlag(
         "target",
         "Target TS, JS, Derw, Elm, or English output",
-        oneOf([ "ts", "js", "derw", "elm", "english" ])
+        oneOf(["ts", "js", "derw", "elm", "english"]),
     ),
     longFlag("output", "Output directory name", string()),
     longFlag(
         "verify",
         "Run typescript compiler on generated files to ensure valid output",
-        empty()
+        empty(),
     ),
     longFlag("debug", "Show a parsed object tree", empty()),
     longFlag("only", "Only show a particular object", string()),
@@ -73,14 +73,14 @@ function runFile(target: Target, fullName: string): void {
     let child;
     switch (target) {
         case "js": {
-            child = spawnSync(`npx`, [ `node`, `${fullName}` ], {
+            child = spawnSync(`npx`, [`node`, `${fullName}`], {
                 stdio: "inherit",
                 encoding: "utf-8",
             });
             break;
         }
         case "ts": {
-            child = spawnSync(`npx`, [ `ts-node`, `${fullName}` ], {
+            child = spawnSync(`npx`, [`ts-node`, `${fullName}`], {
                 stdio: "inherit",
                 encoding: "utf-8",
             });
@@ -90,7 +90,7 @@ function runFile(target: Target, fullName: string): void {
 }
 
 function filterBodyForName(module: ContextModule, name: string): Block[] {
-    const blocks = [ ];
+    const blocks = [];
     for (var element of module.body) {
         switch (element.kind) {
             case "Function":
@@ -126,7 +126,7 @@ export type ProcessedFiles = Record<string, ContextModule>;
 
 export async function compileFiles(
     isInPackageDirectory: boolean,
-    argv: string[]
+    argv: string[],
 ): Promise<ProcessedFiles> {
     const program = parse(compileParser, argv);
 
@@ -157,12 +157,12 @@ export async function compileFiles(
         isPackageDirectoryAndNoFilesPassed
             ? await getDerwFiles("./src")
             : await getFlatFiles(
-                  (program.flags.files.arguments as Ok<string[]>).value
+                  (program.flags.files.arguments as Ok<string[]>).value,
               );
 
     if (maybeFiles.kind === "Err") {
         const filesToFind = isPackageDirectoryAndNoFilesPassed
-            ? [ "./src" ]
+            ? ["./src"]
             : (program.flags.files.arguments as Ok<string[]>).value;
 
         for (const file of filesToFind) {
@@ -194,7 +194,7 @@ export async function compileFiles(
 
     if (shouldRun && !program.flags.files.isPresent) {
         console.log(
-            `Warning: not running files. Provide files via --files to run them`
+            `Warning: not running files. Provide files via --files to run them`,
         );
     }
 
@@ -208,7 +208,7 @@ export async function compileFiles(
     }
 
     async function rawCompile() {
-        const processedFiles: string[] = [ ];
+        const processedFiles: string[] = [];
         const parsedFiles: Record<string, ContextModule> = {};
         const parsedImports: Record<string, string[]> = {};
 
@@ -227,7 +227,7 @@ export async function compileFiles(
                     console.log(
                         `Try renaming ${fileName} to ${dotParts
                             .slice(0, -1)
-                            .join(".")}.derw`
+                            .join(".")}.derw`,
                     );
                 }
 
@@ -237,7 +237,7 @@ export async function compileFiles(
 
                 let parsed = derwParser.parseWithContext(
                     derwContents,
-                    fileName
+                    fileName,
                 );
 
                 if (program.flags.names.isPresent) {
@@ -253,7 +253,7 @@ export async function compileFiles(
                 }
 
                 const dir = path.dirname(fileName);
-                const imports: string[] = [ ];
+                const imports: string[] = [];
 
                 getImports(parsed).forEach((import_: Block) => {
                     import_ = import_ as Import;
@@ -264,18 +264,18 @@ export async function compileFiles(
                             if (module.name.startsWith('"../derw-packages')) {
                                 module.name = module.name.replace(
                                     "../derw-packages",
-                                    "../../.."
+                                    "../../..",
                                 );
                             }
                         }
                         const moduleName = module.name.slice(1, -1);
                         imports.push(
-                            path.normalize(path.join(dir, moduleName))
+                            path.normalize(path.join(dir, moduleName)),
                         );
                     });
                 });
 
-                parsedImports[fileName] = [ ];
+                parsedImports[fileName] = [];
 
                 for (const import_ of imports) {
                     const fileWithDerwExtension = import_.endsWith(".derw")
@@ -303,7 +303,7 @@ export async function compileFiles(
 
                     if (!doesFileExist) {
                         console.log(
-                            `Warning! Failed to find \`${import_}\` as either derw, ts or js`
+                            `Warning! Failed to find \`${import_}\` as either derw, ts or js`,
                         );
                     }
                 }
@@ -326,13 +326,13 @@ export async function compileFiles(
                     return;
                 }
 
-                const importedContextModules = [ ];
+                const importedContextModules = [];
                 for (const import_ of parsedImports[fileName]) {
                     importedContextModules.push(parsedFiles[import_]);
                 }
                 parsed = derwParser.addTypeErrors(
                     parsed,
-                    importedContextModules
+                    importedContextModules,
                 );
                 if (parsed.errors.length > 0) {
                     console.log(`Failed to parse ${fileName} due to:`);
@@ -342,7 +342,7 @@ export async function compileFiles(
 
                 const generated = generate(
                     target,
-                    contextModuleToModule(parsed)
+                    contextModuleToModule(parsed),
                 );
 
                 if (program.flags.verify.isPresent && target === "ts") {
@@ -352,7 +352,7 @@ export async function compileFiles(
                     if (output.kind === "Err") {
                         console.log(
                             `Failed to compile ${fileName} due to`,
-                            output.error.map((e) => e.messageText).join("\n")
+                            output.error.map((e) => e.messageText).join("\n"),
                         );
                     } else {
                         console.log(`Successfully compiled ${fileName}`);
@@ -375,8 +375,7 @@ export async function compileFiles(
 
                 const outputName =
                     dotParts.slice(0, -1).join(".") + "." + target;
-                const fullName = path.join(outputDir, outputName);
-                await writeFile(fullName, generated);
+                await writeFile(outputName, generated);
 
                 if (shouldRun) {
                     const isFileToRun =
@@ -387,8 +386,8 @@ export async function compileFiles(
                         ).value.indexOf(fileName) > -1;
 
                     if (isFileToRun) {
-                        if (!isQuiet) console.log(`Running... ${fullName}`);
-                        runFile(target, fullName);
+                        if (!isQuiet) console.log(`Running... ${outputName}`);
+                        runFile(target, outputName);
                     }
                 }
             })(fileName);

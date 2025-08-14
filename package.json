@@ -34,18 +34,15 @@
         "@eeue56/mainc": "^0.0.6",
         "@eeue56/ts-assert": "^0.0.2",
         "@types/node": "^16.3.1",
-        "prettier": "github:eeue56/prettier#feat-eeue56/brackets"
+        "prettier": "3.6.2"
     },
     "dependencies": {
         "@eeue56/adeilad": "^0.0.2",
-        "@eeue56/bach": "^0.1.2",
+        "@eeue56/bach": "^0.2.0",
         "@eeue56/baner": "^0.0.3",
         "@eeue56/ts-core": "^3.0.1",
-        "@types/node-fetch": "^2.5.12",
         "chokidar": "^3.5.2",
-        "esbuild": "^0.14.11",
-        "node-fetch": "^2.6.6",
-        "typescript": "^4.9.5",
-        "trim": "^1.0.1"
+        "esbuild": "^0.25.9",
+        "typescript": "^5.9.2"
     }
 }
