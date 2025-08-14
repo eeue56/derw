@@ -1,6 +1,5 @@
 {
     "name": "derw",
-    "exposing": [],
-    "dependencies": {
-    }
+    "exposing": [ ],
+    "dependencies": {}
 }

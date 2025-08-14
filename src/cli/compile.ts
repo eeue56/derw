@@ -375,7 +375,10 @@ export async function compileFiles(
 
                 const outputName =
                     dotParts.slice(0, -1).join(".") + "." + target;
-                await writeFile(outputName, generated);
+
+                const fullName = path.join(outputDir, outputName);
+
+                await writeFile(fullName, generated);
 
                 if (shouldRun) {
                     const isFileToRun =
@@ -386,8 +389,8 @@ export async function compileFiles(
                         ).value.indexOf(fileName) > -1;
 
                     if (isFileToRun) {
-                        if (!isQuiet) console.log(`Running... ${outputName}`);
-                        runFile(target, outputName);
+                        if (!isQuiet) console.log(`Running... ${fullName}`);
+                        runFile(target, fullName);
                     }
                 }
             })(fileName);

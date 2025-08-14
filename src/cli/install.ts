@@ -30,21 +30,21 @@ const installParser = parser([
 
 function showInstallHelp(): void {
     console.log(
-        "To install a new package run `derw install --name {package name} --version {version}`",
+        "To install a new package run `derw install --name {package name} --version {version}`"
     );
     console.log(
-        "Or run me without args inside a package directory to install all packages in derw-package.json",
+        "Or run me without args inside a package directory to install all packages in derw-package.json"
     );
     console.log(help(installParser));
 }
 
 export async function install(
     isInPackageDirectory: boolean,
-    argv: string[],
+    argv: string[]
 ): Promise<void> {
     if (!isInPackageDirectory) {
         console.log(
-            "No derw-package.json found. Maybe you need to run `derw init` first?",
+            "No derw-package.json found. Maybe you need to run `derw init` first?"
         );
         process.exit(1);
     }
@@ -93,7 +93,7 @@ export async function install(
 
         if (!isQuiet) {
             console.log(
-                `Writing new package ${name}@${version} to derw-package.json...`,
+                `Writing new package ${name}@${version} to derw-package.json...`
             );
         }
         await writeFile("derw-package.json", exportPackage(validPackage));
@@ -106,17 +106,17 @@ export async function install(
         return;
     } else {
         if (!isQuiet) console.log("Installing packages...");
-        await installPackages(validPackage, isQuiet, []);
+        await installPackages(validPackage, isQuiet, [ ]);
         if (!isQuiet)
             console.log(
-                `Installed ${validPackage.dependencies.length} packages`,
+                `Installed ${validPackage.dependencies.length} packages`
             );
     }
 }
 
 function isPackageAlreadyThere(
     package_: Package,
-    packages: Package[],
+    packages: Package[]
 ): boolean {
     for (const p of packages) {
         if (package_.name === p.name) return true;
@@ -126,12 +126,12 @@ function isPackageAlreadyThere(
 
 function isAlreadyInstalled(
     dependency: Dependency,
-    alreadyInstalledDependency: Dependency[],
+    alreadyInstalledDependency: Dependency[]
 ): boolean {
     return (
         alreadyInstalledDependency.filter(
             (d) =>
-                d.name === dependency.name && d.version === dependency.version,
+                d.name === dependency.name && d.version === dependency.version
         ).length > 0
     );
 }
@@ -139,15 +139,15 @@ function isAlreadyInstalled(
 async function installPackages(
     validPackage: Package,
     isQuiet: boolean,
-    alreadyInstalledDependencies: Dependency[],
+    alreadyInstalledDependencies: Dependency[]
 ): Promise<Package[]> {
     await ensureDirectoryExists("derw-packages");
-    const installedPackages: Package[] = [];
+    const installedPackages: Package[] = [ ];
 
     for (const dependency of validPackage.dependencies) {
         const alreadyInstalled = isAlreadyInstalled(
             dependency,
-            alreadyInstalledDependencies,
+            alreadyInstalledDependencies
         );
         if (alreadyInstalled) continue;
 
@@ -164,7 +164,7 @@ async function installPackages(
                     [
                         ...alreadyInstalledDependencies,
                         ...validPackage.dependencies,
-                    ],
+                    ]
                 );
 
                 for (const subpackage of subpackages) {
@@ -193,8 +193,12 @@ async function cloneRepo(dependency: Dependency): Promise<void> {
     await ensureDirectoryExists(`derw-packages/${dependency.name}`);
     const res = spawnSync(
         "git",
-        ["clone", `https://github.com/${dependency.name}.git`, dependency.name],
-        { cwd: "derw-packages", encoding: "utf-8" },
+        [
+            "clone",
+            `https://github.com/${dependency.name}.git`,
+            dependency.name,
+        ],
+        { cwd: "derw-packages", encoding: "utf-8" }
     );
 
     if (res.error) {
@@ -204,7 +208,7 @@ async function cloneRepo(dependency: Dependency): Promise<void> {
 }
 
 async function checkoutRef(dependency: Dependency) {
-    let res = spawnSync("git", ["fetch", `origin`, `${dependency.version}`], {
+    let res = spawnSync("git", [ "fetch", `origin`, `${dependency.version}` ], {
         cwd: `derw-packages/${dependency.name}`,
         encoding: "utf-8",
     });
@@ -216,11 +220,11 @@ async function checkoutRef(dependency: Dependency) {
 
     res = spawnSync(
         "git",
-        ["reset", "--hard", `origin/${dependency.version}`],
+        [ "reset", "--hard", `origin/${dependency.version}` ],
         {
             cwd: `derw-packages/${dependency.name}`,
             encoding: "utf-8",
-        },
+        }
     );
 
     if (res.error) {
@@ -228,7 +232,7 @@ async function checkoutRef(dependency: Dependency) {
         console.log(res.error);
     }
 
-    res = spawnSync("git", ["reset", "--hard", `${dependency.version}`], {
+    res = spawnSync("git", [ "reset", "--hard", `${dependency.version}` ], {
         cwd: `derw-packages/${dependency.name}`,
         encoding: "utf-8",
     });
@@ -240,25 +244,25 @@ async function checkoutRef(dependency: Dependency) {
 }
 
 async function npmInstall(dependency: Dependency): Promise<void> {
-    const res = spawnSync("npm", ["install"], {
+    const res = spawnSync("npm", [ "install" ], {
         cwd: `derw-packages/${dependency.name}`,
         encoding: "utf-8",
     });
 
     if (res.error) {
         console.log(
-            `Encountered error installing npm packages from ${dependency.name}`,
+            `Encountered error installing npm packages from ${dependency.name}`
         );
         console.log(res.error);
     }
 }
 
 async function fetchDependencyPackage(
-    dependency: Dependency,
+    dependency: Dependency
 ): Promise<Result<string, Package>> {
     try {
         const response = await fetch(
-            `https://raw.githubusercontent.com/${dependency.name}/${dependency.version}/derw-package.json`,
+            `https://raw.githubusercontent.com/${dependency.name}/${dependency.version}/derw-package.json`
         );
         return decodePackage(await response.json());
     } catch (error) {
