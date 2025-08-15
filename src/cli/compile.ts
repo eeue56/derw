@@ -21,6 +21,7 @@ import { Target, generate } from "../Generator";
 import { addMissingNamesSuggestions } from "../errors/names";
 import * as derwParser from "../parser";
 import { Block, ContextModule, Import, contextModuleToModule } from "../types";
+import { install } from "./install";
 import {
     ensureDirectoryExists,
     fileExists,
@@ -146,6 +147,13 @@ export async function compileFiles(
         console.log("You must provide at least one file via --files");
         console.log("Or be in a directory with derw-package.json.");
         process.exit(1);
+    }
+
+    const doesDerwPackagesFolderExist = await fileExists("derw-packages");
+
+    if (!program.flags.files.isPresent && !doesDerwPackagesFolderExist) {
+        console.log("No derw-packages folder found, running install...");
+        await install(isInPackageDirectory, argv);
     }
 
     const debugMode = program.flags["debug"].isPresent;
