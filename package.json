@@ -38,7 +38,7 @@
     },
     "dependencies": {
         "@eeue56/adeilad": "^0.0.2",
-        "@eeue56/bach": "^0.2.0",
+        "@eeue56/bach": "^0.2.1",
         "@eeue56/baner": "^0.0.3",
         "@eeue56/ts-core": "^3.0.1",
         "chokidar": "^3.5.2",
