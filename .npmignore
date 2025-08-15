@@ -11,3 +11,4 @@ build/bench
 .github/workflows/
 build/__snapshots__
 src/__snapshots__
+src
