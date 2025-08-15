@@ -31,11 +31,11 @@ helloWorld =
 `.trim();
 
 const expectedOutput = `
-const helloWorld: any[] = [ { value: 1 }, ...[ ] ];
+const helloWorld: any[] = [ { value: 1 }, ...[] ];
 `.trim();
 
 const expectedOutputJS = `
-const helloWorld = [ { value: 1 }, ...[ ] ];
+const helloWorld = [ { value: 1 }, ...[] ];
 `.trim();
 
 export function testIntoBlocks() {
@@ -66,15 +66,15 @@ export function testParse() {
             [
                 Const(
                     "helloWorld",
-                    FixedType("List", [ GenericType("any") ]),
-                    [ ],
+                    FixedType("List", [GenericType("any")]),
+                    [],
                     ListPrepend(
-                        ObjectLiteral(null, [ Field("value", Value("1")) ]),
-                        ListValue([ ])
+                        ObjectLiteral(null, [Field("value", Value("1"))]),
+                        ListValue([])
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -87,15 +87,15 @@ export function testParseMultiLine() {
             [
                 Const(
                     "helloWorld",
-                    FixedType("List", [ GenericType("any") ]),
-                    [ ],
+                    FixedType("List", [GenericType("any")]),
+                    [],
                     ListPrepend(
-                        ObjectLiteral(null, [ Field("value", Value("1")) ]),
-                        ListValue([ ])
+                        ObjectLiteral(null, [Field("value", Value("1"))]),
+                        ListValue([])
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

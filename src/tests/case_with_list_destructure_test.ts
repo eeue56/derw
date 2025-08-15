@@ -116,7 +116,7 @@ export function testBlockKind() {
 
     assert.deepStrictEqual(
         blocks.map((block) => blockKind(block.lines.join("\n"))),
-        [ Ok("Function") ]
+        [Ok("Function")]
     );
 }
 
@@ -125,7 +125,7 @@ export function testBlockKindMultiLine() {
 
     assert.deepStrictEqual(
         blocks.map((block) => blockKind(block.lines.join("\n"))),
-        [ Ok("Function") ]
+        [Ok("Function")]
     );
 }
 
@@ -137,34 +137,34 @@ export function testParse() {
             [
                 Function(
                     "sum",
-                    FixedType("number", [ ]),
+                    FixedType("number", []),
                     [
                         FunctionArg(
                             "xs",
-                            FixedType("List", [ FixedType("number", [ ]) ])
+                            FixedType("List", [FixedType("number", [])])
                         ),
                     ],
-                    [ ],
+                    [],
                     CaseStatement(Value("xs"), [
-                        Branch(EmptyList(), Value("0"), [ ]),
+                        Branch(EmptyList(), Value("0"), []),
                         Branch(
-                            ListDestructure([ Value("y"), EmptyList() ]),
+                            ListDestructure([Value("y"), EmptyList()]),
                             Value("y"),
-                            [ ]
+                            []
                         ),
                         Branch(
-                            ListDestructure([ Value("z"), Value("zs") ]),
+                            ListDestructure([Value("z"), Value("zs")]),
                             Addition(
                                 Value("z"),
-                                FunctionCall("sum", [ Value("zs") ])
+                                FunctionCall("sum", [Value("zs")])
                             ),
-                            [ ]
+                            []
                         ),
-                        Branch(Default(), Value("0"), [ ]),
+                        Branch(Default(), Value("0"), []),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -177,34 +177,34 @@ export function testParseMultiLine() {
             [
                 Function(
                     "sum",
-                    FixedType("number", [ ]),
+                    FixedType("number", []),
                     [
                         FunctionArg(
                             "xs",
-                            FixedType("List", [ FixedType("number", [ ]) ])
+                            FixedType("List", [FixedType("number", [])])
                         ),
                     ],
-                    [ ],
+                    [],
                     CaseStatement(Value("xs"), [
-                        Branch(EmptyList(), Value("0"), [ ]),
+                        Branch(EmptyList(), Value("0"), []),
                         Branch(
-                            ListDestructure([ Value("y"), EmptyList() ]),
+                            ListDestructure([Value("y"), EmptyList()]),
                             Value("y"),
-                            [ ]
+                            []
                         ),
                         Branch(
-                            ListDestructure([ Value("z"), Value("zs") ]),
+                            ListDestructure([Value("z"), Value("zs")]),
                             Addition(
                                 Value("z"),
-                                FunctionCall("sum", [ Value("zs") ])
+                                FunctionCall("sum", [Value("zs")])
                             ),
-                            [ ]
+                            []
                         ),
-                        Branch(Default(), Value("0"), [ ]),
+                        Branch(Default(), Value("0"), []),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

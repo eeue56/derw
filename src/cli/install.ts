@@ -106,7 +106,7 @@ export async function install(
         return;
     } else {
         if (!isQuiet) console.log("Installing packages...");
-        await installPackages(validPackage, isQuiet, [ ]);
+        await installPackages(validPackage, isQuiet, []);
         if (!isQuiet)
             console.log(
                 `Installed ${validPackage.dependencies.length} packages`
@@ -142,7 +142,7 @@ async function installPackages(
     alreadyInstalledDependencies: Dependency[]
 ): Promise<Package[]> {
     await ensureDirectoryExists("derw-packages");
-    const installedPackages: Package[] = [ ];
+    const installedPackages: Package[] = [];
 
     for (const dependency of validPackage.dependencies) {
         const alreadyInstalled = isAlreadyInstalled(
@@ -193,11 +193,7 @@ async function cloneRepo(dependency: Dependency): Promise<void> {
     await ensureDirectoryExists(`derw-packages/${dependency.name}`);
     const res = spawnSync(
         "git",
-        [
-            "clone",
-            `https://github.com/${dependency.name}.git`,
-            dependency.name,
-        ],
+        ["clone", `https://github.com/${dependency.name}.git`, dependency.name],
         { cwd: "derw-packages", encoding: "utf-8" }
     );
 
@@ -208,7 +204,7 @@ async function cloneRepo(dependency: Dependency): Promise<void> {
 }
 
 async function checkoutRef(dependency: Dependency) {
-    let res = spawnSync("git", [ "fetch", `origin`, `${dependency.version}` ], {
+    let res = spawnSync("git", ["fetch", `origin`, `${dependency.version}`], {
         cwd: `derw-packages/${dependency.name}`,
         encoding: "utf-8",
     });
@@ -220,7 +216,7 @@ async function checkoutRef(dependency: Dependency) {
 
     res = spawnSync(
         "git",
-        [ "reset", "--hard", `origin/${dependency.version}` ],
+        ["reset", "--hard", `origin/${dependency.version}`],
         {
             cwd: `derw-packages/${dependency.name}`,
             encoding: "utf-8",
@@ -232,7 +228,7 @@ async function checkoutRef(dependency: Dependency) {
         console.log(res.error);
     }
 
-    res = spawnSync("git", [ "reset", "--hard", `${dependency.version}` ], {
+    res = spawnSync("git", ["reset", "--hard", `${dependency.version}`], {
         cwd: `derw-packages/${dependency.name}`,
         encoding: "utf-8",
     });
@@ -244,7 +240,7 @@ async function checkoutRef(dependency: Dependency) {
 }
 
 async function npmInstall(dependency: Dependency): Promise<void> {
-    const res = spawnSync("npm", [ "install" ], {
+    const res = spawnSync("npm", ["install"], {
         cwd: `derw-packages/${dependency.name}`,
         encoding: "utf-8",
     });

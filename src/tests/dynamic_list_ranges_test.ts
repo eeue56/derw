@@ -67,16 +67,16 @@ export function testParse() {
             [
                 Function(
                     "range",
-                    FixedType("List", [ FixedType("number", [ ]) ]),
+                    FixedType("List", [FixedType("number", [])]),
                     [
-                        FunctionArg("start", FixedType("number", [ ])),
-                        FunctionArg("end", FixedType("number", [ ])),
+                        FunctionArg("start", FixedType("number", [])),
+                        FunctionArg("end", FixedType("number", [])),
                     ],
-                    [ ],
+                    [],
                     ListRange(Value("start"), Value("end"))
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -89,16 +89,16 @@ export function testParseMultiLine() {
             [
                 Function(
                     "range",
-                    FixedType("List", [ FixedType("number", [ ]) ]),
+                    FixedType("List", [FixedType("number", [])]),
                     [
-                        FunctionArg("start", FixedType("number", [ ])),
-                        FunctionArg("end", FixedType("number", [ ])),
+                        FunctionArg("start", FixedType("number", [])),
+                        FunctionArg("end", FixedType("number", [])),
                     ],
-                    [ ],
+                    [],
                     ListRange(Value("start"), Value("end"))
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

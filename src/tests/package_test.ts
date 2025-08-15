@@ -5,20 +5,17 @@ import { decodePackage, Dependency, Package, PackageModule } from "../package";
 export function testValidPackageWithNoModules() {
     const packageJson = {
         name: "stdlib",
-        exposing: [ ],
+        exposing: [],
         dependencies: {},
     };
 
-    deepStrictEqual(
-        decodePackage(packageJson),
-        Ok(Package("stdlib", [ ], [ ]))
-    );
+    deepStrictEqual(decodePackage(packageJson), Ok(Package("stdlib", [], [])));
 }
 
 export function testValidPackageWithModules() {
     const packageJson = {
         name: "stdlib",
-        exposing: [ "List", "Maybe", "Test" ],
+        exposing: ["List", "Maybe", "Test"],
         dependencies: {},
     };
 
@@ -32,7 +29,7 @@ export function testValidPackageWithModules() {
                     PackageModule("Maybe"),
                     PackageModule("Test"),
                 ],
-                [ ]
+                []
             )
         )
     );
@@ -41,7 +38,7 @@ export function testValidPackageWithModules() {
 export function testValidPackageWithDependencies() {
     const packageJson = {
         name: "stdlib",
-        exposing: [ "List", "Maybe", "Test" ],
+        exposing: ["List", "Maybe", "Test"],
         dependencies: {
             result: "1.0.0",
         },
@@ -57,7 +54,7 @@ export function testValidPackageWithDependencies() {
                     PackageModule("Maybe"),
                     PackageModule("Test"),
                 ],
-                [ Dependency("result", "1.0.0") ]
+                [Dependency("result", "1.0.0")]
             )
         )
     );
@@ -66,20 +63,17 @@ export function testValidPackageWithDependencies() {
 export function testValidPackageWithExtraJson() {
     const packageJson = {
         name: "stdlib",
-        exposing: [ ],
+        exposing: [],
         dependencies: {},
         somethingUnused: true,
     };
 
-    deepStrictEqual(
-        decodePackage(packageJson),
-        Ok(Package("stdlib", [ ], [ ]))
-    );
+    deepStrictEqual(decodePackage(packageJson), Ok(Package("stdlib", [], [])));
 }
 
 export function testInvalidPackageWithMissingName() {
     const packageJson = {
-        exposing: [ ],
+        exposing: [],
     };
 
     deepStrictEqual(

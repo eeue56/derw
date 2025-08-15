@@ -4,12 +4,12 @@ function levDistance(a: string, b: string): number {
 
     if (a.toLowerCase() === b.toLowerCase()) return 0;
 
-    const matrix: number[][] = [ ];
+    const matrix: number[][] = [];
 
     // increment along the first column of each row
     let i;
     for (i = 0; i <= b.length; i += 1) {
-        matrix[i] = [ i ];
+        matrix[i] = [i];
     }
 
     // increment each column in the first row

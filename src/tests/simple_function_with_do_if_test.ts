@@ -105,36 +105,31 @@ export function testParse() {
             [
                 Function(
                     "isTrue",
-                    FixedType("boolean", [ ]),
+                    FixedType("boolean", []),
                     [
                         FunctionArg(
                             "value",
-                            FixedType("Maybe", [ FixedType("boolean", [ ]) ])
+                            FixedType("Maybe", [FixedType("boolean", [])])
                         ),
                     ],
-                    [ ],
+                    [],
                     Value("x"),
                     DoBlock([
                         IfStatement(
                             Value("value"),
                             ModuleReference(
-                                [ "console" ],
-                                FunctionCall("log", [ StringValue("true") ])
+                                ["console"],
+                                FunctionCall("log", [StringValue("true")])
                             ),
-                            [ ],
-                            [ ],
+                            [],
+                            [],
                             ModuleReference(
-                                [ "console" ],
-                                FunctionCall("log", [ StringValue("false") ])
+                                ["console"],
+                                FunctionCall("log", [StringValue("false")])
                             ),
-                            [ ]
+                            []
                         ),
-                        Const(
-                            "five",
-                            FixedType("number", [ ]),
-                            [ ],
-                            Value("5")
-                        ),
+                        Const("five", FixedType("number", []), [], Value("5")),
                     ])
                 ),
             ],
@@ -169,36 +164,31 @@ export function testParseMultiLine() {
             [
                 Function(
                     "isTrue",
-                    FixedType("boolean", [ ]),
+                    FixedType("boolean", []),
                     [
                         FunctionArg(
                             "value",
-                            FixedType("Maybe", [ FixedType("boolean", [ ]) ])
+                            FixedType("Maybe", [FixedType("boolean", [])])
                         ),
                     ],
-                    [ ],
+                    [],
                     Value("x"),
                     DoBlock([
                         IfStatement(
                             Value("value"),
                             ModuleReference(
-                                [ "console" ],
-                                FunctionCall("log", [ StringValue("true") ])
+                                ["console"],
+                                FunctionCall("log", [StringValue("true")])
                             ),
-                            [ ],
-                            [ ],
+                            [],
+                            [],
                             ModuleReference(
-                                [ "console" ],
-                                FunctionCall("log", [ StringValue("false") ])
+                                ["console"],
+                                FunctionCall("log", [StringValue("false")])
                             ),
-                            [ ]
+                            []
                         ),
-                        Const(
-                            "five",
-                            FixedType("number", [ ]),
-                            [ ],
-                            Value("5")
-                        ),
+                        Const("five", FixedType("number", []), [], Value("5")),
                     ])
                 ),
             ],

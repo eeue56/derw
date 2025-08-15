@@ -13,7 +13,7 @@ sayHi name =
     `.trim();
 
     const parsed = parse(str);
-    deepStrictEqual(parsed.errors, [ ]);
+    deepStrictEqual(parsed.errors, []);
 }
 
 export function testLetWithoutIn() {
@@ -108,7 +108,7 @@ sayHi name =
     `.trim();
 
     const parsed = parse(str);
-    deepStrictEqual(parsed.errors, [ ]);
+    deepStrictEqual(parsed.errors, []);
 }
 
 export function testLetInAndDoReturn() {
@@ -126,7 +126,7 @@ sayHi name =
     `.trim();
 
     const parsed = parse(str);
-    deepStrictEqual(parsed.errors, [ ]);
+    deepStrictEqual(parsed.errors, []);
 }
 
 export function testLetWithoutInAndDo() {

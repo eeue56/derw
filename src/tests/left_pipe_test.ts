@@ -44,13 +44,13 @@ helloWorld =
 const expectedOutput = `
 import { List } from "List";
 
-const helloWorld: number[] = List.foldl(add, [ 1, 2, 3 ]);
+const helloWorld: number[] = List.foldl(add, [1, 2, 3]);
 `.trim();
 
 const expectedOutputJS = `
 import { List } from "List";
 
-const helloWorld = List.foldl(add, [ 1, 2, 3 ]);
+const helloWorld = List.foldl(add, [1, 2, 3]);
 `.trim();
 
 export function testIntoBlocks() {
@@ -81,23 +81,21 @@ export function testParse() {
         Module(
             "main",
             [
-                Import([
-                    ImportModule("List", Nothing(), [ "List" ], "Global"),
-                ]),
+                Import([ImportModule("List", Nothing(), ["List"], "Global")]),
                 Const(
                     "helloWorld",
-                    FixedType("List", [ FixedType("number", [ ]) ]),
-                    [ ],
+                    FixedType("List", [FixedType("number", [])]),
+                    [],
                     LeftPipe(
-                        ListValue([ Value("1"), Value("2"), Value("3") ]),
+                        ListValue([Value("1"), Value("2"), Value("3")]),
                         ModuleReference(
-                            [ "List" ],
-                            FunctionCall("foldl", [ Value("add") ])
+                            ["List"],
+                            FunctionCall("foldl", [Value("add")])
                         )
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -108,23 +106,21 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
-                Import([
-                    ImportModule("List", Nothing(), [ "List" ], "Global"),
-                ]),
+                Import([ImportModule("List", Nothing(), ["List"], "Global")]),
                 Const(
                     "helloWorld",
-                    FixedType("List", [ FixedType("number", [ ]) ]),
-                    [ ],
+                    FixedType("List", [FixedType("number", [])]),
+                    [],
                     LeftPipe(
-                        ListValue([ Value("1"), Value("2"), Value("3") ]),
+                        ListValue([Value("1"), Value("2"), Value("3")]),
                         ModuleReference(
-                            [ "List" ],
-                            FunctionCall("foldl", [ Value("add") ])
+                            ["List"],
+                            FunctionCall("foldl", [Value("add")])
                         )
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

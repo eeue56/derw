@@ -33,8 +33,8 @@ value =
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value, [ ], [ ], valuesInScope),
-        Ok(FixedType("List", [ GenericType("any") ]))
+        validateType(value, [], [], valuesInScope),
+        Ok(FixedType("List", [GenericType("any")]))
     );
 }
 
@@ -66,7 +66,7 @@ value =
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value, [ ], [ ], valuesInScope),
+        validateType(value, [], [], valuesInScope),
         Err("Expected `List (any)` but got `boolean`")
     );
 }
@@ -97,8 +97,8 @@ value =
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value, [ ], [ ], valuesInScope),
-        Ok(FixedType("List", [ GenericType("any") ]))
+        validateType(value, [], [], valuesInScope),
+        Ok(FixedType("List", [GenericType("any")]))
     );
 }
 
@@ -137,15 +137,15 @@ value =
         validateType(
             value,
             [
-                TypeAlias(FixedType("Person", [ ]), [
-                    Property("name", FixedType("string", [ ])),
-                    Property("age", FixedType("number", [ ])),
+                TypeAlias(FixedType("Person", []), [
+                    Property("name", FixedType("string", [])),
+                    Property("age", FixedType("number", [])),
                 ]),
             ],
-            [ ],
+            [],
             valuesInScope
         ),
-        Ok(FixedType("Person", [ ]))
+        Ok(FixedType("Person", []))
     );
 }
 
@@ -184,12 +184,12 @@ value =
         validateType(
             value,
             [
-                TypeAlias(FixedType("Person", [ ]), [
-                    Property("name", FixedType("string", [ ])),
-                    Property("age", FixedType("number", [ ])),
+                TypeAlias(FixedType("Person", []), [
+                    Property("name", FixedType("string", [])),
+                    Property("age", FixedType("number", [])),
                 ]),
             ],
-            [ ],
+            [],
             valuesInScope
         ),
         Err(
@@ -239,15 +239,15 @@ value =
         validateType(
             value,
             [
-                TypeAlias(FixedType("Person", [ ]), [
-                    Property("name", FixedType("string", [ ])),
-                    Property("age", FixedType("number", [ ])),
+                TypeAlias(FixedType("Person", []), [
+                    Property("name", FixedType("string", [])),
+                    Property("age", FixedType("number", [])),
                 ]),
             ],
-            [ ],
+            [],
             valuesInScope
         ),
-        Ok(FixedType("Person", [ ]))
+        Ok(FixedType("Person", []))
     );
 }
 
@@ -292,12 +292,12 @@ value =
         validateType(
             value,
             [
-                TypeAlias(FixedType("Person", [ ]), [
-                    Property("name", FixedType("string", [ ])),
-                    Property("age", FixedType("number", [ ])),
+                TypeAlias(FixedType("Person", []), [
+                    Property("name", FixedType("string", [])),
+                    Property("age", FixedType("number", [])),
                 ]),
             ],
-            [ ],
+            [],
             valuesInScope
         ),
         Err("Conflicting types: { name: boolean, age: number }, Person")
@@ -347,15 +347,15 @@ value =
         validateType(
             value,
             [
-                TypeAlias(FixedType("Person", [ ]), [
-                    Property("name", FixedType("string", [ ])),
-                    Property("age", FixedType("number", [ ])),
+                TypeAlias(FixedType("Person", []), [
+                    Property("name", FixedType("string", [])),
+                    Property("age", FixedType("number", [])),
                 ]),
             ],
-            [ ],
+            [],
             valuesInScope
         ),
-        Ok(FixedType("Person", [ ]))
+        Ok(FixedType("Person", []))
     );
 }
 
@@ -402,12 +402,12 @@ value =
         validateType(
             value,
             [
-                TypeAlias(FixedType("Person", [ ]), [
-                    Property("name", FixedType("string", [ ])),
-                    Property("age", FixedType("number", [ ])),
+                TypeAlias(FixedType("Person", []), [
+                    Property("name", FixedType("string", [])),
+                    Property("age", FixedType("number", [])),
                 ]),
             ],
-            [ ],
+            [],
             valuesInScope
         ),
         Err("Conflicting types: { name: boolean, age: number }, Person")

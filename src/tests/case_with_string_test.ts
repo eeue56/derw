@@ -92,7 +92,7 @@ export function testBlockKind() {
 
     assert.deepStrictEqual(
         blocks.map((block) => blockKind(block.lines.join("\n"))),
-        [ Ok("Function") ]
+        [Ok("Function")]
     );
 }
 
@@ -101,7 +101,7 @@ export function testBlockKindMultiLine() {
 
     assert.deepStrictEqual(
         blocks.map((block) => blockKind(block.lines.join("\n"))),
-        [ Ok("Function") ]
+        [Ok("Function")]
     );
 }
 
@@ -113,25 +113,21 @@ export function testParse() {
             [
                 Function(
                     "sayHello",
-                    FixedType("string", [ ]),
-                    [ FunctionArg("name", FixedType("string", [ ])) ],
-                    [ ],
+                    FixedType("string", []),
+                    [FunctionArg("name", FixedType("string", []))],
+                    [],
                     CaseStatement(Value("name"), [
-                        Branch(
-                            StringValue("Noah"),
-                            StringValue("Hi Noah"),
-                            [ ]
-                        ),
+                        Branch(StringValue("Noah"), StringValue("Hi Noah"), []),
                         Branch(
                             FormatStringValue("James"),
                             StringValue("Greetings"),
-                            [ ]
+                            []
                         ),
-                        Branch(Default(), StringValue("I don't know you"), [ ]),
+                        Branch(Default(), StringValue("I don't know you"), []),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -144,25 +140,21 @@ export function testParseMultiLine() {
             [
                 Function(
                     "sayHello",
-                    FixedType("string", [ ]),
-                    [ FunctionArg("name", FixedType("string", [ ])) ],
-                    [ ],
+                    FixedType("string", []),
+                    [FunctionArg("name", FixedType("string", []))],
+                    [],
                     CaseStatement(Value("name"), [
-                        Branch(
-                            StringValue("Noah"),
-                            StringValue("Hi Noah"),
-                            [ ]
-                        ),
+                        Branch(StringValue("Noah"), StringValue("Hi Noah"), []),
                         Branch(
                             FormatStringValue("James"),
                             StringValue("Greetings"),
-                            [ ]
+                            []
                         ),
-                        Branch(Default(), StringValue("I don't know you"), [ ]),
+                        Branch(Default(), StringValue("I don't know you"), []),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

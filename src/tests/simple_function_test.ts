@@ -78,20 +78,20 @@ export function testParse() {
             [
                 Function(
                     "isTrue",
-                    FixedType("boolean", [ ]),
-                    [ FunctionArg("value", FixedType("boolean", [ ])) ],
-                    [ ],
+                    FixedType("boolean", []),
+                    [FunctionArg("value", FixedType("boolean", []))],
+                    [],
                     IfStatement(
                         Value("value"),
                         Value("true"),
-                        [ ],
-                        [ ],
+                        [],
+                        [],
                         Value("false"),
-                        [ ]
+                        []
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -104,20 +104,20 @@ export function testParseMultiLine() {
             [
                 Function(
                     "isTrue",
-                    FixedType("boolean", [ ]),
-                    [ FunctionArg("value", FixedType("boolean", [ ])) ],
-                    [ ],
+                    FixedType("boolean", []),
+                    [FunctionArg("value", FixedType("boolean", []))],
+                    [],
                     IfStatement(
                         Value("value"),
                         Value("true"),
-                        [ ],
-                        [ ],
+                        [],
+                        [],
                         Value("false"),
-                        [ ]
+                        []
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

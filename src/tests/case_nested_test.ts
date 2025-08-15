@@ -63,10 +63,10 @@ function filterMapHelp<a, b>(fn: (arg0: a) => Maybe<b>, a: a, xs: b[]): b[] {
             const _res1110581198 = "hello";
             switch (_res1110581198) {
                 case "hello": {
-                    return append(xs, [ value ]);
+                    return append(xs, [value]);
                 }
                 default: {
-                    return append(xs, [ value ]);
+                    return append(xs, [value]);
                 }
             };
         }
@@ -86,10 +86,10 @@ function filterMapHelp(fn, a, xs) {
             const _res1110581198 = "hello";
             switch (_res1110581198) {
                 case "hello": {
-                    return append(xs, [ value ]);
+                    return append(xs, [value]);
                 }
                 default: {
-                    return append(xs, [ value ]);
+                    return append(xs, [value]);
                 }
             };
         }
@@ -117,7 +117,7 @@ export function testBlockKind() {
 
     assert.deepStrictEqual(
         blocks.map((block) => blockKind(block.lines.join("\n"))),
-        [ Ok("Function") ]
+        [Ok("Function")]
     );
 }
 
@@ -126,7 +126,7 @@ export function testBlockKindMultiLine() {
 
     assert.deepStrictEqual(
         blocks.map((block) => blockKind(block.lines.join("\n"))),
-        [ Ok("Function") ]
+        [Ok("Function")]
     );
 }
 
@@ -138,23 +138,23 @@ export function testParse() {
             [
                 Function(
                     "filterMapHelp",
-                    FixedType("List", [ GenericType("b") ]),
+                    FixedType("List", [GenericType("b")]),
                     [
                         FunctionArg(
                             "fn",
                             FunctionType([
                                 GenericType("a"),
-                                FixedType("Maybe", [ GenericType("b") ]),
+                                FixedType("Maybe", [GenericType("b")]),
                             ])
                         ),
                         FunctionArg("a", GenericType("a")),
                         FunctionArg(
                             "xs",
-                            FixedType("List", [ GenericType("b") ])
+                            FixedType("List", [GenericType("b")])
                         ),
                     ],
-                    [ ],
-                    CaseStatement(FunctionCall("fn", [ Value("a") ]), [
+                    [],
+                    CaseStatement(FunctionCall("fn", [Value("a")]), [
                         Branch(
                             Destructure("Just", "{ value }"),
                             CaseStatement(StringValue("hello"), [
@@ -162,26 +162,26 @@ export function testParse() {
                                     StringValue("hello"),
                                     FunctionCall("append", [
                                         Value("xs"),
-                                        ListValue([ Value("value") ]),
+                                        ListValue([Value("value")]),
                                     ]),
-                                    [ ]
+                                    []
                                 ),
                                 Branch(
                                     Default(),
                                     FunctionCall("append", [
                                         Value("xs"),
-                                        ListValue([ Value("value") ]),
+                                        ListValue([Value("value")]),
                                     ]),
-                                    [ ]
+                                    []
                                 ),
                             ]),
-                            [ ]
+                            []
                         ),
-                        Branch(Destructure("Nothing", ""), Value("xs"), [ ]),
+                        Branch(Destructure("Nothing", ""), Value("xs"), []),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -194,23 +194,23 @@ export function testParseMultiLine() {
             [
                 Function(
                     "filterMapHelp",
-                    FixedType("List", [ GenericType("b") ]),
+                    FixedType("List", [GenericType("b")]),
                     [
                         FunctionArg(
                             "fn",
                             FunctionType([
                                 GenericType("a"),
-                                FixedType("Maybe", [ GenericType("b") ]),
+                                FixedType("Maybe", [GenericType("b")]),
                             ])
                         ),
                         FunctionArg("a", GenericType("a")),
                         FunctionArg(
                             "xs",
-                            FixedType("List", [ GenericType("b") ])
+                            FixedType("List", [GenericType("b")])
                         ),
                     ],
-                    [ ],
-                    CaseStatement(FunctionCall("fn", [ Value("a") ]), [
+                    [],
+                    CaseStatement(FunctionCall("fn", [Value("a")]), [
                         Branch(
                             Destructure("Just", "{ value }"),
                             CaseStatement(StringValue("hello"), [
@@ -218,26 +218,26 @@ export function testParseMultiLine() {
                                     StringValue("hello"),
                                     FunctionCall("append", [
                                         Value("xs"),
-                                        ListValue([ Value("value") ]),
+                                        ListValue([Value("value")]),
                                     ]),
-                                    [ ]
+                                    []
                                 ),
                                 Branch(
                                     Default(),
                                     FunctionCall("append", [
                                         Value("xs"),
-                                        ListValue([ Value("value") ]),
+                                        ListValue([Value("value")]),
                                     ]),
-                                    [ ]
+                                    []
                                 ),
                             ]),
-                            [ ]
+                            []
                         ),
-                        Branch(Destructure("Nothing", ""), Value("xs"), [ ]),
+                        Branch(Destructure("Nothing", ""), Value("xs"), []),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

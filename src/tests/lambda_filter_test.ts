@@ -69,24 +69,24 @@ export function testParse() {
             [
                 Const(
                     "withoutItem",
-                    FixedType("List", [ FixedType("ListItem", [ ]) ]),
-                    [ ],
+                    FixedType("List", [FixedType("ListItem", [])]),
+                    [],
                     ModuleReference(
-                        [ "List" ],
+                        ["List"],
                         FunctionCall("filter", [
                             Lambda(
-                                [ "x" ],
+                                ["x"],
                                 Equality(
-                                    ModuleReference([ "x" ], Value("label")),
-                                    ModuleReference([ "item" ], Value("label"))
+                                    ModuleReference(["x"], Value("label")),
+                                    ModuleReference(["item"], Value("label"))
                                 )
                             ),
-                            ModuleReference([ "model" ], Value("list")),
+                            ModuleReference(["model"], Value("list")),
                         ])
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -99,24 +99,24 @@ export function testParseMultiLine() {
             [
                 Const(
                     "withoutItem",
-                    FixedType("List", [ FixedType("ListItem", [ ]) ]),
-                    [ ],
+                    FixedType("List", [FixedType("ListItem", [])]),
+                    [],
                     ModuleReference(
-                        [ "List" ],
+                        ["List"],
                         FunctionCall("filter", [
                             Lambda(
-                                [ "x" ],
+                                ["x"],
                                 Equality(
-                                    ModuleReference([ "x" ], Value("label")),
-                                    ModuleReference([ "item" ], Value("label"))
+                                    ModuleReference(["x"], Value("label")),
+                                    ModuleReference(["item"], Value("label"))
                                 )
                             ),
-                            ModuleReference([ "model" ], Value("list")),
+                            ModuleReference(["model"], Value("list")),
                         ])
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

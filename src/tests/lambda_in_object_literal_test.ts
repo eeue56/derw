@@ -69,14 +69,14 @@ export function testParse() {
             [
                 Const(
                     "filterMap",
-                    FixedType("Maybe", [ GenericType("any") ]),
-                    [ ],
+                    FixedType("Maybe", [GenericType("any")]),
+                    [],
                     ObjectLiteral(null, [
                         Field(
                             "value",
                             Lambda(
-                                [ "answer" ],
-                                Constructor("Finish", ObjectLiteral(null, [ ]))
+                                ["answer"],
+                                Constructor("Finish", ObjectLiteral(null, []))
                             )
                         ),
                     ])
@@ -102,14 +102,14 @@ export function testParseMultiLine() {
             [
                 Const(
                     "filterMap",
-                    FixedType("Maybe", [ GenericType("any") ]),
-                    [ ],
+                    FixedType("Maybe", [GenericType("any")]),
+                    [],
                     ObjectLiteral(null, [
                         Field(
                             "value",
                             Lambda(
-                                [ "answer" ],
-                                Constructor("Finish", ObjectLiteral(null, [ ]))
+                                ["answer"],
+                                Constructor("Finish", ObjectLiteral(null, []))
                             )
                         ),
                     ])

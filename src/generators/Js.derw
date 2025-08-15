@@ -78,7 +78,7 @@ generateObjectLiteral literal =
                     `{ ${fields} }`
 
                 default ->
-                    `{\n    ${fields}\n}`
+                    `{\n    ${fields},\n}`
         else
             case literal.fields of
                 [] ->
@@ -88,7 +88,7 @@ generateObjectLiteral literal =
                     `{ ${literal.base.body}, ${fields} }`
 
                 default ->
-                    `{\n    ${literal.base.body},\n    ${fields}\n}`
+                    `{\n    ${literal.base.body},\n    ${fields},\n}`
 
 generateListValue: ListValue -> string
 generateListValue list =
@@ -111,13 +111,13 @@ generateListValue list =
     in
         case items of
             [] ->
-                "[ ]"
+                "[]"
 
             x :: [] ->
-                `[ ${x} ]`
+                `[${x}]`
 
             default ->
-                `[ ${items.join(", ")} ]`
+                `[${items.join(", ")}]`
 
 generateLetBlock: List Block -> string
 generateLetBlock body =
@@ -872,12 +872,27 @@ generateModuleReference moduleReference =
 generateFunctionCall: FunctionCall -> string
 generateFunctionCall functionCall =
     let
-        args: string
-        args =
+        generatedArgs: List string
+        generatedArgs =
             List.map generateExpression functionCall.args
-                |> (\y -> y.join ", ")
+
+        oneLineArgs: string
+        oneLineArgs =
+            generatedArgs.join ", "
+
+        firstLineLength: number
+        firstLineLength =
+            oneLineArgs.split "\n"
+                |> (\x -> x[0].length)
+
+        mulitLineArgs: string
+        mulitLineArgs =
+            prefixLines (generatedArgs.join ",\n") 4
     in
-        `${functionCall.name}(${args})`
+        if firstLineLength * 1.6 < 80 then
+            `${functionCall.name}(${oneLineArgs})`
+        else
+            `${functionCall.name}(\n${mulitLineArgs}\n)`
 
 generateLambda: Lambda -> string
 generateLambda lambda =

@@ -34,11 +34,11 @@ sum =
 `.trim();
 
 const expectedOutput = `
-const sum: number = Math.sum([ 1, 2, 3 ]);
+const sum: number = Math.sum([1, 2, 3]);
 `.trim();
 
 const expectedOutputJS = `
-const sum = Math.sum([ 1, 2, 3 ]);
+const sum = Math.sum([1, 2, 3]);
 `.trim();
 
 export function testIntoBlocks() {
@@ -72,17 +72,17 @@ export function testParse() {
             [
                 Const(
                     "sum",
-                    FixedType("number", [ ]),
-                    [ ],
+                    FixedType("number", []),
+                    [],
                     ModuleReference(
-                        [ "Math" ],
+                        ["Math"],
                         FunctionCall("sum", [
-                            ListValue([ Value("1"), Value("2"), Value("3") ]),
+                            ListValue([Value("1"), Value("2"), Value("3")]),
                         ])
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -95,17 +95,17 @@ export function testParseMultiLine() {
             [
                 Const(
                     "sum",
-                    FixedType("number", [ ]),
-                    [ ],
+                    FixedType("number", []),
+                    [],
                     ModuleReference(
-                        [ "Math" ],
+                        ["Math"],
                         FunctionCall("sum", [
-                            ListValue([ Value("1"), Value("2"), Value("3") ]),
+                            ListValue([Value("1"), Value("2"), Value("3")]),
                         ])
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

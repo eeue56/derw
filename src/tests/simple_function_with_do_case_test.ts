@@ -124,39 +124,34 @@ export function testParse() {
             [
                 Function(
                     "isTrue",
-                    FixedType("boolean", [ ]),
+                    FixedType("boolean", []),
                     [
                         FunctionArg(
                             "value",
-                            FixedType("Maybe", [ FixedType("boolean", [ ]) ])
+                            FixedType("Maybe", [FixedType("boolean", [])])
                         ),
                     ],
-                    [ ],
+                    [],
                     Value("x"),
                     DoBlock([
                         Const(
                             "x",
-                            FixedType("boolean", [ ]),
-                            [ ],
+                            FixedType("boolean", []),
+                            [],
                             CaseStatement(Value("value"), [
                                 Branch(
                                     Destructure("Just", "{ value }"),
                                     Value("value"),
-                                    [ ]
+                                    []
                                 ),
                                 Branch(
                                     Destructure("Nothing", ""),
                                     Value("false"),
-                                    [ ]
+                                    []
                                 ),
                             ])
                         ),
-                        Const(
-                            "five",
-                            FixedType("number", [ ]),
-                            [ ],
-                            Value("5")
-                        ),
+                        Const("five", FixedType("number", []), [], Value("5")),
                     ])
                 ),
             ],
@@ -195,39 +190,34 @@ export function testParseMultiLine() {
             [
                 Function(
                     "isTrue",
-                    FixedType("boolean", [ ]),
+                    FixedType("boolean", []),
                     [
                         FunctionArg(
                             "value",
-                            FixedType("Maybe", [ FixedType("boolean", [ ]) ])
+                            FixedType("Maybe", [FixedType("boolean", [])])
                         ),
                     ],
-                    [ ],
+                    [],
                     Value("x"),
                     DoBlock([
                         Const(
                             "x",
-                            FixedType("boolean", [ ]),
-                            [ ],
+                            FixedType("boolean", []),
+                            [],
                             CaseStatement(Value("value"), [
                                 Branch(
                                     Destructure("Just", "{ value }"),
                                     Value("value"),
-                                    [ ]
+                                    []
                                 ),
                                 Branch(
                                     Destructure("Nothing", ""),
                                     Value("false"),
-                                    [ ]
+                                    []
                                 ),
                             ])
                         ),
-                        Const(
-                            "five",
-                            FixedType("number", [ ]),
-                            [ ],
-                            Value("5")
-                        ),
+                        Const("five", FixedType("number", []), [], Value("5")),
                     ])
                 ),
             ],

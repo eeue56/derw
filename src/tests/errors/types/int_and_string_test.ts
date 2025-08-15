@@ -8,9 +8,9 @@ doSomething x =
     x + x
 `.trim();
     let parsed = parseWithContext(str, "Main");
-    parsed = addTypeErrors(parsed, [ ]);
+    parsed = addTypeErrors(parsed, []);
 
-    deepStrictEqual(parsed.errors, [ ]);
+    deepStrictEqual(parsed.errors, []);
 }
 
 export function testStringToStringPerfect() {
@@ -20,9 +20,9 @@ doSomething x =
     x
 `.trim();
     let parsed = parseWithContext(str, "Main");
-    parsed = addTypeErrors(parsed, [ ]);
+    parsed = addTypeErrors(parsed, []);
 
-    deepStrictEqual(parsed.errors, [ ]);
+    deepStrictEqual(parsed.errors, []);
 }
 
 export function testIntToStringError() {
@@ -32,7 +32,7 @@ doSomething x =
     x + x
 `.trim();
     let parsed = parseWithContext(str, "Main");
-    parsed = addTypeErrors(parsed, [ ]);
+    parsed = addTypeErrors(parsed, []);
 
     deepStrictEqual(parsed.errors, [
         "Error on lines 0 - 3\n" +
@@ -52,7 +52,7 @@ doSomething x =
     x + x
 `.trim();
     let parsed = parseWithContext(str, "Main");
-    parsed = addTypeErrors(parsed, [ ]);
+    parsed = addTypeErrors(parsed, []);
 
     deepStrictEqual(parsed.errors, [
         "Error on lines 0 - 3\n" +
@@ -72,7 +72,7 @@ something =
     "hello" + 99
 `.trim();
     let parsed = parseWithContext(str, "Main");
-    parsed = addTypeErrors(parsed, [ ]);
+    parsed = addTypeErrors(parsed, []);
 
     deepStrictEqual(parsed.errors, [
         "Error on lines 0 - 3\n" +
@@ -95,7 +95,7 @@ something x y =
     x + y
 `.trim();
     let parsed = parseWithContext(str, "Main");
-    parsed = addTypeErrors(parsed, [ ]);
+    parsed = addTypeErrors(parsed, []);
 
     deepStrictEqual(parsed.errors, [
         "Error on lines 0 - 3\n" +
@@ -118,7 +118,7 @@ something x y =
     x + y
 `.trim();
     let parsed = parseWithContext(str, "Main");
-    parsed = addTypeErrors(parsed, [ ]);
+    parsed = addTypeErrors(parsed, []);
 
     deepStrictEqual(parsed.errors, [
         "Error on lines 0 - 3\n" +

@@ -108,7 +108,7 @@ export function testBlockKind() {
 
     assert.deepStrictEqual(
         blocks.map((block) => blockKind(block.lines.join("\n"))),
-        [ Ok("UnionUntaggedType"), Ok("Function") ]
+        [Ok("UnionUntaggedType"), Ok("Function")]
     );
 }
 
@@ -117,7 +117,7 @@ export function testBlockKindMultiLine() {
 
     assert.deepStrictEqual(
         blocks.map((block) => blockKind(block.lines.join("\n"))),
-        [ Ok("UnionUntaggedType"), Ok("Function") ]
+        [Ok("UnionUntaggedType"), Ok("Function")]
     );
 }
 
@@ -127,22 +127,22 @@ export function testParse() {
         Module(
             "main",
             [
-                UnionUntaggedType(FixedType("Result", [ ]), [
+                UnionUntaggedType(FixedType("Result", []), [
                     StringValue("Err"),
                     StringValue("Ok"),
                 ]),
                 Function(
                     "asIs",
-                    FixedType("Result", [ ]),
-                    [ FunctionArg("result", FixedType("Result", [ ])) ],
-                    [ ],
+                    FixedType("Result", []),
+                    [FunctionArg("result", FixedType("Result", []))],
+                    [],
                     CaseStatement(Value("result"), [
-                        Branch(StringValue("Err"), StringValue("Err"), [ ]),
-                        Branch(StringValue("Ok"), StringValue("Ok"), [ ]),
+                        Branch(StringValue("Err"), StringValue("Err"), []),
+                        Branch(StringValue("Ok"), StringValue("Ok"), []),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -158,22 +158,22 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
-                UnionUntaggedType(FixedType("Result", [ ]), [
+                UnionUntaggedType(FixedType("Result", []), [
                     StringValue("Err"),
                     StringValue("Ok"),
                 ]),
                 Function(
                     "asIs",
-                    FixedType("Result", [ ]),
-                    [ FunctionArg("result", FixedType("Result", [ ])) ],
-                    [ ],
+                    FixedType("Result", []),
+                    [FunctionArg("result", FixedType("Result", []))],
+                    [],
                     CaseStatement(Value("result"), [
-                        Branch(StringValue("Err"), StringValue("Err"), [ ]),
-                        Branch(StringValue("Ok"), StringValue("Ok"), [ ]),
+                        Branch(StringValue("Err"), StringValue("Err"), []),
+                        Branch(StringValue("Ok"), StringValue("Ok"), []),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

@@ -37,13 +37,13 @@ listLength =
 const expectedOutput = `
 const listLength: number = (function(x: any) {
     return x.length;
-})([ 1, 2, 3 ]);
+})([1, 2, 3]);
 `.trim();
 
 const expectedOutputJS = `
 const listLength = (function(x) {
     return x.length;
-})([ 1, 2, 3 ]);
+})([1, 2, 3]);
 `.trim();
 
 export function testIntoBlocks() {
@@ -74,18 +74,15 @@ export function testParse() {
             [
                 Const(
                     "listLength",
-                    FixedType("number", [ ]),
-                    [ ],
+                    FixedType("number", []),
+                    [],
                     LeftPipe(
-                        ListValue([ Value("1"), Value("2"), Value("3") ]),
-                        Lambda(
-                            [ "x" ],
-                            ModuleReference([ "x" ], Value("length"))
-                        )
+                        ListValue([Value("1"), Value("2"), Value("3")]),
+                        Lambda(["x"], ModuleReference(["x"], Value("length")))
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -98,18 +95,15 @@ export function testParseMultiLine() {
             [
                 Const(
                     "listLength",
-                    FixedType("number", [ ]),
-                    [ ],
+                    FixedType("number", []),
+                    [],
                     LeftPipe(
-                        ListValue([ Value("1"), Value("2"), Value("3") ]),
-                        Lambda(
-                            [ "x" ],
-                            ModuleReference([ "x" ], Value("length"))
-                        )
+                        ListValue([Value("1"), Value("2"), Value("3")]),
+                        Lambda(["x"], ModuleReference(["x"], Value("length")))
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

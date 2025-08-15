@@ -14,7 +14,7 @@ import { install } from "./install";
 import { fileExists } from "./utils";
 
 type TemplateType = "web" | "html";
-const validTemplates = [ "web", "html" ];
+const validTemplates = ["web", "html"];
 
 const templateParser = parser([
     longFlag("path", "path of Derw file to create", string()),
@@ -140,9 +140,7 @@ export async function template(
         await copyHtmlTemplate(path);
     } else {
         console.log(
-            `Template ${template} is unknown. Try one of: ${validTemplates.join(
-                ", "
-            )}`
+            `Template ${template} is unknown. Try one of: ${validTemplates.join(", ")}`
         );
     }
 }

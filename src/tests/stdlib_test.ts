@@ -26,7 +26,7 @@ export async function testStdlibAreConsistentlyParsed() {
                 generateDerw(secondParsed) + emptyLineAtEndOfFile;
 
             try {
-                assert.deepStrictEqual(parsed.errors, [ ]);
+                assert.deepStrictEqual(parsed.errors, []);
                 assert.deepStrictEqual(generated, secondGenerated);
                 assert.deepStrictEqual(parsed, secondParsed);
             } catch (e) {

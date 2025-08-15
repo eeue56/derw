@@ -3,9 +3,9 @@ import * as fs from "fs";
 type Common = {
     zero: number;
     one: number;
-}
+};
 
-function Common(args: { zero: number, one: number }): Common {
+function Common(args: { zero: number; one: number; }): Common {
     return {
         ...args,
     };
@@ -15,12 +15,12 @@ function reducer(index: number, common: Common, line: string): Common {
     if (line.charAt(index) === "0") {
         return {
             zero: common.zero + 1,
-            one: common.one
+            one: common.one,
         };
     } else {
         return {
             zero: common.zero,
-            one: common.one + 1
+            one: common.one + 1,
         };
     }
 }
@@ -31,7 +31,7 @@ function mostCommon(index: number, bits: string[]): Common {
     }
     return bits.reduce(something, {
         zero: 0,
-        one: 0
+        one: 0,
     });
 }
 
@@ -92,7 +92,9 @@ function calc(xs: string[]): number {
     return gamma * epsilon;
 }
 
-const exampleMain: void = globalThis.console.log(calc([ "00100", "11110", "10110", "10111", "10101", "01111", "00111", "11100", "10000", "11001", "00010", "01010" ]));
+const exampleMain: void = globalThis.console.log(calc(
+    ["00100", "11110", "10110", "10111", "10101", "01111", "00111", "11100", "10000", "11001", "00010", "01010"]
+));
 
 const adventInput: string[] = split(toString(fs.readFileSync("input.txt")));
 

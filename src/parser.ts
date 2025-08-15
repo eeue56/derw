@@ -118,7 +118,7 @@ function afterArrow(tokens: TypeToken[]): TypeToken[] {
 }
 
 function splitOnArrowTokens(tokens: Token[]): Token[][] {
-    const results = [ ];
+    const results = [];
 
     let lastIndex = 0;
     let index = 0;
@@ -155,14 +155,14 @@ function parseTypeToken(token: TypeToken): Result<string, Type> {
                         isBuiltinType(rootType.body) &&
                         rootType.body !== "any"
                     ) {
-                        return Ok(FixedType(rootType.body, [ ]));
+                        return Ok(FixedType(rootType.body, []));
                     } else if (rootType.body.toLowerCase() === rootType.body) {
                         return Ok(GenericType(rootType.body));
                     }
                 }
 
-                const errors = [ ];
-                const correct = [ ];
+                const errors = [];
+                const correct = [];
                 for (const parsed of parsedTypes) {
                     if (parsed.kind === "Ok") {
                         correct.push(parsed.value);
@@ -187,8 +187,8 @@ function parseTypeToken(token: TypeToken): Result<string, Type> {
             const parsedTypes = token.body.map((x) => {
                 return parseTypeToken(x);
             });
-            const errors = [ ];
-            const correct = [ ];
+            const errors = [];
+            const correct = [];
 
             for (const parsed of parsedTypes) {
                 if (parsed.kind === "Ok") {
@@ -206,12 +206,12 @@ function parseTypeToken(token: TypeToken): Result<string, Type> {
         }
         case "IdentifierToken": {
             if (isBuiltinType(token.body) && token.body !== "any") {
-                return Ok(FixedType(token.body, [ ]));
+                return Ok(FixedType(token.body, []));
             } else if (token.body.toLowerCase() === token.body) {
                 return Ok(GenericType(token.body));
             }
 
-            return Ok(FixedType(token.body, [ ]));
+            return Ok(FixedType(token.body, []));
         }
         case "OpenBracketToken": {
             return Err("Unexected open bracket in type");
@@ -279,12 +279,12 @@ function parseUnionUntaggedType(
         );
     }
 
-    const branches: StringValue[] = [ ];
+    const branches: StringValue[] = [];
 
     for (const token of tokens.slice(assignIndex + 1)) {
         switch (token.kind) {
             case "StringToken": {
-                const value = parseStringValue([ token ]);
+                const value = parseStringValue([token]);
                 if (value.kind === "Err")
                     return Err(
                         "Failed to parse string in untagged union type definiton: " +
@@ -319,10 +319,10 @@ function parseUnionType(tokens: Token[]): Result<string, UnionType> {
         }
     }
 
-    let typeLine: Token[] = [ ];
+    let typeLine: Token[] = [];
     let isInBranches = false;
-    let branches = [ ];
-    let currentBranch = [ ];
+    let branches = [];
+    let currentBranch = [];
     let inBrackets = false;
 
     for (var i = 1; i < tokens.length; i++) {
@@ -341,7 +341,7 @@ function parseUnionType(tokens: Token[]): Result<string, UnionType> {
 
             case "PipeToken": {
                 branches.push(currentBranch.join(" "));
-                currentBranch = [ ];
+                currentBranch = [];
                 break;
             }
 
@@ -600,9 +600,9 @@ function parseTypeAlias(tokens: Token[]): Result<string, TypeAlias> {
 
     index += 2;
 
-    let typeLine: Token[] = [ ];
+    let typeLine: Token[] = [];
     let isInDefinition = false;
-    let currentDefinition = [ ];
+    let currentDefinition = [];
     let braceDepth = 0;
 
     for (var i = index; i < tokens.length; i++) {
@@ -690,7 +690,7 @@ function parseTypeAlias(tokens: Token[]): Result<string, TypeAlias> {
 
     const recordDefinition = currentDefinition.join(" ");
 
-    let lines: string[] = [ ];
+    let lines: string[] = [];
     recordDefinition.split("\n").forEach((line: string) => {
         const hasComma = line.indexOf(",") > -1;
 
@@ -706,8 +706,8 @@ function parseTypeAlias(tokens: Token[]): Result<string, TypeAlias> {
         lines.push(line);
     });
 
-    let currentBuffer: string[] = [ ];
-    const properties: string[] = [ ];
+    let currentBuffer: string[] = [];
+    const properties: string[] = [];
 
     lines.forEach((line, i) => {
         const isOpeningBrace = line.trim() === "{" && i === 0;
@@ -738,7 +738,7 @@ function parseTypeAlias(tokens: Token[]): Result<string, TypeAlias> {
         if (isRootProperty(line)) {
             if (currentBuffer.length > 0) {
                 properties.push(currentBuffer.join("\n"));
-                currentBuffer = [ line ];
+                currentBuffer = [line];
             } else {
                 currentBuffer.push(line);
             }
@@ -794,13 +794,13 @@ function parseTypeAlias(tokens: Token[]): Result<string, TypeAlias> {
 }
 
 function splitOnNewlines(tokens: Token[]): Token[][] {
-    const lines: Token[][] = [ ];
-    let currentLine: Token[] = [ ];
+    const lines: Token[][] = [];
+    let currentLine: Token[] = [];
 
     for (const token of tokens) {
         if (token.kind === "WhitespaceToken" && token.body.indexOf("\n") > -1) {
             lines.push(currentLine);
-            currentLine = [ ];
+            currentLine = [];
         } else {
             currentLine.push(token);
         }
@@ -812,13 +812,13 @@ function splitOnNewlines(tokens: Token[]): Token[][] {
 }
 
 function splitOn(tokens: Token[], splitToken: Token): Token[][] {
-    const pieces: Token[][] = [ ];
-    let currentPiece: Token[] = [ ];
+    const pieces: Token[][] = [];
+    let currentPiece: Token[] = [];
 
     for (const token of tokens) {
         if (equalTokens(token, splitToken)) {
             pieces.push(currentPiece);
-            currentPiece = [ ];
+            currentPiece = [];
         } else {
             currentPiece.push(token);
         }
@@ -843,7 +843,7 @@ function parseTypeclassFunction(
     }
     const functionName = functionNameToken.body;
 
-    const typeSignatureIndex = goToTheEndOfPattern(tokens, [ ColonToken({}) ]);
+    const typeSignatureIndex = goToTheEndOfPattern(tokens, [ColonToken({})]);
     if (typeSignatureIndex === -1) {
         return Err("Unable to find colon in type signature");
     }
@@ -851,8 +851,8 @@ function parseTypeclassFunction(
     const typeSignature = tokens.slice(typeSignatureIndex + 1, tokens.length);
     const typePieces = splitOn(typeSignature, ArrowToken({}));
     const types = typePieces.map(parseType);
-    const parsedTypes: Type[] = [ ];
-    const errors: string[] = [ ];
+    const parsedTypes: Type[] = [];
+    const errors: string[] = [];
 
     for (const type of types) {
         if (type.kind === "Err") {
@@ -922,8 +922,8 @@ function parseTypeclass(tokens: Token[]): Result<string, Typeclass> {
     );
     const functions = functionsAsTokens.map(parseTypeclassFunction);
 
-    const parsedFunctions: TypeclassFunction[] = [ ];
-    const errors: string[] = [ ];
+    const parsedFunctions: TypeclassFunction[] = [];
+    const errors: string[] = [];
 
     for (const type of functions) {
         if (type.kind === "Err") {
@@ -937,7 +937,7 @@ function parseTypeclass(tokens: Token[]): Result<string, Typeclass> {
         return Err(errors.join("\n"));
     }
 
-    return Ok(Typeclass(typeclassName, [ variable ], parsedFunctions));
+    return Ok(Typeclass(typeclassName, [variable], parsedFunctions));
 }
 
 function goUpToNewline(tokens: Token[]): number {
@@ -984,8 +984,8 @@ function parseImpl(tokens: Token[]): Result<string, Impl> {
 
     const parsedBlocks = functionBlocks.map(parseBlock);
 
-    const errors: string[] = [ ];
-    const blocks: Function[] = [ ];
+    const errors: string[] = [];
+    const blocks: Function[] = [];
 
     for (const block of parsedBlocks) {
         if (block.kind === "Err") {
@@ -1001,7 +1001,7 @@ function parseImpl(tokens: Token[]): Result<string, Impl> {
 }
 
 function parseObjectLiteral(tokens: Token[]): Result<string, ObjectLiteral> {
-    const fields: Field[] = [ ];
+    const fields: Field[] = [];
 
     let currentName = "";
     let currentValue: Expression | null = null;
@@ -1139,7 +1139,7 @@ function parseObjectLiteral(tokens: Token[]): Result<string, ObjectLiteral> {
 }
 
 function parseValue(tokens: Token[]): Result<string, Value | Constructor> {
-    const body: string[] = [ ];
+    const body: string[] = [];
 
     let index = 0;
 
@@ -1274,18 +1274,18 @@ function parseListValue(tokens: Token[]): Result<string, ListValue> {
         index++;
     }
 
-    const parsedValues = [ ];
+    const parsedValues = [];
 
     // drop leading and trailing []
     const body = tokensToString(tokens.slice(index));
     const trimmed = body.trim();
     const innerBody = trimmed.slice(1, trimmed.length - 1).trim();
 
-    if (innerBody.trim().length === 0) return Ok(ListValue([ ]));
+    if (innerBody.trim().length === 0) return Ok(ListValue([]));
 
     const innerTokens = tokenize(innerBody);
     let innerIndex = 0;
-    let currentBuffer = [ ];
+    let currentBuffer = [];
     let depth = 0;
 
     while (innerIndex < innerTokens.length) {
@@ -1306,7 +1306,7 @@ function parseListValue(tokens: Token[]): Result<string, ListValue> {
                     parsedValues.push(
                         parseExpression(tokensToString(currentBuffer))
                     );
-                    currentBuffer = [ ];
+                    currentBuffer = [];
                     break;
                 }
             }
@@ -1333,7 +1333,7 @@ function parseListValue(tokens: Token[]): Result<string, ListValue> {
         );
 
     if (passedValues.length === 0) {
-        return Ok(ListValue([ ]));
+        return Ok(ListValue([]));
     } else {
         return Ok(
             ListValue(
@@ -1344,7 +1344,7 @@ function parseListValue(tokens: Token[]): Result<string, ListValue> {
 }
 
 function replaceNewlinesInFormatString(str: string, depth: number): string {
-    const lines: string[] = [ ];
+    const lines: string[] = [];
     const split = str.split("\n");
     for (const line of split.slice(1, split.length - 1)) {
         lines.push(deIndent(line, depth + 4));
@@ -1403,7 +1403,7 @@ function parseDestructure(tokens: Token[]): Result<string, Destructure> {
     if (constructor === null)
         return Err("Expected identifer for a destructor but got nothing.");
 
-    let patternParts = [ ];
+    let patternParts = [];
 
     while (index < tokens.length) {
         const token = tokens[index];
@@ -1455,7 +1455,7 @@ function parseConstructor(tokens: Token[]): Result<string, Constructor> {
     if (constructor === null)
         return Err("Expected identifer for a constructor but got nothing.");
 
-    let patternParts = [ ];
+    let patternParts = [];
 
     while (index < tokens.length) {
         const token = tokens[index];
@@ -1480,7 +1480,7 @@ function parseConstructor(tokens: Token[]): Result<string, Constructor> {
 }
 
 function parseIfPredicate(tokens: Token[]): Result<string, Expression> {
-    const inbetweenTokens = [ ];
+    const inbetweenTokens = [];
 
     let state: "WaitingForIf" | "BetweenIfAndThen" | "PastThen" =
         "WaitingForIf";
@@ -1510,7 +1510,7 @@ function parseIfPredicate(tokens: Token[]): Result<string, Expression> {
 }
 
 function parseIfBody(tokens: Token[]): Result<string, Expression> {
-    const inbetweenTokens = [ ];
+    const inbetweenTokens = [];
 
     let state: "WaitingForThen" | "BetweenThenAndElse" | "PastElse" =
         "WaitingForThen";
@@ -1540,7 +1540,7 @@ function parseIfBody(tokens: Token[]): Result<string, Expression> {
 }
 
 function parseElseBody(tokens: Token[]): Result<string, Expression> {
-    const inbetweenTokens = [ ];
+    const inbetweenTokens = [];
 
     let state: "WaitingForElse" | "BetweenElseAndEnd" | "PastEnd" =
         "WaitingForElse";
@@ -1569,7 +1569,7 @@ function parseIfStatementSingleLine(body: string): Result<string, IfStatement> {
     const parsedIfBody = parseIfBody(tokenize(body));
     const parsedElseBody = parseElseBody(tokenize(body));
 
-    const errors = [ ];
+    const errors = [];
     if (parsedPredicate.kind === "Err") errors.push(parsedPredicate.error);
     if (parsedIfBody.kind === "Err") errors.push(parsedIfBody.error);
     if (parsedElseBody.kind === "Err") errors.push(parsedElseBody.error);
@@ -1582,10 +1582,10 @@ function parseIfStatementSingleLine(body: string): Result<string, IfStatement> {
         IfStatement(
             (parsedPredicate as Ok<Expression>).value,
             (parsedIfBody as Ok<Expression>).value,
-            [ ],
-            [ ],
+            [],
+            [],
             (parsedElseBody as Ok<Expression>).value,
-            [ ]
+            []
         )
     );
 }
@@ -1729,7 +1729,7 @@ function parseElseIfStatement(body: string): Result<string, ElseIfStatement> {
 
     let firstThenIndex = goToTheStartOfPattern(
         tokens.slice(startIndex, tokens.length),
-        [ KeywordToken({ body: "then" }) ]
+        [KeywordToken({ body: "then" })]
     );
 
     if (firstThenIndex === -1) {
@@ -1752,11 +1752,11 @@ function parseElseIfStatement(body: string): Result<string, ElseIfStatement> {
 
     let letIndex = goToTheStartOfPattern(
         tokens.slice(firstThenIndex, tokens.length),
-        [ KeywordToken({ body: "let" }) ]
+        [KeywordToken({ body: "let" })]
     );
 
     let letEnd = firstThenIndex + 1;
-    let blocks: Block[] = [ ];
+    let blocks: Block[] = [];
 
     if (letIndex > -1) {
         letIndex += firstThenIndex;
@@ -1771,7 +1771,7 @@ function parseElseIfStatement(body: string): Result<string, ElseIfStatement> {
         const indent = whitespaceToken.body.split("\n")[1].length;
         letEnd = goToTheEndOfPattern(
             tokens.slice(firstThenIndex, tokens.length),
-            [ whitespaceToken, KeywordToken({ body: "in" }) ]
+            [whitespaceToken, KeywordToken({ body: "in" })]
         );
 
         if (letEnd === -1) {
@@ -1791,7 +1791,7 @@ function parseElseIfStatement(body: string): Result<string, ElseIfStatement> {
 
         const parsedBlocks = unparsedBlocks.map((block) => parseBlock(block));
 
-        const blockErrors: string[] = [ ];
+        const blockErrors: string[] = [];
 
         for (const block of parsedBlocks) {
             if (block.kind === "Err") {
@@ -1845,13 +1845,13 @@ function parseIfStatement(body: string): Result<string, IfStatement> {
         ): ElseIfIndexing => {
             if (currentLine.startsWith(" ".repeat(indentLevel) + "else if")) {
                 return {
-                    indexes: [ ...previous.indexes, index ],
+                    indexes: [...previous.indexes, index],
                 };
             } else {
                 return previous;
             }
         },
-        { indexes: [ ] }
+        { indexes: [] }
     ).indexes;
 
     type ElseIndexing = {
@@ -1883,7 +1883,7 @@ function parseIfStatement(body: string): Result<string, IfStatement> {
         return Err("Missing else block");
     }
 
-    const elseIfBodies: string[][] = [ ];
+    const elseIfBodies: string[][] = [];
 
     for (var i = 0; i < elseIfIndexes.length; i++) {
         const index = elseIfIndexes[i];
@@ -1916,7 +1916,7 @@ function parseIfStatement(body: string): Result<string, IfStatement> {
             line.endsWith("in")
     );
 
-    let ifLetBlock: Block[] = [ ];
+    let ifLetBlock: Block[] = [];
 
     if (ifLetStart > -1 && ifLetEnd > -1) {
         const letLines = ifBody
@@ -1943,7 +1943,7 @@ function parseIfStatement(body: string): Result<string, IfStatement> {
             line.endsWith("in")
     );
 
-    let elseLetBlock: Block[] = [ ];
+    let elseLetBlock: Block[] = [];
 
     if (elseLetStart > -1 && elseLetEnd > -1) {
         const letLines = elseBody
@@ -1965,11 +1965,11 @@ function parseIfStatement(body: string): Result<string, IfStatement> {
         elseBody.slice(elseLetEnd === -1 ? 0 : elseLetEnd + 1).join("\n")
     );
 
-    const errors: string[] = [ ];
+    const errors: string[] = [];
     if (parsedPredicate.kind === "Err") errors.push(parsedPredicate.error);
     if (parsedIfBody.kind === "Err") errors.push(parsedIfBody.error);
 
-    const parsedElseIfBodies: ElseIfStatement[] = [ ];
+    const parsedElseIfBodies: ElseIfStatement[] = [];
     for (const parsedElseIfBody of elseIfs) {
         if (parsedElseIfBody.kind === "Err") {
             errors.push(parsedElseIfBody.error);
@@ -2023,9 +2023,9 @@ function parseEmptyList(tokens: Token[]): Result<string, EmptyList> {
 function parseListDestructure(
     tokens: Token[]
 ): Result<string, ListDestructure> {
-    const parts = [ ];
+    const parts = [];
     let isInDestructor = false;
-    let destructorParts = [ ];
+    let destructorParts = [];
 
     for (const token of tokens) {
         switch (token.kind) {
@@ -2056,7 +2056,7 @@ function parseListDestructure(
 
                     parts.push(destructure.value);
                     isInDestructor = false;
-                    destructorParts = [ ];
+                    destructorParts = [];
                 }
                 break;
             }
@@ -2132,7 +2132,7 @@ function parseBranchPattern(tokens: Token[]): Result<string, BranchPattern> {
 }
 
 function parseCasePredicate(tokens: Token[]): Result<string, Expression> {
-    const inbetweenTokens = [ ];
+    const inbetweenTokens = [];
 
     let state: "WaitingForCase" | "BetweenCaseAndOr" | "PastOf" =
         "WaitingForCase";
@@ -2180,9 +2180,9 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
 
     const lines = body.split("\n");
 
-    let branches: Result<string, Branch>[] = [ ];
+    let branches: Result<string, Branch>[] = [];
     let branchPattern = "";
-    let branchLines: string[] = [ ];
+    let branchLines: string[] = [];
 
     for (var i = firstIndexOfOf + 1; i < lines.length; i++) {
         const line = lines[i];
@@ -2217,7 +2217,7 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
                 (line) => line.startsWith(spaces + "in") && line.endsWith("in")
             );
 
-            let letBlock: Block[] = [ ];
+            let letBlock: Block[] = [];
 
             if (letStart > -1 && letEnd > -1) {
                 const letLines = branchLines
@@ -2271,16 +2271,16 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
                 const split = splitOnArrowTokens(tokenize(line));
                 if (split.length === 1) {
                     branchPattern = tokensToString(split[0]);
-                    branchLines = [ ];
+                    branchLines = [];
                 } else if (split.length === 2) {
                     branchPattern = tokensToString(split[0]);
-                    branchLines = [ tokensToString(split[1]) ];
+                    branchLines = [tokensToString(split[1])];
                 } else {
                     branches.push(Err(`Failed to parse branch on line ${i}`));
                 }
             } else {
                 branchPattern = "";
-                branchLines = [ ];
+                branchLines = [];
             }
         } else {
             branchLines.push(line);
@@ -2297,7 +2297,7 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
             (line) => line.startsWith(spaces + "in") && line.endsWith("in")
         );
 
-        let letBlock: Block[] = [ ];
+        let letBlock: Block[] = [];
 
         if (letStart > -1 && letEnd > -1) {
             const letLines = branchLines
@@ -2345,7 +2345,7 @@ function parseCaseStatement(body: string): Result<string, CaseStatement> {
         }
     }
 
-    const errors = [ ];
+    const errors = [];
     if (casePredicate.kind === "Err") errors.push(casePredicate.error);
     branches.forEach((branch, i) => {
         if (branch.kind === "Err") {
@@ -2499,7 +2499,7 @@ function parseModuleReference(
     return Ok(
         ModuleReference(
             moduleName.length === 1 && moduleName[0].trim().length === 0
-                ? [ ]
+                ? []
                 : moduleName,
             expression.value
         )
@@ -2555,8 +2555,8 @@ function parseFunctionCall(
         }
     }
 
-    const args: string[] = [ ];
-    let currentArg: string[] = [ ];
+    const args: string[] = [];
+    let currentArg: string[] = [];
     let bracketDepth = 0;
     let colonDepth = 0;
     let curlyBracketDepth = 0;
@@ -2606,7 +2606,7 @@ function parseFunctionCall(
                                 args.push(token.body);
                             }
                         }
-                        currentArg = [ ];
+                        currentArg = [];
                     } else {
                         currentArg.push(token.body);
                     }
@@ -2618,7 +2618,7 @@ function parseFunctionCall(
                     if (currentArg.join().trim().length > 0) {
                         args.push(currentArg.join(""));
                     }
-                    currentArg = [ ];
+                    currentArg = [];
                 } else {
                     currentArg.push("(");
                 }
@@ -2630,7 +2630,7 @@ function parseFunctionCall(
                 bracketDepth--;
                 if (bracketDepth <= 0 && colonDepth === 0) {
                     args.push(currentArg.join(""));
-                    currentArg = [ ];
+                    currentArg = [];
                 } else {
                     currentArg.push(")");
                 }
@@ -2647,7 +2647,7 @@ function parseFunctionCall(
                 if (colonDepth > 0) colonDepth--;
                 if (bracketDepth === 0 && curlyBracketDepth === 0) {
                     args.push(currentArg.join(""));
-                    currentArg = [ ];
+                    currentArg = [];
                 }
                 break;
             }
@@ -2713,7 +2713,7 @@ function parseFunctionCall(
 function parseLambda(tokens: Token[]): Result<string, Lambda> {
     let index = 0;
     let isDone = false;
-    const args = [ ];
+    const args = [];
 
     while (index < tokens.length) {
         const token = tokens[index];
@@ -3290,7 +3290,7 @@ function deIndent(string: string, amount: number): string {
 }
 
 function parseDoBlock(tokens: Token[]): Result<string, DoBlock> {
-    const expressions: Result<string, DoExpression>[] = [ ];
+    const expressions: Result<string, DoExpression>[] = [];
 
     function parseDoExpression(currentBuffer: Token[]) {
         const asString = deIndent(tokensToString(currentBuffer), 8);
@@ -3338,7 +3338,7 @@ function parseDoBlock(tokens: Token[]): Result<string, DoBlock> {
         }
     }
 
-    let currentBuffer: Token[] = [ WhitespaceToken({ body: "        " }) ];
+    let currentBuffer: Token[] = [WhitespaceToken({ body: "        " })];
     const baseIndentLevel = 8;
 
     for (const token of tokens.slice(1)) {
@@ -3362,7 +3362,7 @@ function parseDoBlock(tokens: Token[]): Result<string, DoBlock> {
                     currentIndentLevel === baseIndentLevel
                 ) {
                     parseDoExpression(currentBuffer);
-                    currentBuffer = [ WhitespaceToken({ body: "        " }) ];
+                    currentBuffer = [WhitespaceToken({ body: "        " })];
                 } else {
                     currentBuffer.push(token);
                 }
@@ -3451,7 +3451,7 @@ function parseFunction(tokens: Token[]): Result<string, Function> {
 
     index++;
     const lastIndex = index;
-    let currentType: Token[] = [ ];
+    let currentType: Token[] = [];
     let isDone = false;
 
     while (index < tokens.length) {
@@ -3509,7 +3509,7 @@ function parseFunction(tokens: Token[]): Result<string, Function> {
     );
     if (maybeLetAndDoErrorMessage) return Err(maybeLetAndDoErrorMessage);
 
-    let letBlock: Block[] = [ ];
+    let letBlock: Block[] = [];
 
     if (letStart > -1 && letEnd > -1) {
         const firstPastWhitespace = tokens
@@ -3639,7 +3639,7 @@ function parseConst(tokens: Token[]): Result<string, Const> {
     }
     index++;
 
-    let constType: Token[] = [ ];
+    let constType: Token[] = [];
     let isDoneReadingType = false;
 
     while (index < tokens.length) {
@@ -3689,7 +3689,7 @@ function parseConst(tokens: Token[]): Result<string, Const> {
     const maybeLetAndDoErrorMessage = letAndDoErrorMessage(letStart, letEnd);
     if (maybeLetAndDoErrorMessage) return Err(maybeLetAndDoErrorMessage);
 
-    let letBlock: Block[] = [ ];
+    let letBlock: Block[] = [];
 
     if (letStart > -1 && letEnd > -1) {
         const letLines = lines
@@ -3705,7 +3705,7 @@ function parseConst(tokens: Token[]): Result<string, Const> {
 
     const parsedType = parseType(constType);
 
-    const body = [ ];
+    const body = [];
     const split = block.split("\n");
     const start = letEnd > -1 ? letEnd + 1 : 0;
     let seenEquals = false;
@@ -3741,13 +3741,13 @@ function parseConst(tokens: Token[]): Result<string, Const> {
 }
 
 function parseImport(tokens: Token[]): Result<string, Import> {
-    const imports = [ ];
+    const imports = [];
     let isInExposing = false;
     let isInAlias = false;
 
     let moduleName = "";
     let alias: Maybe<string> = Nothing();
-    const exposing = [ ];
+    const exposing = [];
 
     for (var i = 0; i < tokens.length; i++) {
         const token = tokens[i];
@@ -3807,7 +3807,7 @@ function parseImport(tokens: Token[]): Result<string, Import> {
 }
 
 function parseExport(tokens: Token[]): Result<string, Export> {
-    const exports = [ ];
+    const exports = [];
     for (var i = 0; i < tokens.length; i++) {
         const token = tokens[i];
 
@@ -3910,7 +3910,7 @@ ${block.lines.join("\n")}
 }
 
 export function stripComments(tokens: Token[]): Token[] {
-    const returnTokens = [ ];
+    const returnTokens = [];
     let isInComment = false;
     let isInMultilineComment = false;
 
@@ -3973,7 +3973,7 @@ export function parse(body: string, filename: string = "main"): Module {
             const block = resultBlock as Ok<Block>;
 
             const typedBlocks: TypedBlock[] = typeBlocks(
-                [ ...syntax.slice(0, index), ...syntax.slice(index) ]
+                [...syntax.slice(0, index), ...syntax.slice(index)]
                     .filter((b) => b.kind === "Ok")
                     .map((b) => (b as Ok<Block>).value)
             );
@@ -4040,7 +4040,7 @@ ${definitions.join("\n\n")}
         syntax
             .filter((syn) => syn.kind === "Ok")
             .map((syn) => (syn as Ok<any>).value),
-        [ ...errors, ...typeErrors, ...collidingNames ]
+        [...errors, ...typeErrors, ...collidingNames]
     );
 }
 
@@ -4052,7 +4052,7 @@ export function addTypeErrors(
         (syn) => syn.kind === "Import"
     ) as Import[];
 
-    let allOtherTypeBlocks: TypedBlock[] = [ ];
+    let allOtherTypeBlocks: TypedBlock[] = [];
 
     for (const other of otherModules) {
         allOtherTypeBlocks = allOtherTypeBlocks.concat(typeBlocks(other.body));
@@ -4147,6 +4147,6 @@ ${definitions.join("\n\n")}
             .filter((syn) => syn.kind === "Ok")
             .map((syn) => (syn as Ok<any>).value),
         blocks,
-        [ ...errors, ...collidingNames ]
+        [...errors, ...collidingNames]
     );
 }

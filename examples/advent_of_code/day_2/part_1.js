@@ -9,21 +9,21 @@ function Boat(args) {
 function forward(x, boat) {
     return {
         horizontal: x + boat.horizontal,
-        depth: boat.depth
+        depth: boat.depth,
     };
 }
 
 function up(y, boat) {
     return {
         horizontal: boat.horizontal,
-        depth: boat.depth - y
+        depth: boat.depth - y,
     };
 }
 
 function down(y, boat) {
     return {
         horizontal: boat.horizontal,
-        depth: boat.depth + y
+        depth: boat.depth + y,
     };
 }
 
@@ -46,7 +46,7 @@ function run(boat, command) {
 function runAll(commands) {
     return commands.reduce(run, {
         horizontal: 0,
-        depth: 0
+        depth: 0,
     });
 }
 
@@ -62,7 +62,7 @@ function parseLine(str) {
     const right = globalThis.parseInt(piece[1]);
     return {
         command: left,
-        amount: right
+        amount: right,
     };
 }
 
@@ -70,7 +70,9 @@ function parseLines(lines) {
     return lines.map(parseLine);
 }
 
-const exampleMain = globalThis.console.log(runAll(parseLines([ "forward 5", "down 5", "forward 8", "up 3", "down 8", "forward 2" ])));
+const exampleMain = globalThis.console.log(runAll(parseLines(
+    ["forward 5", "down 5", "forward 8", "up 3", "down 8", "forward 2"]
+)));
 
 const adventInput = parseLines(split(toString(fs.readFileSync("input.txt"))));
 

@@ -16,4 +16,4 @@ function something(x) {
     return x;
 }
 
-const other = [ ];
+const other = [];

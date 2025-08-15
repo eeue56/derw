@@ -124,7 +124,7 @@ export function testBlockKind() {
 
     assert.deepStrictEqual(
         blocks.map((block) => blockKind(block.lines.join("\n"))),
-        [ Ok("Function") ]
+        [Ok("Function")]
     );
 }
 
@@ -133,7 +133,7 @@ export function testBlockKindMultiLine() {
 
     assert.deepStrictEqual(
         blocks.map((block) => blockKind(block.lines.join("\n"))),
-        [ Ok("Function") ]
+        [Ok("Function")]
     );
 }
 
@@ -145,37 +145,37 @@ export function testParse() {
             [
                 Function(
                     "sayHello",
-                    FixedType("string", [ ]),
-                    [ FunctionArg("name", GenericType("a")) ],
-                    [ ],
+                    FixedType("string", []),
+                    [FunctionArg("name", GenericType("a"))],
+                    [],
                     CaseStatement(Value("name"), [
                         Branch(StringValue("Noah"), StringValue("Hi Noah"), [
                             Function(
                                 "x",
-                                FixedType("boolean", [ ]),
-                                [ FunctionArg("y", GenericType("a")) ],
-                                [ ],
+                                FixedType("boolean", []),
+                                [FunctionArg("y", GenericType("a"))],
+                                [],
                                 Value("true")
                             ),
                         ]),
                         Branch(
                             StringValue("James"),
                             StringValue("Greetings"),
-                            [ ]
+                            []
                         ),
                         Branch(Default(), StringValue("I don't know you"), [
                             Function(
                                 "x",
-                                FixedType("boolean", [ ]),
-                                [ FunctionArg("y", GenericType("a")) ],
-                                [ ],
+                                FixedType("boolean", []),
+                                [FunctionArg("y", GenericType("a"))],
+                                [],
                                 Value("true")
                             ),
                         ]),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -188,37 +188,37 @@ export function testParseMultiLine() {
             [
                 Function(
                     "sayHello",
-                    FixedType("string", [ ]),
-                    [ FunctionArg("name", GenericType("a")) ],
-                    [ ],
+                    FixedType("string", []),
+                    [FunctionArg("name", GenericType("a"))],
+                    [],
                     CaseStatement(Value("name"), [
                         Branch(StringValue("Noah"), StringValue("Hi Noah"), [
                             Function(
                                 "x",
-                                FixedType("boolean", [ ]),
-                                [ FunctionArg("y", GenericType("a")) ],
-                                [ ],
+                                FixedType("boolean", []),
+                                [FunctionArg("y", GenericType("a"))],
+                                [],
                                 Value("true")
                             ),
                         ]),
                         Branch(
                             StringValue("James"),
                             StringValue("Greetings"),
-                            [ ]
+                            []
                         ),
                         Branch(Default(), StringValue("I don't know you"), [
                             Function(
                                 "x",
-                                FixedType("boolean", [ ]),
-                                [ FunctionArg("y", GenericType("a")) ],
-                                [ ],
+                                FixedType("boolean", []),
+                                [FunctionArg("y", GenericType("a"))],
+                                [],
                                 Value("true")
                             ),
                         ]),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

@@ -67,17 +67,17 @@ export function testParse() {
             [
                 Function(
                     "something",
-                    FixedType("string", [ ]),
-                    [ FunctionArg("x", FixedType("number", [ ])) ],
-                    [ ],
+                    FixedType("string", []),
+                    [FunctionArg("x", FixedType("number", []))],
+                    [],
                     FunctionCall("first", [
                         FunctionCall("second", [
-                            FunctionCall("third", [ Value("x") ]),
+                            FunctionCall("third", [Value("x")]),
                         ]),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -90,17 +90,17 @@ export function testParseMultiLine() {
             [
                 Function(
                     "something",
-                    FixedType("string", [ ]),
-                    [ FunctionArg("x", FixedType("number", [ ])) ],
-                    [ ],
+                    FixedType("string", []),
+                    [FunctionArg("x", FixedType("number", []))],
+                    [],
                     FunctionCall("first", [
                         FunctionCall("second", [
-                            FunctionCall("third", [ Value("x") ]),
+                            FunctionCall("third", [Value("x")]),
                         ]),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

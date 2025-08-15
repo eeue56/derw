@@ -16,9 +16,9 @@ doSomething branches =
         "three" -> "."
 `.trim();
     let parsed = parseWithContext(str, "Main");
-    parsed = addTypeErrors(parsed, [ ]);
+    parsed = addTypeErrors(parsed, []);
 
-    deepStrictEqual(parsed.errors, [ ]);
+    deepStrictEqual(parsed.errors, []);
 }
 
 export function testUnionUntaggedOneMissingBranch() {
@@ -35,7 +35,7 @@ doSomething branches =
         "two" -> "world"
 `.trim();
     let parsed = parseWithContext(str, "Main");
-    parsed = addTypeErrors(parsed, [ ]);
+    parsed = addTypeErrors(parsed, []);
 
     deepStrictEqual(parsed.errors, [
         "Error on lines 5 - 10\n" +
@@ -64,7 +64,7 @@ doSomething branches =
         "one" -> "hello"
 `.trim();
     let parsed = parseWithContext(str, "Main");
-    parsed = addTypeErrors(parsed, [ ]);
+    parsed = addTypeErrors(parsed, []);
 
     deepStrictEqual(parsed.errors, [
         "Error on lines 5 - 9\n" +
@@ -95,7 +95,7 @@ doSomething branches =
         "four" -> "world"
 `.trim();
     let parsed = parseWithContext(str, "Main");
-    parsed = addTypeErrors(parsed, [ ]);
+    parsed = addTypeErrors(parsed, []);
 
     deepStrictEqual(parsed.errors, [
         "Error on lines 5 - 12\n" +
@@ -130,7 +130,7 @@ doSomething branches =
         "four" -> "world"
 `.trim();
     let parsed = parseWithContext(str, "Main");
-    parsed = addTypeErrors(parsed, [ ]);
+    parsed = addTypeErrors(parsed, []);
 
     deepStrictEqual(parsed.errors, [
         "Error on lines 5 - 13\n" +
@@ -164,9 +164,9 @@ doSomething branches =
         default -> "."
 `.trim();
     let parsed = parseWithContext(str, "Main");
-    parsed = addTypeErrors(parsed, [ ]);
+    parsed = addTypeErrors(parsed, []);
 
-    deepStrictEqual(parsed.errors, [ ]);
+    deepStrictEqual(parsed.errors, []);
 }
 
 export function testUnionUntaggedOneExtraBranchWithDefault() {
@@ -186,7 +186,7 @@ doSomething branches =
         default -> "."
 `.trim();
     let parsed = parseWithContext(str, "Main");
-    parsed = addTypeErrors(parsed, [ ]);
+    parsed = addTypeErrors(parsed, []);
 
     deepStrictEqual(parsed.errors, [
         "Error on lines 5 - 13\n" +
@@ -220,9 +220,9 @@ doSomething branches =
         Three -> "."
 `.trim();
     let parsed = parseWithContext(str, "Main");
-    parsed = addTypeErrors(parsed, [ ]);
+    parsed = addTypeErrors(parsed, []);
 
-    deepStrictEqual(parsed.errors, [ ]);
+    deepStrictEqual(parsed.errors, []);
 }
 
 export function testUnionOneMissingBranch() {
@@ -239,7 +239,7 @@ doSomething branches =
         Two -> "world"
 `.trim();
     let parsed = parseWithContext(str, "Main");
-    parsed = addTypeErrors(parsed, [ ]);
+    parsed = addTypeErrors(parsed, []);
 
     deepStrictEqual(parsed.errors, [
         "Error on lines 5 - 10\n" +
@@ -268,7 +268,7 @@ doSomething branches =
         One -> "hello"
 `.trim();
     let parsed = parseWithContext(str, "Main");
-    parsed = addTypeErrors(parsed, [ ]);
+    parsed = addTypeErrors(parsed, []);
 
     deepStrictEqual(parsed.errors, [
         "Error on lines 5 - 9\n" +
@@ -299,7 +299,7 @@ doSomething branches =
         Four -> "world"
 `.trim();
     let parsed = parseWithContext(str, "Main");
-    parsed = addTypeErrors(parsed, [ ]);
+    parsed = addTypeErrors(parsed, []);
 
     deepStrictEqual(parsed.errors, [
         "Error on lines 5 - 12\n" +
@@ -334,7 +334,7 @@ doSomething branches =
         Four -> "world"
 `.trim();
     let parsed = parseWithContext(str, "Main");
-    parsed = addTypeErrors(parsed, [ ]);
+    parsed = addTypeErrors(parsed, []);
 
     deepStrictEqual(parsed.errors, [
         "Error on lines 5 - 13\n" +
@@ -368,9 +368,9 @@ doSomething branches =
         default -> "."
 `.trim();
     let parsed = parseWithContext(str, "Main");
-    parsed = addTypeErrors(parsed, [ ]);
+    parsed = addTypeErrors(parsed, []);
 
-    deepStrictEqual(parsed.errors, [ ]);
+    deepStrictEqual(parsed.errors, []);
 }
 
 export function testUnionOneExtraBranchWithDefault() {
@@ -390,7 +390,7 @@ doSomething branches =
         default -> "."
 `.trim();
     let parsed = parseWithContext(str, "Main");
-    parsed = addTypeErrors(parsed, [ ]);
+    parsed = addTypeErrors(parsed, []);
 
     deepStrictEqual(parsed.errors, [
         "Error on lines 5 - 13\n" +

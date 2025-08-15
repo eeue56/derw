@@ -33,18 +33,18 @@ const compileParser = parser([
     longFlag(
         "files",
         "File names or folders to be compiled",
-        variableList(string()),
+        variableList(string())
     ),
     longFlag(
         "target",
         "Target TS, JS, Derw, Elm, or English output",
-        oneOf(["ts", "js", "derw", "elm", "english"]),
+        oneOf(["ts", "js", "derw", "elm", "english"])
     ),
     longFlag("output", "Output directory name", string()),
     longFlag(
         "verify",
         "Run typescript compiler on generated files to ensure valid output",
-        empty(),
+        empty()
     ),
     longFlag("debug", "Show a parsed object tree", empty()),
     longFlag("only", "Only show a particular object", string()),
@@ -126,7 +126,7 @@ export type ProcessedFiles = Record<string, ContextModule>;
 
 export async function compileFiles(
     isInPackageDirectory: boolean,
-    argv: string[],
+    argv: string[]
 ): Promise<ProcessedFiles> {
     const program = parse(compileParser, argv);
 
@@ -157,7 +157,7 @@ export async function compileFiles(
         isPackageDirectoryAndNoFilesPassed
             ? await getDerwFiles("./src")
             : await getFlatFiles(
-                  (program.flags.files.arguments as Ok<string[]>).value,
+                  (program.flags.files.arguments as Ok<string[]>).value
               );
 
     if (maybeFiles.kind === "Err") {
@@ -194,7 +194,7 @@ export async function compileFiles(
 
     if (shouldRun && !program.flags.files.isPresent) {
         console.log(
-            `Warning: not running files. Provide files via --files to run them`,
+            `Warning: not running files. Provide files via --files to run them`
         );
     }
 
@@ -225,9 +225,7 @@ export async function compileFiles(
                 if (extension !== "derw") {
                     console.log("Warning: Derw files should be called .derw");
                     console.log(
-                        `Try renaming ${fileName} to ${dotParts
-                            .slice(0, -1)
-                            .join(".")}.derw`,
+                        `Try renaming ${fileName} to ${dotParts.slice(0, -1).join(".")}.derw`
                     );
                 }
 
@@ -237,7 +235,7 @@ export async function compileFiles(
 
                 let parsed = derwParser.parseWithContext(
                     derwContents,
-                    fileName,
+                    fileName
                 );
 
                 if (program.flags.names.isPresent) {
@@ -264,13 +262,13 @@ export async function compileFiles(
                             if (module.name.startsWith('"../derw-packages')) {
                                 module.name = module.name.replace(
                                     "../derw-packages",
-                                    "../../..",
+                                    "../../.."
                                 );
                             }
                         }
                         const moduleName = module.name.slice(1, -1);
                         imports.push(
-                            path.normalize(path.join(dir, moduleName)),
+                            path.normalize(path.join(dir, moduleName))
                         );
                     });
                 });
@@ -303,7 +301,7 @@ export async function compileFiles(
 
                     if (!doesFileExist) {
                         console.log(
-                            `Warning! Failed to find \`${import_}\` as either derw, ts or js`,
+                            `Warning! Failed to find \`${import_}\` as either derw, ts or js`
                         );
                     }
                 }
@@ -332,7 +330,7 @@ export async function compileFiles(
                 }
                 parsed = derwParser.addTypeErrors(
                     parsed,
-                    importedContextModules,
+                    importedContextModules
                 );
                 if (parsed.errors.length > 0) {
                     console.log(`Failed to parse ${fileName} due to:`);
@@ -342,7 +340,7 @@ export async function compileFiles(
 
                 const generated = generate(
                     target,
-                    contextModuleToModule(parsed),
+                    contextModuleToModule(parsed)
                 );
 
                 if (program.flags.verify.isPresent && target === "ts") {
@@ -352,7 +350,7 @@ export async function compileFiles(
                     if (output.kind === "Err") {
                         console.log(
                             `Failed to compile ${fileName} due to`,
-                            output.error.map((e) => e.messageText).join("\n"),
+                            output.error.map((e) => e.messageText).join("\n")
                         );
                     } else {
                         console.log(`Successfully compiled ${fileName}`);

@@ -82,14 +82,14 @@ function makeSomething(name) {
 
 export function testIntoBlocks() {
     assert.deepStrictEqual(intoBlocks(oneLine), [
-        UnparsedBlock("ImportBlock", 0, [ oneLine.split("\n")[0] ]),
+        UnparsedBlock("ImportBlock", 0, [oneLine.split("\n")[0]]),
         UnparsedBlock("FunctionBlock", 2, oneLine.split("\n").slice(2)),
     ]);
 }
 
 export function testIntoBlocksMultiLine() {
     assert.deepStrictEqual(intoBlocks(multiLine), [
-        UnparsedBlock("ImportBlock", 0, [ multiLine.split("\n")[0] ]),
+        UnparsedBlock("ImportBlock", 0, [multiLine.split("\n")[0]]),
         UnparsedBlock("FunctionBlock", 2, multiLine.split("\n").slice(2)),
     ]);
 }
@@ -118,35 +118,31 @@ export function testParse() {
                     ImportModule(
                         `"./Maybe"`,
                         Just("Maybe"),
-                        [ "Maybe", "Just", "Nothing" ],
+                        ["Maybe", "Just", "Nothing"],
                         "Relative"
                     ),
                 ]),
                 Function(
                     "makeSomething",
-                    FixedType("string", [ ]),
+                    FixedType("string", []),
                     [
                         FunctionArg(
                             "name",
-                            FixedType("Maybe", [ FixedType("string", [ ]) ])
+                            FixedType("Maybe", [FixedType("string", [])])
                         ),
                     ],
-                    [ ],
+                    [],
                     CaseStatement(Value("name"), [
                         Branch(
                             Destructure("Just", "{ value }"),
                             Value("value"),
-                            [ ]
+                            []
                         ),
-                        Branch(
-                            Destructure("Nothing", ""),
-                            StringValue(""),
-                            [ ]
-                        ),
+                        Branch(Destructure("Nothing", ""), StringValue(""), []),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -162,35 +158,31 @@ export function testParseMultiLine() {
                     ImportModule(
                         `"./Maybe"`,
                         Just("Maybe"),
-                        [ "Maybe", "Just", "Nothing" ],
+                        ["Maybe", "Just", "Nothing"],
                         "Relative"
                     ),
                 ]),
                 Function(
                     "makeSomething",
-                    FixedType("string", [ ]),
+                    FixedType("string", []),
                     [
                         FunctionArg(
                             "name",
-                            FixedType("Maybe", [ FixedType("string", [ ]) ])
+                            FixedType("Maybe", [FixedType("string", [])])
                         ),
                     ],
-                    [ ],
+                    [],
                     CaseStatement(Value("name"), [
                         Branch(
                             Destructure("Just", "{ value }"),
                             Value("value"),
-                            [ ]
+                            []
                         ),
-                        Branch(
-                            Destructure("Nothing", ""),
-                            StringValue(""),
-                            [ ]
-                        ),
+                        Branch(Destructure("Nothing", ""), StringValue(""), []),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

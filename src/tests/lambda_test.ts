@@ -78,16 +78,16 @@ export function testParse() {
             [
                 Function(
                     "add",
-                    FixedType("number", [ ]),
+                    FixedType("number", []),
                     [
-                        AnonFunctionArg(0, FixedType("number", [ ])),
-                        AnonFunctionArg(1, FixedType("number", [ ])),
+                        AnonFunctionArg(0, FixedType("number", [])),
+                        AnonFunctionArg(1, FixedType("number", [])),
                     ],
-                    [ ],
-                    Lambda([ "x", "y" ], Addition(Value("x"), Value("y")))
+                    [],
+                    Lambda(["x", "y"], Addition(Value("x"), Value("y")))
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -100,16 +100,16 @@ export function testParseMultiLine() {
             [
                 Function(
                     "add",
-                    FixedType("number", [ ]),
+                    FixedType("number", []),
                     [
-                        AnonFunctionArg(0, FixedType("number", [ ])),
-                        AnonFunctionArg(1, FixedType("number", [ ])),
+                        AnonFunctionArg(0, FixedType("number", [])),
+                        AnonFunctionArg(1, FixedType("number", [])),
                     ],
-                    [ ],
-                    Lambda([ "x", "y" ], Addition(Value("x"), Value("y")))
+                    [],
+                    Lambda(["x", "y"], Addition(Value("x"), Value("y")))
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

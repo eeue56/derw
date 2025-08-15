@@ -129,31 +129,31 @@ export function testParse() {
         Module(
             "main",
             [
-                UnionType(FixedType("Maybe", [ GenericType("a") ]), [
-                    Tag("Just", [ TagArg("value", GenericType("a")) ]),
-                    Tag("Nothing", [ ]),
+                UnionType(FixedType("Maybe", [GenericType("a")]), [
+                    Tag("Just", [TagArg("value", GenericType("a"))]),
+                    Tag("Nothing", []),
                 ]),
                 Function(
                     "isTrue",
-                    FixedType("Maybe", [ GenericType("b") ]),
+                    FixedType("Maybe", [GenericType("b")]),
                     [
                         FunctionArg(
                             "value",
-                            FixedType("Maybe", [ GenericType("a") ])
+                            FixedType("Maybe", [GenericType("a")])
                         ),
                     ],
-                    [ ],
+                    [],
                     IfStatement(
                         Value("value"),
                         Value("value"),
-                        [ ],
-                        [ ],
+                        [],
+                        [],
                         Value("value"),
-                        [ ]
+                        []
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -164,31 +164,31 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
-                UnionType(FixedType("Maybe", [ GenericType("a") ]), [
-                    Tag("Just", [ TagArg("value", GenericType("a")) ]),
-                    Tag("Nothing", [ ]),
+                UnionType(FixedType("Maybe", [GenericType("a")]), [
+                    Tag("Just", [TagArg("value", GenericType("a"))]),
+                    Tag("Nothing", []),
                 ]),
                 Function(
                     "isTrue",
-                    FixedType("Maybe", [ GenericType("b") ]),
+                    FixedType("Maybe", [GenericType("b")]),
                     [
                         FunctionArg(
                             "value",
-                            FixedType("Maybe", [ GenericType("a") ])
+                            FixedType("Maybe", [GenericType("a")])
                         ),
                     ],
-                    [ ],
+                    [],
                     IfStatement(
                         Value("value"),
                         Value("value"),
-                        [ ],
-                        [ ],
+                        [],
+                        [],
                         Value("value"),
-                        [ ]
+                        []
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

@@ -32,9 +32,9 @@ const expectedOutput = `
 type Program<msg, model> = {
     update: (arg0: msg, arg1: model, arg2: (arg0: msg) => void) => model;
     view: (arg0: model) => HtmlNode<msg>;
-}
+};
 
-function Program<msg, model>(args: { update: (arg0: msg, arg1: model, arg2: (arg0: msg) => void) => model, view: (arg0: model) => HtmlNode<msg> }): Program<msg, model> {
+function Program<msg, model>(args: { update: (arg0: msg, arg1: model, arg2: (arg0: msg) => void) => model; view: (arg0: model) => HtmlNode<msg>; }): Program<msg, model> {
     return {
         ...args,
     };
@@ -94,7 +94,7 @@ export function testParse() {
                                 GenericType("model"),
                                 FunctionType([
                                     GenericType("msg"),
-                                    FixedType("void", [ ]),
+                                    FixedType("void", []),
                                 ]),
                                 GenericType("model"),
                             ])
@@ -103,13 +103,13 @@ export function testParse() {
                             "view",
                             FunctionType([
                                 GenericType("model"),
-                                FixedType("HtmlNode", [ GenericType("msg") ]),
+                                FixedType("HtmlNode", [GenericType("msg")]),
                             ])
                         ),
                     ]
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -133,7 +133,7 @@ export function testParseMultiLine() {
                                 GenericType("model"),
                                 FunctionType([
                                     GenericType("msg"),
-                                    FixedType("void", [ ]),
+                                    FixedType("void", []),
                                 ]),
                                 GenericType("model"),
                             ])
@@ -142,13 +142,13 @@ export function testParseMultiLine() {
                             "view",
                             FunctionType([
                                 GenericType("model"),
-                                FixedType("HtmlNode", [ GenericType("msg") ]),
+                                FixedType("HtmlNode", [GenericType("msg")]),
                             ])
                         ),
                     ]
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

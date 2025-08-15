@@ -62,12 +62,12 @@ export function testParse() {
             [
                 Const(
                     "main",
-                    FixedType("Promise", [ GenericType("any") ]),
-                    [ ],
+                    FixedType("Promise", [GenericType("any")]),
+                    [],
                     Value("null")
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -80,12 +80,12 @@ export function testParseMultiLine() {
             [
                 Const(
                     "main",
-                    FixedType("Promise", [ GenericType("any") ]),
-                    [ ],
+                    FixedType("Promise", [GenericType("any")]),
+                    [],
                     Value("null")
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

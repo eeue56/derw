@@ -42,7 +42,7 @@ function hello(locations: Location[]): LocationWithDistance[] {
     return List.map(function(location: any) {
         return { name: fn(location, {
         lat: location.lat,
-        lon: location.lon
+        lon: location.lon,
     }) };
     }, locations);
 }
@@ -53,7 +53,7 @@ function hello(locations) {
     return List.map(function(location) {
         return { name: fn(location, {
         lat: location.lat,
-        lon: location.lon
+        lon: location.lon,
     }) };
     }, locations);
 }
@@ -86,21 +86,19 @@ export function testParse() {
             [
                 Function(
                     "hello",
-                    FixedType("List", [
-                        FixedType("LocationWithDistance", [ ]),
-                    ]),
+                    FixedType("List", [FixedType("LocationWithDistance", [])]),
                     [
                         FunctionArg(
                             "locations",
-                            FixedType("List", [ FixedType("Location", [ ]) ])
+                            FixedType("List", [FixedType("Location", [])])
                         ),
                     ],
-                    [ ],
+                    [],
                     ModuleReference(
-                        [ "List" ],
+                        ["List"],
                         FunctionCall("map", [
                             Lambda(
-                                [ "location" ],
+                                ["location"],
                                 ObjectLiteral(null, [
                                     Field(
                                         "name",
@@ -110,14 +108,14 @@ export function testParse() {
                                                 Field(
                                                     "lat",
                                                     ModuleReference(
-                                                        [ "location" ],
+                                                        ["location"],
                                                         Value("lat")
                                                     )
                                                 ),
                                                 Field(
                                                     "lon",
                                                     ModuleReference(
-                                                        [ "location" ],
+                                                        ["location"],
                                                         Value("lon")
                                                     )
                                                 ),
@@ -131,7 +129,7 @@ export function testParse() {
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -144,21 +142,19 @@ export function testParseMultiLine() {
             [
                 Function(
                     "hello",
-                    FixedType("List", [
-                        FixedType("LocationWithDistance", [ ]),
-                    ]),
+                    FixedType("List", [FixedType("LocationWithDistance", [])]),
                     [
                         FunctionArg(
                             "locations",
-                            FixedType("List", [ FixedType("Location", [ ]) ])
+                            FixedType("List", [FixedType("Location", [])])
                         ),
                     ],
-                    [ ],
+                    [],
                     ModuleReference(
-                        [ "List" ],
+                        ["List"],
                         FunctionCall("map", [
                             Lambda(
-                                [ "location" ],
+                                ["location"],
                                 ObjectLiteral(null, [
                                     Field(
                                         "name",
@@ -168,14 +164,14 @@ export function testParseMultiLine() {
                                                 Field(
                                                     "lat",
                                                     ModuleReference(
-                                                        [ "location" ],
+                                                        ["location"],
                                                         Value("lat")
                                                     )
                                                 ),
                                                 Field(
                                                     "lon",
                                                     ModuleReference(
-                                                        [ "location" ],
+                                                        ["location"],
                                                         Value("lon")
                                                     )
                                                 ),
@@ -189,7 +185,7 @@ export function testParseMultiLine() {
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

@@ -1,4 +1,10 @@
-import { kernelLength, kernelEmptyList, kernelSort, kernelSortBy, kernelStatefulFold } from "./List_kernel";
+import {
+    kernelLength,
+    kernelEmptyList,
+    kernelSort,
+    kernelSortBy,
+    kernelStatefulFold,
+} from "./List_kernel";
 
 import { Maybe } from "./Maybe";
 
@@ -18,7 +24,7 @@ export { drop };
 export { sort };
 export { sortBy };
 
-const emptyList: any[] = [ ];
+const emptyList: any[] = [];
 
 function map<a, b>(fn: (arg0: a) => b, xs: a[]): b[] {
     return xs.map(fn);
@@ -33,17 +39,21 @@ function filter<a>(fn: (arg0: a) => boolean, xs: a[]): a[] {
 }
 
 function foldl<a, b>(fn: (arg0: a, arg1: b) => b, init: b, xs: a[]): b {
-    return xs.reduce(function(a: any, b: any) {
+    return xs.reduce(function (a: any, b: any) {
         return fn(b, a);
     }, init);
 }
 
-function statefulFold<item, state>(fn: (arg0: item, arg1: state) => state, init: state, xs: item[]): state {
+function statefulFold<item, state>(
+    fn: (arg0: item, arg1: state) => state,
+    init: state,
+    xs: item[]
+): state {
     return kernelStatefulFold(fn, init, xs);
 }
 
 function foldr<a, b>(fn: (arg0: a, arg1: b) => b, init: b, xs: a[]): b {
-    return xs.reduceRight(function(a: any, b: any) {
+    return xs.reduceRight(function (a: any, b: any) {
         return fn(b, a);
     }, init);
 }
@@ -53,7 +63,7 @@ function filterMapHelp<a, b>(fn: (arg0: a) => Maybe<b>, a: a, xs: b[]): b[] {
     switch (maybe.kind) {
         case "Just": {
             const { value } = maybe;
-            return append(xs, [ value ]);
+            return append(xs, [value]);
         }
         case "Nothing": {
             return xs;
@@ -62,13 +72,17 @@ function filterMapHelp<a, b>(fn: (arg0: a) => Maybe<b>, a: a, xs: b[]): b[] {
 }
 
 function filterMap<a, b>(fn: (arg0: a) => Maybe<b>, xs: a[]): b[] {
-    return foldl(function(y: any, ys: any) {
-        return filterMapHelp(fn, y, ys);
-    }, [ ], xs);
+    return foldl(
+        function (y: any, ys: any) {
+            return filterMapHelp(fn, y, ys);
+        },
+        [],
+        xs
+    );
 }
 
 function append<a>(xs: a[], ys: a[]): a[] {
-    return (function(x: any) {
+    return (function (x: any) {
         return x.concat(xs, ys);
     })(kernelEmptyList());
 }

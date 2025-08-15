@@ -73,10 +73,10 @@ export function testParse() {
                 Const(
                     "helloWorld",
                     GenericType("any"),
-                    [ ],
+                    [],
                     FunctionCall("after", [
                         Lambda(
-                            [ "_" ],
+                            ["_"],
                             LeftPipe(
                                 Constructor(
                                     "Just",
@@ -90,7 +90,7 @@ export function testParse() {
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -104,10 +104,10 @@ export function testParseMultiLine() {
                 Const(
                     "helloWorld",
                     GenericType("any"),
-                    [ ],
+                    [],
                     FunctionCall("after", [
                         Lambda(
-                            [ "_" ],
+                            ["_"],
                             LeftPipe(
                                 Constructor(
                                     "Just",
@@ -121,7 +121,7 @@ export function testParseMultiLine() {
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

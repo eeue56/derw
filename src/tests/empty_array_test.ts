@@ -20,11 +20,11 @@ helloWorld =
 `.trim();
 
 const expectedOutput = `
-const helloWorld: number[] = [ ];
+const helloWorld: number[] = [];
 `.trim();
 
 const expectedOutputJS = `
-const helloWorld = [ ];
+const helloWorld = [];
 `.trim();
 
 export function testIntoBlocks() {
@@ -55,12 +55,12 @@ export function testParse() {
             [
                 Const(
                     "helloWorld",
-                    FixedType("List", [ FixedType("number", [ ]) ]),
-                    [ ],
-                    ListValue([ ])
+                    FixedType("List", [FixedType("number", [])]),
+                    [],
+                    ListValue([])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -73,12 +73,12 @@ export function testParseMultiLine() {
             [
                 Const(
                     "helloWorld",
-                    FixedType("List", [ FixedType("number", [ ]) ]),
-                    [ ],
-                    ListValue([ ])
+                    FixedType("List", [FixedType("number", [])]),
+                    [],
+                    ListValue([])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

@@ -8,7 +8,7 @@ import { ContextModule, contextModuleToModule, Export } from "../types";
 import { ensureDirectoryExists } from "./utils";
 
 function exportEverything(module: ContextModule): ContextModule {
-    const exposing = [ ];
+    const exposing = [];
     for (const block of module.body) {
         switch (block.kind) {
             case "Const":
@@ -31,7 +31,7 @@ export async function repl(
     isInPackageDirectory: boolean,
     argv: string[]
 ): Promise<void> {
-    let currentBuffer: string[] = [ ];
+    let currentBuffer: string[] = [];
 
     function completer(text: string): readline.CompleterResult {
         const tokens = tokenize(currentBuffer.join("\n"));
@@ -65,7 +65,7 @@ export async function repl(
     await ensureDirectoryExists("derw-packages/.cli/");
 
     async function run(currentBuffer: string[]): Promise<void> {
-        module = parseWithContext([ ...currentBuffer ].join("\n"), "Main");
+        module = parseWithContext([...currentBuffer].join("\n"), "Main");
         module = exportEverything(module);
 
         const generated = generateTypescript(contextModuleToModule(module));
@@ -76,7 +76,7 @@ export async function repl(
         currentlyImportedModule = await import(filename);
     }
 
-    let linesAddedToCurrentBufferSinceLastParsing: string[] = [ ];
+    let linesAddedToCurrentBufferSinceLastParsing: string[] = [];
 
     for await (const line of rl) {
         if (line.trim() === "") {
@@ -88,18 +88,18 @@ export async function repl(
                 ].join("\n"),
                 "Main"
             );
-            module = addTypeErrors(module, [ ]);
+            module = addTypeErrors(module, []);
 
             if (module.errors.length > 0) {
                 console.log(
                     `Errors while parsing: ${module.errors.join("\n")}`
                 );
-                linesAddedToCurrentBufferSinceLastParsing = [ ];
+                linesAddedToCurrentBufferSinceLastParsing = [];
             } else {
                 for (const newLine of linesAddedToCurrentBufferSinceLastParsing) {
                     currentBuffer.push(newLine);
                 }
-                linesAddedToCurrentBufferSinceLastParsing = [ ];
+                linesAddedToCurrentBufferSinceLastParsing = [];
                 currentBuffer.push("");
                 console.log("Parsed successfully");
             }
@@ -128,7 +128,7 @@ _cli = ${line.split(" ").slice(1).join(" ")}
 `;
 
             module = parseWithContext(
-                [ ...currentBuffer, "", expression ].join("\n"),
+                [...currentBuffer, "", expression].join("\n"),
                 "Main"
             );
             module = exportEverything(module);

@@ -98,18 +98,18 @@ export function testParse() {
         Module(
             "main",
             [
-                UnionType(FixedType("CustomList", [ GenericType("a") ]), [
-                    Tag("Leaf", [ TagArg("value", GenericType("a")) ]),
+                UnionType(FixedType("CustomList", [GenericType("a")]), [
+                    Tag("Leaf", [TagArg("value", GenericType("a"))]),
                     Tag("Node", [
                         TagArg("value", GenericType("a")),
                         TagArg(
                             "next",
-                            FixedType("CustomList", [ GenericType("a") ])
+                            FixedType("CustomList", [GenericType("a")])
                         ),
                     ]),
                 ]),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -120,18 +120,18 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
-                UnionType(FixedType("CustomList", [ GenericType("a") ]), [
-                    Tag("Leaf", [ TagArg("value", GenericType("a")) ]),
+                UnionType(FixedType("CustomList", [GenericType("a")]), [
+                    Tag("Leaf", [TagArg("value", GenericType("a"))]),
                     Tag("Node", [
                         TagArg("value", GenericType("a")),
                         TagArg(
                             "next",
-                            FixedType("CustomList", [ GenericType("a") ])
+                            FixedType("CustomList", [GenericType("a")])
                         ),
                     ]),
                 ]),
             ],
-            [ ]
+            []
         )
     );
 }

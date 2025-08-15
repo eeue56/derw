@@ -33,14 +33,10 @@ value a = [ ]
     assert.deepStrictEqual(
         validateType(
             value,
-            [ ],
-            [
-                Import([
-                    ImportModule("List", Nothing(), [ "List" ], "Global"),
-                ]),
-            ]
+            [],
+            [Import([ImportModule("List", Nothing(), ["List"], "Global")])]
         ),
-        Ok(FixedType("List", [ GenericType("any") ]))
+        Ok(FixedType("List", [GenericType("any")]))
     );
 }
 
@@ -57,12 +53,8 @@ value a = a
     assert.deepStrictEqual(
         validateType(
             value,
-            [ ],
-            [
-                Import([
-                    ImportModule("List", Nothing(), [ "List" ], "Global"),
-                ]),
-            ]
+            [],
+            [Import([ImportModule("List", Nothing(), ["List"], "Global")])]
         ),
         Err(
             "Expected `List (any)` but got `boolean` in the body of the function"
@@ -83,14 +75,10 @@ value a = [ "hello", "world" ]
     assert.deepStrictEqual(
         validateType(
             value,
-            [ ],
-            [
-                Import([
-                    ImportModule("List", Nothing(), [ "List" ], "Global"),
-                ]),
-            ]
+            [],
+            [Import([ImportModule("List", Nothing(), ["List"], "Global")])]
         ),
-        Ok(FixedType("List", [ FixedType("string", [ ]) ]))
+        Ok(FixedType("List", [FixedType("string", [])]))
     );
 }
 
@@ -107,14 +95,10 @@ value a = [ 1, 2 ]
     assert.deepStrictEqual(
         validateType(
             value,
-            [ ],
-            [
-                Import([
-                    ImportModule("List", Nothing(), [ "List" ], "Global"),
-                ]),
-            ]
+            [],
+            [Import([ImportModule("List", Nothing(), ["List"], "Global")])]
         ),
-        Ok(FixedType("List", [ FixedType("number", [ ]) ]))
+        Ok(FixedType("List", [FixedType("number", [])]))
     );
 }
 
@@ -131,14 +115,10 @@ value a = [ 1..2 ]
     assert.deepStrictEqual(
         validateType(
             value,
-            [ ],
-            [
-                Import([
-                    ImportModule("List", Nothing(), [ "List" ], "Global"),
-                ]),
-            ]
+            [],
+            [Import([ImportModule("List", Nothing(), ["List"], "Global")])]
         ),
-        Ok(FixedType("List", [ FixedType("number", [ ]) ]))
+        Ok(FixedType("List", [FixedType("number", [])]))
     );
 }
 
@@ -156,14 +136,10 @@ value a =
     assert.deepStrictEqual(
         validateType(
             value,
-            [ ],
-            [
-                Import([
-                    ImportModule("List", Nothing(), [ "List" ], "Global"),
-                ]),
-            ]
+            [],
+            [Import([ImportModule("List", Nothing(), ["List"], "Global")])]
         ),
-        Ok(FixedType("string", [ ]))
+        Ok(FixedType("string", []))
     );
 }
 
@@ -181,14 +157,10 @@ value a =
     assert.deepStrictEqual(
         validateType(
             value,
-            [ ],
-            [
-                Import([
-                    ImportModule("Result", Nothing(), [ "Result" ], "Global"),
-                ]),
-            ]
+            [],
+            [Import([ImportModule("Result", Nothing(), ["Result"], "Global")])]
         ),
-        Ok(FixedType("string", [ ]))
+        Ok(FixedType("string", []))
     );
 }
 
@@ -207,14 +179,14 @@ value a =
         validateType(
             value,
             [
-                UnionUntaggedType(FixedType("Parens", [ ]), [
+                UnionUntaggedType(FixedType("Parens", []), [
                     StringValue("("),
                     StringValue(")"),
                 ]),
             ],
-            [ ]
+            []
         ),
-        Ok(FixedType("Parens", [ ]))
+        Ok(FixedType("Parens", []))
     );
 }
 
@@ -233,12 +205,12 @@ value a =
         validateType(
             value,
             [
-                UnionUntaggedType(FixedType("Parens", [ ]), [
+                UnionUntaggedType(FixedType("Parens", []), [
                     StringValue("("),
                     StringValue(")"),
                 ]),
             ],
-            [ ]
+            []
         ),
         Err(
             'Expected `Parens, composed of "(" | ")"` but got `invalid` in the body of the function'
@@ -265,14 +237,10 @@ value a =
     assert.deepStrictEqual(
         validateType(
             value,
-            [ ],
-            [
-                Import([
-                    ImportModule("Person", Nothing(), [ "Person" ], "Global"),
-                ]),
-            ]
+            [],
+            [Import([ImportModule("Person", Nothing(), ["Person"], "Global")])]
         ),
-        Ok(FixedType("Person", [ ]))
+        Ok(FixedType("Person", []))
     );
 }
 
@@ -296,11 +264,11 @@ value a =
         validateType(
             value,
             [
-                TypeAlias(FixedType("Person", [ ]), [
-                    Property("name", FixedType("string", [ ])),
+                TypeAlias(FixedType("Person", []), [
+                    Property("name", FixedType("string", [])),
                 ]),
             ],
-            [ ]
+            []
         ),
         Err(
             "Mismatching type for type alias Person\n" +
@@ -328,12 +296,12 @@ value a =
         validateType(
             value,
             [
-                TypeAlias(FixedType("Person", [ ]), [
-                    Property("name", FixedType("string", [ ])),
-                    Property("age", FixedType("number", [ ])),
+                TypeAlias(FixedType("Person", []), [
+                    Property("name", FixedType("string", [])),
+                    Property("age", FixedType("number", [])),
                 ]),
             ],
-            [ ]
+            []
         ),
         Err(
             "Mismatching type for type alias Person\n" +
@@ -361,11 +329,11 @@ value a =
         validateType(
             value,
             [
-                TypeAlias(FixedType("Person", [ ]), [
-                    Property("name", FixedType("string", [ ])),
+                TypeAlias(FixedType("Person", []), [
+                    Property("name", FixedType("string", [])),
                 ]),
             ],
-            [ ]
+            []
         ),
         Err(
             "Mismatching type for type alias Person\n" +
@@ -395,19 +363,19 @@ value a =
         validateType(
             value,
             [
-                TypeAlias(FixedType("Person", [ ]), [
-                    Property("name", FixedType("Parens", [ ])),
-                    Property("age", FixedType("number", [ ])),
+                TypeAlias(FixedType("Person", []), [
+                    Property("name", FixedType("Parens", [])),
+                    Property("age", FixedType("number", [])),
                 ]),
 
-                UnionUntaggedType(FixedType("Parens", [ ]), [
+                UnionUntaggedType(FixedType("Parens", []), [
                     StringValue("("),
                     StringValue(")"),
                 ]),
             ],
-            [ ]
+            []
         ),
-        Ok(FixedType("Person", [ ]))
+        Ok(FixedType("Person", []))
     );
 }
 
@@ -431,17 +399,17 @@ value a =
         validateType(
             value,
             [
-                TypeAlias(FixedType("Person", [ ]), [
-                    Property("name", FixedType("Parens", [ ])),
-                    Property("age", FixedType("number", [ ])),
+                TypeAlias(FixedType("Person", []), [
+                    Property("name", FixedType("Parens", [])),
+                    Property("age", FixedType("number", [])),
                 ]),
 
-                UnionUntaggedType(FixedType("Parens", [ ]), [
+                UnionUntaggedType(FixedType("Parens", []), [
                     StringValue("("),
                     StringValue(")"),
                 ]),
             ],
-            [ ]
+            []
         ),
         Err(
             "Mismatching type for type alias Person\n" +
@@ -475,20 +443,20 @@ checkKeywordToken currentToken =
         validateType(
             value,
             [
-                UnionType(FixedType("Token", [ ]), [
-                    Tag("AssignToken", [ ]),
+                UnionType(FixedType("Token", []), [
+                    Tag("AssignToken", []),
                     Tag("MultilineCommentToken", [
-                        TagArg("body", FixedType("Parens", [ ])),
+                        TagArg("body", FixedType("Parens", [])),
                     ]),
                 ]),
-                UnionUntaggedType(FixedType("Parens", [ ]), [
+                UnionUntaggedType(FixedType("Parens", []), [
                     StringValue("{-"),
                     StringValue("-}"),
                 ]),
             ],
-            [ ]
+            []
         ),
-        Ok(FixedType("List", [ FixedType("Token", [ ]) ]))
+        Ok(FixedType("List", [FixedType("Token", [])]))
     );
 }
 
@@ -517,18 +485,18 @@ checkKeywordToken currentToken =
         validateType(
             value,
             [
-                UnionType(FixedType("Token", [ ]), [
-                    Tag("AssignToken", [ ]),
+                UnionType(FixedType("Token", []), [
+                    Tag("AssignToken", []),
                     Tag("MultilineCommentToken", [
-                        TagArg("body", FixedType("Parens", [ ])),
+                        TagArg("body", FixedType("Parens", [])),
                     ]),
                 ]),
-                UnionUntaggedType(FixedType("Parens", [ ]), [
+                UnionUntaggedType(FixedType("Parens", []), [
                     StringValue("{-"),
                     StringValue("-}"),
                 ]),
             ],
-            [ ]
+            []
         ),
         Err(
             'Invalid properties: body: Expected Parens, composed of "{-" | "-}"` but got "invalid"'
@@ -557,19 +525,19 @@ value a =
             value,
             [
                 TypeAlias(
-                    FixedType("Person", [ GenericType("a"), GenericType("b") ]),
+                    FixedType("Person", [GenericType("a"), GenericType("b")]),
                     [
                         Property("name", GenericType("a")),
                         Property("age", GenericType("b")),
                     ]
                 ),
             ],
-            [ ]
+            []
         ),
         Ok(
             FixedType("Person", [
-                FixedType("string", [ ]),
-                FixedType("number", [ ]),
+                FixedType("string", []),
+                FixedType("number", []),
             ])
         )
     );
@@ -590,8 +558,8 @@ value a =
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value, [ ], [ ]),
-        Ok(FixedType("string", [ ]))
+        validateType(value, [], []),
+        Ok(FixedType("string", []))
     );
 }
 
@@ -610,7 +578,7 @@ value a =
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value, [ ], [ ]),
+        validateType(value, [], []),
         Err("Conflicting types: string, number")
     );
 }
@@ -632,14 +600,10 @@ value x =
     assert.deepStrictEqual(
         validateType(
             value,
-            [ ],
-            [
-                Import([
-                    ImportModule("Animal", Nothing(), [ "Animal" ], "Global"),
-                ]),
-            ]
+            [],
+            [Import([ImportModule("Animal", Nothing(), ["Animal"], "Global")])]
         ),
-        Ok(FixedType("string", [ ]))
+        Ok(FixedType("string", []))
     );
 }
 
@@ -660,12 +624,8 @@ value x =
     assert.deepStrictEqual(
         validateType(
             value,
-            [ ],
-            [
-                Import([
-                    ImportModule("Animal", Nothing(), [ "Animal" ], "Global"),
-                ]),
-            ]
+            [],
+            [Import([ImportModule("Animal", Nothing(), ["Animal"], "Global")])]
         ),
         Err("Conflicting types: string, number")
     );
@@ -684,8 +644,8 @@ value a =
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value, [ ], [ ]),
-        Ok(FixedType("number", [ ]))
+        validateType(value, [], []),
+        Ok(FixedType("number", []))
     );
 }
 
@@ -702,7 +662,7 @@ value a =
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value, [ ], [ ]),
+        validateType(value, [], []),
         Err(
             "Mismatching types between the left of the addition: number and the right of the addition: string\n" +
                 "In Derw, types of both sides of an addition must be the same.\n" +
@@ -725,8 +685,8 @@ value a =
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value, [ ], [ ]),
-        Ok(FixedType("number", [ ]))
+        validateType(value, [], []),
+        Ok(FixedType("number", []))
     );
 }
 
@@ -743,7 +703,7 @@ value a =
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value, [ ], [ ]),
+        validateType(value, [], []),
         Err("Mismatching types between number and string")
     );
 }
@@ -761,8 +721,8 @@ value a =
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value, [ ], [ ]),
-        Ok(FixedType("number", [ ]))
+        validateType(value, [], []),
+        Ok(FixedType("number", []))
     );
 }
 
@@ -779,7 +739,7 @@ value a =
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value, [ ], [ ]),
+        validateType(value, [], []),
         Err("Mismatching types between number and string")
     );
 }
@@ -797,8 +757,8 @@ value a =
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value, [ ], [ ]),
-        Ok(FixedType("number", [ ]))
+        validateType(value, [], []),
+        Ok(FixedType("number", []))
     );
 }
 
@@ -815,7 +775,7 @@ value a =
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value, [ ], [ ]),
+        validateType(value, [], []),
         Err("Mismatching types between number and string")
     );
 }
@@ -833,8 +793,8 @@ value a =
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value, [ ], [ ]),
-        Ok(FixedType("boolean", [ ]))
+        validateType(value, [], []),
+        Ok(FixedType("boolean", []))
     );
 }
 
@@ -851,8 +811,8 @@ value a =
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value, [ ], [ ]),
-        Ok(FixedType("boolean", [ ]))
+        validateType(value, [], []),
+        Ok(FixedType("boolean", []))
     );
 }
 
@@ -869,8 +829,8 @@ value a =
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value, [ ], [ ]),
-        Ok(FixedType("boolean", [ ]))
+        validateType(value, [], []),
+        Ok(FixedType("boolean", []))
     );
 }
 
@@ -887,8 +847,8 @@ value a =
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value, [ ], [ ]),
-        Ok(FixedType("boolean", [ ]))
+        validateType(value, [], []),
+        Ok(FixedType("boolean", []))
     );
 }
 
@@ -905,8 +865,8 @@ value a =
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value, [ ], [ ]),
-        Ok(FixedType("boolean", [ ]))
+        validateType(value, [], []),
+        Ok(FixedType("boolean", []))
     );
 }
 
@@ -923,8 +883,8 @@ value a =
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value, [ ], [ ]),
-        Ok(FixedType("boolean", [ ]))
+        validateType(value, [], []),
+        Ok(FixedType("boolean", []))
     );
 }
 
@@ -957,7 +917,7 @@ value x =
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value, [ (parsedType as Ok<TypedBlock>).value ], [ ]),
+        validateType(value, [(parsedType as Ok<TypedBlock>).value], []),
         Err(
             "The tag Just had these properties which are missing in this constructor object literal: value: boolean"
         )
@@ -993,8 +953,8 @@ value x =
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value, [ (parsedType as Ok<TypedBlock>).value ], [ ]),
-        Ok(FixedType("Maybe", [ FixedType("boolean", [ ]) ]))
+        validateType(value, [(parsedType as Ok<TypedBlock>).value], []),
+        Ok(FixedType("Maybe", [FixedType("boolean", [])]))
     );
 }
 
@@ -1027,8 +987,8 @@ value x =
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value, [ (parsedType as Ok<TypedBlock>).value ], [ ]),
-        Ok(FixedType("Maybe", [ FixedType("boolean", [ ]) ]))
+        validateType(value, [(parsedType as Ok<TypedBlock>).value], []),
+        Ok(FixedType("Maybe", [FixedType("boolean", [])]))
     );
 }
 
@@ -1062,8 +1022,8 @@ value x fn =
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value, [ (parsedType as Ok<TypedBlock>).value ], [ ]),
-        Ok(FixedType("boolean", [ ]))
+        validateType(value, [(parsedType as Ok<TypedBlock>).value], []),
+        Ok(FixedType("boolean", []))
     );
 }
 
@@ -1115,9 +1075,9 @@ find fn zipper =
                 (parsedType as Ok<TypedBlock>).value,
                 (parsedZipperType as Ok<TypedBlock>).value,
             ],
-            [ ]
+            []
         ),
-        Ok(FixedType("Maybe", [ FixedType("Zipper", [ GenericType("a") ]) ]))
+        Ok(FixedType("Maybe", [FixedType("Zipper", [GenericType("a")])]))
     );
 }
 
@@ -1141,14 +1101,14 @@ reduce xs =
         validateType(
             value,
             [
-                TypeAlias(FixedType("Person", [ ]), [
+                TypeAlias(FixedType("Person", []), [
                     Property(
                         "name",
-                        FixedType("List", [ FixedType("string", [ ]) ])
+                        FixedType("List", [FixedType("string", [])])
                     ),
                 ]),
             ],
-            [ ]
+            []
         ),
         Err(
             "Did not find constructor Person in scope.\n" +
@@ -1177,18 +1137,18 @@ reduce xs =
         validateType(
             value,
             [
-                UnionType(FixedType("People", [ ]), [
+                UnionType(FixedType("People", []), [
                     Tag("Person", [
                         TagArg(
                             "name",
-                            FixedType("List", [ FixedType("string", [ ]) ])
+                            FixedType("List", [FixedType("string", [])])
                         ),
                     ]),
                 ]),
             ],
-            [ ]
+            []
         ),
-        Ok(FixedType("List", [ FixedType("People", [ ]) ]))
+        Ok(FixedType("List", [FixedType("People", [])]))
     );
 }
 
@@ -1213,18 +1173,14 @@ basic xs =
         validateType(
             value,
             [
-                UnionType(FixedType("Maybe", [ GenericType("a") ]), [
-                    Tag("Just", [ TagArg("value", GenericType("a")) ]),
-                    Tag("Nothing", [ ]),
+                UnionType(FixedType("Maybe", [GenericType("a")]), [
+                    Tag("Just", [TagArg("value", GenericType("a"))]),
+                    Tag("Nothing", []),
                 ]),
             ],
-            [ ]
+            []
         ),
-        Ok(
-            FixedType("List", [
-                FixedType("Maybe", [ FixedType("string", [ ]) ]),
-            ])
-        )
+        Ok(FixedType("List", [FixedType("Maybe", [FixedType("string", [])])]))
     );
 }
 
@@ -1263,45 +1219,45 @@ moduleNames index module =
         validateType(
             value,
             [
-                TypeAlias(FixedType("Collision", [ ]), [
+                TypeAlias(FixedType("Collision", []), [
                     Property(
                         "indexes",
-                        FixedType("List", [ FixedType("number", [ ]) ])
+                        FixedType("List", [FixedType("number", [])])
                     ),
-                    Property("name", FixedType("string", [ ])),
+                    Property("name", FixedType("string", [])),
                 ]),
-                TypeAlias(FixedType("ImportModule", [ ]), [
+                TypeAlias(FixedType("ImportModule", []), [
                     Property(
                         "alias",
-                        FixedType("Maybe", [ FixedType("string", [ ]) ])
+                        FixedType("Maybe", [FixedType("string", [])])
                     ),
-                    Property("name", FixedType("string", [ ])),
+                    Property("name", FixedType("string", [])),
                     Property(
                         "exposing",
-                        FixedType("List", [ FixedType("string", [ ]) ])
+                        FixedType("List", [FixedType("string", [])])
                     ),
                 ]),
-                TypeAlias(FixedType("Seen", [ ]), [
+                TypeAlias(FixedType("Seen", []), [
                     Property(
                         "indexes",
-                        FixedType("List", [ FixedType("number", [ ]) ])
+                        FixedType("List", [FixedType("number", [])])
                     ),
-                    Property("name", FixedType("string", [ ])),
+                    Property("name", FixedType("string", [])),
                 ]),
-                TypeAlias(FixedType("Names", [ ]), [
+                TypeAlias(FixedType("Names", []), [
                     Property(
                         "modules",
-                        FixedType("List", [ FixedType("Seen", [ ]) ])
+                        FixedType("List", [FixedType("Seen", [])])
                     ),
                     Property(
                         "values",
-                        FixedType("List", [ FixedType("Seen", [ ]) ])
+                        FixedType("List", [FixedType("Seen", [])])
                     ),
                 ]),
             ],
-            [ ]
+            []
         ),
-        Ok(FixedType("Names", [ ]))
+        Ok(FixedType("Names", []))
     );
 }
 
@@ -1340,21 +1296,21 @@ moduleNames index module =
         validateType(
             value,
             [
-                TypeAlias(FixedType("Seen", [ ]), [
+                TypeAlias(FixedType("Seen", []), [
                     Property(
                         "indexes",
-                        FixedType("List", [ FixedType("number", [ ]) ])
+                        FixedType("List", [FixedType("number", [])])
                     ),
-                    Property("name", FixedType("string", [ ])),
+                    Property("name", FixedType("string", [])),
                 ]),
-                TypeAlias(FixedType("Names", [ ]), [
+                TypeAlias(FixedType("Names", []), [
                     Property(
                         "modules",
-                        FixedType("List", [ FixedType("Seen", [ ]) ])
+                        FixedType("List", [FixedType("Seen", [])])
                     ),
                     Property(
                         "values",
-                        FixedType("List", [ FixedType("Seen", [ ]) ])
+                        FixedType("List", [FixedType("Seen", [])])
                     ),
                 ]),
             ],
@@ -1363,13 +1319,13 @@ moduleNames index module =
                     ImportModule(
                         "./types",
                         Nothing(),
-                        [ "ImportModule" ],
+                        ["ImportModule"],
                         "Global"
                     ),
                 ]),
             ]
         ),
-        Ok(FixedType("Names", [ ]))
+        Ok(FixedType("Names", []))
     );
 }
 
@@ -1409,23 +1365,23 @@ seenToCollision seen =
             value,
             [
                 (parsedType as Ok<TypedBlock>).value,
-                TypeAlias(FixedType("Seen", [ ]), [
+                TypeAlias(FixedType("Seen", []), [
                     Property(
                         "indexes",
-                        FixedType("List", [ FixedType("number", [ ]) ])
+                        FixedType("List", [FixedType("number", [])])
                     ),
-                    Property("name", FixedType("string", [ ])),
+                    Property("name", FixedType("string", [])),
                 ]),
-                TypeAlias(FixedType("Collision", [ ]), [
+                TypeAlias(FixedType("Collision", []), [
                     Property(
                         "indexes",
-                        FixedType("List", [ FixedType("number", [ ]) ])
+                        FixedType("List", [FixedType("number", [])])
                     ),
-                    Property("name", FixedType("string", [ ])),
+                    Property("name", FixedType("string", [])),
                 ]),
             ],
-            [ ]
+            []
         ),
-        Ok(FixedType("Maybe", [ FixedType("Collision", [ ]) ]))
+        Ok(FixedType("Maybe", [FixedType("Collision", [])]))
     );
 }

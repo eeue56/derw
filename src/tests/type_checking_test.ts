@@ -22,14 +22,8 @@ export async function testEmptyList() {
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
-        inferType(
-            value,
-            FixedType("List", [ FixedType("any", [ ]) ]),
-            [ ],
-            [ ],
-            {}
-        ),
-        Ok(FixedType("List", [ FixedType("any", [ ]) ]))
+        inferType(value, FixedType("List", [FixedType("any", [])]), [], [], {}),
+        Ok(FixedType("List", [FixedType("any", [])]))
     );
 }
 
@@ -44,12 +38,12 @@ export async function testStringList() {
     assert.deepStrictEqual(
         inferType(
             value,
-            FixedType("List", [ FixedType("string", [ ]) ]),
-            [ ],
-            [ ],
+            FixedType("List", [FixedType("string", [])]),
+            [],
+            [],
             {}
         ),
-        Ok(FixedType("List", [ FixedType("string", [ ]) ]))
+        Ok(FixedType("List", [FixedType("string", [])]))
     );
 }
 
@@ -64,12 +58,12 @@ export async function testNumberList() {
     assert.deepStrictEqual(
         inferType(
             value,
-            FixedType("List", [ FixedType("number", [ ]) ]),
-            [ ],
-            [ ],
+            FixedType("List", [FixedType("number", [])]),
+            [],
+            [],
             {}
         ),
-        Ok(FixedType("List", [ FixedType("number", [ ]) ]))
+        Ok(FixedType("List", [FixedType("number", [])]))
     );
 }
 
@@ -84,12 +78,12 @@ export async function testListRange() {
     assert.deepStrictEqual(
         inferType(
             value,
-            FixedType("List", [ FixedType("number", [ ]) ]),
-            [ ],
-            [ ],
+            FixedType("List", [FixedType("number", [])]),
+            [],
+            [],
             {}
         ),
-        Ok(FixedType("List", [ FixedType("number", [ ]) ]))
+        Ok(FixedType("List", [FixedType("number", [])]))
     );
 }
 
@@ -102,8 +96,8 @@ export async function testString() {
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
-        inferType(value, FixedType("string", [ ]), [ ], [ ], {}),
-        Ok(FixedType("string", [ ]))
+        inferType(value, FixedType("string", []), [], [], {}),
+        Ok(FixedType("string", []))
     );
 }
 
@@ -116,8 +110,8 @@ export async function testFormatString() {
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
-        inferType(value, FixedType("string", [ ]), [ ], [ ], {}),
-        Ok(FixedType("string", [ ]))
+        inferType(value, FixedType("string", []), [], [], {}),
+        Ok(FixedType("string", []))
     );
 }
 
@@ -136,17 +130,17 @@ export async function testObjectLiteral() {
         inferType(
             value,
             ObjectLiteralType({
-                name: FixedType("string", [ ]),
-                age: FixedType("number", [ ]),
+                name: FixedType("string", []),
+                age: FixedType("number", []),
             }),
-            [ ],
-            [ ],
+            [],
+            [],
             {}
         ),
         Ok(
             ObjectLiteralType({
-                name: FixedType("string", [ ]),
-                age: FixedType("number", [ ]),
+                name: FixedType("string", []),
+                age: FixedType("number", []),
             })
         )
     );
@@ -164,8 +158,8 @@ else
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
-        inferType(value, FixedType("string", [ ]), [ ], [ ], {}),
-        Ok(FixedType("string", [ ]))
+        inferType(value, FixedType("string", []), [], [], {}),
+        Ok(FixedType("string", []))
     );
 }
 
@@ -181,7 +175,7 @@ else
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
-        inferType(value, FixedType("string", [ ]), [ ], [ ], {}),
+        inferType(value, FixedType("string", []), [], [], {}),
         Err("Conflicting types: string, number")
     );
 }
@@ -197,8 +191,8 @@ case x of
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
-        inferType(value, FixedType("string", [ ]), [ ], [ ], {}),
-        Ok(FixedType("string", [ ]))
+        inferType(value, FixedType("string", []), [], [], {}),
+        Ok(FixedType("string", []))
     );
 }
 
@@ -213,7 +207,7 @@ case x of
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
-        inferType(value, FixedType("string", [ ]), [ ], [ ], {}),
+        inferType(value, FixedType("string", []), [], [], {}),
         Err("Conflicting types: string, number")
     );
 }
@@ -227,8 +221,8 @@ export async function testAddition() {
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
-        inferType(value, FixedType("number", [ ]), [ ], [ ], {}),
-        Ok(FixedType("number", [ ]))
+        inferType(value, FixedType("number", []), [], [], {}),
+        Ok(FixedType("number", []))
     );
 }
 
@@ -241,7 +235,7 @@ export async function testMultiAddition() {
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
-        inferType(value, FixedType("number", [ ]), [ ], [ ], {}),
+        inferType(value, FixedType("number", []), [], [], {}),
         Err(
             "Mismatching types between the left of the addition: number and the right of the addition: string\n" +
                 "In Derw, types of both sides of an addition must be the same.\n" +
@@ -260,8 +254,8 @@ export async function testSubtraction() {
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
-        inferType(value, FixedType("number", [ ]), [ ], [ ], {}),
-        Ok(FixedType("number", [ ]))
+        inferType(value, FixedType("number", []), [], [], {}),
+        Ok(FixedType("number", []))
     );
 }
 
@@ -274,7 +268,7 @@ export async function testMultiSubtraction() {
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
-        inferType(value, FixedType("number", [ ]), [ ], [ ], {}),
+        inferType(value, FixedType("number", []), [], [], {}),
         Err("Mismatching types between number and string")
     );
 }
@@ -288,8 +282,8 @@ export async function testMultiplication() {
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
-        inferType(value, FixedType("number", [ ]), [ ], [ ], {}),
-        Ok(FixedType("number", [ ]))
+        inferType(value, FixedType("number", []), [], [], {}),
+        Ok(FixedType("number", []))
     );
 }
 
@@ -302,7 +296,7 @@ export async function testMultiMultiplication() {
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
-        inferType(value, FixedType("number", [ ]), [ ], [ ], {}),
+        inferType(value, FixedType("number", []), [], [], {}),
         Err("Mismatching types between number and string")
     );
 }
@@ -316,8 +310,8 @@ export async function testDivision() {
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
-        inferType(value, FixedType("number", [ ]), [ ], [ ], {}),
-        Ok(FixedType("number", [ ]))
+        inferType(value, FixedType("number", []), [], [], {}),
+        Ok(FixedType("number", []))
     );
 }
 
@@ -330,7 +324,7 @@ export async function testMultiDivision() {
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
-        inferType(value, FixedType("number", [ ]), [ ], [ ], {}),
+        inferType(value, FixedType("number", []), [], [], {}),
         Err("Mismatching types between number and string")
     );
 }
@@ -344,8 +338,8 @@ export async function testEquality() {
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
-        inferType(value, FixedType("boolean", [ ]), [ ], [ ], {}),
-        Ok(FixedType("boolean", [ ]))
+        inferType(value, FixedType("boolean", []), [], [], {}),
+        Ok(FixedType("boolean", []))
     );
 }
 
@@ -358,8 +352,8 @@ export async function testInEquality() {
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
-        inferType(value, FixedType("boolean", [ ]), [ ], [ ], {}),
-        Ok(FixedType("boolean", [ ]))
+        inferType(value, FixedType("boolean", []), [], [], {}),
+        Ok(FixedType("boolean", []))
     );
 }
 
@@ -372,8 +366,8 @@ export async function testLessThan() {
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
-        inferType(value, FixedType("boolean", [ ]), [ ], [ ], {}),
-        Ok(FixedType("boolean", [ ]))
+        inferType(value, FixedType("boolean", []), [], [], {}),
+        Ok(FixedType("boolean", []))
     );
 }
 
@@ -386,8 +380,8 @@ export async function testLessThanOrEqual() {
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
-        inferType(value, FixedType("boolean", [ ]), [ ], [ ], {}),
-        Ok(FixedType("boolean", [ ]))
+        inferType(value, FixedType("boolean", []), [], [], {}),
+        Ok(FixedType("boolean", []))
     );
 }
 
@@ -400,8 +394,8 @@ export async function testGreaterThan() {
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
-        inferType(value, FixedType("boolean", [ ]), [ ], [ ], {}),
-        Ok(FixedType("boolean", [ ]))
+        inferType(value, FixedType("boolean", []), [], [], {}),
+        Ok(FixedType("boolean", []))
     );
 }
 
@@ -414,8 +408,8 @@ export async function testGreaterThanOrEqual() {
 
     const value = (parsed as Ok<Expression>).value;
     assert.deepStrictEqual(
-        inferType(value, FixedType("boolean", [ ]), [ ], [ ], {}),
-        Ok(FixedType("boolean", [ ]))
+        inferType(value, FixedType("boolean", []), [], [], {}),
+        Ok(FixedType("boolean", []))
     );
 }
 
@@ -431,12 +425,12 @@ export async function testListPrepend() {
     assert.deepStrictEqual(
         inferType(
             value,
-            FixedType("List", [ FixedType("number", [ ]) ]),
-            [ ],
-            [ ],
+            FixedType("List", [FixedType("number", [])]),
+            [],
+            [],
             {}
         ),
-        Ok(FixedType("List", [ FixedType("number", [ ]) ]))
+        Ok(FixedType("List", [FixedType("number", [])]))
     );
 }
 
@@ -452,9 +446,9 @@ export async function testListPrependWithMixedTypes() {
     assert.deepStrictEqual(
         inferType(
             value,
-            FixedType("List", [ FixedType("number", [ ]) ]),
-            [ ],
-            [ ],
+            FixedType("List", [FixedType("number", [])]),
+            [],
+            [],
             {}
         ),
         Err(
@@ -475,16 +469,16 @@ Person { name: "hello" } :: [ Animal { name: "Frodo" } ]
     assert.deepStrictEqual(
         inferType(
             value,
-            FixedType("List", [ FixedType("Person", [ ]) ]),
+            FixedType("List", [FixedType("Person", [])]),
             [
-                UnionType(FixedType("Person", [ ]), [
-                    Tag("Person", [ TagArg("name", FixedType("string", [ ])) ]),
+                UnionType(FixedType("Person", []), [
+                    Tag("Person", [TagArg("name", FixedType("string", []))]),
                 ]),
-                UnionType(FixedType("Animal", [ ]), [
-                    Tag("Animal", [ TagArg("name", FixedType("string", [ ])) ]),
+                UnionType(FixedType("Animal", []), [
+                    Tag("Animal", [TagArg("name", FixedType("string", []))]),
                 ]),
             ],
-            [ ],
+            [],
             {}
         ),
         Err(
@@ -494,15 +488,12 @@ Person { name: "hello" } :: [ Animal { name: "Frodo" } ]
 }
 
 export function testFindReplacement() {
-    const expectedType = FixedType("Maybe", [ FixedType("Collision", [ ]) ]);
-    const inferredType = FixedType("Maybe", [ FixedType("Collision", [ ]) ]);
+    const expectedType = FixedType("Maybe", [FixedType("Collision", [])]);
+    const inferredType = FixedType("Maybe", [FixedType("Collision", [])]);
     const replacement = findReplacement(inferredType, expectedType, [
-        TypeAlias(FixedType("Collision", [ ]), [
-            Property(
-                "indexes",
-                FixedType("List", [ FixedType("number", [ ]) ])
-            ),
-            Property("name", FixedType("string", [ ])),
+        TypeAlias(FixedType("Collision", []), [
+            Property("indexes", FixedType("List", [FixedType("number", [])])),
+            Property("name", FixedType("string", [])),
         ]),
     ]);
 
@@ -510,20 +501,17 @@ export function testFindReplacement() {
 }
 
 export function testFindReplacementObjectLiteralType() {
-    const expectedType = FixedType("Maybe", [ FixedType("Collision", [ ]) ]);
+    const expectedType = FixedType("Maybe", [FixedType("Collision", [])]);
     const inferredType = FixedType("Maybe", [
         ObjectLiteralType({
-            name: FixedType("any", [ ]),
-            indexes: FixedType("any", [ ]),
+            name: FixedType("any", []),
+            indexes: FixedType("any", []),
         }),
     ]);
     const replacement = findReplacement(inferredType, expectedType, [
-        TypeAlias(FixedType("Collision", [ ]), [
-            Property(
-                "indexes",
-                FixedType("List", [ FixedType("number", [ ]) ])
-            ),
-            Property("name", FixedType("string", [ ])),
+        TypeAlias(FixedType("Collision", []), [
+            Property("indexes", FixedType("List", [FixedType("number", [])])),
+            Property("name", FixedType("string", [])),
         ]),
     ]);
 

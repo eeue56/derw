@@ -117,17 +117,17 @@ export function testParse() {
             [
                 Function(
                     "reducer",
-                    FixedType("boolean", [ ]),
+                    FixedType("boolean", []),
                     [
                         FunctionArg("index", GenericType("a")),
-                        FunctionArg("line", FixedType("string", [ ])),
+                        FunctionArg("line", FixedType("string", [])),
                     ],
-                    [ ],
+                    [],
                     IfStatement(
                         Equality(
                             ModuleReference(
-                                [ "line" ],
-                                FunctionCall("charAt", [ Value("index") ])
+                                ["line"],
+                                FunctionCall("charAt", [Value("index")])
                             ),
                             StringValue("0")
                         ),
@@ -135,27 +135,27 @@ export function testParse() {
                         [
                             Function(
                                 "x",
-                                FixedType("string", [ ]),
-                                [ FunctionArg("y", GenericType("a")) ],
-                                [ ],
+                                FixedType("string", []),
+                                [FunctionArg("y", GenericType("a"))],
+                                [],
                                 StringValue("hello")
                             ),
                         ],
-                        [ ],
+                        [],
                         Value("false"),
                         [
                             Function(
                                 "y",
                                 GenericType("a"),
-                                [ FunctionArg("x", FixedType("string", [ ])) ],
-                                [ ],
+                                [FunctionArg("x", FixedType("string", []))],
+                                [],
                                 StringValue("world")
                             ),
                         ]
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -168,17 +168,17 @@ export function testParseMultiLine() {
             [
                 Function(
                     "reducer",
-                    FixedType("boolean", [ ]),
+                    FixedType("boolean", []),
                     [
                         FunctionArg("index", GenericType("a")),
-                        FunctionArg("line", FixedType("string", [ ])),
+                        FunctionArg("line", FixedType("string", [])),
                     ],
-                    [ ],
+                    [],
                     IfStatement(
                         Equality(
                             ModuleReference(
-                                [ "line" ],
-                                FunctionCall("charAt", [ Value("index") ])
+                                ["line"],
+                                FunctionCall("charAt", [Value("index")])
                             ),
                             StringValue("0")
                         ),
@@ -186,27 +186,27 @@ export function testParseMultiLine() {
                         [
                             Function(
                                 "x",
-                                FixedType("string", [ ]),
-                                [ FunctionArg("y", GenericType("a")) ],
-                                [ ],
+                                FixedType("string", []),
+                                [FunctionArg("y", GenericType("a"))],
+                                [],
                                 StringValue("hello")
                             ),
                         ],
-                        [ ],
+                        [],
                         Value("false"),
                         [
                             Function(
                                 "y",
                                 GenericType("a"),
-                                [ FunctionArg("x", FixedType("string", [ ])) ],
-                                [ ],
+                                [FunctionArg("x", FixedType("string", []))],
+                                [],
                                 StringValue("world")
                             ),
                         ]
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

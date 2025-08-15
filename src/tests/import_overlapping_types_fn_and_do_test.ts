@@ -73,14 +73,14 @@ async function makeSomething(name) {
 
 export function testIntoBlocks() {
     assert.deepStrictEqual(intoBlocks(oneLine), [
-        UnparsedBlock("ImportBlock", 0, [ oneLine.split("\n")[0] ]),
+        UnparsedBlock("ImportBlock", 0, [oneLine.split("\n")[0]]),
         UnparsedBlock("FunctionBlock", 2, oneLine.split("\n").slice(2)),
     ]);
 }
 
 export function testIntoBlocksMultiLine() {
     assert.deepStrictEqual(intoBlocks(multiLine), [
-        UnparsedBlock("ImportBlock", 0, [ multiLine.split("\n")[0] ]),
+        UnparsedBlock("ImportBlock", 0, [multiLine.split("\n")[0]]),
         UnparsedBlock("FunctionBlock", 2, multiLine.split("\n").slice(2)),
     ]);
 }
@@ -109,24 +109,24 @@ export function testParse() {
                     ImportModule(
                         `"./Maybe"`,
                         Just("Maybe"),
-                        [ "Maybe", "Just", "Nothing" ],
+                        ["Maybe", "Just", "Nothing"],
                         "Relative"
                     ),
                 ]),
                 Function(
                     "makeSomething",
-                    FixedType("Maybe", [ FixedType("string", [ ]) ]),
-                    [ FunctionArg("name", FixedType("string", [ ])) ],
-                    [ ],
+                    FixedType("Maybe", [FixedType("string", [])]),
+                    [FunctionArg("name", FixedType("string", []))],
+                    [],
                     Constructor(
                         "Just",
-                        ObjectLiteral(null, [ Field("value", Value("name")) ])
+                        ObjectLiteral(null, [Field("value", Value("name"))])
                     ),
                     DoBlock([
                         Const(
                             "something",
-                            FixedType("Maybe", [ FixedType("string", [ ]) ]),
-                            [ ],
+                            FixedType("Maybe", [FixedType("string", [])]),
+                            [],
                             Constructor(
                                 "Just",
                                 ObjectLiteral(null, [
@@ -137,7 +137,7 @@ export function testParse() {
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -153,24 +153,24 @@ export function testParseMultiLine() {
                     ImportModule(
                         `"./Maybe"`,
                         Just("Maybe"),
-                        [ "Maybe", "Just", "Nothing" ],
+                        ["Maybe", "Just", "Nothing"],
                         "Relative"
                     ),
                 ]),
                 Function(
                     "makeSomething",
-                    FixedType("Maybe", [ FixedType("string", [ ]) ]),
-                    [ FunctionArg("name", FixedType("string", [ ])) ],
-                    [ ],
+                    FixedType("Maybe", [FixedType("string", [])]),
+                    [FunctionArg("name", FixedType("string", []))],
+                    [],
                     Constructor(
                         "Just",
-                        ObjectLiteral(null, [ Field("value", Value("name")) ])
+                        ObjectLiteral(null, [Field("value", Value("name"))])
                     ),
                     DoBlock([
                         Const(
                             "something",
-                            FixedType("Maybe", [ FixedType("string", [ ]) ]),
-                            [ ],
+                            FixedType("Maybe", [FixedType("string", [])]),
+                            [],
                             Constructor(
                                 "Just",
                                 ObjectLiteral(null, [
@@ -181,7 +181,7 @@ export function testParseMultiLine() {
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

@@ -38,11 +38,11 @@ helloWorld =
 `.trim();
 
 const expectedOutput = `
-const helloWorld: number[] = sum(mult(4, add(10, List.foldl(add, [ 1, 2, 3 ]))));
+const helloWorld: number[] = sum(mult(4, add(10, List.foldl(add, [1, 2, 3]))));
 `.trim();
 
 const expectedOutputJS = `
-const helloWorld = sum(mult(4, add(10, List.foldl(add, [ 1, 2, 3 ]))));
+const helloWorld = sum(mult(4, add(10, List.foldl(add, [1, 2, 3]))));
 `.trim();
 
 export function testIntoBlocks() {
@@ -73,19 +73,19 @@ export function testParse() {
             [
                 Const(
                     "helloWorld",
-                    FixedType("List", [ FixedType("number", [ ]) ]),
-                    [ ],
+                    FixedType("List", [FixedType("number", [])]),
+                    [],
                     LeftPipe(
-                        ListValue([ Value("1"), Value("2"), Value("3") ]),
+                        ListValue([Value("1"), Value("2"), Value("3")]),
                         LeftPipe(
                             ModuleReference(
-                                [ "List" ],
-                                FunctionCall("foldl", [ Value("add") ])
+                                ["List"],
+                                FunctionCall("foldl", [Value("add")])
                             ),
                             LeftPipe(
-                                FunctionCall("add", [ Value("10") ]),
+                                FunctionCall("add", [Value("10")]),
                                 LeftPipe(
-                                    FunctionCall("mult", [ Value("4") ]),
+                                    FunctionCall("mult", [Value("4")]),
                                     Value("sum")
                                 )
                             )
@@ -93,7 +93,7 @@ export function testParse() {
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -106,19 +106,19 @@ export function testParseMultiLine() {
             [
                 Const(
                     "helloWorld",
-                    FixedType("List", [ FixedType("number", [ ]) ]),
-                    [ ],
+                    FixedType("List", [FixedType("number", [])]),
+                    [],
                     LeftPipe(
-                        ListValue([ Value("1"), Value("2"), Value("3") ]),
+                        ListValue([Value("1"), Value("2"), Value("3")]),
                         LeftPipe(
                             ModuleReference(
-                                [ "List" ],
-                                FunctionCall("foldl", [ Value("add") ])
+                                ["List"],
+                                FunctionCall("foldl", [Value("add")])
                             ),
                             LeftPipe(
-                                FunctionCall("add", [ Value("10") ]),
+                                FunctionCall("add", [Value("10")]),
                                 LeftPipe(
-                                    FunctionCall("mult", [ Value("4") ]),
+                                    FunctionCall("mult", [Value("4")]),
                                     Value("sum")
                                 )
                             )
@@ -126,7 +126,7 @@ export function testParseMultiLine() {
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

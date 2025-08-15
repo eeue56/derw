@@ -139,7 +139,7 @@ function isSameObjectLiteralType(
     first: ObjectLiteralType,
     second: ObjectLiteralType
 ): boolean {
-    const processedNames = [ ];
+    const processedNames = [];
 
     for (const firstPropertyName of Object.keys(first.properties)) {
         if (second.properties[firstPropertyName]) {
@@ -180,7 +180,7 @@ function isSameObjectLiteralTypeAlias(
     if (expectedTypeAlias.kind === "Err") return false;
     const typeAlias = expectedTypeAlias.value;
 
-    const processedNames = [ ];
+    const processedNames = [];
 
     for (const property of typeAlias.properties) {
         if (objectLiteral.properties[property.name]) {
@@ -240,7 +240,7 @@ export function isSameType(
     first: Type,
     second: Type,
     topLevel: boolean,
-    typedBlocks: TypedBlock[] = [ ]
+    typedBlocks: TypedBlock[] = []
 ): boolean {
     if (
         first.kind === "ObjectLiteralType" &&
@@ -349,11 +349,11 @@ function inferValue(
     valuesInScope: ScopedValues
 ): Type {
     if (parseInt(value.body, 10)) {
-        return FixedType("number", [ ]);
+        return FixedType("number", []);
     }
 
     if (value.body === "true" || value.body === "false") {
-        return FixedType("boolean", [ ]);
+        return FixedType("boolean", []);
     }
 
     if (value.body === "toString") {
@@ -366,15 +366,15 @@ function inferValue(
         }
     }
 
-    return FixedType("any", [ ]);
+    return FixedType("any", []);
 }
 
 function inferStringValue(value: StringValue): Type {
-    return FixedType("string", [ ]);
+    return FixedType("string", []);
 }
 
 function inferFormatStringValue(value: FormatStringValue): Type {
-    return FixedType("string", [ ]);
+    return FixedType("string", []);
 }
 
 function reduceTypes(types: Type[]): Type[] {
@@ -386,7 +386,7 @@ function reduceTypes(types: Type[]): Type[] {
             uniques.push(type);
         }
         return uniques;
-    }, [ ]);
+    }, []);
 }
 
 function inferListValue(
@@ -397,11 +397,11 @@ function inferListValue(
     valuesInScope: ScopedValues
 ): Result<string, Type> {
     if (value.items.length === 0)
-        return Ok(FixedType("List", [ FixedType("any", [ ]) ]));
+        return Ok(FixedType("List", [FixedType("any", [])]));
 
-    let types: Type[] = [ ];
+    let types: Type[] = [];
 
-    let actualExpectedType: Type = FixedType("_Inferred", [ ]);
+    let actualExpectedType: Type = FixedType("_Inferred", []);
     if (
         expectedType.kind === "FixedType" &&
         expectedType.name === "List" &&
@@ -428,7 +428,7 @@ function inferListValue(
 }
 
 function inferListRange(value: ListRange): Type {
-    return FixedType("List", [ FixedType("number", [ ]) ]);
+    return FixedType("List", [FixedType("number", [])]);
 }
 
 function objectLiteralTypeAlias(
@@ -441,17 +441,17 @@ function objectLiteralTypeAlias(
     const expectedTypeAlias = getTypeAlias(expectedType, typedBlocks);
 
     const typeAlias = TypeAlias(
-        FixedType("Inferred", [ ]),
+        FixedType("Inferred", []),
         value.fields.map((field) => {
             const listOfExpected =
                 expectedTypeAlias.kind === "Ok"
                     ? expectedTypeAlias.value.properties.filter(
                           (prop) => prop.name === field.name
                       )
-                    : [ ];
+                    : [];
             const expected =
                 listOfExpected.length === 0
-                    ? FixedType("_Inferred", [ ])
+                    ? FixedType("_Inferred", [])
                     : listOfExpected[0].type;
             const inferred = inferType(
                 field.value,
@@ -484,14 +484,14 @@ function objectLiteralType(typeAlias: TypeAlias): ObjectLiteralType {
 function typeAliasFromObjectLiteralType(
     objectLiteral: ObjectLiteralType
 ): TypeAlias {
-    const fields: Property[] = [ ];
+    const fields: Property[] = [];
 
     for (const name of Object.keys(objectLiteral.properties)) {
         const type_ = objectLiteral.properties[name];
         fields.push(Property(name, type_));
     }
 
-    return TypeAlias(FixedType("Inferred", [ ]), fields);
+    return TypeAlias(FixedType("Inferred", []), fields);
 }
 
 function inferObjectLiteral(
@@ -502,7 +502,7 @@ function inferObjectLiteral(
     valuesInScope: ScopedValues
 ): Result<string, Type> {
     if (value.base !== null) {
-        return Ok(FixedType("any", [ ]));
+        return Ok(FixedType("any", []));
     }
 
     const typeAlias = objectLiteralTypeAlias(
@@ -611,7 +611,7 @@ function inferCaseStatement(
     imports: Import[],
     valuesInScope: ScopedValues
 ): Result<string, Type> {
-    const typesToReduce = [ ];
+    const typesToReduce = [];
 
     for (const branch of value.branches) {
         const inf = inferBranch(
@@ -933,23 +933,23 @@ function inferModuleReference(
             }
         }
     }
-    return Ok(FixedType("any", [ ]));
+    return Ok(FixedType("any", []));
 }
 
 function inferFunctionCall(value: FunctionCall): Type {
-    return FixedType("any", [ ]);
+    return FixedType("any", []);
 }
 
 function inferLambda(value: Lambda): Type {
-    return FixedType("any", [ ]);
+    return FixedType("any", []);
 }
 
 function inferLambdaCall(value: LambdaCall): Type {
-    return FixedType("any", [ ]);
+    return FixedType("any", []);
 }
 
 function tagNames(typedBlocks: TypedBlock[]): string[] {
-    const names = [ ];
+    const names = [];
 
     for (const block of typedBlocks) {
         switch (block.kind) {
@@ -1080,35 +1080,35 @@ function inferConstructor(
 }
 
 function inferEquality(value: Equality): Type {
-    return FixedType("boolean", [ ]);
+    return FixedType("boolean", []);
 }
 
 function inferInEquality(value: InEquality): Type {
-    return FixedType("boolean", [ ]);
+    return FixedType("boolean", []);
 }
 
 function inferLessThan(value: LessThan): Type {
-    return FixedType("boolean", [ ]);
+    return FixedType("boolean", []);
 }
 
 function inferLessThanOrEqual(value: LessThanOrEqual): Type {
-    return FixedType("boolean", [ ]);
+    return FixedType("boolean", []);
 }
 
 function inferGreaterThan(value: GreaterThan): Type {
-    return FixedType("boolean", [ ]);
+    return FixedType("boolean", []);
 }
 
 function inferGreaterThanOrEqual(value: GreaterThanOrEqual): Type {
-    return FixedType("boolean", [ ]);
+    return FixedType("boolean", []);
 }
 
 function inferAnd(value: And): Type {
-    return FixedType("boolean", [ ]);
+    return FixedType("boolean", []);
 }
 
 function inferOr(value: Or): Type {
-    return FixedType("boolean", [ ]);
+    return FixedType("boolean", []);
 }
 
 function inferListPrepend(
@@ -1137,7 +1137,7 @@ function inferListPrepend(
         if (value.left.kind === "ObjectLiteral") {
             const err = validateObjectLiteral(
                 value.left,
-                FixedType("_Inferred", [ ]),
+                FixedType("_Inferred", []),
                 typedBlocks,
                 imports,
                 valuesInScope
@@ -1154,7 +1154,7 @@ function inferListPrepend(
         (rightInfer.value.kind === "FixedType" &&
             rightInfer.value.name === "any")
     )
-        return Ok(FixedType("List", [ GenericType("any") ]));
+        return Ok(FixedType("List", [GenericType("any")]));
     if (rightInfer.value.kind === "FunctionType") {
         return Err(
             "Inferred list on right hand side of :: to be a function, not a list"
@@ -1171,7 +1171,7 @@ function inferListPrepend(
             value.right.kind === "ListValue" && value.right.items.length === 0;
 
         if (isEmptyList) {
-            return Ok(FixedType("List", [ leftInfer.value ]));
+            return Ok(FixedType("List", [leftInfer.value]));
         }
 
         const listElementType = rightInfer.value.args[0];
@@ -1372,7 +1372,7 @@ function typeToString(type: Type): string {
             return type.args.map(typeToString).join("->");
         }
         case "ObjectLiteralType": {
-            const out = [ ];
+            const out = [];
             for (const name of Object.keys(type.properties)) {
                 out.push(`${name}: ${typeToString(type.properties[name])}`);
             }
@@ -1427,70 +1427,70 @@ function typeExistsInNamespace(
 function finalExpressions(expression: Expression): string[] {
     switch (expression.kind) {
         case "Value":
-            return [ ];
+            return [];
         case "StringValue":
-            return [ expression.body ];
+            return [expression.body];
         case "FormatStringValue":
-            return [ ];
+            return [];
         case "ListValue":
-            return [ ];
+            return [];
         case "ListRange":
-            return [ ];
+            return [];
         case "ObjectLiteral":
-            return [ ];
+            return [];
         case "IfStatement":
             return finalExpressions(expression.ifBody).concat(
                 finalExpressions(expression.elseBody)
             );
         case "CaseStatement":
-            let expressions: string[] = [ ];
+            let expressions: string[] = [];
 
             for (const branch of expression.branches) {
                 expressions = expressions.concat(finalExpressions(branch.body));
             }
             return expressions;
         case "Addition":
-            return [ ];
+            return [];
         case "Subtraction":
-            return [ ];
+            return [];
         case "Multiplication":
-            return [ ];
+            return [];
         case "Division":
-            return [ ];
+            return [];
         case "Mod":
-            return [ ];
+            return [];
         case "And":
-            return [ ];
+            return [];
         case "Or":
-            return [ ];
+            return [];
         case "ListPrepend":
-            return [ ];
+            return [];
         case "LeftPipe":
-            return [ ];
+            return [];
         case "RightPipe":
-            return [ ];
+            return [];
         case "ModuleReference":
-            return [ ];
+            return [];
         case "FunctionCall":
-            return [ ];
+            return [];
         case "Lambda":
-            return [ ];
+            return [];
         case "LambdaCall":
-            return [ ];
+            return [];
         case "Constructor":
-            return [ ];
+            return [];
         case "Equality":
-            return [ ];
+            return [];
         case "InEquality":
-            return [ ];
+            return [];
         case "LessThan":
-            return [ ];
+            return [];
         case "LessThanOrEqual":
-            return [ ];
+            return [];
         case "GreaterThan":
-            return [ ];
+            return [];
         case "GreaterThanOrEqual":
-            return [ ];
+            return [];
     }
 }
 
@@ -1503,7 +1503,7 @@ function allFinalExpressions(block: Block): string[] {
             return finalExpressions(block.body);
         }
         default: {
-            return [ ];
+            return [];
         }
     }
 }
@@ -1542,7 +1542,7 @@ function validateAllBranchesCovered(
             const matchingBlock = matchingBlocks[0];
             if (matchingBlock.kind === "UnionUntaggedType") {
                 const strings = matchingBlock.values.map((s) => s.body);
-                const seenStrings: string[] = [ ];
+                const seenStrings: string[] = [];
 
                 for (const branch of expression.branches) {
                     if (branch.pattern.kind === "StringValue") {
@@ -1557,7 +1557,7 @@ function validateAllBranchesCovered(
                     (s) => strings.indexOf(s) === -1
                 );
 
-                let errors = [ ];
+                let errors = [];
                 if (missingBranches.length > 0 && !hasDefault) {
                     errors.push(
                         `All possible branches of a untagged union must be covered. I expected a branch for ${missingBranches
@@ -1590,7 +1590,7 @@ function validateAllBranchesCovered(
                 return Ok(true);
             } else if (matchingBlock.kind === "UnionType") {
                 const names = matchingBlock.tags.map((t) => t.name);
-                const seenNames: string[] = [ ];
+                const seenNames: string[] = [];
 
                 for (const branch of expression.branches) {
                     if (branch.pattern.kind === "Destructure") {
@@ -1605,7 +1605,7 @@ function validateAllBranchesCovered(
                     (s) => names.indexOf(s) === -1
                 );
 
-                let errors = [ ];
+                let errors = [];
                 if (missingBranches.length > 0 && !hasDefault) {
                     errors.push(
                         `All possible branches of a union must be covered. I expected a branch for ${missingBranches.join(
@@ -1642,7 +1642,7 @@ function validateAllBranchesCovered(
 export function getCasesFromFunction(block: Function): CaseStatement[] {
     const body = block.body;
 
-    const statements = [ ];
+    const statements = [];
 
     if (body.kind === "CaseStatement") statements.push(body);
 
@@ -1654,11 +1654,11 @@ export function validateAllCasesCovered(
     typedBlocks: TypedBlock[]
 ): string[] {
     if (block.kind !== "Function") {
-        return [ ];
+        return [];
     }
 
     const cases = getCasesFromFunction(block);
-    const invalidBranches: string[] = [ ];
+    const invalidBranches: string[] = [];
 
     for (const case_ of cases) {
         const valid = validateAllBranchesCovered(typedBlocks, block, case_);
@@ -1689,9 +1689,9 @@ export function validateObjectLiteralType(
         )
             continue;
 
-        const missingPropertyFromTypeAlias: Property[] = [ ];
-        const addedProperties: Property[] = [ ];
-        const incorrectProperties: string[] = [ ];
+        const missingPropertyFromTypeAlias: Property[] = [];
+        const addedProperties: Property[] = [];
+        const incorrectProperties: string[] = [];
 
         for (const property of typeAlias.properties) {
             let found = false;
@@ -1828,9 +1828,9 @@ function validateObjectLiteral(
         )
             continue;
 
-        const missingPropertyFromTypeAlias: Property[] = [ ];
-        const addedProperties: Property[] = [ ];
-        const incorrectProperties: string[] = [ ];
+        const missingPropertyFromTypeAlias: Property[] = [];
+        const addedProperties: Property[] = [];
+        const incorrectProperties: string[] = [];
 
         for (const property of typeAlias.properties) {
             let found = false;
@@ -2022,7 +2022,7 @@ function tagTypeAlias(
         tag;
 
     const typeAlias = TypeAlias(
-        FixedType("Inferred", [ ]),
+        FixedType("Inferred", []),
         tagToUse.args.map((arg) => {
             return Property(arg.name, arg.type);
         })
@@ -2045,7 +2045,7 @@ export function findReplacement(
                 return inferredType;
             }
 
-            const args: Type[] = [ ];
+            const args: Type[] = [];
 
             for (let i = 0; i < inferredType.args.length; i++) {
                 const inferredArg = inferredType.args[i];
@@ -2087,7 +2087,7 @@ export function findReplacement(
                     return inferredType;
                 }
                 case "TypeAlias": {
-                    const seenNames: string[] = [ ];
+                    const seenNames: string[] = [];
                     for (const originalProperty of original.properties) {
                         seenNames.push(originalProperty.name);
                         const property =
@@ -2138,9 +2138,9 @@ function validateConstructor(
     );
     const typeBlock = tagTypeAlias(tag, unionType, expectedType, typedBlocks);
 
-    const missingPropertyFromTypeAlias: Property[] = [ ];
-    const addedProperties: Property[] = [ ];
-    const incorrectProperties: string[] = [ ];
+    const missingPropertyFromTypeAlias: Property[] = [];
+    const addedProperties: Property[] = [];
+    const incorrectProperties: string[] = [];
 
     for (const property of typeAlias.properties) {
         let found = false;
@@ -2608,7 +2608,7 @@ function validateFunction(
     imports: Import[],
     valuesInTopLevelScope: ScopedValues
 ): Result<string, Type> {
-    const notExistingErrors = [ ];
+    const notExistingErrors = [];
 
     if (!typeExistsInNamespace(block.returnType, typedBlocks, imports)) {
         notExistingErrors.push(
@@ -2753,7 +2753,7 @@ export function validateType(
         case "Import":
         case "Typeclass":
         case "Impl": {
-            return Ok(FixedType("any", [ ]));
+            return Ok(FixedType("any", []));
         }
     }
 }

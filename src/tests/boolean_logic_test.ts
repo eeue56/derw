@@ -146,15 +146,15 @@ export function testIntoBlocks() {
     const lines = oneLine.split("\n");
 
     assert.deepStrictEqual(intoBlocks(oneLine), [
-        UnparsedBlock("ConstBlock", 0, [ lines[0], lines[1] ]),
-        UnparsedBlock("ConstBlock", 3, [ lines[3], lines[4] ]),
-        UnparsedBlock("ConstBlock", 6, [ lines[6], lines[7] ]),
-        UnparsedBlock("ConstBlock", 9, [ lines[9], lines[10] ]),
-        UnparsedBlock("ConstBlock", 12, [ lines[12], lines[13] ]),
-        UnparsedBlock("ConstBlock", 15, [ lines[15], lines[16] ]),
-        UnparsedBlock("FunctionBlock", 18, [ lines[18], lines[19] ]),
-        UnparsedBlock("FunctionBlock", 21, [ lines[21], lines[22] ]),
-        UnparsedBlock("FunctionBlock", 24, [ lines[24], lines[25] ]),
+        UnparsedBlock("ConstBlock", 0, [lines[0], lines[1]]),
+        UnparsedBlock("ConstBlock", 3, [lines[3], lines[4]]),
+        UnparsedBlock("ConstBlock", 6, [lines[6], lines[7]]),
+        UnparsedBlock("ConstBlock", 9, [lines[9], lines[10]]),
+        UnparsedBlock("ConstBlock", 12, [lines[12], lines[13]]),
+        UnparsedBlock("ConstBlock", 15, [lines[15], lines[16]]),
+        UnparsedBlock("FunctionBlock", 18, [lines[18], lines[19]]),
+        UnparsedBlock("FunctionBlock", 21, [lines[21], lines[22]]),
+        UnparsedBlock("FunctionBlock", 24, [lines[24], lines[25]]),
     ]);
 }
 
@@ -182,80 +182,80 @@ export function testParse() {
             [
                 Const(
                     "isEqual",
-                    FixedType("boolean", [ ]),
-                    [ ],
+                    FixedType("boolean", []),
+                    [],
                     Equality(Value("1"), Value("2"))
                 ),
 
                 Const(
                     "isNotEqual",
-                    FixedType("boolean", [ ]),
-                    [ ],
+                    FixedType("boolean", []),
+                    [],
                     InEquality(Value("1"), Value("2"))
                 ),
 
                 Const(
                     "isLessThan",
-                    FixedType("boolean", [ ]),
-                    [ ],
+                    FixedType("boolean", []),
+                    [],
                     LessThan(Value("1"), Value("2"))
                 ),
 
                 Const(
                     "isLessThanOrEqual",
-                    FixedType("boolean", [ ]),
-                    [ ],
+                    FixedType("boolean", []),
+                    [],
                     LessThanOrEqual(Value("1"), Value("2"))
                 ),
 
                 Const(
                     "isGreaterThan",
-                    FixedType("boolean", [ ]),
-                    [ ],
+                    FixedType("boolean", []),
+                    [],
                     GreaterThan(Value("1"), Value("2"))
                 ),
 
                 Const(
                     "isGreaterThanOrEqual",
-                    FixedType("boolean", [ ]),
-                    [ ],
+                    FixedType("boolean", []),
+                    [],
                     GreaterThanOrEqual(Value("1"), Value("2"))
                 ),
 
                 Function(
                     "equalityFunction",
-                    FixedType("boolean", [ ]),
+                    FixedType("boolean", []),
                     [
-                        FunctionArg("x", FixedType("number", [ ])),
-                        FunctionArg("y", FixedType("number", [ ])),
+                        FunctionArg("x", FixedType("number", [])),
+                        FunctionArg("y", FixedType("number", [])),
                     ],
-                    [ ],
+                    [],
                     Equality(Value("x"), Value("y"))
                 ),
 
                 Function(
                     "and",
-                    FixedType("boolean", [ ]),
+                    FixedType("boolean", []),
                     [
-                        FunctionArg("a", FixedType("boolean", [ ])),
-                        FunctionArg("b", FixedType("boolean", [ ])),
+                        FunctionArg("a", FixedType("boolean", [])),
+                        FunctionArg("b", FixedType("boolean", [])),
                     ],
-                    [ ],
+                    [],
                     And(Value("a"), Value("b"))
                 ),
 
                 Function(
                     "or",
-                    FixedType("boolean", [ ]),
+                    FixedType("boolean", []),
                     [
-                        FunctionArg("a", FixedType("boolean", [ ])),
-                        FunctionArg("b", FixedType("boolean", [ ])),
+                        FunctionArg("a", FixedType("boolean", [])),
+                        FunctionArg("b", FixedType("boolean", [])),
                     ],
-                    [ ],
+                    [],
                     Or(Value("a"), Value("b"))
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -268,80 +268,80 @@ export function testParseMultiLine() {
             [
                 Const(
                     "isEqual",
-                    FixedType("boolean", [ ]),
-                    [ ],
+                    FixedType("boolean", []),
+                    [],
                     Equality(Value("1"), Value("2"))
                 ),
 
                 Const(
                     "isNotEqual",
-                    FixedType("boolean", [ ]),
-                    [ ],
+                    FixedType("boolean", []),
+                    [],
                     InEquality(Value("1"), Value("2"))
                 ),
 
                 Const(
                     "isLessThan",
-                    FixedType("boolean", [ ]),
-                    [ ],
+                    FixedType("boolean", []),
+                    [],
                     LessThan(Value("1"), Value("2"))
                 ),
 
                 Const(
                     "isLessThanOrEqual",
-                    FixedType("boolean", [ ]),
-                    [ ],
+                    FixedType("boolean", []),
+                    [],
                     LessThanOrEqual(Value("1"), Value("2"))
                 ),
 
                 Const(
                     "isGreaterThan",
-                    FixedType("boolean", [ ]),
-                    [ ],
+                    FixedType("boolean", []),
+                    [],
                     GreaterThan(Value("1"), Value("2"))
                 ),
 
                 Const(
                     "isGreaterThanOrEqual",
-                    FixedType("boolean", [ ]),
-                    [ ],
+                    FixedType("boolean", []),
+                    [],
                     GreaterThanOrEqual(Value("1"), Value("2"))
                 ),
 
                 Function(
                     "equalityFunction",
-                    FixedType("boolean", [ ]),
+                    FixedType("boolean", []),
                     [
-                        FunctionArg("x", FixedType("number", [ ])),
-                        FunctionArg("y", FixedType("number", [ ])),
+                        FunctionArg("x", FixedType("number", [])),
+                        FunctionArg("y", FixedType("number", [])),
                     ],
-                    [ ],
+                    [],
                     Equality(Value("x"), Value("y"))
                 ),
 
                 Function(
                     "and",
-                    FixedType("boolean", [ ]),
+                    FixedType("boolean", []),
                     [
-                        FunctionArg("a", FixedType("boolean", [ ])),
-                        FunctionArg("b", FixedType("boolean", [ ])),
+                        FunctionArg("a", FixedType("boolean", [])),
+                        FunctionArg("b", FixedType("boolean", [])),
                     ],
-                    [ ],
+                    [],
                     And(Value("a"), Value("b"))
                 ),
 
                 Function(
                     "or",
-                    FixedType("boolean", [ ]),
+                    FixedType("boolean", []),
                     [
-                        FunctionArg("a", FixedType("boolean", [ ])),
-                        FunctionArg("b", FixedType("boolean", [ ])),
+                        FunctionArg("a", FixedType("boolean", [])),
+                        FunctionArg("b", FixedType("boolean", [])),
                     ],
-                    [ ],
+                    [],
                     Or(Value("a"), Value("b"))
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

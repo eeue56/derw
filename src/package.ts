@@ -39,7 +39,7 @@ export function Dependency(name: string, version: string): Dependency {
 export function dependenciesFromRecord(
     record: Record<string, string>
 ): Dependency[] {
-    const dependencies = [ ];
+    const dependencies = [];
 
     for (const entry of Object.keys(record)) {
         dependencies.push(Dependency(entry, record[entry]));

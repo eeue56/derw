@@ -16,8 +16,8 @@ type Animal =
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value, [ ], [ ]),
-        Ok(FixedType("Animal", [ ]))
+        validateType(value, [], []),
+        Ok(FixedType("Animal", []))
     );
 }
 
@@ -34,8 +34,8 @@ type alias Person = {
 
     const value = (parsed as Ok<Block>).value;
     assert.deepStrictEqual(
-        validateType(value, [ ], [ ]),
-        Ok(FixedType("Person", [ ]))
+        validateType(value, [], []),
+        Ok(FixedType("Person", []))
     );
 }
 
@@ -72,8 +72,8 @@ person =
     const instanceValue = (parsedInstance as Ok<Block>).value as TypedBlock;
 
     assert.deepStrictEqual(
-        validateType(instanceValue, [ typeValue ], [ ]),
-        Ok(FixedType("Person", [ ]))
+        validateType(instanceValue, [typeValue], []),
+        Ok(FixedType("Person", []))
     );
 }
 
@@ -110,7 +110,7 @@ person =
     const instanceValue = (parsedInstance as Ok<Block>).value as TypedBlock;
 
     assert.deepStrictEqual(
-        validateType(instanceValue, [ typeValue ], [ ]),
+        validateType(instanceValue, [typeValue], []),
         Err(
             "Mismatching type for type alias Person\n" +
                 "The type alias had these properties which are missing in this object literal: age: number"
@@ -151,7 +151,7 @@ person =
     const instanceValue = (parsedInstance as Ok<Block>).value as TypedBlock;
 
     assert.deepStrictEqual(
-        validateType(instanceValue, [ typeValue ], [ ]),
+        validateType(instanceValue, [typeValue], []),
         Err(
             "Mismatching type for type alias Person\n" +
                 "The object literal had these properties which aren't in the type alias: label: string"
@@ -192,7 +192,7 @@ person =
     const instanceValue = (parsedInstance as Ok<Block>).value as TypedBlock;
 
     assert.deepStrictEqual(
-        validateType(instanceValue, [ typeValue ], [ ]),
+        validateType(instanceValue, [typeValue], []),
         Err(
             "Mismatching type for type alias Person\n" +
                 "The type alias had these properties which are missing in this object literal: age: number\n" +
@@ -234,7 +234,7 @@ person =
     const instanceValue = (parsedInstance as Ok<Block>).value as TypedBlock;
 
     assert.deepStrictEqual(
-        validateType(instanceValue, [ typeValue ], [ ]),
+        validateType(instanceValue, [typeValue], []),
         Err(
             "Mismatching type for type alias Person\n" +
                 "The object literal had these properties which aren't in the type alias: label: { title: string }"
@@ -275,7 +275,7 @@ person =
     const instanceValue = (parsedInstance as Ok<Block>).value as TypedBlock;
 
     assert.deepStrictEqual(
-        validateType(instanceValue, [ typeValue ], [ ]),
+        validateType(instanceValue, [typeValue], []),
         Err(
             "Mismatching type for type alias Person\n" +
                 "The object literal had these properties which aren't in the type alias: label: { first: { title: string } }"
@@ -315,8 +315,8 @@ hello =
     const instanceValue = (parsedInstance as Ok<Block>).value as TypedBlock;
 
     assert.deepStrictEqual(
-        validateType(instanceValue, [ typeValue ], [ ]),
-        Ok(FixedType("Just", [ FixedType("string", [ ]) ]))
+        validateType(instanceValue, [typeValue], []),
+        Ok(FixedType("Just", [FixedType("string", [])]))
     );
 }
 
@@ -352,8 +352,8 @@ hello str =
     const instanceValue = (parsedInstance as Ok<Block>).value as TypedBlock;
 
     assert.deepStrictEqual(
-        validateType(instanceValue, [ typeValue ], [ ]),
-        Ok(FixedType("Just", [ FixedType("string", [ ]) ]))
+        validateType(instanceValue, [typeValue], []),
+        Ok(FixedType("Just", [FixedType("string", [])]))
     );
 }
 
@@ -389,8 +389,8 @@ hello =
     const instanceValue = (parsedInstance as Ok<Block>).value as TypedBlock;
 
     assert.deepStrictEqual(
-        validateType(instanceValue, [ typeValue ], [ ]),
-        Ok(FixedType("Value", [ ]))
+        validateType(instanceValue, [typeValue], []),
+        Ok(FixedType("Value", []))
     );
 }
 
@@ -426,7 +426,7 @@ hello str =
     const instanceValue = (parsedInstance as Ok<Block>).value as TypedBlock;
 
     assert.deepStrictEqual(
-        validateType(instanceValue, [ typeValue ], [ ]),
-        Ok(FixedType("Value", [ ]))
+        validateType(instanceValue, [typeValue], []),
+        Ok(FixedType("Value", []))
     );
 }

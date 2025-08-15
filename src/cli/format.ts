@@ -67,7 +67,7 @@ export async function format(
 
         if (maybeFiles.kind === "Err") {
             const filesToFind = isPackageDirectoryAndNoFilesPassed
-                ? [ "./src" ]
+                ? ["./src"]
                 : (program.flags.files.arguments as Ok<string[]>).value;
 
             for (const file of filesToFind) {
@@ -125,7 +125,7 @@ export async function format(
 
         if (maybeFiles.kind === "Err") {
             const filesToFind = isPackageDirectoryAndNoFilesPassed
-                ? [ "./src" ]
+                ? ["./src"]
                 : (program.flags.files.arguments as Ok<string[]>).value;
 
             for (const file of filesToFind) {

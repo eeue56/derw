@@ -72,8 +72,8 @@ export function testParse() {
                 Function(
                     "repeat",
                     GenericType("any"),
-                    [ FunctionArg("x", FixedType("number", [ ])) ],
-                    [ ],
+                    [FunctionArg("x", FixedType("number", []))],
+                    [],
                     FunctionCall("fn", [
                         Value("something"),
                         Value("x"),
@@ -83,7 +83,7 @@ export function testParse() {
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -97,8 +97,8 @@ export function testParseMultiLine() {
                 Function(
                     "repeat",
                     GenericType("any"),
-                    [ FunctionArg("x", FixedType("number", [ ])) ],
-                    [ ],
+                    [FunctionArg("x", FixedType("number", []))],
+                    [],
                     FunctionCall("fn", [
                         Value("something"),
                         Value("x"),
@@ -108,7 +108,7 @@ export function testParseMultiLine() {
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

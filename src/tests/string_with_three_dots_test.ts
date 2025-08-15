@@ -47,11 +47,11 @@ const example: string = (function (): any {
     const _res589930068 = Nothing({ });
     switch (_res589930068.kind) {
         case "Nothing": {
-            return div([ ], [ ], [ text(\`...\`) ]);
+            return div([], [], [text(\`...\`)]);
         }
         case "Just": {
             const { value } = _res589930068;
-            return div([ ], [ ], [ ]);
+            return div([], [], []);
         }
     }
 })();
@@ -62,11 +62,11 @@ const example = (function () {
     const _res589930068 = Nothing({ });
     switch (_res589930068.kind) {
         case "Nothing": {
-            return div([ ], [ ], [ text(\`...\`) ]);
+            return div([], [], [text(\`...\`)]);
         }
         case "Just": {
             const { value } = _res589930068;
-            return div([ ], [ ], [ ]);
+            return div([], [], []);
         }
     }
 })();
@@ -100,38 +100,38 @@ export function testParse() {
             [
                 Const(
                     "example",
-                    FixedType("string", [ ]),
-                    [ ],
+                    FixedType("string", []),
+                    [],
                     CaseStatement(
-                        Constructor("Nothing", ObjectLiteral(null, [ ])),
+                        Constructor("Nothing", ObjectLiteral(null, [])),
                         [
                             Branch(
                                 Destructure("Nothing", ""),
                                 FunctionCall("div", [
-                                    ListValue([ ]),
-                                    ListValue([ ]),
+                                    ListValue([]),
+                                    ListValue([]),
                                     ListValue([
                                         FunctionCall("text", [
                                             FormatStringValue("..."),
                                         ]),
                                     ]),
                                 ]),
-                                [ ]
+                                []
                             ),
                             Branch(
                                 Destructure("Just", "{ value }"),
                                 FunctionCall("div", [
-                                    ListValue([ ]),
-                                    ListValue([ ]),
-                                    ListValue([ ]),
+                                    ListValue([]),
+                                    ListValue([]),
+                                    ListValue([]),
                                 ]),
-                                [ ]
+                                []
                             ),
                         ]
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -144,38 +144,38 @@ export function testParseMultiLine() {
             [
                 Const(
                     "example",
-                    FixedType("string", [ ]),
-                    [ ],
+                    FixedType("string", []),
+                    [],
                     CaseStatement(
-                        Constructor("Nothing", ObjectLiteral(null, [ ])),
+                        Constructor("Nothing", ObjectLiteral(null, [])),
                         [
                             Branch(
                                 Destructure("Nothing", ""),
                                 FunctionCall("div", [
-                                    ListValue([ ]),
-                                    ListValue([ ]),
+                                    ListValue([]),
+                                    ListValue([]),
                                     ListValue([
                                         FunctionCall("text", [
                                             FormatStringValue("..."),
                                         ]),
                                     ]),
                                 ]),
-                                [ ]
+                                []
                             ),
                             Branch(
                                 Destructure("Just", "{ value }"),
                                 FunctionCall("div", [
-                                    ListValue([ ]),
-                                    ListValue([ ]),
-                                    ListValue([ ]),
+                                    ListValue([]),
+                                    ListValue([]),
+                                    ListValue([]),
                                 ]),
-                                [ ]
+                                []
                             ),
                         ]
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

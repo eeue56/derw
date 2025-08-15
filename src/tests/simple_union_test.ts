@@ -86,12 +86,12 @@ export function testParse() {
         Module(
             "main",
             [
-                UnionType(FixedType("Binary", [ ]), [
-                    Tag("True", [ ]),
-                    Tag("False", [ ]),
+                UnionType(FixedType("Binary", []), [
+                    Tag("True", []),
+                    Tag("False", []),
                 ]),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -102,12 +102,12 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
-                UnionType(FixedType("Binary", [ ]), [
-                    Tag("True", [ ]),
-                    Tag("False", [ ]),
+                UnionType(FixedType("Binary", []), [
+                    Tag("True", []),
+                    Tag("False", []),
                 ]),
             ],
-            [ ]
+            []
         )
     );
 }

@@ -67,9 +67,9 @@ export function testParse() {
                 Const(
                     "helloWorld",
                     FixedType("Maybe", [
-                        FixedType("List", [ FixedType("number", [ ]) ]),
+                        FixedType("List", [FixedType("number", [])]),
                     ]),
-                    [ ],
+                    [],
                     Constructor(
                         "Just",
                         ObjectLiteral(null, [
@@ -78,7 +78,7 @@ export function testParse() {
                                 ListPrepend(
                                     Value("123"),
                                     ModuleReference(
-                                        [ "something" ],
+                                        ["something"],
                                         Value("value")
                                     )
                                 )
@@ -108,9 +108,9 @@ export function testParseMultiLine() {
                 Const(
                     "helloWorld",
                     FixedType("Maybe", [
-                        FixedType("List", [ FixedType("number", [ ]) ]),
+                        FixedType("List", [FixedType("number", [])]),
                     ]),
-                    [ ],
+                    [],
                     Constructor(
                         "Just",
                         ObjectLiteral(null, [
@@ -119,7 +119,7 @@ export function testParseMultiLine() {
                                 ListPrepend(
                                     Value("123"),
                                     ModuleReference(
-                                        [ "something" ],
+                                        ["something"],
                                         Value("value")
                                     )
                                 )

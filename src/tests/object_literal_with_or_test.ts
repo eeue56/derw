@@ -34,15 +34,15 @@ fun =
 `.trim();
 
 const expectedOutput = `
-const fun: any = [ { test: function(x: any) {
+const fun: any = [{ test: function(x: any) {
     return x.startsWith(" ") || x.startsWith("}");
-} } ];
+} }];
 `.trim();
 
 const expectedOutputJS = `
-const fun = [ { test: function(x) {
+const fun = [{ test: function(x) {
     return x.startsWith(" ") || x.startsWith("}");
-} } ];
+} }];
 `.trim();
 
 export function testIntoBlocks() {
@@ -77,22 +77,22 @@ export function testParse() {
                 Const(
                     "fun",
                     GenericType("any"),
-                    [ ],
+                    [],
                     ListValue([
                         ObjectLiteral(null, [
                             Field(
                                 "test",
                                 Lambda(
-                                    [ "x" ],
+                                    ["x"],
                                     Or(
                                         ModuleReference(
-                                            [ "x" ],
+                                            ["x"],
                                             FunctionCall("startsWith", [
                                                 StringValue(" "),
                                             ])
                                         ),
                                         ModuleReference(
-                                            [ "x" ],
+                                            ["x"],
                                             FunctionCall("startsWith", [
                                                 StringValue("}"),
                                             ])
@@ -104,7 +104,7 @@ export function testParse() {
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -118,22 +118,22 @@ export function testParseMultiLine() {
                 Const(
                     "fun",
                     GenericType("any"),
-                    [ ],
+                    [],
                     ListValue([
                         ObjectLiteral(null, [
                             Field(
                                 "test",
                                 Lambda(
-                                    [ "x" ],
+                                    ["x"],
                                     Or(
                                         ModuleReference(
-                                            [ "x" ],
+                                            ["x"],
                                             FunctionCall("startsWith", [
                                                 StringValue(" "),
                                             ])
                                         ),
                                         ModuleReference(
-                                            [ "x" ],
+                                            ["x"],
                                             FunctionCall("startsWith", [
                                                 StringValue("}"),
                                             ])
@@ -145,7 +145,7 @@ export function testParseMultiLine() {
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

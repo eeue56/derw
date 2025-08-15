@@ -118,14 +118,14 @@ export function testIntoBlocks() {
     const lines = oneLine.split("\n");
 
     assert.deepStrictEqual(intoBlocks(oneLine), [
-        UnparsedBlock("ConstBlock", 0, [ lines[0], lines[1] ]),
-        UnparsedBlock("ConstBlock", 3, [ lines[3], lines[4] ]),
-        UnparsedBlock("ConstBlock", 6, [ lines[6], lines[7] ]),
-        UnparsedBlock("ConstBlock", 9, [ lines[9], lines[10] ]),
-        UnparsedBlock("ConstBlock", 12, [ lines[12], lines[13] ]),
-        UnparsedBlock("ConstBlock", 15, [ lines[15], lines[16] ]),
-        UnparsedBlock("ConstBlock", 18, [ lines[18], lines[19] ]),
-        UnparsedBlock("ConstBlock", 21, [ lines[21], lines[22] ]),
+        UnparsedBlock("ConstBlock", 0, [lines[0], lines[1]]),
+        UnparsedBlock("ConstBlock", 3, [lines[3], lines[4]]),
+        UnparsedBlock("ConstBlock", 6, [lines[6], lines[7]]),
+        UnparsedBlock("ConstBlock", 9, [lines[9], lines[10]]),
+        UnparsedBlock("ConstBlock", 12, [lines[12], lines[13]]),
+        UnparsedBlock("ConstBlock", 15, [lines[15], lines[16]]),
+        UnparsedBlock("ConstBlock", 18, [lines[18], lines[19]]),
+        UnparsedBlock("ConstBlock", 21, [lines[21], lines[22]]),
     ]);
 }
 
@@ -152,81 +152,78 @@ export function testParse() {
             [
                 Const(
                     "added",
-                    FixedType("number", [ ]),
-                    [ ],
-                    Addition(Value("1"), FunctionCall("fn", [ Value("2") ]))
+                    FixedType("number", []),
+                    [],
+                    Addition(Value("1"), FunctionCall("fn", [Value("2")]))
                 ),
                 Const(
                     "doublyAdded",
-                    FixedType("number", [ ]),
-                    [ ],
+                    FixedType("number", []),
+                    [],
                     Addition(
                         Value("1"),
                         Addition(
-                            FunctionCall("fn", [ Value("2") ]),
-                            FunctionCall("fn", [ Value("3") ])
+                            FunctionCall("fn", [Value("2")]),
+                            FunctionCall("fn", [Value("3")])
                         )
                     )
                 ),
                 Const(
                     "subtracted",
-                    FixedType("number", [ ]),
-                    [ ],
-                    Subtraction(Value("1"), FunctionCall("fn", [ Value("2") ]))
+                    FixedType("number", []),
+                    [],
+                    Subtraction(Value("1"), FunctionCall("fn", [Value("2")]))
                 ),
                 Const(
                     "doublySubtracted",
-                    FixedType("number", [ ]),
-                    [ ],
+                    FixedType("number", []),
+                    [],
                     Subtraction(
                         Value("1"),
                         Subtraction(
-                            FunctionCall("fn", [ Value("2") ]),
-                            FunctionCall("fn", [ Value("3") ])
+                            FunctionCall("fn", [Value("2")]),
+                            FunctionCall("fn", [Value("3")])
                         )
                     )
                 ),
                 Const(
                     "divided",
-                    FixedType("number", [ ]),
-                    [ ],
-                    Division(Value("1"), FunctionCall("fn", [ Value("2") ]))
+                    FixedType("number", []),
+                    [],
+                    Division(Value("1"), FunctionCall("fn", [Value("2")]))
                 ),
                 Const(
                     "doublyDivided",
-                    FixedType("number", [ ]),
-                    [ ],
+                    FixedType("number", []),
+                    [],
                     Division(
                         Value("1"),
                         Division(
-                            FunctionCall("fn", [ Value("2") ]),
-                            FunctionCall("fn", [ Value("3") ])
+                            FunctionCall("fn", [Value("2")]),
+                            FunctionCall("fn", [Value("3")])
                         )
                     )
                 ),
                 Const(
                     "multiplied",
-                    FixedType("number", [ ]),
-                    [ ],
-                    Multiplication(
-                        Value("1"),
-                        FunctionCall("fn", [ Value("2") ])
-                    )
+                    FixedType("number", []),
+                    [],
+                    Multiplication(Value("1"), FunctionCall("fn", [Value("2")]))
                 ),
                 Const(
                     "doublyMultiplied",
-                    FixedType("number", [ ]),
-                    [ ],
+                    FixedType("number", []),
+                    [],
                     Multiplication(
                         Value("1"),
                         Multiplication(
-                            FunctionCall("fn", [ Value("2") ]),
-                            FunctionCall("fn", [ Value("3") ])
+                            FunctionCall("fn", [Value("2")]),
+                            FunctionCall("fn", [Value("3")])
                         )
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -239,81 +236,78 @@ export function testParseMultiLine() {
             [
                 Const(
                     "added",
-                    FixedType("number", [ ]),
-                    [ ],
-                    Addition(Value("1"), FunctionCall("fn", [ Value("2") ]))
+                    FixedType("number", []),
+                    [],
+                    Addition(Value("1"), FunctionCall("fn", [Value("2")]))
                 ),
                 Const(
                     "doublyAdded",
-                    FixedType("number", [ ]),
-                    [ ],
+                    FixedType("number", []),
+                    [],
                     Addition(
                         Value("1"),
                         Addition(
-                            FunctionCall("fn", [ Value("2") ]),
-                            FunctionCall("fn", [ Value("3") ])
+                            FunctionCall("fn", [Value("2")]),
+                            FunctionCall("fn", [Value("3")])
                         )
                     )
                 ),
                 Const(
                     "subtracted",
-                    FixedType("number", [ ]),
-                    [ ],
-                    Subtraction(Value("1"), FunctionCall("fn", [ Value("2") ]))
+                    FixedType("number", []),
+                    [],
+                    Subtraction(Value("1"), FunctionCall("fn", [Value("2")]))
                 ),
                 Const(
                     "doublySubtracted",
-                    FixedType("number", [ ]),
-                    [ ],
+                    FixedType("number", []),
+                    [],
                     Subtraction(
                         Value("1"),
                         Subtraction(
-                            FunctionCall("fn", [ Value("2") ]),
-                            FunctionCall("fn", [ Value("3") ])
+                            FunctionCall("fn", [Value("2")]),
+                            FunctionCall("fn", [Value("3")])
                         )
                     )
                 ),
                 Const(
                     "divided",
-                    FixedType("number", [ ]),
-                    [ ],
-                    Division(Value("1"), FunctionCall("fn", [ Value("2") ]))
+                    FixedType("number", []),
+                    [],
+                    Division(Value("1"), FunctionCall("fn", [Value("2")]))
                 ),
                 Const(
                     "doublyDivided",
-                    FixedType("number", [ ]),
-                    [ ],
+                    FixedType("number", []),
+                    [],
                     Division(
                         Value("1"),
                         Division(
-                            FunctionCall("fn", [ Value("2") ]),
-                            FunctionCall("fn", [ Value("3") ])
+                            FunctionCall("fn", [Value("2")]),
+                            FunctionCall("fn", [Value("3")])
                         )
                     )
                 ),
                 Const(
                     "multiplied",
-                    FixedType("number", [ ]),
-                    [ ],
-                    Multiplication(
-                        Value("1"),
-                        FunctionCall("fn", [ Value("2") ])
-                    )
+                    FixedType("number", []),
+                    [],
+                    Multiplication(Value("1"), FunctionCall("fn", [Value("2")]))
                 ),
                 Const(
                     "doublyMultiplied",
-                    FixedType("number", [ ]),
-                    [ ],
+                    FixedType("number", []),
+                    [],
                     Multiplication(
                         Value("1"),
                         Multiplication(
-                            FunctionCall("fn", [ Value("2") ]),
-                            FunctionCall("fn", [ Value("3") ])
+                            FunctionCall("fn", [Value("2")]),
+                            FunctionCall("fn", [Value("3")])
                         )
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

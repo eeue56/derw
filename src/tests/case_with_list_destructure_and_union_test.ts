@@ -80,7 +80,7 @@ function basic(xs: Maybe.Maybe<string>[]): Maybe.Maybe<string>[] {
             }
         }
         default: {
-            return [ ];
+            return [];
         }
     }
 }
@@ -110,7 +110,7 @@ function basic(xs) {
             }
         }
         default: {
-            return [ ];
+            return [];
         }
     }
 }
@@ -135,7 +135,7 @@ export function testBlockKind() {
 
     assert.deepStrictEqual(
         blocks.map((block) => blockKind(block.lines.join("\n"))),
-        [ Ok("Import"), Ok("Function") ]
+        [Ok("Import"), Ok("Function")]
     );
 }
 
@@ -144,7 +144,7 @@ export function testBlockKindMultiLine() {
 
     assert.deepStrictEqual(
         blocks.map((block) => blockKind(block.lines.join("\n"))),
-        [ Ok("Import"), Ok("Function") ]
+        [Ok("Import"), Ok("Function")]
     );
 }
 
@@ -158,26 +158,24 @@ export function testParse() {
                     ImportModule(
                         '"../Maybe"',
                         Just("Maybe"),
-                        [ "Maybe", "Just", "Nothing" ],
+                        ["Maybe", "Just", "Nothing"],
                         "Relative"
                     ),
                 ]),
                 Function(
                     "basic",
                     FixedType("List", [
-                        FixedType("Maybe", [ FixedType("string", [ ]) ]),
+                        FixedType("Maybe", [FixedType("string", [])]),
                     ]),
                     [
                         FunctionArg(
                             "xs",
                             FixedType("List", [
-                                FixedType("Maybe", [
-                                    FixedType("string", [ ]),
-                                ]),
+                                FixedType("Maybe", [FixedType("string", [])]),
                             ])
                         ),
                     ],
-                    [ ],
+                    [],
                     CaseStatement(Value("xs"), [
                         Branch(
                             ListDestructure([
@@ -191,23 +189,23 @@ export function testParse() {
                                         Field("value", Value("value")),
                                     ])
                                 ),
-                                FunctionCall("basic", [ Value("rest") ])
+                                FunctionCall("basic", [Value("rest")])
                             ),
-                            [ ]
+                            []
                         ),
                         Branch(
                             ListDestructure([
                                 Destructure("Nothing", ""),
                                 Value("rest"),
                             ]),
-                            FunctionCall("basic", [ Value("rest") ]),
-                            [ ]
+                            FunctionCall("basic", [Value("rest")]),
+                            []
                         ),
-                        Branch(Default(), ListValue([ ]), [ ]),
+                        Branch(Default(), ListValue([]), []),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -222,26 +220,24 @@ export function testParseMultiLine() {
                     ImportModule(
                         '"../Maybe"',
                         Just("Maybe"),
-                        [ "Maybe", "Just", "Nothing" ],
+                        ["Maybe", "Just", "Nothing"],
                         "Relative"
                     ),
                 ]),
                 Function(
                     "basic",
                     FixedType("List", [
-                        FixedType("Maybe", [ FixedType("string", [ ]) ]),
+                        FixedType("Maybe", [FixedType("string", [])]),
                     ]),
                     [
                         FunctionArg(
                             "xs",
                             FixedType("List", [
-                                FixedType("Maybe", [
-                                    FixedType("string", [ ]),
-                                ]),
+                                FixedType("Maybe", [FixedType("string", [])]),
                             ])
                         ),
                     ],
-                    [ ],
+                    [],
                     CaseStatement(Value("xs"), [
                         Branch(
                             ListDestructure([
@@ -255,23 +251,23 @@ export function testParseMultiLine() {
                                         Field("value", Value("value")),
                                     ])
                                 ),
-                                FunctionCall("basic", [ Value("rest") ])
+                                FunctionCall("basic", [Value("rest")])
                             ),
-                            [ ]
+                            []
                         ),
                         Branch(
                             ListDestructure([
                                 Destructure("Nothing", ""),
                                 Value("rest"),
                             ]),
-                            FunctionCall("basic", [ Value("rest") ]),
-                            [ ]
+                            FunctionCall("basic", [Value("rest")]),
+                            []
                         ),
-                        Branch(Default(), ListValue([ ]), [ ]),
+                        Branch(Default(), ListValue([]), []),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

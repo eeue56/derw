@@ -79,13 +79,13 @@ export function testParse() {
             [
                 Function(
                     "testIsValid",
-                    FixedType("boolean", [ ]),
-                    [ FunctionArg("animal", FixedType("Animal", [ ])) ],
-                    [ ],
+                    FixedType("boolean", []),
+                    [FunctionArg("animal", FixedType("Animal", []))],
+                    [],
                     Equality(Value("animal"), Value("animal"))
                 ),
             ],
-            [ ]
+            []
         ).body
     );
 }
@@ -98,13 +98,13 @@ export function testParseMultiLine() {
             [
                 Function(
                     "testIsValid",
-                    FixedType("boolean", [ ]),
-                    [ FunctionArg("animal", FixedType("Animal", [ ])) ],
-                    [ ],
+                    FixedType("boolean", []),
+                    [FunctionArg("animal", FixedType("Animal", []))],
+                    [],
                     Equality(Value("animal"), Value("animal"))
                 ),
             ],
-            [ ]
+            []
         ).body
     );
 }

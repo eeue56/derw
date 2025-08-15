@@ -28,7 +28,7 @@ import {
 
 export function testString() {
     const str = `"hello"`;
-    assert.deepStrictEqual(tokenize(str), [ StringToken({ body: `"hello"` }) ]);
+    assert.deepStrictEqual(tokenize(str), [StringToken({ body: `"hello"` })]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
@@ -42,21 +42,19 @@ export function testNestedString() {
 
 export function testInt() {
     const str = `1`;
-    assert.deepStrictEqual(tokenize(str), [ LiteralToken({ body: `1` }) ]);
+    assert.deepStrictEqual(tokenize(str), [LiteralToken({ body: `1` })]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testFloat() {
     const str = `3.14`;
-    assert.deepStrictEqual(tokenize(str), [ LiteralToken({ body: `3.14` }) ]);
+    assert.deepStrictEqual(tokenize(str), [LiteralToken({ body: `3.14` })]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testArray() {
     const str = `[ 1, 2 ]`;
-    assert.deepStrictEqual(tokenize(str), [
-        LiteralToken({ body: "[ 1, 2 ]" }),
-    ]);
+    assert.deepStrictEqual(tokenize(str), [LiteralToken({ body: "[ 1, 2 ]" })]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
@@ -70,21 +68,19 @@ export function testNestedArray() {
 
 export function testRange() {
     const str = `[ 1..2 ]`;
-    assert.deepStrictEqual(tokenize(str), [
-        LiteralToken({ body: "[ 1..2 ]" }),
-    ]);
+    assert.deepStrictEqual(tokenize(str), [LiteralToken({ body: "[ 1..2 ]" })]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testTrue() {
     const str = `true`;
-    assert.deepStrictEqual(tokenize(str), [ LiteralToken({ body: "true" }) ]);
+    assert.deepStrictEqual(tokenize(str), [LiteralToken({ body: "true" })]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
 export function testFalse() {
     const str = `false`;
-    assert.deepStrictEqual(tokenize(str), [ LiteralToken({ body: "false" }) ]);
+    assert.deepStrictEqual(tokenize(str), [LiteralToken({ body: "false" })]);
     assert.deepStrictEqual(tokensToString(tokenize(str)), str);
 }
 
@@ -494,12 +490,12 @@ map fn x =
         Ok([
             FunctionTypeToken({
                 body: [
-                    BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
-                    BaseTypeToken({ body: [ IdentifierToken({ body: "b" }) ] }),
+                    BaseTypeToken({ body: [IdentifierToken({ body: "a" })] }),
+                    BaseTypeToken({ body: [IdentifierToken({ body: "b" })] }),
                 ],
             }),
-            BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
-            BaseTypeToken({ body: [ IdentifierToken({ body: "b" }) ] }),
+            BaseTypeToken({ body: [IdentifierToken({ body: "a" })] }),
+            BaseTypeToken({ body: [IdentifierToken({ body: "b" })] }),
         ])
     );
 }

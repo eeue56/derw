@@ -101,16 +101,16 @@ export function testParse() {
             [
                 Const(
                     "name",
-                    FixedType("string", [ ]),
-                    [ ],
+                    FixedType("string", []),
+                    [],
                     CaseStatement(Value("person"), [
-                        Branch(StringValue("noah"), StringValue("Noah"), [ ]),
-                        Branch(StringValue("james"), StringValue("James"), [ ]),
-                        Branch(Default(), StringValue("other"), [ ]),
+                        Branch(StringValue("noah"), StringValue("Noah"), []),
+                        Branch(StringValue("james"), StringValue("James"), []),
+                        Branch(Default(), StringValue("other"), []),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -123,16 +123,16 @@ export function testParseMultiLine() {
             [
                 Const(
                     "name",
-                    FixedType("string", [ ]),
-                    [ ],
+                    FixedType("string", []),
+                    [],
                     CaseStatement(Value("person"), [
-                        Branch(StringValue("noah"), StringValue("Noah"), [ ]),
-                        Branch(StringValue("james"), StringValue("James"), [ ]),
-                        Branch(Default(), StringValue("other"), [ ]),
+                        Branch(StringValue("noah"), StringValue("Noah"), []),
+                        Branch(StringValue("james"), StringValue("James"), []),
+                        Branch(Default(), StringValue("other"), []),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

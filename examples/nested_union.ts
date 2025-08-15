@@ -27,4 +27,4 @@ function something(x: Maybe<string>): Maybe<string> {
     return x;
 }
 
-const other: Maybe<Binary>[] = [ ];
+const other: Maybe<Binary>[] = [];

@@ -28,11 +28,11 @@ helloWorld =
 `.trim();
 
 const expectedOutput = `
-const helloWorld: any[][] = div([ ], [ ], [ div([ ], [ ], [ ]) ]);
+const helloWorld: any[][] = div([], [], [div([], [], [])]);
 `.trim();
 
 const expectedOutputJS = `
-const helloWorld = div([ ], [ ], [ div([ ], [ ], [ ]) ]);
+const helloWorld = div([], [], [div([], [], [])]);
 `.trim();
 
 export function testIntoBlocks() {
@@ -64,23 +64,23 @@ export function testParse() {
                 Const(
                     "helloWorld",
                     FixedType("List", [
-                        FixedType("List", [ GenericType("any") ]),
+                        FixedType("List", [GenericType("any")]),
                     ]),
-                    [ ],
+                    [],
                     FunctionCall("div", [
-                        ListValue([ ]),
-                        ListValue([ ]),
+                        ListValue([]),
+                        ListValue([]),
                         ListValue([
                             FunctionCall("div", [
-                                ListValue([ ]),
-                                ListValue([ ]),
-                                ListValue([ ]),
+                                ListValue([]),
+                                ListValue([]),
+                                ListValue([]),
                             ]),
                         ]),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -94,23 +94,23 @@ export function testParseMultiLine() {
                 Const(
                     "helloWorld",
                     FixedType("List", [
-                        FixedType("List", [ GenericType("any") ]),
+                        FixedType("List", [GenericType("any")]),
                     ]),
-                    [ ],
+                    [],
                     FunctionCall("div", [
-                        ListValue([ ]),
-                        ListValue([ ]),
+                        ListValue([]),
+                        ListValue([]),
                         ListValue([
                             FunctionCall("div", [
-                                ListValue([ ]),
-                                ListValue([ ]),
-                                ListValue([ ]),
+                                ListValue([]),
+                                ListValue([]),
+                                ListValue([]),
                             ]),
                         ]),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

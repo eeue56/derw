@@ -123,41 +123,41 @@ export function testParse() {
             [
                 Function(
                     "isTrue",
-                    FixedType("boolean", [ ]),
-                    [ FunctionArg("value", FixedType("boolean", [ ])) ],
+                    FixedType("boolean", []),
+                    [FunctionArg("value", FixedType("boolean", []))],
                     [
                         Const(
                             "name",
-                            FixedType("string", [ ]),
-                            [ ],
+                            FixedType("string", []),
+                            [],
                             StringValue("Noah")
                         ),
                     ],
                     IfStatement(
                         Value("value"),
                         Value("true"),
-                        [ ],
-                        [ ],
+                        [],
+                        [],
                         Value("false"),
-                        [ ]
+                        []
                     ),
                     DoBlock([
                         ModuleReference(
-                            [ "globalThis", "console" ],
+                            ["globalThis", "console"],
                             FunctionCall("log", [
                                 StringValue("hello"),
                                 Value("name"),
                             ])
                         ),
-                        Const("x", FixedType("number", [ ]), [ ], Value("5")),
+                        Const("x", FixedType("number", []), [], Value("5")),
                         ModuleReference(
-                            [ "globalThis", "console" ],
-                            FunctionCall("log", [ Value("x") ])
+                            ["globalThis", "console"],
+                            FunctionCall("log", [Value("x")])
                         ),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -170,41 +170,41 @@ export function testParseMultiLine() {
             [
                 Function(
                     "isTrue",
-                    FixedType("boolean", [ ]),
-                    [ FunctionArg("value", FixedType("boolean", [ ])) ],
+                    FixedType("boolean", []),
+                    [FunctionArg("value", FixedType("boolean", []))],
                     [
                         Const(
                             "name",
-                            FixedType("string", [ ]),
-                            [ ],
+                            FixedType("string", []),
+                            [],
                             StringValue("Noah")
                         ),
                     ],
                     IfStatement(
                         Value("value"),
                         Value("true"),
-                        [ ],
-                        [ ],
+                        [],
+                        [],
                         Value("false"),
-                        [ ]
+                        []
                     ),
                     DoBlock([
                         ModuleReference(
-                            [ "globalThis", "console" ],
+                            ["globalThis", "console"],
                             FunctionCall("log", [
                                 StringValue("hello"),
                                 Value("name"),
                             ])
                         ),
-                        Const("x", FixedType("number", [ ]), [ ], Value("5")),
+                        Const("x", FixedType("number", []), [], Value("5")),
                         ModuleReference(
-                            [ "globalThis", "console" ],
-                            FunctionCall("log", [ Value("x") ])
+                            ["globalThis", "console"],
+                            FunctionCall("log", [Value("x")])
                         ),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

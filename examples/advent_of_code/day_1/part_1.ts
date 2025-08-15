@@ -3,9 +3,9 @@ import * as fs from "fs";
 type Iteration = {
     value: number;
     count: number;
-}
+};
 
-function Iteration(args: { value: number, count: number }): Iteration {
+function Iteration(args: { value: number; count: number; }): Iteration {
     return {
         ...args,
     };
@@ -19,12 +19,12 @@ function countHelper(count: Iteration, x: number): Iteration {
     if (isIncrease(count.value, x)) {
         return {
             value: x,
-            count: count.count + 1
+            count: count.count + 1,
         };
     } else {
         return {
             value: x,
-            count: count.count
+            count: count.count,
         };
     }
 }
@@ -36,7 +36,7 @@ function getCount(iteration: Iteration): number {
 function countIncreases(xs: number[]): number {
     return getCount(xs.reduce(countHelper, {
         value: 9999,
-        count: 0
+        count: 0,
     }));
 }
 
@@ -58,6 +58,8 @@ function toString(buffer: Buffer): string {
     return buffer.toString();
 }
 
-const exampleMain: void = globalThis.console.log(countIncreases([ 199, 200, 208, 210, 200, 207, 240, 269, 260, 263 ]));
+const exampleMain: void = globalThis.console.log(countIncreases(
+    [199, 200, 208, 210, 200, 207, 240, 269, 260, 263]
+));
 
 const main: void = globalThis.console.log(countIncreases(adventInput));

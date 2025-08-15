@@ -34,16 +34,16 @@ async function copyTSconfig(dir: string): Promise<void> {
             module: "commonjs",
             declaration: true,
             outDir: "./build/",
-            rootDirs: [ "src" ],
+            rootDirs: ["src"],
             strict: true,
             moduleResolution: "node",
-            types: [ "node" ],
+            types: ["node"],
             esModuleInterop: true,
             skipLibCheck: true,
             forceConsistentCasingInFileNames: true,
         },
-        include: [ "src/**/*" ],
-        exclude: [ "node_modules/**" ],
+        include: ["src/**/*"],
+        exclude: ["node_modules/**"],
     };
 
     if (await fileExists(path.join(dir, "tsconfig.json"))) {
@@ -121,7 +121,7 @@ export async function init(
 
     const packageName = path.basename(dir);
 
-    const package_ = Package(packageName, [ ], [ ]);
+    const package_ = Package(packageName, [], []);
 
     const isAlreadyAPackage = await fileExists(
         path.join(dir, "derw-package.json")

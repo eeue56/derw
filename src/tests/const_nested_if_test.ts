@@ -77,26 +77,26 @@ export function testParse() {
             [
                 Const(
                     "name",
-                    FixedType("string", [ ]),
-                    [ ],
+                    FixedType("string", []),
+                    [],
                     IfStatement(
                         Equality(Value("1"), Value("1")),
                         IfStatement(
                             Equality(Value("2"), Value("2")),
                             StringValue("Noah"),
-                            [ ],
-                            [ ],
+                            [],
+                            [],
                             StringValue("Mary"),
-                            [ ]
+                            []
                         ),
-                        [ ],
-                        [ ],
+                        [],
+                        [],
                         StringValue("James"),
-                        [ ]
+                        []
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -109,26 +109,26 @@ export function testParseMultiLine() {
             [
                 Const(
                     "name",
-                    FixedType("string", [ ]),
-                    [ ],
+                    FixedType("string", []),
+                    [],
                     IfStatement(
                         Equality(Value("1"), Value("1")),
                         IfStatement(
                             Equality(Value("2"), Value("2")),
                             StringValue("Noah"),
-                            [ ],
-                            [ ],
+                            [],
+                            [],
                             StringValue("Mary"),
-                            [ ]
+                            []
                         ),
-                        [ ],
-                        [ ],
+                        [],
+                        [],
                         StringValue("James"),
-                        [ ]
+                        []
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

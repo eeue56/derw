@@ -85,25 +85,25 @@ export function testParse() {
             [
                 Function(
                     "map",
-                    FixedType("List", [ GenericType("b") ]),
+                    FixedType("List", [GenericType("b")]),
                     [
                         FunctionArg(
                             "fn",
-                            FunctionType([ GenericType("a"), GenericType("b") ])
+                            FunctionType([GenericType("a"), GenericType("b")])
                         ),
                         FunctionArg(
                             "value",
-                            FixedType("List", [ GenericType("a") ])
+                            FixedType("List", [GenericType("a")])
                         ),
                     ],
-                    [ ],
+                    [],
                     ModuleReference(
-                        [ "value" ],
-                        FunctionCall("map", [ Value("fn") ])
+                        ["value"],
+                        FunctionCall("map", [Value("fn")])
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -116,25 +116,25 @@ export function testParseMultiLine() {
             [
                 Function(
                     "map",
-                    FixedType("List", [ GenericType("b") ]),
+                    FixedType("List", [GenericType("b")]),
                     [
                         FunctionArg(
                             "fn",
-                            FunctionType([ GenericType("a"), GenericType("b") ])
+                            FunctionType([GenericType("a"), GenericType("b")])
                         ),
                         FunctionArg(
                             "value",
-                            FixedType("List", [ GenericType("a") ])
+                            FixedType("List", [GenericType("a")])
                         ),
                     ],
-                    [ ],
+                    [],
                     ModuleReference(
-                        [ "value" ],
-                        FunctionCall("map", [ Value("fn") ])
+                        ["value"],
+                        FunctionCall("map", [Value("fn")])
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

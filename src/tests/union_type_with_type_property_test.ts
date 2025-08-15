@@ -75,11 +75,11 @@ export function testParse() {
         Module(
             "main",
             [
-                UnionType(FixedType("CustomList", [ ]), [
-                    Tag("Leaf", [ TagArg("type", FixedType("string", [ ])) ]),
+                UnionType(FixedType("CustomList", []), [
+                    Tag("Leaf", [TagArg("type", FixedType("string", []))]),
                 ]),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -90,11 +90,11 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
-                UnionType(FixedType("CustomList", [ ]), [
-                    Tag("Leaf", [ TagArg("type", FixedType("string", [ ])) ]),
+                UnionType(FixedType("CustomList", []), [
+                    Tag("Leaf", [TagArg("type", FixedType("string", []))]),
                 ]),
             ],
-            [ ]
+            []
         )
     );
 }

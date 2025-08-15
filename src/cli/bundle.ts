@@ -87,14 +87,14 @@ export async function bundle(
         entry = entry.split(".").slice(0, -1).join(".") + ".ts";
     }
 
-    const args = program.flags.quiet.isPresent ? [ "--quiet" ] : [ ];
+    const args = program.flags.quiet.isPresent ? ["--quiet"] : [];
 
     async function build() {
         await compileFiles(isInPackageDirectory, args);
         try {
             if (program.flags.optimize.isPresent) {
                 await esbuild.build({
-                    entryPoints: [ entry as string ],
+                    entryPoints: [entry as string],
                     logLevel: "error",
                     bundle: true,
                     minify: true,
@@ -103,7 +103,7 @@ export async function bundle(
                 });
             } else {
                 await esbuild.build({
-                    entryPoints: [ entry as string ],
+                    entryPoints: [entry as string],
                     logLevel: "error",
                     bundle: true,
                     outfile: output as string,

@@ -141,54 +141,54 @@ export function testParse() {
             [
                 Function(
                     "add",
-                    FixedType("number", [ ]),
+                    FixedType("number", []),
                     [
-                        FunctionArg("x", FixedType("number", [ ])),
-                        FunctionArg("y", FixedType("number", [ ])),
+                        FunctionArg("x", FixedType("number", [])),
+                        FunctionArg("y", FixedType("number", [])),
                     ],
-                    [ ],
+                    [],
                     Addition(Value("x"), Value("y"))
                 ),
                 Function(
                     "sub",
-                    FixedType("number", [ ]),
+                    FixedType("number", []),
                     [
-                        FunctionArg("x", FixedType("number", [ ])),
-                        FunctionArg("y", FixedType("number", [ ])),
+                        FunctionArg("x", FixedType("number", [])),
+                        FunctionArg("y", FixedType("number", [])),
                     ],
-                    [ ],
+                    [],
                     Subtraction(Value("x"), Value("y"))
                 ),
                 Function(
                     "mod",
-                    FixedType("number", [ ]),
+                    FixedType("number", []),
                     [
-                        FunctionArg("x", FixedType("number", [ ])),
-                        FunctionArg("y", FixedType("number", [ ])),
+                        FunctionArg("x", FixedType("number", [])),
+                        FunctionArg("y", FixedType("number", [])),
                     ],
-                    [ ],
+                    [],
                     Mod(Value("x"), Value("y"))
                 ),
                 Function(
                     "addThree",
-                    FixedType("number", [ ]),
+                    FixedType("number", []),
                     [
-                        FunctionArg("x", FixedType("number", [ ])),
-                        FunctionArg("y", FixedType("number", [ ])),
-                        FunctionArg("z", FixedType("number", [ ])),
+                        FunctionArg("x", FixedType("number", [])),
+                        FunctionArg("y", FixedType("number", [])),
+                        FunctionArg("z", FixedType("number", [])),
                     ],
-                    [ ],
+                    [],
                     Addition(Value("x"), Addition(Value("y"), Value("z")))
                 ),
                 Function(
                     "mixOperators",
-                    FixedType("number", [ ]),
+                    FixedType("number", []),
                     [
-                        FunctionArg("x", FixedType("number", [ ])),
-                        FunctionArg("y", FixedType("number", [ ])),
-                        FunctionArg("z", FixedType("number", [ ])),
+                        FunctionArg("x", FixedType("number", [])),
+                        FunctionArg("y", FixedType("number", [])),
+                        FunctionArg("z", FixedType("number", [])),
                     ],
-                    [ ],
+                    [],
                     Addition(
                         Value("x"),
                         Subtraction(
@@ -201,7 +201,7 @@ export function testParse() {
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -214,54 +214,54 @@ export function testParseMultiLine() {
             [
                 Function(
                     "add",
-                    FixedType("number", [ ]),
+                    FixedType("number", []),
                     [
-                        FunctionArg("x", FixedType("number", [ ])),
-                        FunctionArg("y", FixedType("number", [ ])),
+                        FunctionArg("x", FixedType("number", [])),
+                        FunctionArg("y", FixedType("number", [])),
                     ],
-                    [ ],
+                    [],
                     Addition(Value("x"), Value("y"))
                 ),
                 Function(
                     "sub",
-                    FixedType("number", [ ]),
+                    FixedType("number", []),
                     [
-                        FunctionArg("x", FixedType("number", [ ])),
-                        FunctionArg("y", FixedType("number", [ ])),
+                        FunctionArg("x", FixedType("number", [])),
+                        FunctionArg("y", FixedType("number", [])),
                     ],
-                    [ ],
+                    [],
                     Subtraction(Value("x"), Value("y"))
                 ),
                 Function(
                     "mod",
-                    FixedType("number", [ ]),
+                    FixedType("number", []),
                     [
-                        FunctionArg("x", FixedType("number", [ ])),
-                        FunctionArg("y", FixedType("number", [ ])),
+                        FunctionArg("x", FixedType("number", [])),
+                        FunctionArg("y", FixedType("number", [])),
                     ],
-                    [ ],
+                    [],
                     Mod(Value("x"), Value("y"))
                 ),
                 Function(
                     "addThree",
-                    FixedType("number", [ ]),
+                    FixedType("number", []),
                     [
-                        FunctionArg("x", FixedType("number", [ ])),
-                        FunctionArg("y", FixedType("number", [ ])),
-                        FunctionArg("z", FixedType("number", [ ])),
+                        FunctionArg("x", FixedType("number", [])),
+                        FunctionArg("y", FixedType("number", [])),
+                        FunctionArg("z", FixedType("number", [])),
                     ],
-                    [ ],
+                    [],
                     Addition(Value("x"), Addition(Value("y"), Value("z")))
                 ),
                 Function(
                     "mixOperators",
-                    FixedType("number", [ ]),
+                    FixedType("number", []),
                     [
-                        FunctionArg("x", FixedType("number", [ ])),
-                        FunctionArg("y", FixedType("number", [ ])),
-                        FunctionArg("z", FixedType("number", [ ])),
+                        FunctionArg("x", FixedType("number", [])),
+                        FunctionArg("y", FixedType("number", [])),
+                        FunctionArg("z", FixedType("number", [])),
                     ],
-                    [ ],
+                    [],
                     Addition(
                         Value("x"),
                         Subtraction(
@@ -274,7 +274,7 @@ export function testParseMultiLine() {
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

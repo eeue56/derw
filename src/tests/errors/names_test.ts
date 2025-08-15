@@ -14,7 +14,7 @@ hello =
     const block = intoBlocks(str)[0];
     const parsedBlock = (parseBlock(block) as Ok<Block>).value;
 
-    deepStrictEqual(namesPerBlock(parsedBlock), [ "hello", "world" ]);
+    deepStrictEqual(namesPerBlock(parsedBlock), ["hello", "world"]);
 }
 
 export function testSingleNameWithFnCall() {
@@ -26,7 +26,7 @@ hello =
     const block = intoBlocks(str)[0];
     const parsedBlock = (parseBlock(block) as Ok<Block>).value;
 
-    deepStrictEqual(namesPerBlock(parsedBlock), [ "hello", "fn", "world" ]);
+    deepStrictEqual(namesPerBlock(parsedBlock), ["hello", "fn", "world"]);
 }
 
 export function testSingleNameWithNestedFnCall() {
@@ -55,7 +55,7 @@ hello name =
     const block = intoBlocks(str)[0];
     const parsedBlock = (parseBlock(block) as Ok<Block>).value;
 
-    deepStrictEqual(namesPerBlock(parsedBlock), [ "hello", "name" ]);
+    deepStrictEqual(namesPerBlock(parsedBlock), ["hello", "name"]);
 }
 
 export function testFnWithTwoArgs() {

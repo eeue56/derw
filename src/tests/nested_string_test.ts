@@ -85,27 +85,27 @@ export function testParse() {
             [
                 Function(
                     "helloWorld",
-                    FixedType("List", [ FixedType("string", [ ]) ]),
-                    [ FunctionArg("str", FixedType("string", [ ])) ],
-                    [ ],
+                    FixedType("List", [FixedType("string", [])]),
+                    [FunctionArg("str", FixedType("string", []))],
+                    [],
                     ModuleReference(
-                        [ "str" ],
-                        FunctionCall("split", [ StringValue('\\"') ])
+                        ["str"],
+                        FunctionCall("split", [StringValue('\\"')])
                     )
                 ),
 
                 Function(
                     "goodbyeWorld",
-                    FixedType("List", [ FixedType("string", [ ]) ]),
-                    [ FunctionArg("str", FixedType("string", [ ])) ],
-                    [ ],
+                    FixedType("List", [FixedType("string", [])]),
+                    [FunctionArg("str", FixedType("string", []))],
+                    [],
                     ModuleReference(
-                        [ "str" ],
-                        FunctionCall("split", [ FormatStringValue("\\`") ])
+                        ["str"],
+                        FunctionCall("split", [FormatStringValue("\\`")])
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -118,26 +118,26 @@ export function testParseMultiLine() {
             [
                 Function(
                     "helloWorld",
-                    FixedType("List", [ FixedType("string", [ ]) ]),
-                    [ FunctionArg("str", FixedType("string", [ ])) ],
-                    [ ],
+                    FixedType("List", [FixedType("string", [])]),
+                    [FunctionArg("str", FixedType("string", []))],
+                    [],
                     ModuleReference(
-                        [ "str" ],
-                        FunctionCall("split", [ StringValue('\\"') ])
+                        ["str"],
+                        FunctionCall("split", [StringValue('\\"')])
                     )
                 ),
                 Function(
                     "goodbyeWorld",
-                    FixedType("List", [ FixedType("string", [ ]) ]),
-                    [ FunctionArg("str", FixedType("string", [ ])) ],
-                    [ ],
+                    FixedType("List", [FixedType("string", [])]),
+                    [FunctionArg("str", FixedType("string", []))],
+                    [],
                     ModuleReference(
-                        [ "str" ],
-                        FunctionCall("split", [ FormatStringValue("\\`") ])
+                        ["str"],
+                        FunctionCall("split", [FormatStringValue("\\`")])
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

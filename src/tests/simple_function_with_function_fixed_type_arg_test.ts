@@ -68,22 +68,22 @@ export function testParse() {
             [
                 Function(
                     "map",
-                    FixedType("boolean", [ ]),
+                    FixedType("boolean", []),
                     [
                         FunctionArg(
                             "fn",
                             FunctionType([
-                                FixedType("Maybe", [ FixedType("Row", [ ]) ]),
-                                FixedType("boolean", [ ]),
+                                FixedType("Maybe", [FixedType("Row", [])]),
+                                FixedType("boolean", []),
                             ])
                         ),
                         FunctionArg(
                             "value",
-                            FixedType("Maybe", [ FixedType("Row", [ ]) ])
+                            FixedType("Maybe", [FixedType("Row", [])])
                         ),
                     ],
-                    [ ],
-                    FunctionCall("fn", [ Value("value") ])
+                    [],
+                    FunctionCall("fn", [Value("value")])
                 ),
             ],
             [
@@ -106,22 +106,22 @@ export function testParseMultiLine() {
             [
                 Function(
                     "map",
-                    FixedType("boolean", [ ]),
+                    FixedType("boolean", []),
                     [
                         FunctionArg(
                             "fn",
                             FunctionType([
-                                FixedType("Maybe", [ FixedType("Row", [ ]) ]),
-                                FixedType("boolean", [ ]),
+                                FixedType("Maybe", [FixedType("Row", [])]),
+                                FixedType("boolean", []),
                             ])
                         ),
                         FunctionArg(
                             "value",
-                            FixedType("Maybe", [ FixedType("Row", [ ]) ])
+                            FixedType("Maybe", [FixedType("Row", [])])
                         ),
                     ],
-                    [ ],
-                    FunctionCall("fn", [ Value("value") ])
+                    [],
+                    FunctionCall("fn", [Value("value")])
                 ),
             ],
             [

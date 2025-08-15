@@ -117,56 +117,54 @@ export function testParse() {
             [
                 Function(
                     "reducer",
-                    FixedType("boolean", [ ]),
+                    FixedType("boolean", []),
                     [
-                        FunctionArg("index", FixedType("number", [ ])),
-                        FunctionArg("line", FixedType("string", [ ])),
+                        FunctionArg("index", FixedType("number", [])),
+                        FunctionArg("line", FixedType("string", [])),
                     ],
-                    [ ],
+                    [],
                     IfStatement(
                         Equality(
                             ModuleReference(
-                                [ "line" ],
-                                FunctionCall("charAt", [ Value("index") ])
+                                ["line"],
+                                FunctionCall("charAt", [Value("index")])
                             ),
                             StringValue("0")
                         ),
                         Value("true"),
-                        [ ],
+                        [],
                         [
                             ElseIfStatement(
                                 Equality(
                                     ModuleReference(
-                                        [ "line" ],
-                                        FunctionCall("charAt", [
-                                            Value("index"),
-                                        ])
+                                        ["line"],
+                                        FunctionCall("charAt", [Value("index")])
                                     ),
                                     StringValue("1")
                                 ),
                                 IfStatement(
                                     Value("true"),
                                     Value("false"),
-                                    [ ],
+                                    [],
                                     [
                                         ElseIfStatement(
                                             Value("false"),
                                             Value("true"),
-                                            [ ]
+                                            []
                                         ),
                                     ],
                                     Value("true"),
-                                    [ ]
+                                    []
                                 ),
-                                [ ]
+                                []
                             ),
                         ],
                         Value("false"),
-                        [ ]
+                        []
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -179,56 +177,54 @@ export function testParseMultiLine() {
             [
                 Function(
                     "reducer",
-                    FixedType("boolean", [ ]),
+                    FixedType("boolean", []),
                     [
-                        FunctionArg("index", FixedType("number", [ ])),
-                        FunctionArg("line", FixedType("string", [ ])),
+                        FunctionArg("index", FixedType("number", [])),
+                        FunctionArg("line", FixedType("string", [])),
                     ],
-                    [ ],
+                    [],
                     IfStatement(
                         Equality(
                             ModuleReference(
-                                [ "line" ],
-                                FunctionCall("charAt", [ Value("index") ])
+                                ["line"],
+                                FunctionCall("charAt", [Value("index")])
                             ),
                             StringValue("0")
                         ),
                         Value("true"),
-                        [ ],
+                        [],
                         [
                             ElseIfStatement(
                                 Equality(
                                     ModuleReference(
-                                        [ "line" ],
-                                        FunctionCall("charAt", [
-                                            Value("index"),
-                                        ])
+                                        ["line"],
+                                        FunctionCall("charAt", [Value("index")])
                                     ),
                                     StringValue("1")
                                 ),
                                 IfStatement(
                                     Value("true"),
                                     Value("false"),
-                                    [ ],
+                                    [],
                                     [
                                         ElseIfStatement(
                                             Value("false"),
                                             Value("true"),
-                                            [ ]
+                                            []
                                         ),
                                     ],
                                     Value("true"),
-                                    [ ]
+                                    []
                                 ),
-                                [ ]
+                                []
                             ),
                         ],
                         Value("false"),
-                        [ ]
+                        []
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

@@ -45,18 +45,18 @@ const expectedOutput = `
 type Person = {
     name: string;
     age: number;
-}
+};
 
-function Person(args: { name: string, age: number }): Person {
+function Person(args: { name: string; age: number; }): Person {
     return {
         ...args,
     };
 }
 
-const helloWorld: Person[] = [ {
+const helloWorld: Person[] = [{
     name: "Noah",
-    age: 29
-} ];
+    age: 29,
+}];
 `.trim();
 
 const expectedOutputJS = `
@@ -66,10 +66,10 @@ function Person(args) {
     };
 }
 
-const helloWorld = [ {
+const helloWorld = [{
     name: "Noah",
-    age: 29
-} ];
+    age: 29,
+}];
 `.trim();
 
 export function testIntoBlocks() {
@@ -100,14 +100,14 @@ export function testParse() {
         Module(
             "main",
             [
-                TypeAlias(FixedType("Person", [ ]), [
-                    Property("name", FixedType("string", [ ])),
-                    Property("age", FixedType("number", [ ])),
+                TypeAlias(FixedType("Person", []), [
+                    Property("name", FixedType("string", [])),
+                    Property("age", FixedType("number", [])),
                 ]),
                 Const(
                     "helloWorld",
-                    FixedType("List", [ FixedType("Person", [ ]) ]),
-                    [ ],
+                    FixedType("List", [FixedType("Person", [])]),
+                    [],
                     ListValue([
                         ObjectLiteral(null, [
                             Field("name", StringValue("Noah")),
@@ -116,7 +116,7 @@ export function testParse() {
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -127,14 +127,14 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
-                TypeAlias(FixedType("Person", [ ]), [
-                    Property("name", FixedType("string", [ ])),
-                    Property("age", FixedType("number", [ ])),
+                TypeAlias(FixedType("Person", []), [
+                    Property("name", FixedType("string", [])),
+                    Property("age", FixedType("number", [])),
                 ]),
                 Const(
                     "helloWorld",
-                    FixedType("List", [ FixedType("Person", [ ]) ]),
-                    [ ],
+                    FixedType("List", [FixedType("Person", [])]),
+                    [],
                     ListValue([
                         ObjectLiteral(null, [
                             Field("name", StringValue("Noah")),
@@ -143,7 +143,7 @@ export function testParseMultiLine() {
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

@@ -26,7 +26,7 @@ type alias Person = {
 const expectedOutput = `
 type Person = {
 
-}
+};
 
 function Person(args: { }): Person {
     return {
@@ -72,14 +72,14 @@ export function testBlockKindMultiLine() {
 export function testParse() {
     assert.deepStrictEqual(
         parse(oneLine),
-        Module("main", [ TypeAlias(FixedType("Person", [ ]), [ ]) ], [ ])
+        Module("main", [TypeAlias(FixedType("Person", []), [])], [])
     );
 }
 
 export function testParseMultiLine() {
     assert.deepStrictEqual(
         parse(multiLine),
-        Module("main", [ TypeAlias(FixedType("Person", [ ]), [ ]) ], [ ])
+        Module("main", [TypeAlias(FixedType("Person", []), [])], [])
     );
 }
 

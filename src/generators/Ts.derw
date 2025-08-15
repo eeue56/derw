@@ -191,12 +191,12 @@ generateTypeAlias syntax imports =
             if generatedProperties.length == 0 then
                 " "
             else
-                ` ${generatedProperties.join(", ")} `
+                ` ${generatedProperties.join("; ")}; `
     in
         [
             `type ${typeDef} = {`,
             properties,
-            "}",
+            "};",
             "",
             `function ${typeDef}(args: {${args}}): ${typeDef} {`,
             "    return {",
@@ -473,7 +473,7 @@ generateObjectLiteral literal =
                     `{ ${fields} }`
 
                 default ->
-                    `{\n    ${fields}\n}`
+                    `{\n    ${fields},\n}`
         else
             case literal.fields of
                 [] ->
@@ -483,7 +483,7 @@ generateObjectLiteral literal =
                     `{ ${literal.base.body}, ${fields} }`
 
                 default ->
-                    `{\n    ${literal.base.body},\n    ${fields}\n}`
+                    `{\n    ${literal.base.body},\n    ${fields},\n}`
 
 generateListValue: ListValue -> string
 generateListValue list =
@@ -506,13 +506,13 @@ generateListValue list =
     in
         case items of
             [] ->
-                "[ ]"
+                "[]"
 
             x :: [] ->
-                `[ ${x} ]`
+                `[${x}]`
 
             default ->
-                `[ ${items.join(", ")} ]`
+                `[${items.join(", ")}]`
 
 generateLetBlock: List Block -> List string -> List Import -> string
 generateLetBlock body parentTypeArguments imports =
@@ -597,6 +597,15 @@ generateIfStatement ifStatement parentTypeArguments isAsync neverSimple =
             else
                 ""
 
+        ifBodySuffix: string
+        ifBodySuffix =
+            case ifStatement.ifBody of
+                IfStatement ->
+                    ""
+
+                default ->
+                    ";"
+
         asyncPrefix: string
         asyncPrefix =
             if isAsync then
@@ -610,6 +619,15 @@ generateIfStatement ifStatement parentTypeArguments isAsync neverSimple =
                 "return "
             else
                 ""
+
+        elseBodySuffix: string
+        elseBodySuffix =
+            case ifStatement.elseBody of
+                IfStatement ->
+                    ""
+
+                default ->
+                    ";"
 
         maybeIfLetBody: string
         maybeIfLetBody =
@@ -681,7 +699,7 @@ generateIfStatement ifStatement parentTypeArguments isAsync neverSimple =
             else
                 `${elseIfs}\n}`
     in
-        `if (${predicate}) {${maybeIfLetBody}\n    ${ifBodyPrefix}${asyncPrefix}${indentedIfBody};\n${prefixedElseIfs} else {${maybeElseLetBody}\n    ${elseBodyPrefix}${asyncPrefix}${indentedElseBody};\n}`
+        `if (${predicate}) {${maybeIfLetBody}\n    ${ifBodyPrefix}${asyncPrefix}${indentedIfBody}${ifBodySuffix}\n${prefixedElseIfs} else {${maybeElseLetBody}\n    ${elseBodyPrefix}${asyncPrefix}${indentedElseBody};\n}`
 
 generateConstructor: Constructor -> string
 generateConstructor constructor =
@@ -1267,12 +1285,27 @@ generateModuleReference moduleReference =
 generateFunctionCall: FunctionCall -> string
 generateFunctionCall functionCall =
     let
-        args: string
-        args =
+        generatedArgs: List string
+        generatedArgs =
             List.map generateExpression functionCall.args
-                |> (\y -> y.join ", ")
+
+        oneLineArgs: string
+        oneLineArgs =
+            generatedArgs.join ", "
+
+        firstLineLength: number
+        firstLineLength =
+            oneLineArgs.split "\n"
+                |> (\x -> x[0].length)
+
+        mulitLineArgs: string
+        mulitLineArgs =
+            prefixLines (generatedArgs.join ",\n") 4
     in
-        `${functionCall.name}(${args})`
+        if firstLineLength * 1.6 < 80 then
+            `${functionCall.name}(${oneLineArgs})`
+        else
+            `${functionCall.name}(\n${mulitLineArgs}\n)`
 
 generateLambda: Lambda -> string
 generateLambda lambda =

@@ -94,12 +94,12 @@ export function testParse() {
         Module(
             "main",
             [
-                UnionType(FixedType("Animal", [ ]), [
-                    Tag("Dog", [ TagArg("name", FixedType("string", [ ])) ]),
-                    Tag("Cat", [ TagArg("lives", FixedType("number", [ ])) ]),
+                UnionType(FixedType("Animal", []), [
+                    Tag("Dog", [TagArg("name", FixedType("string", []))]),
+                    Tag("Cat", [TagArg("lives", FixedType("number", []))]),
                 ]),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -110,12 +110,12 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
-                UnionType(FixedType("Animal", [ ]), [
-                    Tag("Dog", [ TagArg("name", FixedType("string", [ ])) ]),
-                    Tag("Cat", [ TagArg("lives", FixedType("number", [ ])) ]),
+                UnionType(FixedType("Animal", []), [
+                    Tag("Dog", [TagArg("name", FixedType("string", []))]),
+                    Tag("Cat", [TagArg("lives", FixedType("number", []))]),
                 ]),
             ],
-            [ ]
+            []
         )
     );
 }

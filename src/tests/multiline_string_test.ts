@@ -64,12 +64,12 @@ export function testParse() {
             [
                 Const(
                     "example",
-                    FixedType("string", [ ]),
-                    [ ],
+                    FixedType("string", []),
+                    [],
                     FormatStringValue("Hello world")
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -82,12 +82,12 @@ export function testParseMultiLine() {
             [
                 Const(
                     "example",
-                    FixedType("string", [ ]),
-                    [ ],
+                    FixedType("string", []),
+                    [],
                     FormatStringValue("Hello world")
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

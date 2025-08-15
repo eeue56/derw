@@ -141,16 +141,16 @@ type Animal = Dog { name: string } | Cat { lives: number }
         Module(
             "main",
             [
-                UnionType(FixedType("Binary", [ ]), [
-                    Tag("True", [ ]),
-                    Tag("False", [ ]),
+                UnionType(FixedType("Binary", []), [
+                    Tag("True", []),
+                    Tag("False", []),
                 ]),
-                UnionType(FixedType("Animal", [ ]), [
-                    Tag("Dog", [ TagArg("name", FixedType("string", [ ])) ]),
-                    Tag("Cat", [ TagArg("lives", FixedType("number", [ ])) ]),
+                UnionType(FixedType("Animal", []), [
+                    Tag("Dog", [TagArg("name", FixedType("string", []))]),
+                    Tag("Cat", [TagArg("lives", FixedType("number", []))]),
                 ]),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -173,16 +173,16 @@ type Animal
         Module(
             "main",
             [
-                UnionType(FixedType("Binary", [ ]), [
-                    Tag("True", [ ]),
-                    Tag("False", [ ]),
+                UnionType(FixedType("Binary", []), [
+                    Tag("True", []),
+                    Tag("False", []),
                 ]),
-                UnionType(FixedType("Animal", [ ]), [
-                    Tag("Dog", [ TagArg("name", FixedType("string", [ ])) ]),
-                    Tag("Cat", [ TagArg("lives", FixedType("number", [ ])) ]),
+                UnionType(FixedType("Animal", []), [
+                    Tag("Dog", [TagArg("name", FixedType("string", []))]),
+                    Tag("Cat", [TagArg("lives", FixedType("number", []))]),
                 ]),
             ],
-            [ ]
+            []
         )
     );
 }

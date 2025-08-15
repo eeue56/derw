@@ -30,13 +30,13 @@ export async function getDerwFiles(
     try {
         const lstat = await promises.lstat(dir);
         if (!lstat.isDirectory()) {
-            return Ok([ dir ]);
+            return Ok([dir]);
         }
     } catch (error) {
         return Err(`${error}`);
     }
 
-    let files: string[] = [ ];
+    let files: string[] = [];
 
     for (const file of await readdir(dir, { withFileTypes: true })) {
         if (file.isFile()) {
@@ -65,7 +65,7 @@ export async function getFlatFiles(
     const nestedFiles = await Promise.all(
         files.map(async (file) => await getDerwFiles(file))
     );
-    let returnedFiles: string[] = [ ];
+    let returnedFiles: string[] = [];
 
     for (const innerFiles of nestedFiles) {
         if (innerFiles.kind === "Err") {
@@ -92,7 +92,5 @@ export async function suggestFileNames(fullPath: string): Promise<string> {
         return `I couldn't find the file ${fullPath} and have no suggestions.`;
     }
 
-    return `I couldn't find the file ${fullPath}. Maybe you meant ${suggestions.join(
-        ","
-    )}?`;
+    return `I couldn't find the file ${fullPath}. Maybe you meant ${suggestions.join(",")}?`;
 }

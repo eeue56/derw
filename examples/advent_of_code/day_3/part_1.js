@@ -10,12 +10,12 @@ function reducer(index, common, line) {
     if (line.charAt(index) === "0") {
         return {
             zero: common.zero + 1,
-            one: common.one
+            one: common.one,
         };
     } else {
         return {
             zero: common.zero,
-            one: common.one + 1
+            one: common.one + 1,
         };
     }
 }
@@ -26,7 +26,7 @@ function mostCommon(index, bits) {
     }
     return bits.reduce(something, {
         zero: 0,
-        one: 0
+        one: 0,
     });
 }
 
@@ -87,7 +87,9 @@ function calc(xs) {
     return gamma * epsilon;
 }
 
-const exampleMain = globalThis.console.log(calc([ "00100", "11110", "10110", "10111", "10101", "01111", "00111", "11100", "10000", "11001", "00010", "01010" ]));
+const exampleMain = globalThis.console.log(calc(
+    ["00100", "11110", "10110", "10111", "10101", "01111", "00111", "11100", "10000", "11001", "00010", "01010"]
+));
 
 const adventInput = split(toString(fs.readFileSync("input.txt")));
 

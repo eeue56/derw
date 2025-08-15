@@ -13,10 +13,10 @@ function getNameFromPath(path: string): string {
         switch (_res118108815.length) {
             case _res118108815.length: {
                 if (_res118108815.length === 1) {
-                    const [ x ] = _res118108815;
-                    return (function(y: any) {
-                return y[0];
-            })(x.split("."));
+                    const [x] = _res118108815;
+                    return (function (y: any) {
+                        return y[0];
+                    })(x.split("."));
                 }
             }
             default: {
@@ -39,9 +39,15 @@ function hashCodeStep(charCode: number, hash: number): number {
 }
 
 function hashCode(str: string): number {
-    return (function(y: any) {
+    return (function (y: any) {
         return Math.abs(y);
-    })(List.foldl(hashCodeStep, 0, List.map(function(letter: any) {
-        return letter.charCodeAt(0);
-    }, str.split(""))));
+    })(
+        List.foldl(
+            hashCodeStep,
+            0,
+            List.map(function (letter: any) {
+                return letter.charCodeAt(0);
+            }, str.split(""))
+        )
+    );
 }

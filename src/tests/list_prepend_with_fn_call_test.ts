@@ -29,11 +29,15 @@ helloWorld =
 `.trim();
 
 const expectedOutput = `
-const helloWorld: number[] = fn([ 1, ...Array.from({ length: 5 - 2 + 1 }, (_ReservedX, _ReservedI) => _ReservedI + 2) ]);
+const helloWorld: number[] = fn(
+    [ 1, ...Array.from({ length: 5 - 2 + 1 }, (_ReservedX, _ReservedI) => _ReservedI + 2) ]
+);
 `.trim();
 
 const expectedOutputJS = `
-const helloWorld = fn([ 1, ...Array.from({ length: 5 - 2 + 1 }, (_ReservedX, _ReservedI) => _ReservedI + 2) ]);
+const helloWorld = fn(
+    [ 1, ...Array.from({ length: 5 - 2 + 1 }, (_ReservedX, _ReservedI) => _ReservedI + 2) ]
+);
 `.trim();
 
 export function testIntoBlocks() {
@@ -64,8 +68,8 @@ export function testParse() {
             [
                 Const(
                     "helloWorld",
-                    FixedType("List", [ FixedType("number", [ ]) ]),
-                    [ ],
+                    FixedType("List", [FixedType("number", [])]),
+                    [],
                     FunctionCall("fn", [
                         ListPrepend(
                             Value("1"),
@@ -74,7 +78,7 @@ export function testParse() {
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -87,8 +91,8 @@ export function testParseMultiLine() {
             [
                 Const(
                     "helloWorld",
-                    FixedType("List", [ FixedType("number", [ ]) ]),
-                    [ ],
+                    FixedType("List", [FixedType("number", [])]),
+                    [],
                     FunctionCall("fn", [
                         ListPrepend(
                             Value("1"),
@@ -97,7 +101,7 @@ export function testParseMultiLine() {
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

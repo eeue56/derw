@@ -86,9 +86,9 @@ const expectedOutput = `
 type User = {
     name: string;
     age: number;
-}
+};
 
-function User(args: { name: string, age: number }): User {
+function User(args: { name: string; age: number; }): User {
     return {
         ...args,
     };
@@ -151,76 +151,76 @@ export function testParse() {
         Module(
             "main",
             [
-                TypeAlias(FixedType("User", [ ]), [
-                    Property("name", FixedType("string", [ ])),
-                    Property("age", FixedType("number", [ ])),
+                TypeAlias(FixedType("User", []), [
+                    Property("name", FixedType("string", [])),
+                    Property("age", FixedType("number", [])),
                 ]),
                 Typeclass(
                     "Eq",
-                    [ GenericType("a") ],
+                    [GenericType("a")],
                     [
-                        TypeclassFunction("equals", FixedType("boolean", [ ]), [
+                        TypeclassFunction("equals", FixedType("boolean", []), [
                             GenericType("a"),
                             GenericType("a"),
                         ]),
                         TypeclassFunction(
                             "notEquals",
-                            FixedType("boolean", [ ]),
-                            [ GenericType("a"), GenericType("a") ]
+                            FixedType("boolean", []),
+                            [GenericType("a"), GenericType("a")]
                         ),
                     ]
                 ),
-                Impl("Eq", FixedType("User", [ ]), [
+                Impl("Eq", FixedType("User", []), [
                     Function(
                         "equals",
-                        FixedType("boolean", [ ]),
+                        FixedType("boolean", []),
                         [
-                            FunctionArg("a", FixedType("User", [ ])),
-                            FunctionArg("b", FixedType("User", [ ])),
+                            FunctionArg("a", FixedType("User", [])),
+                            FunctionArg("b", FixedType("User", [])),
                         ],
-                        [ ],
+                        [],
                         Equality(
-                            ModuleReference([ "a" ], Value("name")),
+                            ModuleReference(["a"], Value("name")),
                             And(
-                                ModuleReference([ "b" ], Value("name")),
+                                ModuleReference(["b"], Value("name")),
                                 Equality(
-                                    ModuleReference([ "a" ], Value("age")),
-                                    ModuleReference([ "b" ], Value("age"))
+                                    ModuleReference(["a"], Value("age")),
+                                    ModuleReference(["b"], Value("age"))
                                 )
                             )
                         )
                     ),
                     Function(
                         "notEquals",
-                        FixedType("boolean", [ ]),
+                        FixedType("boolean", []),
                         [
-                            FunctionArg("a", FixedType("User", [ ])),
-                            FunctionArg("b", FixedType("User", [ ])),
+                            FunctionArg("a", FixedType("User", [])),
+                            FunctionArg("b", FixedType("User", [])),
                         ],
-                        [ ],
+                        [],
 
                         IfStatement(
                             Equality(Value("a"), Value("b")),
                             Value("false"),
-                            [ ],
-                            [ ],
+                            [],
+                            [],
                             Value("true"),
-                            [ ]
+                            []
                         )
                     ),
                 ]),
                 Function(
                     "isSameUser",
-                    FixedType("boolean", [ ]),
+                    FixedType("boolean", []),
                     [
-                        FunctionArg("a", FixedType("User", [ ])),
-                        FunctionArg("b", FixedType("User", [ ])),
+                        FunctionArg("a", FixedType("User", [])),
+                        FunctionArg("b", FixedType("User", [])),
                     ],
-                    [ ],
-                    FunctionCall("equals", [ Value("a"), Value("b") ])
+                    [],
+                    FunctionCall("equals", [Value("a"), Value("b")])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -231,76 +231,76 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
-                TypeAlias(FixedType("User", [ ]), [
-                    Property("name", FixedType("string", [ ])),
-                    Property("age", FixedType("number", [ ])),
+                TypeAlias(FixedType("User", []), [
+                    Property("name", FixedType("string", [])),
+                    Property("age", FixedType("number", [])),
                 ]),
                 Typeclass(
                     "Eq",
-                    [ GenericType("a") ],
+                    [GenericType("a")],
                     [
-                        TypeclassFunction("equals", FixedType("boolean", [ ]), [
+                        TypeclassFunction("equals", FixedType("boolean", []), [
                             GenericType("a"),
                             GenericType("a"),
                         ]),
                         TypeclassFunction(
                             "notEquals",
-                            FixedType("boolean", [ ]),
-                            [ GenericType("a"), GenericType("a") ]
+                            FixedType("boolean", []),
+                            [GenericType("a"), GenericType("a")]
                         ),
                     ]
                 ),
-                Impl("Eq", FixedType("User", [ ]), [
+                Impl("Eq", FixedType("User", []), [
                     Function(
                         "equals",
-                        FixedType("boolean", [ ]),
+                        FixedType("boolean", []),
                         [
-                            FunctionArg("a", FixedType("User", [ ])),
-                            FunctionArg("b", FixedType("User", [ ])),
+                            FunctionArg("a", FixedType("User", [])),
+                            FunctionArg("b", FixedType("User", [])),
                         ],
-                        [ ],
+                        [],
                         Equality(
-                            ModuleReference([ "a" ], Value("name")),
+                            ModuleReference(["a"], Value("name")),
                             And(
-                                ModuleReference([ "b" ], Value("name")),
+                                ModuleReference(["b"], Value("name")),
                                 Equality(
-                                    ModuleReference([ "a" ], Value("age")),
-                                    ModuleReference([ "b" ], Value("age"))
+                                    ModuleReference(["a"], Value("age")),
+                                    ModuleReference(["b"], Value("age"))
                                 )
                             )
                         )
                     ),
                     Function(
                         "notEquals",
-                        FixedType("boolean", [ ]),
+                        FixedType("boolean", []),
                         [
-                            FunctionArg("a", FixedType("User", [ ])),
-                            FunctionArg("b", FixedType("User", [ ])),
+                            FunctionArg("a", FixedType("User", [])),
+                            FunctionArg("b", FixedType("User", [])),
                         ],
-                        [ ],
+                        [],
 
                         IfStatement(
                             Equality(Value("a"), Value("b")),
                             Value("false"),
-                            [ ],
-                            [ ],
+                            [],
+                            [],
                             Value("true"),
-                            [ ]
+                            []
                         )
                     ),
                 ]),
                 Function(
                     "isSameUser",
-                    FixedType("boolean", [ ]),
+                    FixedType("boolean", []),
                     [
-                        FunctionArg("a", FixedType("User", [ ])),
-                        FunctionArg("b", FixedType("User", [ ])),
+                        FunctionArg("a", FixedType("User", [])),
+                        FunctionArg("b", FixedType("User", [])),
                     ],
-                    [ ],
-                    FunctionCall("equals", [ Value("a"), Value("b") ])
+                    [],
+                    FunctionCall("equals", [Value("a"), Value("b")])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

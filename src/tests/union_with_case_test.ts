@@ -155,7 +155,7 @@ export function testBlockKind() {
 
     assert.deepStrictEqual(
         blocks.map((block) => blockKind(block.lines.join("\n"))),
-        [ Ok("UnionType"), Ok("Function") ]
+        [Ok("UnionType"), Ok("Function")]
     );
 }
 
@@ -164,7 +164,7 @@ export function testBlockKindMultiLine() {
 
     assert.deepStrictEqual(
         blocks.map((block) => blockKind(block.lines.join("\n"))),
-        [ Ok("UnionType"), Ok("Function") ]
+        [Ok("UnionType"), Ok("Function")]
     );
 }
 
@@ -180,14 +180,14 @@ export function testParse() {
             "main",
             [
                 UnionType(returnType, [
-                    Tag("Err", [ TagArg("error", GenericType("a")) ]),
-                    Tag("Ok", [ TagArg("value", GenericType("b")) ]),
+                    Tag("Err", [TagArg("error", GenericType("a"))]),
+                    Tag("Ok", [TagArg("value", GenericType("b"))]),
                 ]),
                 Function(
                     "asIs",
                     returnType,
-                    [ FunctionArg("result", returnType) ],
-                    [ ],
+                    [FunctionArg("result", returnType)],
+                    [],
                     CaseStatement(Value("result"), [
                         Branch(
                             Destructure("Err", "{ error }"),
@@ -197,7 +197,7 @@ export function testParse() {
                                     Field("error", Value("error")),
                                 ])
                             ),
-                            [ ]
+                            []
                         ),
                         Branch(
                             Destructure("Ok", "{ value }"),
@@ -207,12 +207,12 @@ export function testParse() {
                                     Field("value", Value("value")),
                                 ])
                             ),
-                            [ ]
+                            []
                         ),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -229,14 +229,14 @@ export function testParseMultiLine() {
             "main",
             [
                 UnionType(returnType, [
-                    Tag("Err", [ TagArg("error", GenericType("a")) ]),
-                    Tag("Ok", [ TagArg("value", GenericType("b")) ]),
+                    Tag("Err", [TagArg("error", GenericType("a"))]),
+                    Tag("Ok", [TagArg("value", GenericType("b"))]),
                 ]),
                 Function(
                     "asIs",
                     returnType,
-                    [ FunctionArg("result", returnType) ],
-                    [ ],
+                    [FunctionArg("result", returnType)],
+                    [],
                     CaseStatement(Value("result"), [
                         Branch(
                             Destructure("Err", "{ error }"),
@@ -246,7 +246,7 @@ export function testParseMultiLine() {
                                     Field("error", Value("error")),
                                 ])
                             ),
-                            [ ]
+                            []
                         ),
                         Branch(
                             Destructure("Ok", "{ value }"),
@@ -256,12 +256,12 @@ export function testParseMultiLine() {
                                     Field("value", Value("value")),
                                 ])
                             ),
-                            [ ]
+                            []
                         ),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

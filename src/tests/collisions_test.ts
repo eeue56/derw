@@ -42,11 +42,11 @@ export function testIntoBlocks() {
     const lines = oneLine.split("\n");
 
     assert.deepStrictEqual(intoBlocks(oneLine), [
-        UnparsedBlock("ConstBlock", 0, [ lines[0], lines[1] ]),
-        UnparsedBlock("ConstBlock", 3, [ lines[3], lines[4] ]),
-        UnparsedBlock("UnionTypeBlock", 6, [ lines[6] ]),
-        UnparsedBlock("TypeAliasBlock", 8, [ lines[8] ]),
-        UnparsedBlock("FunctionBlock", 10, [ lines[10], lines[11] ]),
+        UnparsedBlock("ConstBlock", 0, [lines[0], lines[1]]),
+        UnparsedBlock("ConstBlock", 3, [lines[3], lines[4]]),
+        UnparsedBlock("UnionTypeBlock", 6, [lines[6]]),
+        UnparsedBlock("TypeAliasBlock", 8, [lines[8]]),
+        UnparsedBlock("FunctionBlock", 10, [lines[10], lines[11]]),
     ]);
 }
 

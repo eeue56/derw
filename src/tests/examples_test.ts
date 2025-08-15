@@ -13,7 +13,7 @@ const emptyLineAtEndOfFile = "\n";
 async function adventOfCodeFiles(): Promise<string[]> {
     const days = await readdir(adventOfCodePath);
 
-    let aocFiles: string[] = [ ];
+    let aocFiles: string[] = [];
 
     for (const day of days) {
         const files = await (
@@ -95,7 +95,7 @@ export async function testExamplesAreConsistentlyParsed() {
             generateDerw(secondParsed) + emptyLineAtEndOfFile;
 
         try {
-            assert.deepStrictEqual(parsed.errors, [ ]);
+            assert.deepStrictEqual(parsed.errors, []);
             assert.deepStrictEqual(generated, secondGenerated);
             assert.deepStrictEqual(parsed, secondParsed);
         } catch (e) {

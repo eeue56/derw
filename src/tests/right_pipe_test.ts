@@ -35,11 +35,11 @@ helloWorld =
 `.trim();
 
 const expectedOutput = `
-const helloWorld: number[] = List.foldl(add)([ 1, 2, 3 ]);
+const helloWorld: number[] = List.foldl(add)([1, 2, 3]);
 `.trim();
 
 const expectedOutputJS = `
-const helloWorld = List.foldl(add)([ 1, 2, 3 ]);
+const helloWorld = List.foldl(add)([1, 2, 3]);
 `.trim();
 
 export function testIntoBlocks() {
@@ -70,18 +70,18 @@ export function testParse() {
             [
                 Const(
                     "helloWorld",
-                    FixedType("List", [ FixedType("number", [ ]) ]),
-                    [ ],
+                    FixedType("List", [FixedType("number", [])]),
+                    [],
                     RightPipe(
                         ModuleReference(
-                            [ "List" ],
-                            FunctionCall("foldl", [ Value("add") ])
+                            ["List"],
+                            FunctionCall("foldl", [Value("add")])
                         ),
-                        ListValue([ Value("1"), Value("2"), Value("3") ])
+                        ListValue([Value("1"), Value("2"), Value("3")])
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -94,18 +94,18 @@ export function testParseMultiLine() {
             [
                 Const(
                     "helloWorld",
-                    FixedType("List", [ FixedType("number", [ ]) ]),
-                    [ ],
+                    FixedType("List", [FixedType("number", [])]),
+                    [],
                     RightPipe(
                         ModuleReference(
-                            [ "List" ],
-                            FunctionCall("foldl", [ Value("add") ])
+                            ["List"],
+                            FunctionCall("foldl", [Value("add")])
                         ),
-                        ListValue([ Value("1"), Value("2"), Value("3") ])
+                        ListValue([Value("1"), Value("2"), Value("3")])
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

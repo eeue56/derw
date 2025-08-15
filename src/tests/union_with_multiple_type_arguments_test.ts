@@ -143,32 +143,32 @@ export function testParse() {
             "main",
             [
                 UnionType(
-                    FixedType("Either", [ GenericType("a"), GenericType("b") ]),
+                    FixedType("Either", [GenericType("a"), GenericType("b")]),
                     [
-                        Tag("Left", [ TagArg("value", GenericType("a")) ]),
-                        Tag("Right", [ TagArg("value", GenericType("b")) ]),
+                        Tag("Left", [TagArg("value", GenericType("a"))]),
+                        Tag("Right", [TagArg("value", GenericType("b"))]),
                     ]
                 ),
                 Const(
                     "value",
                     FixedType("Either", [
-                        FixedType("number", [ ]),
-                        FixedType("string", [ ]),
+                        FixedType("number", []),
+                        FixedType("string", []),
                     ]),
-                    [ ],
+                    [],
                     Constructor(
                         "Left",
-                        ObjectLiteral(null, [ Field("value", Value("1")) ])
+                        ObjectLiteral(null, [Field("value", Value("1"))])
                     )
                 ),
                 Function(
                     "fn",
                     FixedType("Either", [
-                        FixedType("number", [ ]),
-                        FixedType("string", [ ]),
+                        FixedType("number", []),
+                        FixedType("string", []),
                     ]),
-                    [ FunctionArg("b", FixedType("boolean", [ ])) ],
-                    [ ],
+                    [FunctionArg("b", FixedType("boolean", []))],
+                    [],
                     Constructor(
                         "Right",
                         ObjectLiteral(null, [
@@ -177,7 +177,7 @@ export function testParse() {
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -189,32 +189,32 @@ export function testParseMultiLine() {
             "main",
             [
                 UnionType(
-                    FixedType("Either", [ GenericType("a"), GenericType("b") ]),
+                    FixedType("Either", [GenericType("a"), GenericType("b")]),
                     [
-                        Tag("Left", [ TagArg("value", GenericType("a")) ]),
-                        Tag("Right", [ TagArg("value", GenericType("b")) ]),
+                        Tag("Left", [TagArg("value", GenericType("a"))]),
+                        Tag("Right", [TagArg("value", GenericType("b"))]),
                     ]
                 ),
                 Const(
                     "value",
                     FixedType("Either", [
-                        FixedType("number", [ ]),
-                        FixedType("string", [ ]),
+                        FixedType("number", []),
+                        FixedType("string", []),
                     ]),
-                    [ ],
+                    [],
                     Constructor(
                         "Left",
-                        ObjectLiteral(null, [ Field("value", Value("1")) ])
+                        ObjectLiteral(null, [Field("value", Value("1"))])
                     )
                 ),
                 Function(
                     "fn",
                     FixedType("Either", [
-                        FixedType("number", [ ]),
-                        FixedType("string", [ ]),
+                        FixedType("number", []),
+                        FixedType("string", []),
                     ]),
-                    [ FunctionArg("b", FixedType("boolean", [ ])) ],
-                    [ ],
+                    [FunctionArg("b", FixedType("boolean", []))],
+                    [],
                     Constructor(
                         "Right",
                         ObjectLiteral(null, [
@@ -223,7 +223,7 @@ export function testParseMultiLine() {
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

@@ -102,26 +102,26 @@ export function testParse() {
             [
                 Function(
                     "isIncrease",
-                    FixedType("number", [ ]),
-                    [ FunctionArg("x", FixedType("number", [ ])) ],
+                    FixedType("number", []),
+                    [FunctionArg("x", FixedType("number", []))],
                     [
                         Const(
                             "y",
-                            FixedType("number", [ ]),
-                            [ ],
+                            FixedType("number", []),
+                            [],
                             Addition(Value("x"), Value("x"))
                         ),
                         Const(
                             "z",
-                            FixedType("string", [ ]),
-                            [ ],
+                            FixedType("string", []),
+                            [],
                             StringValue("hello")
                         ),
                     ],
                     Addition(Value("x"), Value("y"))
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -134,26 +134,26 @@ export function testParseMultiLine() {
             [
                 Function(
                     "isIncrease",
-                    FixedType("number", [ ]),
-                    [ FunctionArg("x", FixedType("number", [ ])) ],
+                    FixedType("number", []),
+                    [FunctionArg("x", FixedType("number", []))],
                     [
                         Const(
                             "y",
-                            FixedType("number", [ ]),
-                            [ ],
+                            FixedType("number", []),
+                            [],
                             Addition(Value("x"), Value("x"))
                         ),
                         Const(
                             "z",
-                            FixedType("string", [ ]),
-                            [ ],
+                            FixedType("string", []),
+                            [],
                             StringValue("hello")
                         ),
                     ],
                     Addition(Value("x"), Value("y"))
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

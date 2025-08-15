@@ -2,7 +2,20 @@ import { getNameFromPath } from "../Utils";
 
 import * as List from "../stdlib/List";
 
-import { Value, StringValue, FormatStringValue, ListRange, ListDestructurePart, ModuleReference, Expression, LeftPipe, Lambda, Export, ImportModule, Import } from "../types";
+import {
+    Value,
+    StringValue,
+    FormatStringValue,
+    ListRange,
+    ListDestructurePart,
+    ModuleReference,
+    Expression,
+    LeftPipe,
+    Lambda,
+    Export,
+    ImportModule,
+    Import,
+} from "../types";
 
 export { generateValue };
 export { generateStringValue };
@@ -19,7 +32,10 @@ type FunctionCall = {
     args: Expression[];
 };
 
-function FunctionCall(args: { name: string, args: Expression[] }): FunctionCall {
+function FunctionCall(args: {
+    name: string;
+    args: Expression[];
+}): FunctionCall {
     return {
         kind: "FunctionCall",
         ...args,
@@ -32,7 +48,7 @@ type LambdaCall = {
     lambda: Lambda;
 };
 
-function LambdaCall(args: { args: Expression[], lambda: Lambda }): LambdaCall {
+function LambdaCall(args: { args: Expression[]; lambda: Lambda }): LambdaCall {
     return {
         kind: "LambdaCall",
         ...args,
@@ -83,21 +99,30 @@ function generateListDestructurePart(part: ListDestructurePart): string {
     }
 }
 
-function addArgsToModuleReference(moduleReference: ModuleReference, newArgs: Expression[]): ModuleReference {
+function addArgsToModuleReference(
+    moduleReference: ModuleReference,
+    newArgs: Expression[]
+): ModuleReference {
     switch (moduleReference.value.kind) {
         case "FunctionCall": {
             const { args, name } = moduleReference.value;
-            return { ...moduleReference, value: FunctionCall({
-            name,
-            args: List.append(args, newArgs)
-        }) };
+            return {
+                ...moduleReference,
+                value: FunctionCall({
+                    name,
+                    args: List.append(args, newArgs),
+                }),
+            };
         }
         case "Value": {
             const { body } = moduleReference.value;
-            return { ...moduleReference, value: FunctionCall({
-            name: body,
-            args: newArgs
-        }) };
+            return {
+                ...moduleReference,
+                value: FunctionCall({
+                    name: body,
+                    args: newArgs,
+                }),
+            };
         }
         default: {
             return moduleReference;
@@ -112,25 +137,25 @@ function flattenLeftPipe(leftPipe: LeftPipe): any {
         case "FunctionCall": {
             const { name, args } = right;
             return FunctionCall({
-            name,
-            args: List.append(args, [ left ])
-        });
+                name,
+                args: List.append(args, [left]),
+            });
         }
         case "Value": {
             const { body } = right;
             return FunctionCall({
-            name: body,
-            args: [ left ]
-        });
+                name: body,
+                args: [left],
+            });
         }
         case "ModuleReference": {
-            return addArgsToModuleReference(right, [ left ]);
+            return addArgsToModuleReference(right, [left]);
         }
         case "Lambda": {
             return LambdaCall({
-            lambda: right,
-            args: [ left ]
-        });
+                lambda: right,
+                args: [left],
+            });
         }
         case "LeftPipe": {
             switch (right.left.kind) {
@@ -138,44 +163,47 @@ function flattenLeftPipe(leftPipe: LeftPipe): any {
                     const { args, name } = right.left;
                     const fn: FunctionCall = FunctionCall({
                         name,
-                        args: List.append(args, [ left ])
+                        args: List.append(args, [left]),
                     });
                     return flattenLeftPipe({
-                    kind: "LeftPipe",
-                    left: fn,
-                    right: right.right
-                });
+                        kind: "LeftPipe",
+                        left: fn,
+                        right: right.right,
+                    });
                 }
                 case "Value": {
                     const { body } = right.left;
                     const fn: FunctionCall = FunctionCall({
                         name: body,
-                        args: [ left ]
+                        args: [left],
                     });
                     return flattenLeftPipe({
-                    kind: "LeftPipe",
-                    left: fn,
-                    right: right.right
-                });
+                        kind: "LeftPipe",
+                        left: fn,
+                        right: right.right,
+                    });
                 }
                 case "ModuleReference": {
-                    const fn: ModuleReference = addArgsToModuleReference(right.left, [ left ]);
+                    const fn: ModuleReference = addArgsToModuleReference(
+                        right.left,
+                        [left]
+                    );
                     return flattenLeftPipe({
-                    kind: "LeftPipe",
-                    left: fn,
-                    right: right.right
-                });
+                        kind: "LeftPipe",
+                        left: fn,
+                        right: right.right,
+                    });
                 }
                 case "Lambda": {
                     const fn: any = LambdaCall({
                         lambda: right.left,
-                        args: [ left ]
+                        args: [left],
                     });
                     return flattenLeftPipe({
-                    kind: "LeftPipe",
-                    left: fn,
-                    right: right.right
-                });
+                        kind: "LeftPipe",
+                        left: fn,
+                        right: right.right,
+                    });
                 }
                 case "LeftPipe": {
                     return right;
@@ -183,7 +211,7 @@ function flattenLeftPipe(leftPipe: LeftPipe): any {
                 default: {
                     return right.left;
                 }
-            };
+            }
         }
     }
 }
@@ -206,9 +234,9 @@ function generateModule(module: ImportModule): string {
             switch (module.alias.kind) {
                 case "Just": {
                     const { value } = module.alias;
-                    return List.filter(function(expose: any) {
-                    return expose !== value;
-                }, module.exposing);
+                    return List.filter(function (expose: any) {
+                        return expose !== value;
+                    }, module.exposing);
                 }
                 case "Nothing": {
                     return module.exposing;
@@ -226,8 +254,8 @@ function generateModule(module: ImportModule): string {
                 case "Nothing": {
                     return exposed;
                 }
-            };
-        };
+            }
+        }
     } else {
         const name: string = (function (): any {
             switch (module.alias.kind) {
@@ -251,23 +279,30 @@ function generateModule(module: ImportModule): string {
                 case "Nothing": {
                     return exposed;
                 }
-            };
-        };
+            }
+        }
     }
 }
 
 function generateImportBlock(imports: Import): string {
-    return (function(y: any) {
+    return (function (y: any) {
         return y.join("\n");
-    })(List.map(generateModule, List.filter(function(module: any) {
-        return module.name !== "globalThis";
-    }, imports.modules)));
+    })(
+        List.map(
+            generateModule,
+            List.filter(function (module: any) {
+                return module.name !== "globalThis";
+            }, imports.modules)
+        )
+    );
 }
 
 function generateExportBlock(exports: Export): string {
-    return (function(x: any) {
+    return (function (x: any) {
         return x.join("\n");
-    })(List.map(function(name: any) {
-        return `export { ${name} };`;
-    }, exports.names));
+    })(
+        List.map(function (name: any) {
+            return `export { ${name} };`;
+        }, exports.names)
+    );
 }

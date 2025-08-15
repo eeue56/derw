@@ -49,13 +49,21 @@ view model =
 
 const expectedOutput = `
 function view(model: Model): HtmlNode<Msg> {
-    return Html.section([ ], [ class_("todoapp") ], [ viewHeader(model), viewMain(model), model.items.length === 0 ? text("") : viewFooter(model) ]);
+    return Html.section(
+        [],
+        [class_("todoapp")],
+        [viewHeader(model), viewMain(model), model.items.length === 0 ? text("") : viewFooter(model)]
+    );
 }
 `.trim();
 
 const expectedOutputJS = `
 function view(model) {
-    return Html.section([ ], [ class_("todoapp") ], [ viewHeader(model), viewMain(model), model.items.length === 0 ? text("") : viewFooter(model) ]);
+    return Html.section(
+        [],
+        [class_("todoapp")],
+        [viewHeader(model), viewMain(model), model.items.length === 0 ? text("") : viewFooter(model)]
+    );
 }
 `.trim();
 
@@ -87,36 +95,36 @@ export function testParse() {
             [
                 Function(
                     "view",
-                    FixedType("HtmlNode", [ FixedType("Msg", [ ]) ]),
-                    [ FunctionArg("model", FixedType("Model", [ ])) ],
-                    [ ],
+                    FixedType("HtmlNode", [FixedType("Msg", [])]),
+                    [FunctionArg("model", FixedType("Model", []))],
+                    [],
                     ModuleReference(
-                        [ "Html" ],
+                        ["Html"],
                         FunctionCall("section", [
-                            ListValue([ ]),
+                            ListValue([]),
                             ListValue([
                                 FunctionCall("class_", [
                                     StringValue("todoapp"),
                                 ]),
                             ]),
                             ListValue([
-                                FunctionCall("viewHeader", [ Value("model") ]),
-                                FunctionCall("viewMain", [ Value("model") ]),
+                                FunctionCall("viewHeader", [Value("model")]),
+                                FunctionCall("viewMain", [Value("model")]),
                                 IfStatement(
                                     Equality(
                                         ModuleReference(
-                                            [ "model", "items" ],
+                                            ["model", "items"],
                                             Value("length")
                                         ),
                                         Value("0")
                                     ),
-                                    FunctionCall("text", [ StringValue("") ]),
-                                    [ ],
-                                    [ ],
+                                    FunctionCall("text", [StringValue("")]),
+                                    [],
+                                    [],
                                     FunctionCall("viewFooter", [
                                         Value("model"),
                                     ]),
-                                    [ ]
+                                    []
                                 ),
                             ]),
                         ])
@@ -152,36 +160,36 @@ export function testParseMultiLine() {
             [
                 Function(
                     "view",
-                    FixedType("HtmlNode", [ FixedType("Msg", [ ]) ]),
-                    [ FunctionArg("model", FixedType("Model", [ ])) ],
-                    [ ],
+                    FixedType("HtmlNode", [FixedType("Msg", [])]),
+                    [FunctionArg("model", FixedType("Model", []))],
+                    [],
                     ModuleReference(
-                        [ "Html" ],
+                        ["Html"],
                         FunctionCall("section", [
-                            ListValue([ ]),
+                            ListValue([]),
                             ListValue([
                                 FunctionCall("class_", [
                                     StringValue("todoapp"),
                                 ]),
                             ]),
                             ListValue([
-                                FunctionCall("viewHeader", [ Value("model") ]),
-                                FunctionCall("viewMain", [ Value("model") ]),
+                                FunctionCall("viewHeader", [Value("model")]),
+                                FunctionCall("viewMain", [Value("model")]),
                                 IfStatement(
                                     Equality(
                                         ModuleReference(
-                                            [ "model", "items" ],
+                                            ["model", "items"],
                                             Value("length")
                                         ),
                                         Value("0")
                                     ),
-                                    FunctionCall("text", [ StringValue("") ]),
-                                    [ ],
-                                    [ ],
+                                    FunctionCall("text", [StringValue("")]),
+                                    [],
+                                    [],
                                     FunctionCall("viewFooter", [
                                         Value("model"),
                                     ]),
-                                    [ ]
+                                    []
                                 ),
                             ]),
                         ])

@@ -67,16 +67,16 @@ export function testParse() {
             [
                 Function(
                     "helloWorld",
-                    FixedType("List", [ FixedType("string", [ ]) ]),
-                    [ FunctionArg("str", FixedType("string", [ ])) ],
-                    [ ],
+                    FixedType("List", [FixedType("string", [])]),
+                    [FunctionArg("str", FixedType("string", []))],
+                    [],
                     ModuleReference(
-                        [ "str" ],
-                        FunctionCall("split", [ StringValue(" ") ])
+                        ["str"],
+                        FunctionCall("split", [StringValue(" ")])
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -89,16 +89,16 @@ export function testParseMultiLine() {
             [
                 Function(
                     "helloWorld",
-                    FixedType("List", [ FixedType("string", [ ]) ]),
-                    [ FunctionArg("str", FixedType("string", [ ])) ],
-                    [ ],
+                    FixedType("List", [FixedType("string", [])]),
+                    [FunctionArg("str", FixedType("string", []))],
+                    [],
                     ModuleReference(
-                        [ "str" ],
-                        FunctionCall("split", [ StringValue(" ") ])
+                        ["str"],
+                        FunctionCall("split", [StringValue(" ")])
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

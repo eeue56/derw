@@ -67,8 +67,8 @@ export function testParse() {
                 Function(
                     "unify",
                     FixedType("Result", [
-                        FixedType("List", [ GenericType("a") ]),
-                        FixedType("List", [ GenericType("b") ]),
+                        FixedType("List", [GenericType("a")]),
+                        FixedType("List", [GenericType("b")]),
                     ]),
                     [
                         FunctionArg(
@@ -83,12 +83,12 @@ export function testParse() {
                         FunctionArg(
                             "value",
                             FixedType("Result", [
-                                FixedType("List", [ GenericType("a") ]),
-                                FixedType("List", [ GenericType("b") ]),
+                                FixedType("List", [GenericType("a")]),
+                                FixedType("List", [GenericType("b")]),
                             ])
                         ),
                     ],
-                    [ ],
+                    [],
                     Value("value")
                 ),
             ],
@@ -114,8 +114,8 @@ export function testParseMultiLine() {
                 Function(
                     "unify",
                     FixedType("Result", [
-                        FixedType("List", [ GenericType("a") ]),
-                        FixedType("List", [ GenericType("b") ]),
+                        FixedType("List", [GenericType("a")]),
+                        FixedType("List", [GenericType("b")]),
                     ]),
                     [
                         FunctionArg(
@@ -130,12 +130,12 @@ export function testParseMultiLine() {
                         FunctionArg(
                             "value",
                             FixedType("Result", [
-                                FixedType("List", [ GenericType("a") ]),
-                                FixedType("List", [ GenericType("b") ]),
+                                FixedType("List", [GenericType("a")]),
+                                FixedType("List", [GenericType("b")]),
                             ])
                         ),
                     ],
-                    [ ],
+                    [],
                     Value("value")
                 ),
             ],

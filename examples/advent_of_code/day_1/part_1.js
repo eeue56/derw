@@ -14,12 +14,12 @@ function countHelper(count, x) {
     if (isIncrease(count.value, x)) {
         return {
             value: x,
-            count: count.count + 1
+            count: count.count + 1,
         };
     } else {
         return {
             value: x,
-            count: count.count
+            count: count.count,
         };
     }
 }
@@ -31,7 +31,7 @@ function getCount(iteration) {
 function countIncreases(xs) {
     return getCount(xs.reduce(countHelper, {
         value: 9999,
-        count: 0
+        count: 0,
     }));
 }
 
@@ -53,6 +53,8 @@ function toString(buffer) {
     return buffer.toString();
 }
 
-const exampleMain = globalThis.console.log(countIncreases([ 199, 200, 208, 210, 200, 207, 240, 269, 260, 263 ]));
+const exampleMain = globalThis.console.log(countIncreases(
+    [199, 200, 208, 210, 200, 207, 240, 269, 260, 263]
+));
 
 const main = globalThis.console.log(countIncreases(adventInput));

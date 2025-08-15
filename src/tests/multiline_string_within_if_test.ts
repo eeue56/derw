@@ -78,19 +78,19 @@ export function testParse() {
             [
                 Const(
                     "example",
-                    FixedType("string", [ ]),
-                    [ ],
+                    FixedType("string", []),
+                    [],
                     IfStatement(
                         Value("true"),
                         FormatStringValue("Hello world"),
-                        [ ],
-                        [ ],
+                        [],
+                        [],
                         FormatStringValue("Hello\nWorld"),
-                        [ ]
+                        []
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -103,19 +103,19 @@ export function testParseMultiLine() {
             [
                 Const(
                     "example",
-                    FixedType("string", [ ]),
-                    [ ],
+                    FixedType("string", []),
+                    [],
                     IfStatement(
                         Value("true"),
                         FormatStringValue("Hello world"),
-                        [ ],
-                        [ ],
+                        [],
+                        [],
                         FormatStringValue("Hello\nWorld"),
-                        [ ]
+                        []
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

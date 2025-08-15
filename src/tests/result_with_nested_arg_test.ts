@@ -67,19 +67,19 @@ export function testParse() {
                 Function(
                     "isTrue",
                     FixedType("Result", [
-                        FixedType("string", [ ]),
-                        FixedType("List", [ FixedType("string", [ ]) ]),
+                        FixedType("string", []),
+                        FixedType("List", [FixedType("string", [])]),
                     ]),
                     [
                         FunctionArg(
                             "value",
                             FixedType("Result", [
-                                FixedType("string", [ ]),
-                                FixedType("List", [ FixedType("string", [ ]) ]),
+                                FixedType("string", []),
+                                FixedType("List", [FixedType("string", [])]),
                             ])
                         ),
                     ],
-                    [ ],
+                    [],
                     Value("value")
                 ),
             ],
@@ -105,19 +105,19 @@ export function testParseMultiLine() {
                 Function(
                     "isTrue",
                     FixedType("Result", [
-                        FixedType("string", [ ]),
-                        FixedType("List", [ FixedType("string", [ ]) ]),
+                        FixedType("string", []),
+                        FixedType("List", [FixedType("string", [])]),
                     ]),
                     [
                         FunctionArg(
                             "value",
                             FixedType("Result", [
-                                FixedType("string", [ ]),
-                                FixedType("List", [ FixedType("string", [ ]) ]),
+                                FixedType("string", []),
+                                FixedType("List", [FixedType("string", [])]),
                             ])
                         ),
                     ],
-                    [ ],
+                    [],
                     Value("value")
                 ),
             ],

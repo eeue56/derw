@@ -15,7 +15,7 @@ hello =
     let parsed = parseWithContext(str, "Main");
     parsed = addMissingNamesSuggestions(parsed);
 
-    deepStrictEqual(parsed.errors, [ ]);
+    deepStrictEqual(parsed.errors, []);
 }
 
 export function testSingleNameWithFnCall() {
@@ -35,7 +35,7 @@ hello =
     let parsed = parseWithContext(str, "Main");
     parsed = addMissingNamesSuggestions(parsed);
 
-    deepStrictEqual(parsed.errors, [ ]);
+    deepStrictEqual(parsed.errors, []);
 }
 
 export function testSingleNameWithNestedFnCall() {
@@ -59,7 +59,7 @@ hello =
     let parsed = parseWithContext(str, "Main");
     parsed = addMissingNamesSuggestions(parsed);
 
-    deepStrictEqual(parsed.errors, [ ]);
+    deepStrictEqual(parsed.errors, []);
 }
 
 export function testFnWithSingleArg() {
@@ -75,7 +75,7 @@ hello name =
     let parsed = parseWithContext(str, "Main");
     parsed = addMissingNamesSuggestions(parsed);
 
-    deepStrictEqual(parsed.errors, [ ]);
+    deepStrictEqual(parsed.errors, []);
 }
 
 export function testFnWithTwoArgs() {
@@ -89,7 +89,7 @@ hello name age =
     let parsed = parseWithContext(str, "Main");
     parsed = addMissingNamesSuggestions(parsed);
 
-    deepStrictEqual(parsed.errors, [ ]);
+    deepStrictEqual(parsed.errors, []);
 }
 
 export function testLambda() {
@@ -102,7 +102,7 @@ hello age =
     let parsed = parseWithContext(str, "Main");
     parsed = addMissingNamesSuggestions(parsed);
 
-    deepStrictEqual(parsed.errors, [ ]);
+    deepStrictEqual(parsed.errors, []);
 }
 
 export function testGlobalName() {
@@ -114,5 +114,5 @@ hello =
     let parsed = parseWithContext(str, "Main");
     parsed = addMissingNamesSuggestions(parsed);
 
-    deepStrictEqual(parsed.errors, [ ]);
+    deepStrictEqual(parsed.errors, []);
 }

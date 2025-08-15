@@ -4,9 +4,9 @@ type Boat = {
     horizontal: number;
     depth: number;
     aim: number;
-}
+};
 
-function Boat(args: { horizontal: number, depth: number, aim: number }): Boat {
+function Boat(args: { horizontal: number; depth: number; aim: number; }): Boat {
     return {
         ...args,
     };
@@ -17,7 +17,7 @@ function forward(x: number, boat: Boat): Boat {
     return {
         horizontal: x + boat.horizontal,
         depth: boat.depth + multi,
-        aim: boat.aim
+        aim: boat.aim,
     };
 }
 
@@ -25,7 +25,7 @@ function up(y: number, boat: Boat): Boat {
     return {
         horizontal: boat.horizontal,
         depth: boat.depth,
-        aim: boat.aim - y
+        aim: boat.aim - y,
     };
 }
 
@@ -33,7 +33,7 @@ function down(y: number, boat: Boat): Boat {
     return {
         horizontal: boat.horizontal,
         depth: boat.depth,
-        aim: boat.aim + y
+        aim: boat.aim + y,
     };
 }
 
@@ -57,16 +57,16 @@ function runAll(commands: Command[]): Boat {
     return commands.reduce(run, {
         horizontal: 0,
         depth: 0,
-        aim: 0
+        aim: 0,
     });
 }
 
 type Command = {
     command: string;
     amount: number;
-}
+};
 
-function Command(args: { command: string, amount: number }): Command {
+function Command(args: { command: string; amount: number; }): Command {
     return {
         ...args,
     };
@@ -78,7 +78,7 @@ function parseLine(str: string): Command {
     const right: number = globalThis.parseInt(piece[1]);
     return {
         command: left,
-        amount: right
+        amount: right,
     };
 }
 
@@ -86,7 +86,9 @@ function parseLines(lines: string[]): Command[] {
     return lines.map(parseLine);
 }
 
-const exampleMain: void = globalThis.console.log(runAll(parseLines([ "forward 5", "down 5", "forward 8", "up 3", "down 8", "forward 2" ])));
+const exampleMain: void = globalThis.console.log(runAll(parseLines(
+    ["forward 5", "down 5", "forward 8", "up 3", "down 8", "forward 2"]
+)));
 
 const adventInput: Command[] = parseLines(split(toString(fs.readFileSync("input.txt"))));
 

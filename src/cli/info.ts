@@ -58,7 +58,7 @@ function moduleInfo(fileName: string, module: ContextModule): void {
     const exportBlocks = module.body.filter(
         (b) => b.kind === "Export"
     ) as Export[];
-    let exportNames: string[] = [ ];
+    let exportNames: string[] = [];
 
     for (const export_ of exportBlocks) {
         exportNames = exportNames.concat(export_.names);
@@ -95,7 +95,7 @@ function moduleInfo(fileName: string, module: ContextModule): void {
     console.log(nonExportedConstNames.join(", "));
     console.log("------------------------");
 
-    const missingUnionTypes = [ ];
+    const missingUnionTypes = [];
     const unionTypes = module.body.filter(
         (b) => b.kind === "UnionType"
     ) as UnionType[];
@@ -103,7 +103,7 @@ function moduleInfo(fileName: string, module: ContextModule): void {
     for (const unionType of unionTypes) {
         const isRootTypeExported =
             exportNames.indexOf(unionType.type.name) > -1;
-        const missingTagNames = [ ];
+        const missingTagNames = [];
 
         for (const tag of unionType.tags) {
             if (exportNames.indexOf(tag.name) === -1) {
@@ -114,11 +114,7 @@ function moduleInfo(fileName: string, module: ContextModule): void {
         if (!isRootTypeExported || missingTagNames.length > 0) {
             if (isRootTypeExported) {
                 missingUnionTypes.push(
-                    `Type ${
-                        unionType.type.name
-                    } is exported but the constructors ${missingTagNames.join(
-                        ", "
-                    )} are not`
+                    `Type ${unionType.type.name} is exported but the constructors ${missingTagNames.join(", ")} are not`
                 );
             } else {
                 missingUnionTypes.push(
@@ -184,7 +180,7 @@ export async function info(
             "--quiet",
         ]);
     } else {
-        parsedFiles = await compileFiles(isInPackageDirectory, [ "--quiet" ]);
+        parsedFiles = await compileFiles(isInPackageDirectory, ["--quiet"]);
     }
 
     for (const fileName of Object.keys(parsedFiles)) {

@@ -80,14 +80,14 @@ export function testParseMultiLine() {
             [
                 Function(
                     "sayHiToPet",
-                    FixedType("string", [ ]),
-                    [ FunctionArg("pet", FixedType("Animal", [ ])) ],
-                    [ ],
+                    FixedType("string", []),
+                    [FunctionArg("pet", FixedType("Animal", []))],
+                    [],
                     CaseStatement(Value("pet"), [
                         Branch(
                             Destructure("Dog", "{ name }"),
                             FormatStringValue("Good boy ${name}!"),
-                            [ ]
+                            []
                         ),
                         Branch(
                             Destructure("Cat", "{ lives }"),
@@ -98,7 +98,7 @@ export function testParseMultiLine() {
                                     StringValue(" lives remaining.")
                                 )
                             ),
-                            [ ]
+                            []
                         ),
                     ])
                 ),

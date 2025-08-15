@@ -35,7 +35,7 @@ const expectedOutput = `
 function filterMap<a, b>(fn: (arg0: a) => Maybe<b>, xs: a[]): b[] {
     return foldl(function(y: any, ys: any) {
         return filterMapHelp(fn, y, ys);
-    }, [ ], xs);
+    }, [], xs);
 }
 `.trim();
 
@@ -43,7 +43,7 @@ const expectedOutputJS = `
 function filterMap(fn, xs) {
     return foldl(function(y, ys) {
         return filterMapHelp(fn, y, ys);
-    }, [ ], xs);
+    }, [], xs);
 }
 `.trim();
 
@@ -75,36 +75,36 @@ export function testParse() {
             [
                 Function(
                     "filterMap",
-                    FixedType("List", [ GenericType("b") ]),
+                    FixedType("List", [GenericType("b")]),
                     [
                         FunctionArg(
                             "fn",
                             FunctionType([
                                 GenericType("a"),
-                                FixedType("Maybe", [ GenericType("b") ]),
+                                FixedType("Maybe", [GenericType("b")]),
                             ])
                         ),
                         FunctionArg(
                             "xs",
-                            FixedType("List", [ GenericType("a") ])
+                            FixedType("List", [GenericType("a")])
                         ),
                     ],
-                    [ ],
+                    [],
                     FunctionCall("foldl", [
                         Lambda(
-                            [ "y", "ys" ],
+                            ["y", "ys"],
                             FunctionCall("filterMapHelp", [
                                 Value("fn"),
                                 Value("y"),
                                 Value("ys"),
                             ])
                         ),
-                        ListValue([ ]),
+                        ListValue([]),
                         Value("xs"),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -117,36 +117,36 @@ export function testParseMultiLine() {
             [
                 Function(
                     "filterMap",
-                    FixedType("List", [ GenericType("b") ]),
+                    FixedType("List", [GenericType("b")]),
                     [
                         FunctionArg(
                             "fn",
                             FunctionType([
                                 GenericType("a"),
-                                FixedType("Maybe", [ GenericType("b") ]),
+                                FixedType("Maybe", [GenericType("b")]),
                             ])
                         ),
                         FunctionArg(
                             "xs",
-                            FixedType("List", [ GenericType("a") ])
+                            FixedType("List", [GenericType("a")])
                         ),
                     ],
-                    [ ],
+                    [],
                     FunctionCall("foldl", [
                         Lambda(
-                            [ "y", "ys" ],
+                            ["y", "ys"],
                             FunctionCall("filterMapHelp", [
                                 Value("fn"),
                                 Value("y"),
                                 Value("ys"),
                             ])
                         ),
-                        ListValue([ ]),
+                        ListValue([]),
                         Value("xs"),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

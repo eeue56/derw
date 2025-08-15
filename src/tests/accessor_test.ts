@@ -32,11 +32,11 @@ sum =
 `.trim();
 
 const expectedOutput = `
-const sum: number[] = List.map((arg0) => arg0.x, [ { x: 1 }, { x: 2 }, { x: 3 } ]);
+const sum: number[] = List.map((arg0) => arg0.x, [{ x: 1 }, { x: 2 }, { x: 3 }]);
 `.trim();
 
 const expectedOutputJS = `
-const sum = List.map((arg0) => arg0.x, [ { x: 1 }, { x: 2 }, { x: 3 } ]);
+const sum = List.map((arg0) => arg0.x, [{ x: 1 }, { x: 2 }, { x: 3 }]);
 `.trim();
 
 export function testIntoBlocks() {
@@ -70,22 +70,22 @@ export function testParse() {
             [
                 Const(
                     "sum",
-                    FixedType("List", [ FixedType("number", [ ]) ]),
-                    [ ],
+                    FixedType("List", [FixedType("number", [])]),
+                    [],
                     ModuleReference(
-                        [ "List" ],
+                        ["List"],
                         FunctionCall("map", [
-                            ModuleReference([ ], Value("x")),
+                            ModuleReference([], Value("x")),
                             ListValue([
-                                ObjectLiteral(null, [ Field("x", Value("1")) ]),
-                                ObjectLiteral(null, [ Field("x", Value("2")) ]),
-                                ObjectLiteral(null, [ Field("x", Value("3")) ]),
+                                ObjectLiteral(null, [Field("x", Value("1"))]),
+                                ObjectLiteral(null, [Field("x", Value("2"))]),
+                                ObjectLiteral(null, [Field("x", Value("3"))]),
                             ]),
                         ])
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -98,22 +98,22 @@ export function testParseMultiLine() {
             [
                 Const(
                     "sum",
-                    FixedType("List", [ FixedType("number", [ ]) ]),
-                    [ ],
+                    FixedType("List", [FixedType("number", [])]),
+                    [],
                     ModuleReference(
-                        [ "List" ],
+                        ["List"],
                         FunctionCall("map", [
-                            ModuleReference([ ], Value("x")),
+                            ModuleReference([], Value("x")),
                             ListValue([
-                                ObjectLiteral(null, [ Field("x", Value("1")) ]),
-                                ObjectLiteral(null, [ Field("x", Value("2")) ]),
-                                ObjectLiteral(null, [ Field("x", Value("3")) ]),
+                                ObjectLiteral(null, [Field("x", Value("1"))]),
+                                ObjectLiteral(null, [Field("x", Value("2"))]),
+                                ObjectLiteral(null, [Field("x", Value("3"))]),
                             ]),
                         ])
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

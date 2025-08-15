@@ -149,15 +149,15 @@ function isValid(animal) {
 
 export function testIntoBlocks() {
     assert.deepStrictEqual(
-        [ intoBlocks(oneLine)[0] ],
-        [ UnparsedBlock("ExportBlock", 0, [ oneLine.split("\n")[0] ]) ]
+        [intoBlocks(oneLine)[0]],
+        [UnparsedBlock("ExportBlock", 0, [oneLine.split("\n")[0]])]
     );
 }
 
 export function testIntoBlocksMultiLine() {
     assert.deepStrictEqual(intoBlocks(multiLine).slice(0, 2), [
-        UnparsedBlock("ExportBlock", 0, [ multiLine.split("\n")[0] ]),
-        UnparsedBlock("ExportBlock", 2, [ multiLine.split("\n")[2] ]),
+        UnparsedBlock("ExportBlock", 0, [multiLine.split("\n")[0]]),
+        UnparsedBlock("ExportBlock", 2, [multiLine.split("\n")[2]]),
     ]);
 }
 
@@ -178,14 +178,14 @@ export function testBlockKindMultiLine() {
 export function testParse() {
     assert.deepStrictEqual(
         parse(oneLine).body[0],
-        Export([ "isValid", "Animal" ])
+        Export(["isValid", "Animal"])
     );
 }
 
 export function testParseMultiLine() {
     assert.deepStrictEqual(parse(multiLine).body.slice(0, 2), [
-        Export([ "isValid" ]),
-        Export([ "Animal" ]),
+        Export(["isValid"]),
+        Export(["Animal"]),
     ]);
 }
 

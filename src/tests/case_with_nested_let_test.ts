@@ -118,7 +118,7 @@ export function testBlockKind() {
 
     assert.deepStrictEqual(
         blocks.map((block) => blockKind(block.lines.join("\n"))),
-        [ Ok("Function") ]
+        [Ok("Function")]
     );
 }
 
@@ -127,7 +127,7 @@ export function testBlockKindMultiLine() {
 
     assert.deepStrictEqual(
         blocks.map((block) => blockKind(block.lines.join("\n"))),
-        [ Ok("Function") ]
+        [Ok("Function")]
     );
 }
 
@@ -139,9 +139,9 @@ export function testParse() {
             [
                 Function(
                     "sayHello",
-                    FixedType("string", [ ]),
-                    [ FunctionArg("name", FixedType("string", [ ])) ],
-                    [ ],
+                    FixedType("string", []),
+                    [FunctionArg("name", FixedType("string", []))],
+                    [],
                     CaseStatement(Value("name"), [
                         Branch(
                             StringValue("Noah"),
@@ -149,26 +149,26 @@ export function testParse() {
                                 Branch(StringValue("0"), StringValue("Hi 0"), [
                                     Const(
                                         "first",
-                                        FixedType("number", [ ]),
-                                        [ ],
+                                        FixedType("number", []),
+                                        [],
                                         Addition(Value("1"), Value("2"))
                                     ),
                                 ]),
                                 Branch(StringValue("1"), StringValue("Hi 1"), [
                                     Const(
                                         "second",
-                                        FixedType("number", [ ]),
-                                        [ ],
+                                        FixedType("number", []),
+                                        [],
                                         Addition(Value("1"), Value("2"))
                                     ),
                                 ]),
                             ]),
-                            [ ]
+                            []
                         ),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -181,9 +181,9 @@ export function testParseMultiLine() {
             [
                 Function(
                     "sayHello",
-                    FixedType("string", [ ]),
-                    [ FunctionArg("name", FixedType("string", [ ])) ],
-                    [ ],
+                    FixedType("string", []),
+                    [FunctionArg("name", FixedType("string", []))],
+                    [],
                     CaseStatement(Value("name"), [
                         Branch(
                             StringValue("Noah"),
@@ -191,26 +191,26 @@ export function testParseMultiLine() {
                                 Branch(StringValue("0"), StringValue("Hi 0"), [
                                     Const(
                                         "first",
-                                        FixedType("number", [ ]),
-                                        [ ],
+                                        FixedType("number", []),
+                                        [],
                                         Addition(Value("1"), Value("2"))
                                     ),
                                 ]),
                                 Branch(StringValue("1"), StringValue("Hi 1"), [
                                     Const(
                                         "second",
-                                        FixedType("number", [ ]),
-                                        [ ],
+                                        FixedType("number", []),
+                                        [],
                                         Addition(Value("1"), Value("2"))
                                     ),
                                 ]),
                             ]),
-                            [ ]
+                            []
                         ),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

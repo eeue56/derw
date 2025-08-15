@@ -29,11 +29,11 @@ isTrue =
 `.trim();
 
 const expectedOutput = `
-const isTrue: Result<string, string[]> = Ok({ value: [ ] });
+const isTrue: Result<string, string[]> = Ok({ value: [] });
 `.trim();
 
 const expectedOutputJS = `
-const isTrue = Ok({ value: [ ] });
+const isTrue = Ok({ value: [] });
 `.trim();
 
 export function testIntoBlocks() {
@@ -65,13 +65,13 @@ export function testParse() {
                 Const(
                     "isTrue",
                     FixedType("Result", [
-                        FixedType("string", [ ]),
-                        FixedType("List", [ FixedType("string", [ ]) ]),
+                        FixedType("string", []),
+                        FixedType("List", [FixedType("string", [])]),
                     ]),
-                    [ ],
+                    [],
                     Constructor(
                         "Ok",
-                        ObjectLiteral(null, [ Field("value", ListValue([ ])) ])
+                        ObjectLiteral(null, [Field("value", ListValue([]))])
                     )
                 ),
             ],
@@ -96,13 +96,13 @@ export function testParseMultiLine() {
                 Const(
                     "isTrue",
                     FixedType("Result", [
-                        FixedType("string", [ ]),
-                        FixedType("List", [ FixedType("string", [ ]) ]),
+                        FixedType("string", []),
+                        FixedType("List", [FixedType("string", [])]),
                     ]),
-                    [ ],
+                    [],
                     Constructor(
                         "Ok",
-                        ObjectLiteral(null, [ Field("value", ListValue([ ])) ])
+                        ObjectLiteral(null, [Field("value", ListValue([]))])
                     )
                 ),
             ],

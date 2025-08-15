@@ -49,9 +49,9 @@ const expectedOutput = `
 type Person = {
     name: any;
     age: number;
-}
+};
 
-function Person(args: { name: any, age: number }): Person {
+function Person(args: { name: any; age: number; }): Person {
     return {
         ...args,
     };
@@ -59,7 +59,7 @@ function Person(args: { name: any, age: number }): Person {
 
 const person: Person = {
     name: { mine: "hello" },
-    age: 28
+    age: 28,
 };
 `.trim();
 
@@ -72,7 +72,7 @@ function Person(args) {
 
 const person = {
     name: { mine: "hello" },
-    age: 28
+    age: 28,
 };
 `.trim();
 
@@ -110,14 +110,14 @@ export function testParse() {
         Module(
             "main",
             [
-                TypeAlias(FixedType("Person", [ ]), [
+                TypeAlias(FixedType("Person", []), [
                     Property("name", GenericType("any")),
-                    Property("age", FixedType("number", [ ])),
+                    Property("age", FixedType("number", [])),
                 ]),
                 Const(
                     "person",
-                    FixedType("Person", [ ]),
-                    [ ],
+                    FixedType("Person", []),
+                    [],
                     ObjectLiteral(null, [
                         Field(
                             "name",
@@ -129,7 +129,7 @@ export function testParse() {
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -140,14 +140,14 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
-                TypeAlias(FixedType("Person", [ ]), [
+                TypeAlias(FixedType("Person", []), [
                     Property("name", GenericType("any")),
-                    Property("age", FixedType("number", [ ])),
+                    Property("age", FixedType("number", [])),
                 ]),
                 Const(
                     "person",
-                    FixedType("Person", [ ]),
-                    [ ],
+                    FixedType("Person", []),
+                    [],
                     ObjectLiteral(null, [
                         Field(
                             "name",
@@ -159,7 +159,7 @@ export function testParseMultiLine() {
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

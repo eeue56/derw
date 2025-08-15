@@ -35,7 +35,7 @@ person =
 const expectedOutput = `
 type Person = {
 
-}
+};
 
 function Person(args: { }): Person {
     return {
@@ -90,15 +90,15 @@ export function testParse() {
         Module(
             "main",
             [
-                TypeAlias(FixedType("Person", [ ]), [ ]),
+                TypeAlias(FixedType("Person", []), []),
                 Const(
                     "person",
-                    FixedType("Person", [ ]),
-                    [ ],
-                    ObjectLiteral(null, [ ])
+                    FixedType("Person", []),
+                    [],
+                    ObjectLiteral(null, [])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -109,15 +109,15 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
-                TypeAlias(FixedType("Person", [ ]), [ ]),
+                TypeAlias(FixedType("Person", []), []),
                 Const(
                     "person",
-                    FixedType("Person", [ ]),
-                    [ ],
-                    ObjectLiteral(null, [ ])
+                    FixedType("Person", []),
+                    [],
+                    ObjectLiteral(null, [])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

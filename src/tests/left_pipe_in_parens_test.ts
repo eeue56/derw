@@ -35,13 +35,19 @@ viewList model =
 
 const expectedOutput = `
 function viewList(model: Model): HtmlNode<Msg> {
-    return Html.ul([ ], [ class_("todo-list") ], List.map(viewListItem, filteredItems(model.filterMode, model.list)));
+    return Html.ul([], [class_("todo-list")], List.map(
+        viewListItem,
+        filteredItems(model.filterMode, model.list)
+    ));
 }
 `.trim();
 
 const expectedOutputJS = `
 function viewList(model) {
-    return Html.ul([ ], [ class_("todo-list") ], List.map(viewListItem, filteredItems(model.filterMode, model.list)));
+    return Html.ul([], [class_("todo-list")], List.map(
+        viewListItem,
+        filteredItems(model.filterMode, model.list)
+    ));
 }
 `.trim();
 
@@ -73,13 +79,13 @@ export function testParse() {
             [
                 Function(
                     "viewList",
-                    FixedType("HtmlNode", [ FixedType("Msg", [ ]) ]),
-                    [ FunctionArg("model", FixedType("Model", [ ])) ],
-                    [ ],
+                    FixedType("HtmlNode", [FixedType("Msg", [])]),
+                    [FunctionArg("model", FixedType("Model", []))],
+                    [],
                     ModuleReference(
-                        [ "Html" ],
+                        ["Html"],
                         FunctionCall("ul", [
-                            ListValue([ ]),
+                            ListValue([]),
                             ListValue([
                                 FunctionCall("class_", [
                                     StringValue("todo-list"),
@@ -88,16 +94,14 @@ export function testParse() {
                             LeftPipe(
                                 FunctionCall("filteredItems", [
                                     ModuleReference(
-                                        [ "model" ],
+                                        ["model"],
                                         Value("filterMode")
                                     ),
-                                    ModuleReference([ "model" ], Value("list")),
+                                    ModuleReference(["model"], Value("list")),
                                 ]),
                                 ModuleReference(
-                                    [ "List" ],
-                                    FunctionCall("map", [
-                                        Value("viewListItem"),
-                                    ])
+                                    ["List"],
+                                    FunctionCall("map", [Value("viewListItem")])
                                 )
                             ),
                         ])
@@ -126,13 +130,13 @@ export function testParseMultiLine() {
             [
                 Function(
                     "viewList",
-                    FixedType("HtmlNode", [ FixedType("Msg", [ ]) ]),
-                    [ FunctionArg("model", FixedType("Model", [ ])) ],
-                    [ ],
+                    FixedType("HtmlNode", [FixedType("Msg", [])]),
+                    [FunctionArg("model", FixedType("Model", []))],
+                    [],
                     ModuleReference(
-                        [ "Html" ],
+                        ["Html"],
                         FunctionCall("ul", [
-                            ListValue([ ]),
+                            ListValue([]),
                             ListValue([
                                 FunctionCall("class_", [
                                     StringValue("todo-list"),
@@ -141,16 +145,14 @@ export function testParseMultiLine() {
                             LeftPipe(
                                 FunctionCall("filteredItems", [
                                     ModuleReference(
-                                        [ "model" ],
+                                        ["model"],
                                         Value("filterMode")
                                     ),
-                                    ModuleReference([ "model" ], Value("list")),
+                                    ModuleReference(["model"], Value("list")),
                                 ]),
                                 ModuleReference(
-                                    [ "List" ],
-                                    FunctionCall("map", [
-                                        Value("viewListItem"),
-                                    ])
+                                    ["List"],
+                                    FunctionCall("map", [Value("viewListItem")])
                                 )
                             ),
                         ])

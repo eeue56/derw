@@ -35,8 +35,8 @@ export function testPlainFn() {
         Ok([
             FunctionTypeToken({
                 body: [
-                    BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
-                    BaseTypeToken({ body: [ IdentifierToken({ body: "b" }) ] }),
+                    BaseTypeToken({ body: [IdentifierToken({ body: "a" })] }),
+                    BaseTypeToken({ body: [IdentifierToken({ body: "b" })] }),
                 ],
             }),
         ])
@@ -75,12 +75,12 @@ export function testPlainMap() {
         Ok([
             FunctionTypeToken({
                 body: [
-                    BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
-                    BaseTypeToken({ body: [ IdentifierToken({ body: "b" }) ] }),
+                    BaseTypeToken({ body: [IdentifierToken({ body: "a" })] }),
+                    BaseTypeToken({ body: [IdentifierToken({ body: "b" })] }),
                 ],
             }),
-            BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
-            BaseTypeToken({ body: [ IdentifierToken({ body: "b" }) ] }),
+            BaseTypeToken({ body: [IdentifierToken({ body: "a" })] }),
+            BaseTypeToken({ body: [IdentifierToken({ body: "b" })] }),
         ])
     );
 
@@ -121,20 +121,20 @@ export function testListMap() {
         Ok([
             FunctionTypeToken({
                 body: [
-                    BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
-                    BaseTypeToken({ body: [ IdentifierToken({ body: "b" }) ] }),
+                    BaseTypeToken({ body: [IdentifierToken({ body: "a" })] }),
+                    BaseTypeToken({ body: [IdentifierToken({ body: "b" })] }),
                 ],
             }),
             BaseTypeToken({
                 body: [
                     IdentifierToken({ body: "List" }),
-                    BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
+                    BaseTypeToken({ body: [IdentifierToken({ body: "a" })] }),
                 ],
             }),
             BaseTypeToken({
                 body: [
                     IdentifierToken({ body: "List" }),
-                    BaseTypeToken({ body: [ IdentifierToken({ body: "b" }) ] }),
+                    BaseTypeToken({ body: [IdentifierToken({ body: "b" })] }),
                 ],
             }),
         ])
@@ -170,7 +170,7 @@ export function testSimpleNestedList() {
                         body: [
                             IdentifierToken({ body: "List" }),
                             BaseTypeToken({
-                                body: [ IdentifierToken({ body: "a" }) ],
+                                body: [IdentifierToken({ body: "a" })],
                             }),
                         ],
                     }),
@@ -228,8 +228,8 @@ export function testNextedListMap() {
         Ok([
             FunctionTypeToken({
                 body: [
-                    BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
-                    BaseTypeToken({ body: [ IdentifierToken({ body: "b" }) ] }),
+                    BaseTypeToken({ body: [IdentifierToken({ body: "a" })] }),
+                    BaseTypeToken({ body: [IdentifierToken({ body: "b" })] }),
                 ],
             }),
             BaseTypeToken({
@@ -239,7 +239,7 @@ export function testNextedListMap() {
                         body: [
                             IdentifierToken({ body: "List" }),
                             BaseTypeToken({
-                                body: [ IdentifierToken({ body: "a" }) ],
+                                body: [IdentifierToken({ body: "a" })],
                             }),
                         ],
                     }),
@@ -252,7 +252,7 @@ export function testNextedListMap() {
                         body: [
                             IdentifierToken({ body: "List" }),
                             BaseTypeToken({
-                                body: [ IdentifierToken({ body: "b" }) ],
+                                body: [IdentifierToken({ body: "b" })],
                             }),
                         ],
                     }),
@@ -300,13 +300,13 @@ export function testListFilterMap() {
         Ok([
             FunctionTypeToken({
                 body: [
-                    BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
+                    BaseTypeToken({ body: [IdentifierToken({ body: "a" })] }),
 
                     BaseTypeToken({
                         body: [
                             IdentifierToken({ body: "Maybe" }),
                             BaseTypeToken({
-                                body: [ IdentifierToken({ body: "b" }) ],
+                                body: [IdentifierToken({ body: "b" })],
                             }),
                         ],
                     }),
@@ -315,13 +315,13 @@ export function testListFilterMap() {
             BaseTypeToken({
                 body: [
                     IdentifierToken({ body: "List" }),
-                    BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
+                    BaseTypeToken({ body: [IdentifierToken({ body: "a" })] }),
                 ],
             }),
             BaseTypeToken({
                 body: [
                     IdentifierToken({ body: "List" }),
-                    BaseTypeToken({ body: [ IdentifierToken({ body: "b" }) ] }),
+                    BaseTypeToken({ body: [IdentifierToken({ body: "b" })] }),
                 ],
             }),
         ])
@@ -368,13 +368,13 @@ export function testListFilterMapWithSpaces() {
         Ok([
             FunctionTypeToken({
                 body: [
-                    BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
+                    BaseTypeToken({ body: [IdentifierToken({ body: "a" })] }),
 
                     BaseTypeToken({
                         body: [
                             IdentifierToken({ body: "Maybe" }),
                             BaseTypeToken({
-                                body: [ IdentifierToken({ body: "b" }) ],
+                                body: [IdentifierToken({ body: "b" })],
                             }),
                         ],
                     }),
@@ -383,13 +383,13 @@ export function testListFilterMapWithSpaces() {
             BaseTypeToken({
                 body: [
                     IdentifierToken({ body: "List" }),
-                    BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
+                    BaseTypeToken({ body: [IdentifierToken({ body: "a" })] }),
                 ],
             }),
             BaseTypeToken({
                 body: [
                     IdentifierToken({ body: "List" }),
-                    BaseTypeToken({ body: [ IdentifierToken({ body: "b" }) ] }),
+                    BaseTypeToken({ body: [IdentifierToken({ body: "b" })] }),
                 ],
             }),
         ])
@@ -443,22 +443,20 @@ export function testListFilterMapWithNesting() {
                         body: [
                             IdentifierToken({ body: "List" }),
                             BaseTypeToken({
-                                body: [ IdentifierToken({ body: "a" }) ],
+                                body: [IdentifierToken({ body: "a" })],
                             }),
                         ],
                     }),
                     FunctionTypeToken({
                         body: [
                             BaseTypeToken({
-                                body: [ IdentifierToken({ body: "a" }) ],
+                                body: [IdentifierToken({ body: "a" })],
                             }),
                             BaseTypeToken({
                                 body: [
                                     IdentifierToken({ body: "Maybe" }),
                                     BaseTypeToken({
-                                        body: [
-                                            IdentifierToken({ body: "b" }),
-                                        ],
+                                        body: [IdentifierToken({ body: "b" })],
                                     }),
                                 ],
                             }),
@@ -468,7 +466,7 @@ export function testListFilterMapWithNesting() {
                         body: [
                             IdentifierToken({ body: "List" }),
                             BaseTypeToken({
-                                body: [ IdentifierToken({ body: "b" }) ],
+                                body: [IdentifierToken({ body: "b" })],
                             }),
                         ],
                     }),
@@ -518,13 +516,13 @@ export function testListFilterMapWithRow() {
                         body: [
                             IdentifierToken({ body: "Maybe" }),
                             BaseTypeToken({
-                                body: [ IdentifierToken({ body: "Row" }) ],
+                                body: [IdentifierToken({ body: "Row" })],
                             }),
                         ],
                     }),
 
                     BaseTypeToken({
-                        body: [ IdentifierToken({ body: "boolean" }) ],
+                        body: [IdentifierToken({ body: "boolean" })],
                     }),
                 ],
             }),
@@ -532,11 +530,11 @@ export function testListFilterMapWithRow() {
                 body: [
                     IdentifierToken({ body: "Maybe" }),
                     BaseTypeToken({
-                        body: [ IdentifierToken({ body: "Row" }) ],
+                        body: [IdentifierToken({ body: "Row" })],
                     }),
                 ],
             }),
-            BaseTypeToken({ body: [ IdentifierToken({ body: "boolean" }) ] }),
+            BaseTypeToken({ body: [IdentifierToken({ body: "boolean" })] }),
         ])
     );
 
@@ -563,8 +561,8 @@ export function testEither() {
             BaseTypeToken({
                 body: [
                     IdentifierToken({ body: "Either" }),
-                    BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
-                    BaseTypeToken({ body: [ IdentifierToken({ body: "b" }) ] }),
+                    BaseTypeToken({ body: [IdentifierToken({ body: "a" })] }),
+                    BaseTypeToken({ body: [IdentifierToken({ body: "b" })] }),
                 ],
             }),
         ])
@@ -599,12 +597,12 @@ export function testNestedEither() {
             BaseTypeToken({
                 body: [
                     IdentifierToken({ body: "Either" }),
-                    BaseTypeToken({ body: [ IdentifierToken({ body: "a" }) ] }),
+                    BaseTypeToken({ body: [IdentifierToken({ body: "a" })] }),
                     BaseTypeToken({
                         body: [
                             IdentifierToken({ body: "List" }),
                             BaseTypeToken({
-                                body: [ IdentifierToken({ body: "b" }) ],
+                                body: [IdentifierToken({ body: "b" })],
                             }),
                         ],
                     }),
@@ -640,7 +638,7 @@ export function testListToList() {
                 body: [
                     IdentifierToken({ body: "List" }),
                     BaseTypeToken({
-                        body: [ IdentifierToken({ body: "string" }) ],
+                        body: [IdentifierToken({ body: "string" })],
                     }),
                 ],
             }),
@@ -648,7 +646,7 @@ export function testListToList() {
                 body: [
                     IdentifierToken({ body: "List" }),
                     BaseTypeToken({
-                        body: [ IdentifierToken({ body: "Person" }) ],
+                        body: [IdentifierToken({ body: "Person" })],
                     }),
                 ],
             }),
@@ -686,16 +684,16 @@ export function testQualified() {
                 body: [
                     IdentifierToken({ body: "Loop.RunningProgram" }),
                     BaseTypeToken({
-                        body: [ IdentifierToken({ body: "model" }) ],
+                        body: [IdentifierToken({ body: "model" })],
                     }),
                     BaseTypeToken({
-                        body: [ IdentifierToken({ body: "msg" }) ],
+                        body: [IdentifierToken({ body: "msg" })],
                     }),
                     BaseTypeToken({
                         body: [
                             IdentifierToken({ body: "View" }),
                             BaseTypeToken({
-                                body: [ IdentifierToken({ body: "msg" }) ],
+                                body: [IdentifierToken({ body: "msg" })],
                             }),
                         ],
                     }),
@@ -711,12 +709,12 @@ export function testQualified() {
 export function testString() {
     const str = `"hello"`.trim();
     const tokenized = tokenize(str);
-    assert.deepStrictEqual(tokenized, [ StringToken({ body: `"hello"` }) ]);
+    assert.deepStrictEqual(tokenized, [StringToken({ body: `"hello"` })]);
 
     const tokenizedType = tokenizeType(tokenized);
     assert.deepStrictEqual(
         tokenizedType,
-        Ok([ BaseTypeToken({ body: [ StringToken({ body: `"hello"` }) ] }) ])
+        Ok([BaseTypeToken({ body: [StringToken({ body: `"hello"` })] })])
     );
 
     const rootTypeString = rootTypeTokensToString((tokenizedType as any).value);
@@ -772,10 +770,10 @@ export function testNestedResultType() {
                         body: [
                             IdentifierToken({ body: "Result" }),
                             BaseTypeToken({
-                                body: [ IdentifierToken({ body: "a" }) ],
+                                body: [IdentifierToken({ body: "a" })],
                             }),
                             BaseTypeToken({
-                                body: [ IdentifierToken({ body: "b" }) ],
+                                body: [IdentifierToken({ body: "b" })],
                             }),
                         ],
                     }),
@@ -788,7 +786,7 @@ export function testNestedResultType() {
                         body: [
                             IdentifierToken({ body: "List" }),
                             BaseTypeToken({
-                                body: [ IdentifierToken({ body: "a" }) ],
+                                body: [IdentifierToken({ body: "a" })],
                             }),
                         ],
                     }),
@@ -796,7 +794,7 @@ export function testNestedResultType() {
                         body: [
                             IdentifierToken({ body: "List" }),
                             BaseTypeToken({
-                                body: [ IdentifierToken({ body: "b" }) ],
+                                body: [IdentifierToken({ body: "b" })],
                             }),
                         ],
                     }),

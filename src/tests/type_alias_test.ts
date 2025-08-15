@@ -30,9 +30,9 @@ const expectedOutput = `
 type Person = {
     name: string;
     age: number;
-}
+};
 
-function Person(args: { name: string, age: number }): Person {
+function Person(args: { name: string; age: number; }): Person {
     return {
         ...args,
     };
@@ -79,12 +79,12 @@ export function testParse() {
         Module(
             "main",
             [
-                TypeAlias(FixedType("Person", [ ]), [
-                    Property("name", FixedType("string", [ ])),
-                    Property("age", FixedType("number", [ ])),
+                TypeAlias(FixedType("Person", []), [
+                    Property("name", FixedType("string", [])),
+                    Property("age", FixedType("number", [])),
                 ]),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -95,12 +95,12 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
-                TypeAlias(FixedType("Person", [ ]), [
-                    Property("name", FixedType("string", [ ])),
-                    Property("age", FixedType("number", [ ])),
+                TypeAlias(FixedType("Person", []), [
+                    Property("name", FixedType("string", [])),
+                    Property("age", FixedType("number", [])),
                 ]),
             ],
-            [ ]
+            []
         )
     );
 }

@@ -4,13 +4,38 @@ import * as Aliases from "../types";
 import { TypeAlias, Property } from "../types";
 
 import * as Blocks from "../types";
-import { Function, FunctionArg, FunctionArgsUnion, Const, ImportModule, Import, Export, Module } from "../types";
+import {
+    Function,
+    FunctionArg,
+    FunctionArgsUnion,
+    Const,
+    ImportModule,
+    Import,
+    Export,
+    Module,
+} from "../types";
 
 import * as Boolean from "../types";
-import { Equality, InEquality, LessThan, LessThanOrEqual, GreaterThan, GreaterThanOrEqual, And, Or, ListPrepend } from "../types";
+import {
+    Equality,
+    InEquality,
+    LessThan,
+    LessThanOrEqual,
+    GreaterThan,
+    GreaterThanOrEqual,
+    And,
+    Or,
+    ListPrepend,
+} from "../types";
 
 import * as Control from "../types";
-import { IfStatement, ListDestructurePart, BranchPattern, Branch, CaseStatement } from "../types";
+import {
+    IfStatement,
+    ListDestructurePart,
+    BranchPattern,
+    Branch,
+    CaseStatement,
+} from "../types";
 
 import * as Functions from "../types";
 import { FunctionCall, Lambda, LambdaCall } from "../types";
@@ -19,12 +44,35 @@ import * as Objects from "../types";
 import { ObjectLiteral, Field, ModuleReference } from "../types";
 
 import * as Operators from "../types";
-import { Addition, Subtraction, Multiplication, Division, Mod, LeftPipe, RightPipe } from "../types";
+import {
+    Addition,
+    Subtraction,
+    Multiplication,
+    Division,
+    Mod,
+    LeftPipe,
+    RightPipe,
+} from "../types";
 
 import * as Values from "../types";
-import { Value, StringValue, FormatStringValue, ListValue, ListRange } from "../types";
+import {
+    Value,
+    StringValue,
+    FormatStringValue,
+    ListValue,
+    ListRange,
+} from "../types";
 
-import { Tag, UnionType, UnionUntaggedType, Type, TagArg, Block, Constructor, Expression } from "../types";
+import {
+    Tag,
+    UnionType,
+    UnionUntaggedType,
+    Type,
+    TagArg,
+    Block,
+    Constructor,
+    Expression,
+} from "../types";
 
 import { prefixLines } from "./Common";
 
@@ -32,25 +80,28 @@ export { generateEnglish };
 
 function generateTag(tag: Tag): string {
     function generateTypeArg(arg: TagArg): string {
-        return (function(type_: any) {
+        return (function (type_: any) {
             return arg.name + ": " + type_ + "";
         })(generateType(arg.type));
     }
-    const typeDefArgs: string = (function(y: any) {
+    const typeDefArgs: string = (function (y: any) {
         return y.join(",\n    ");
     })(List.map(generateTypeArg, tag.args));
-    const funcDefArgsStr: string = tag.args.length > 0 ? `{ ${typeDefArgs} }` : "";
-    return (function(y: any) {
+    const funcDefArgsStr: string =
+        tag.args.length > 0 ? `{ ${typeDefArgs} }` : "";
+    return (function (y: any) {
         return y + funcDefArgsStr;
-    })(generateType({
-        kind: "FixedType",
-        name: tag.name,
-        args: [ ]
-    }));
+    })(
+        generateType({
+            kind: "FixedType",
+            name: tag.name,
+            args: [],
+        })
+    );
 }
 
 function generateUnionType(syntax: UnionType): string {
-    const tags: string = (function(y: any) {
+    const tags: string = (function (y: any) {
         return y.join("\n| ");
     })(List.map(generateTag, syntax.tags));
     const prefixed: string = prefixLines(tags, 4);
@@ -58,7 +109,7 @@ function generateUnionType(syntax: UnionType): string {
 }
 
 function generateUnionUntaggedType(syntax: UnionUntaggedType): string {
-    const values: string = (function(y: any) {
+    const values: string = (function (y: any) {
         return y.join("\n| ");
     })(List.map(generateStringValue, syntax.values));
     const prefixed: string = prefixLines(values, 4);
@@ -70,7 +121,7 @@ function generateProperty(syntax: Property): string {
 }
 
 function generateTypeAlias(syntax: TypeAlias): string {
-    const properties: string = (function(y: any) {
+    const properties: string = (function (y: any) {
         return y.join(",\n    ");
     })(List.map(generateProperty, syntax.properties));
     const typeDef: string = generateType(syntax.type);
@@ -81,7 +132,7 @@ function generateListType(args: Type[]): string {
     if (args.length > 0 && args[0].kind === "GenericType") {
         return `List ${generateType(args[0])}`;
     } else {
-        const fixedArgs: Type[] = List.filter(function(type_: any) {
+        const fixedArgs: Type[] = List.filter(function (type_: any) {
             return type_.kind === "FixedType";
         }, args);
         switch (fixedArgs.length) {
@@ -90,18 +141,18 @@ function generateListType(args: Type[]): string {
             }
             case fixedArgs.length: {
                 if (fixedArgs.length === 1) {
-                    const [ x ] = fixedArgs;
+                    const [x] = fixedArgs;
                     if (x.kind === "FixedType" && x.args.length > 0) {
-                    return `List (${generateType(x)})`;
-                } else {
-                    return `List ${generateType(x)}`;
-                };
+                        return `List (${generateType(x)})`;
+                    } else {
+                        return `List ${generateType(x)}`;
+                    }
                 }
             }
             default: {
                 return `List (${fixedArgs.map(generateType).join(" | ")})`;
             }
-        };
+        }
     }
 }
 
@@ -115,15 +166,18 @@ function generateTopLevelType(type_: Type): string {
             if (name === "List") {
                 return generateType(type_);
             } else {
-                const genericArgs: Type[] = List.filter(function(type_: any) {
-                    return type_.kind === "GenericType" || type_.kind === "FixedType";
+                const genericArgs: Type[] = List.filter(function (type_: any) {
+                    return (
+                        type_.kind === "GenericType" ||
+                        type_.kind === "FixedType"
+                    );
                 }, args);
                 if (genericArgs.length === 0) {
                     return name;
                 } else {
                     return `${name} ${genericArgs.map(generateType).join(" ")}`;
-                };
-            };
+                }
+            }
         }
         case "FunctionType": {
             return generateType(type_);
@@ -145,15 +199,15 @@ function generateType(type_: Type): string {
             if (name === "List") {
                 return generateListType(args);
             } else {
-                const genericArgs: Type[] = List.filter(function(type_: any) {
+                const genericArgs: Type[] = List.filter(function (type_: any) {
                     return type_.kind === "GenericType";
                 }, args);
                 if (genericArgs.length === 0) {
                     return name;
                 } else {
                     return `${name} ${genericArgs.map(generateType).join(" ")}`;
-                };
-            };
+                }
+            }
         }
         case "FunctionType": {
             const { args } = type_;
@@ -171,7 +225,7 @@ function generateField(field: Field): string {
 }
 
 function generateObjectLiteral(literal: ObjectLiteral): string {
-    const fields: string = (function(y: any) {
+    const fields: string = (function (y: any) {
         return y.join(",\n    ");
     })(literal.fields.map(generateField));
     if (literal.base === null) {
@@ -179,13 +233,13 @@ function generateObjectLiteral(literal: ObjectLiteral): string {
             return `{ ${fields} }`;
         } else {
             return `{\n   ${fields}\n}`;
-        };
+        }
     } else {
         if (literal.fields.length === 1) {
             return `{ ${literal.base.body}, ${fields} }`;
         } else {
             return `{\n    ${literal.base.body},\n    ${fields}\n}`;
-        };
+        }
     }
 }
 
@@ -208,7 +262,7 @@ function generateListValue(list: ListValue): string {
         }
         case list.items.length: {
             if (list.items.length === 1) {
-                const [ x ] = list.items;
+                const [x] = list.items;
                 return `A list containing ${generateExpression(x)} only`;
             }
         }
@@ -229,9 +283,9 @@ function generateLetBlock(body: Block[]): string {
         }
         case body.length: {
             if (body.length >= 1) {
-                const [ x, ...ys ] = body;
+                const [x, ...ys] = body;
                 const prefixedLet: string = prefixLines("\nlet", 4);
-                const prefixedBody: string = (function(y: any) {
+                const prefixedBody: string = (function (y: any) {
                     return y.join("\n\n");
                 })(List.map(generateBlock, body));
                 const prefixedLines: string = prefixLines(prefixedBody, 8);
@@ -250,11 +304,11 @@ function generateIfStatement(ifStatement: IfStatement): string {
     const maybeElseLetBody: string = generateLetBlock(ifStatement.elseLetBody);
     const predicate: string = generateExpression(ifStatement.predicate);
     const ifIndent: number = maybeIfLetBody === "" ? 4 : 8;
-    const ifBody: string = (function(lines: any) {
+    const ifBody: string = (function (lines: any) {
         return prefixLines(lines, ifIndent);
     })(generateExpression(ifStatement.ifBody));
     const elseIndent: number = maybeElseLetBody === "" ? 4 : 8;
-    const elseBody: string = (function(lines: any) {
+    const elseBody: string = (function (lines: any) {
         return prefixLines(lines, elseIndent);
     })(generateExpression(ifStatement.elseBody));
     return `if ${predicate} then${maybeIfLetBody}\n${ifBody}\nelse${maybeElseLetBody}\n${elseBody}\n`;
@@ -294,7 +348,7 @@ function generateListDestructurePart(part: ListDestructurePart): string {
                 return part.constructor;
             } else {
                 return `${part.constructor} ${pattern}`;
-            };
+            }
         }
     }
 }
@@ -307,7 +361,7 @@ function generateBranchPattern(branchPattern: BranchPattern): string {
                 return branchPattern.constructor;
             } else {
                 return `${branchPattern.constructor} ${pattern}`;
-            };
+            }
         }
         case "StringValue": {
             const { body } = branchPattern;
@@ -322,9 +376,9 @@ function generateBranchPattern(branchPattern: BranchPattern): string {
         }
         case "ListDestructure": {
             const { parts } = branchPattern;
-            return (function(y: any) {
-            return y.join(" is in a list element from ");
-        })(List.map(generateListDestructurePart, parts));
+            return (function (y: any) {
+                return y.join(" is in a list element from ");
+            })(List.map(generateListDestructurePart, parts));
         }
         case "Default": {
             return "Nothing else matches";
@@ -335,7 +389,7 @@ function generateBranchPattern(branchPattern: BranchPattern): string {
 function generateBranch(branch: Branch): string {
     const maybeLetBody: string = generateLetBlock(branch.letBody);
     const bodyIndent: number = maybeLetBody === "" ? 4 : 9;
-    const body: string = (function(y: any) {
+    const body: string = (function (y: any) {
         return prefixLines(`return ${y}`, bodyIndent);
     })(generateExpression(branch.body));
     const pattern: string = generateBranchPattern(branch.pattern);
@@ -344,11 +398,13 @@ function generateBranch(branch: Branch): string {
 
 function generateCaseStatement(caseStatement: CaseStatement): string {
     const predicate: string = generateExpression(caseStatement.predicate);
-    const branches: string = (function(y: any) {
+    const branches: string = (function (y: any) {
         return prefixLines(y, 4);
-    })((function(y: any) {
-        return y.join("\n\n");
-    })(List.map(generateBranch, caseStatement.branches)));
+    })(
+        (function (y: any) {
+            return y.join("\n\n");
+        })(List.map(generateBranch, caseStatement.branches))
+    );
     return `Check the value of ${predicate}\n${branches}`;
 }
 
@@ -420,7 +476,7 @@ function generateFunctionCallArg(arg: Expression): string {
                 default: {
                     return generateExpression(arg);
                 }
-            };
+            }
         }
         case "ListPrepend": {
             return `(${generateExpression(arg)})`;
@@ -435,7 +491,7 @@ function generateFunctionCall(functionCall: FunctionCall): string {
     if (functionCall.args.length === 0) {
         return `${functionCall.name}()`;
     } else {
-        const args: string = (function(y: any) {
+        const args: string = (function (y: any) {
             return y.join(" ");
         })(List.map(generateFunctionCallArg, functionCall.args));
         return `${functionCall.name} ${args}`;
@@ -443,22 +499,26 @@ function generateFunctionCall(functionCall: FunctionCall): string {
 }
 
 function generateLambda(lambda: Lambda): string {
-    const args: string = (function(y: any) {
+    const args: string = (function (y: any) {
         return y.join(" ");
-    })(List.map(function(arg: any) {
-        return arg;
-    }, lambda.args));
+    })(
+        List.map(function (arg: any) {
+            return arg;
+        }, lambda.args)
+    );
     const body: string = generateExpression(lambda.body);
     return `(\\${args} -> ${body})`;
 }
 
 function generateLambdaCall(lambdaCall: LambdaCall): string {
-    const args: string = (function(y: any) {
+    const args: string = (function (y: any) {
         return y.join(", ");
-    })(List.map(function(arg: any) {
-        return `${arg}: any`;
-    }, lambdaCall.args));
-    const argsValues: string = (function(y: any) {
+    })(
+        List.map(function (arg: any) {
+            return `${arg}: any`;
+        }, lambdaCall.args)
+    );
+    const argsValues: string = (function (y: any) {
         return y.join(", ");
     })(List.map(generateExpression, lambdaCall.args));
     const body: string = generateExpression(lambdaCall.lambda.body);
@@ -495,7 +555,9 @@ function generateGreaterThan(greaterThan: GreaterThan): string {
     return `${left} is greater than ${right}`;
 }
 
-function generateGreaterThanOrEqual(greaterThanOrEqual: GreaterThanOrEqual): string {
+function generateGreaterThanOrEqual(
+    greaterThanOrEqual: GreaterThanOrEqual
+): string {
     const left: string = generateExpression(greaterThanOrEqual.left);
     const right: string = generateExpression(greaterThanOrEqual.right);
     return `${left} is greater than or equal to ${right}`;
@@ -625,32 +687,45 @@ function generateFunctionArg(arg: FunctionArgsUnion): string {
 }
 
 function generateFunction(function_: Function): string {
-    const args: string = (function(y: any) {
+    const args: string = (function (y: any) {
         return y.join("\n");
     })(List.map(generateFunctionArg, function_.args));
     const maybeLetBody: string = generateLetBlock(function_.letBody);
     const returnType: string = generateTopLevelType(function_.returnType);
     const bodyIndent: number = maybeLetBody === "" ? 4 : 8;
-    const body: string = (function(y: any) {
+    const body: string = (function (y: any) {
         return prefixLines(y, bodyIndent);
     })(generateExpression(function_.body));
-    return (function(y: any) {
+    return (function (y: any) {
         return y.join("\n");
-    })([ `${function_.name} is a function with the arguments:`, prefixLines(args, 4), `${function_.name} returns a value of the type ${returnType}`, `${function_.name} is defined as: ${maybeLetBody}`, `${body}` ]);
+    })([
+        `${function_.name} is a function with the arguments:`,
+        prefixLines(args, 4),
+        `${function_.name} returns a value of the type ${returnType}`,
+        `${function_.name} is defined as: ${maybeLetBody}`,
+        `${body}`,
+    ]);
 }
 
 function generateConst(constDef: Const): string {
-    const body: string = (function(y: any) {
+    const body: string = (function (y: any) {
         return prefixLines(y, 4);
     })(generateExpression(constDef.value));
     const typeDef: string = generateTopLevelType(constDef.type);
-    return (function(y: any) {
+    return (function (y: any) {
         return y.join("\n");
-    })([ `${constDef.name} is a constant with the type ${typeDef}`, `${constDef.name} is assigned to:`, `${body}` ]);
+    })([
+        `${constDef.name} is a constant with the type ${typeDef}`,
+        `${constDef.name} is assigned to:`,
+        `${body}`,
+    ]);
 }
 
 function generateImportModule(module: ImportModule): string {
-    const partExposing: string = module.exposing.length === 0 ? "" : ` exposing (${module.exposing.join(", ")} )`;
+    const partExposing: string =
+        module.exposing.length === 0
+            ? ""
+            : ` exposing (${module.exposing.join(", ")} )`;
     switch (module.alias.kind) {
         case "Just": {
             const { value } = module.alias;
@@ -663,7 +738,7 @@ function generateImportModule(module: ImportModule): string {
 }
 
 function generateImportBlock(imports: Import): string {
-    return (function(y: any) {
+    return (function (y: any) {
         return y.join("\n");
     })(List.map(generateImportModule, imports.modules));
 }
@@ -711,9 +786,14 @@ function generateBlock(syntax: Block): string {
 }
 
 function generateEnglish(module: Module): string {
-    return (function(y: any) {
+    return (function (y: any) {
         return y.join("\n\n");
-    })(List.filter(function(line: any) {
-        return line.length > 0;
-    }, List.map(generateBlock, module.body)));
+    })(
+        List.filter(
+            function (line: any) {
+                return line.length > 0;
+            },
+            List.map(generateBlock, module.body)
+        )
+    );
 }

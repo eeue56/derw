@@ -98,13 +98,13 @@ export function testParse() {
                 MultilineComment("hello\n    world"),
                 Function(
                     "toString",
-                    FixedType("string", [ ]),
-                    [ FunctionArg("buffer", GenericType("any")) ],
-                    [ ],
-                    ModuleReference([ "buffer" ], FunctionCall("toString", [ ]))
+                    FixedType("string", []),
+                    [FunctionArg("buffer", GenericType("any"))],
+                    [],
+                    ModuleReference(["buffer"], FunctionCall("toString", []))
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -118,13 +118,13 @@ export function testParseMultiLine() {
                 MultilineComment("hello\n    world"),
                 Function(
                     "toString",
-                    FixedType("string", [ ]),
-                    [ FunctionArg("buffer", GenericType("any")) ],
-                    [ ],
-                    ModuleReference([ "buffer" ], FunctionCall("toString", [ ]))
+                    FixedType("string", []),
+                    [FunctionArg("buffer", GenericType("any"))],
+                    [],
+                    ModuleReference(["buffer"], FunctionCall("toString", []))
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

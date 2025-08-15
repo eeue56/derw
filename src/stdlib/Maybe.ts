@@ -37,7 +37,7 @@ function map<a, b>(fn: (arg0: a) => b, maybe: Maybe<a>): Maybe<b> {
             return Just({ value: fn(value) });
         }
         case "Nothing": {
-            return Nothing({ });
+            return Nothing({});
         }
     }
 }
@@ -61,7 +61,7 @@ function andThen<a, b>(fn: (arg0: a) => Maybe<b>, maybe: Maybe<a>): Maybe<b> {
             return fn(value);
         }
         case "Nothing": {
-            return Nothing({ });
+            return Nothing({});
         }
     }
 }

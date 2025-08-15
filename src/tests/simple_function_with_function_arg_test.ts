@@ -72,15 +72,15 @@ export function testParse() {
                     [
                         FunctionArg(
                             "fn",
-                            FunctionType([ GenericType("a"), GenericType("b") ])
+                            FunctionType([GenericType("a"), GenericType("b")])
                         ),
                         FunctionArg("value", GenericType("a")),
                     ],
-                    [ ],
-                    FunctionCall("fn", [ Value("value") ])
+                    [],
+                    FunctionCall("fn", [Value("value")])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -97,15 +97,15 @@ export function testParseMultiLine() {
                     [
                         FunctionArg(
                             "fn",
-                            FunctionType([ GenericType("a"), GenericType("b") ])
+                            FunctionType([GenericType("a"), GenericType("b")])
                         ),
                         FunctionArg("value", GenericType("a")),
                     ],
-                    [ ],
-                    FunctionCall("fn", [ Value("value") ])
+                    [],
+                    FunctionCall("fn", [Value("value")])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

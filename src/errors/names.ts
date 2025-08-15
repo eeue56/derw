@@ -13,15 +13,15 @@ function namesPerExpression(expression: Expression): string[] {
     switch (expression.kind) {
         case "Value":
             if (isNumberLiteral(expression) || isBoolean(expression)) {
-                return [ ];
+                return [];
             }
-            return [ expression.body ];
+            return [expression.body];
         case "StringValue":
-            return [ ];
+            return [];
         case "FormatStringValue":
-            return [ ];
+            return [];
         case "ListValue": {
-            let results: string[] = [ ];
+            let results: string[] = [];
             for (const innerExpression of expression.items) {
                 results = results.concat(namesPerExpression(innerExpression));
             }
@@ -34,7 +34,7 @@ function namesPerExpression(expression: Expression): string[] {
             ];
         }
         case "ObjectLiteral":
-            return [ ];
+            return [];
         case "IfStatement":
             return [
                 ...namesPerExpression(expression.ifBody),
@@ -42,7 +42,7 @@ function namesPerExpression(expression: Expression): string[] {
                 ...namesPerExpression(expression.predicate),
             ];
         case "CaseStatement": {
-            return [ ...namesPerExpression(expression.predicate) ];
+            return [...namesPerExpression(expression.predicate)];
         }
         case "Addition":
             return [
@@ -101,23 +101,23 @@ function namesPerExpression(expression: Expression): string[] {
                     namesPerExpression(expression.value),
             ];
         case "FunctionCall": {
-            let results: string[] = [ expression.name ];
+            let results: string[] = [expression.name];
             for (const innerExpression of expression.args) {
                 results = results.concat(namesPerExpression(innerExpression));
             }
             return results;
         }
         case "Lambda": {
-            return [ ];
+            return [];
             // return [
             //     ...expression.args,
             //     ...namesPerExpression(expression.body),
             // ];
         }
         case "LambdaCall":
-            return [ ];
+            return [];
         case "Constructor":
-            return [ ];
+            return [];
         case "Equality":
             return [
                 ...namesPerExpression(expression.left),
@@ -154,41 +154,41 @@ function namesPerExpression(expression: Expression): string[] {
 export function topLevelNamesPerBlock(block: Block): string[] {
     switch (block.kind) {
         case "Comment": {
-            return [ ];
+            return [];
         }
         case "Const": {
-            return [ block.name ];
+            return [block.name];
         }
         case "Export": {
-            return [ ];
+            return [];
         }
         case "Function": {
-            return [ block.name ];
+            return [block.name];
         }
         case "Import": {
-            let results: string[] = [ ];
+            let results: string[] = [];
             for (const module of block.modules) {
                 results = results.concat(module.exposing);
             }
             return results;
         }
         case "MultilineComment": {
-            return [ ];
+            return [];
         }
         case "TypeAlias": {
-            return [ ];
+            return [];
         }
         case "Typeclass": {
-            return [ ];
+            return [];
         }
         case "Impl": {
-            return [ ];
+            return [];
         }
         case "UnionType": {
-            return [ ];
+            return [];
         }
         case "UnionUntaggedType": {
-            return [ ];
+            return [];
         }
     }
 }
@@ -196,16 +196,16 @@ export function topLevelNamesPerBlock(block: Block): string[] {
 export function definedNamesPerBlock(block: Block): string[] {
     switch (block.kind) {
         case "Comment": {
-            return [ ];
+            return [];
         }
         case "Const": {
-            return [ block.name ];
+            return [block.name];
         }
         case "Export": {
-            return [ ];
+            return [];
         }
         case "Function": {
-            let results = [ block.name ];
+            let results = [block.name];
 
             for (const arg of block.args) {
                 if (arg.kind === "FunctionArg") {
@@ -221,25 +221,25 @@ export function definedNamesPerBlock(block: Block): string[] {
             return results;
         }
         case "Import": {
-            return [ ];
+            return [];
         }
         case "MultilineComment": {
-            return [ ];
+            return [];
         }
         case "TypeAlias": {
-            return [ ];
+            return [];
         }
         case "Typeclass": {
-            return [ ];
+            return [];
         }
         case "Impl": {
-            return [ ];
+            return [];
         }
         case "UnionType": {
-            return [ ];
+            return [];
         }
         case "UnionUntaggedType": {
-            return [ ];
+            return [];
         }
     }
 }
@@ -247,37 +247,37 @@ export function definedNamesPerBlock(block: Block): string[] {
 export function namesPerBlock(block: Block): string[] {
     switch (block.kind) {
         case "Comment": {
-            return [ ];
+            return [];
         }
         case "Const": {
-            return [ block.name, ...namesPerExpression(block.value) ];
+            return [block.name, ...namesPerExpression(block.value)];
         }
         case "Export": {
-            return [ ];
+            return [];
         }
         case "Function": {
-            return [ block.name, ...namesPerExpression(block.body) ];
+            return [block.name, ...namesPerExpression(block.body)];
         }
         case "Import": {
-            return [ ];
+            return [];
         }
         case "MultilineComment": {
-            return [ ];
+            return [];
         }
         case "TypeAlias": {
-            return [ ];
+            return [];
         }
         case "Typeclass": {
-            return [ ];
+            return [];
         }
         case "Impl": {
-            return [ ];
+            return [];
         }
         case "UnionType": {
-            return [ ];
+            return [];
         }
         case "UnionUntaggedType": {
-            return [ ];
+            return [];
         }
     }
 }
@@ -293,12 +293,12 @@ function isGlobal(str: string) {
 export function addMissingNamesSuggestions(
     module: ContextModule
 ): ContextModule {
-    let topLevelNames: string[] = [ ];
+    let topLevelNames: string[] = [];
     for (const names of module.body.map(topLevelNamesPerBlock)) {
         topLevelNames = topLevelNames.concat(names);
     }
 
-    const nameSuggestions: string[] = [ ];
+    const nameSuggestions: string[] = [];
 
     module.body.forEach((block) => {
         const blockName =
@@ -318,9 +318,7 @@ export function addMissingNamesSuggestions(
                 const suggestions = suggestName(name, knownNames);
                 if (suggestions.length > 0) {
                     nameSuggestions.push(
-                        `Couldn't find \`${name}\` in the scope of \`${blockName}\`. Perhaps you meant: ${suggestions.join(
-                            ", "
-                        )}?`
+                        `Couldn't find \`${name}\` in the scope of \`${blockName}\`. Perhaps you meant: ${suggestions.join(", ")}?`
                     );
                 } else {
                     nameSuggestions.push(

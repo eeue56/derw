@@ -2,42 +2,42 @@
 
 These are features that Derw has today. For examples on how to use them, check out the [docs](https://docs.derw-lang.com/).
 
--   [x] Arrays `[ ]`, `[ 1, 2, 3 ]`, `[ [ 1, 2, 3 ], [ 3, 2, 1 ] ]`
--   [x] Booleans `true`, `false`
--   [x] Boolean equality `1 < 2`, `1 <= 2`, `1 == 2`, `1 != 2`, `1 > 2`, `1 >= 2`
--   [x] Boolean operations `true && false`, `not true`, `true || false`
--   [x] Strings `""`, `"hello world"`
--   [x] Format strings ` `` `, `` `Hello ${name}` ``
--   [x] Numbers `-1`, `0`, `1`, `-1.1`, `1.1`
--   [x] Addition `1 + 2`, `"Hello" + name`
--   [x] Subtraction `2 - 1`
--   [x] Multiplication `2 * 1`
--   [x] Division `2 / 1`
--   [x] Pipe `[1, 2, 3] |> List.fold add`, `List.fold add <| [1, 2, 3]`
--   [ ] Compose `>>`, `<<`
--   [x] Constants `hello = "hello world"`
--   [x] Function definitions
--   [x] Lists `[ 1, 2, 3 ]`, `[ "hello", "world" ]`
--   [x] List ranges `[ 1..5 ]`, `[ start..end ]`
+- [x] Arrays `[ ]`, `[ 1, 2, 3 ]`, `[ [ 1, 2, 3 ], [ 3, 2, 1 ] ]`
+- [x] Booleans `true`, `false`
+- [x] Boolean equality `1 < 2`, `1 <= 2`, `1 == 2`, `1 != 2`, `1 > 2`, `1 >= 2`
+- [x] Boolean operations `true && false`, `not true`, `true || false`
+- [x] Strings `""`, `"hello world"`
+- [x] Format strings ` `` `, `` `Hello ${name}` ``
+- [x] Numbers `-1`, `0`, `1`, `-1.1`, `1.1`
+- [x] Addition `1 + 2`, `"Hello" + name`
+- [x] Subtraction `2 - 1`
+- [x] Multiplication `2 * 1`
+- [x] Division `2 / 1`
+- [x] Pipe `[1, 2, 3] |> List.fold add`, `List.fold add <| [1, 2, 3]`
+- [ ] Compose `>>`, `<<`
+- [x] Constants `hello = "hello world"`
+- [x] Function definitions
+- [x] Lists `[ 1, 2, 3 ]`, `[ "hello", "world" ]`
+- [x] List ranges `[ 1..5 ]`, `[ start..end ]`
 
     ```elm
     add : number -> number -> number
     add x y = x + y
     ```
 
--   [x] Function calls
+- [x] Function calls
 
     ```elm
     three = add 1 2
     ```
 
--   [x] Module references
+- [x] Module references
 
     ```elm
     three = List.map identity [ 1, 2, 3 ]
     ```
 
--   [x] Union types
+- [x] Union types
 
     ```elm
     type Result a b
@@ -45,34 +45,34 @@ These are features that Derw has today. For examples on how to use them, check o
         | Ok { value: b }
     ```
 
--   [x] Type variables
+- [x] Type variables
 
     ```
     type Thing a = Thing a
     ```
 
--   [x] Type aliases
+- [x] Type aliases
 
     ```elm
     type alias User =
         { name: string }
     ```
 
--   [x] Object literals
+- [x] Object literals
 
     ```elm
     user: User
     user = { name: "Noah" }
     ```
 
--   [x] Object literals updates
+- [x] Object literals updates
 
     ```elm
     user: User
     user = { ...noah, name: "Noah" }
     ```
 
--   [x] Imports
+- [x] Imports
 
     ```elm
     import List
@@ -80,13 +80,13 @@ These are features that Derw has today. For examples on how to use them, check o
     import something as banana
     ```
 
--   [x] Exports
+- [x] Exports
 
     ```elm
     exposing ( map )
     ```
 
--   [x] Let statements
+- [x] Let statements
 
     ```elm
     sayHiTo : User -> string
@@ -105,7 +105,7 @@ These are features that Derw has today. For examples on how to use them, check o
             "Hello" + getName user
     ```
 
--   [x] If statements
+- [x] If statements
 
     ```elm
     type Animal = Animal { age: number }
@@ -117,7 +117,7 @@ These are features that Derw has today. For examples on how to use them, check o
             "You're old"
     ```
 
--   [x] Case..of
+- [x] Case..of
 
     ```elm
     type Animal = Dog | Cat
@@ -128,7 +128,7 @@ These are features that Derw has today. For examples on how to use them, check o
             Cat -> "Hi cat!"
     ```
 
--   [x] Destructing in case..of
+- [x] Destructing in case..of
 
     ```elm
     type User = User { name: string }
@@ -139,8 +139,8 @@ These are features that Derw has today. For examples on how to use them, check o
             User { name } -> "Hi " + name + !"
     ```
 
--   [x] strings in case..of
--   [x] defaults in case..of
+- [x] strings in case..of
+- [x] defaults in case..of
 
     ```elm
     sayHiTo : string -> string
@@ -150,7 +150,7 @@ These are features that Derw has today. For examples on how to use them, check o
             default: "I don't know you"
     ```
 
--   [x] List destructing
+- [x] List destructing
 
     ```elm
     sum: List number -> number
@@ -162,7 +162,7 @@ These are features that Derw has today. For examples on how to use them, check o
             default -> 0
     ```
 
--   [x] List destructing with string values
+- [x] List destructing with string values
 
     ```elm
     sum: List string -> number
@@ -174,7 +174,7 @@ These are features that Derw has today. For examples on how to use them, check o
             default -> 0
     ```
 
--   [x] List destructing with union types values
+- [x] List destructing with union types values
 
     ```elm
     sum: List (Maybe number) -> number
@@ -186,28 +186,28 @@ These are features that Derw has today. For examples on how to use them, check o
             default -> 0
     ```
 
--   [x] Constructing union types
+- [x] Constructing union types
 
     ```elm
     type User = User { name: string }
     noah = User { name: "Noah" }
     ```
 
--   [x] Accessors
+- [x] Accessors
 
     ```elm
     type alias User = { name: string }
     names = List.map .name [ { name: "Noah" }, { name: "Dave" } ]
     ```
 
--   [ ] Nested accessors
+- [ ] Nested accessors
 
     ```elm
     type alias Group = { person: { name: string } }
     names = List.map .person.name [ { person: { name: "Noah" } }, { person: { name: "Dave" } } ]
     ```
 
--   [x] Errors on type name collison
+- [x] Errors on type name collison
 
     ````markdown
     The name `Person` has been used for different things.
@@ -227,7 +227,7 @@ These are features that Derw has today. For examples on how to use them, check o
     ```
     ````
 
--   [x] Errors on function name collison
+- [x] Errors on function name collison
 
     ````markdown
     The name `isTrue` has been used for different things.
@@ -248,7 +248,7 @@ These are features that Derw has today. For examples on how to use them, check o
     ```
     ````
 
--   [x] Some form of basic type errors
+- [x] Some form of basic type errors
 
     ````markdown
     Failed to parse examples/errors/mismatching_types.derw due to:
@@ -271,17 +271,17 @@ These are features that Derw has today. For examples on how to use them, check o
     ```
     ````
 
--   [x] lambdas `\x -> x + 1`, `\x y -> x + y`
--   [x] Typescript output
--   [x] Javscript output
--   [x] Elm output
--   [x] Module resolution
--   [x] CLI
--   [x] Basic type checking
--   [x] Detect if types exist in current namespace
--   [x] Syntax highlighting for editors
--   [x] Collision detection for names in a module
--   [x] Importing of Derw files
+- [x] lambdas `\x -> x + 1`, `\x y -> x + y`
+- [x] Typescript output
+- [x] Javscript output
+- [x] Elm output
+- [x] Module resolution
+- [x] CLI
+- [x] Basic type checking
+- [x] Detect if types exist in current namespace
+- [x] Syntax highlighting for editors
+- [x] Collision detection for names in a module
+- [x] Importing of Derw files
 
     ```elm
     import "./other"
@@ -290,13 +290,13 @@ These are features that Derw has today. For examples on how to use them, check o
     import "./Maybe" as Maybe exposing (Maybe)
     ```
 
--   [x] Errors when failing to find relative import
+- [x] Errors when failing to find relative import
 
     ```
     Warning! Failed to find `examples/derw_imports/banana` as either derw, ts or js
     ```
 
--   [x] Single line comments
+- [x] Single line comments
 
     ```elm
     -- hello
@@ -305,7 +305,7 @@ These are features that Derw has today. For examples on how to use them, check o
         x
     ```
 
--   [x] Single line comments in function or const bodies
+- [x] Single line comments in function or const bodies
 
     ```elm
     isTrue: boolean -> boolean
@@ -314,7 +314,7 @@ These are features that Derw has today. For examples on how to use them, check o
         x
     ```
 
--   [x] Multiline comments
+- [x] Multiline comments
 
     ```elm
     {-
@@ -326,7 +326,7 @@ These are features that Derw has today. For examples on how to use them, check o
         x
     ```
 
--   [x] Function arguments
+- [x] Function arguments
 
     ```elm
     map: (a -> b) -> a -> b
@@ -334,11 +334,11 @@ These are features that Derw has today. For examples on how to use them, check o
         fn value
     ```
 
--   [x] Globals
+- [x] Globals
 
     Globals can be accessed through the `globalThis` module which is imported into every namespace. E.g `globalThis.console.log`
 
--   [x] Constant if statements
+- [x] Constant if statements
 
     ```elm
     name: string
@@ -349,7 +349,7 @@ These are features that Derw has today. For examples on how to use them, check o
             "James"
     ```
 
--   [x] Constant case statements
+- [x] Constant case statements
 
     ```elm
     name: string
@@ -360,7 +360,7 @@ These are features that Derw has today. For examples on how to use them, check o
             default -> "Other"
     ```
 
--   [x] List prepend
+- [x] List prepend
 
     ```elm
     numbers: List number
@@ -370,18 +370,18 @@ These are features that Derw has today. For examples on how to use them, check o
 
 ## 1.0.0
 
--   [x] An automatic formatter with no options
+- [x] An automatic formatter with no options
 
     ```
     derw format
     ```
 
--   [ ] A standard library
--   [x] Support for [Coed](https://github.com/eeue56/coed)
+- [ ] A standard library
+- [x] Support for [Coed](https://github.com/eeue56/coed)
 
     Use [html](https://github.com/derw-lang/html)
 
--   [x] Testing support via [Bach](https://github.com/eeue56/bach)
+- [x] Testing support via [Bach](https://github.com/eeue56/bach)
 
     Write a file with `_test` as an extension (e.g `List_test.derw`).
 
@@ -395,66 +395,66 @@ These are features that Derw has today. For examples on how to use them, check o
 
     Compile it, then run bach via `npx @eeue56/bach`
 
--   [x] Type checking
--   [x] Benchmarking support via [Mainc](https://github.com/eeue56/mainc)
--   [ ] Async support
--   [x] Packaging
--   [x] Package init
+- [x] Type checking
+- [x] Benchmarking support via [Mainc](https://github.com/eeue56/mainc)
+- [ ] Async support
+- [x] Packaging
+- [x] Package init
 
     ```
     derw init
     ```
 
--   [x] Package testing
+- [x] Package testing
 
     ```
     # inside a package directory
     derw test
     ```
 
--   [x] Compile a package
+- [x] Compile a package
 
     ```
     derw compile
     ```
 
--   [x] Install a package
+- [x] Install a package
 
     ```
     derw install --name derw-lang/stdlib --version main
     ```
 
--   [x] An info command to find out stats about modules
+- [x] An info command to find out stats about modules
 
     ```
     derw init
     ```
 
--   [x] A repl
+- [x] A repl
 
     ```
     derw repl
     ```
 
--   [x] Bundling
+- [x] Bundling
 
     ```
     derw bundle --entry src/Main.derw --output dist/index.js --watch --quiet
     ```
 
--   [x] English output
+- [x] English output
 
     ```
     derw compile --target english
     ```
 
--   [x] Template generation
+- [x] Template generation
 
     ```
     derw template --path src/Main.derw --template web
     ```
 
--   [x] Do notation
+- [x] Do notation
 
     ```elm
     sayHi: string -> void
@@ -467,6 +467,6 @@ These are features that Derw has today. For examples on how to use them, check o
 
 # 2.0.0
 
--   [ ] Time travelling debugger
--   [ ] Type checking with interop with TypeScript
--   [ ] Derw compiler is written in Derw
+- [ ] Time travelling debugger
+- [ ] Type checking with interop with TypeScript
+- [ ] Derw compiler is written in Derw

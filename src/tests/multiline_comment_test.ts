@@ -91,19 +91,19 @@ export function testParse() {
                 MultilineComment("something with name\neman htiw gnihtemos"),
                 Const(
                     "name",
-                    FixedType("string", [ ]),
-                    [ ],
+                    FixedType("string", []),
+                    [],
                     IfStatement(
                         Equality(Value("1"), Value("1")),
                         StringValue("Noah"),
-                        [ ],
-                        [ ],
+                        [],
+                        [],
                         StringValue("James"),
-                        [ ]
+                        []
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -117,19 +117,19 @@ export function testParseMultiLine() {
                 MultilineComment("something with name\neman htiw gnihtemos"),
                 Const(
                     "name",
-                    FixedType("string", [ ]),
-                    [ ],
+                    FixedType("string", []),
+                    [],
                     IfStatement(
                         Equality(Value("1"), Value("1")),
                         StringValue("Noah"),
-                        [ ],
-                        [ ],
+                        [],
+                        [],
                         StringValue("James"),
-                        [ ]
+                        []
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

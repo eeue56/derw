@@ -56,7 +56,7 @@ export function testBlockKind() {
 
     assert.deepStrictEqual(
         blocks.map((block) => blockKind(block.lines.join("\n"))),
-        [ Ok("UnionUntaggedType") ]
+        [Ok("UnionUntaggedType")]
     );
 }
 
@@ -65,7 +65,7 @@ export function testBlockKindMultiLine() {
 
     assert.deepStrictEqual(
         blocks.map((block) => blockKind(block.lines.join("\n"))),
-        [ Ok("UnionUntaggedType") ]
+        [Ok("UnionUntaggedType")]
     );
 }
 
@@ -75,12 +75,12 @@ export function testParse() {
         Module(
             "main",
             [
-                UnionUntaggedType(FixedType("Result", [ ]), [
+                UnionUntaggedType(FixedType("Result", []), [
                     StringValue("Err"),
                     StringValue("Ok"),
                 ]),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -91,12 +91,12 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
-                UnionUntaggedType(FixedType("Result", [ ]), [
+                UnionUntaggedType(FixedType("Result", []), [
                     StringValue("Err"),
                     StringValue("Ok"),
                 ]),
             ],
-            [ ]
+            []
         )
     );
 }

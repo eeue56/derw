@@ -48,7 +48,7 @@ import { List } from "List";
 
 const helloWorld: number[] = (function(y: any) {
     return y;
-})(List.foldl(add, [ 1, 2, 3 ]));
+})(List.foldl(add, [1, 2, 3]));
 `.trim();
 
 const expectedOutputJS = `
@@ -56,7 +56,7 @@ import { List } from "List";
 
 const helloWorld = (function(y) {
     return y;
-})(List.foldl(add, [ 1, 2, 3 ]));
+})(List.foldl(add, [1, 2, 3]));
 `.trim();
 
 export function testIntoBlocks() {
@@ -87,26 +87,24 @@ export function testParse() {
         Module(
             "main",
             [
-                Import([
-                    ImportModule("List", Nothing(), [ "List" ], "Global"),
-                ]),
+                Import([ImportModule("List", Nothing(), ["List"], "Global")]),
                 Const(
                     "helloWorld",
-                    FixedType("List", [ FixedType("number", [ ]) ]),
-                    [ ],
+                    FixedType("List", [FixedType("number", [])]),
+                    [],
                     LeftPipe(
-                        ListValue([ Value("1"), Value("2"), Value("3") ]),
+                        ListValue([Value("1"), Value("2"), Value("3")]),
                         LeftPipe(
                             ModuleReference(
-                                [ "List" ],
-                                FunctionCall("foldl", [ Value("add") ])
+                                ["List"],
+                                FunctionCall("foldl", [Value("add")])
                             ),
-                            Lambda([ "y" ], Value("y"))
+                            Lambda(["y"], Value("y"))
                         )
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -117,26 +115,24 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
-                Import([
-                    ImportModule("List", Nothing(), [ "List" ], "Global"),
-                ]),
+                Import([ImportModule("List", Nothing(), ["List"], "Global")]),
                 Const(
                     "helloWorld",
-                    FixedType("List", [ FixedType("number", [ ]) ]),
-                    [ ],
+                    FixedType("List", [FixedType("number", [])]),
+                    [],
                     LeftPipe(
-                        ListValue([ Value("1"), Value("2"), Value("3") ]),
+                        ListValue([Value("1"), Value("2"), Value("3")]),
                         LeftPipe(
                             ModuleReference(
-                                [ "List" ],
-                                FunctionCall("foldl", [ Value("add") ])
+                                ["List"],
+                                FunctionCall("foldl", [Value("add")])
                             ),
-                            Lambda([ "y" ], Value("y"))
+                            Lambda(["y"], Value("y"))
                         )
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

@@ -9,7 +9,7 @@ const adventOfCodePath = "./examples/advent_of_code";
 async function adventOfCodeFiles(): Promise<string[]> {
     const days = await readdir(adventOfCodePath);
 
-    let aocFiles: string[] = [ ];
+    let aocFiles: string[] = [];
 
     for (const day of days) {
         const files = await (
@@ -36,7 +36,7 @@ export async function testInit() {
     await rm("test/package", { force: true, recursive: true });
 
     await ensureDirectoryExists("test/package");
-    process.argv = [ "", "", "init", "--dir", "test/package" ];
+    process.argv = ["", "", "init", "--dir", "test/package"];
     await main();
 
     const doesDerwPackageExist = await fileExists(
@@ -87,7 +87,7 @@ export async function testCompileExamples() {
         const outputDir = `test/temp/${index}`;
         index++;
 
-        for (const target of [ "ts", "js", "elm", "derw" ]) {
+        for (const target of ["ts", "js", "elm", "derw"]) {
             process.argv = [
                 "",
                 "",

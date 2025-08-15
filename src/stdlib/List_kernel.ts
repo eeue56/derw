@@ -3,17 +3,17 @@ export function kernelLength(xs: any[]): number {
 }
 
 export function kernelEmptyList<a>(): a[] {
-    return [ ];
+    return [];
 }
 
 export function kernelSort<a>(xs: a[]): a[] {
-    const ys = [ ...xs ];
+    const ys = [...xs];
     ys.sort();
     return ys;
 }
 
 export function kernelSortBy<a>(fn: (_0: a, _1: a) => number, xs: a[]): a[] {
-    const ys = [ ...xs ];
+    const ys = [...xs];
     ys.sort(fn);
     return ys;
 }

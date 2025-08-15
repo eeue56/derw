@@ -3,9 +3,9 @@ import * as fs from "fs";
 type Boat = {
     horizontal: number;
     depth: number;
-}
+};
 
-function Boat(args: { horizontal: number, depth: number }): Boat {
+function Boat(args: { horizontal: number; depth: number; }): Boat {
     return {
         ...args,
     };
@@ -14,21 +14,21 @@ function Boat(args: { horizontal: number, depth: number }): Boat {
 function forward(x: number, boat: Boat): Boat {
     return {
         horizontal: x + boat.horizontal,
-        depth: boat.depth
+        depth: boat.depth,
     };
 }
 
 function up(y: number, boat: Boat): Boat {
     return {
         horizontal: boat.horizontal,
-        depth: boat.depth - y
+        depth: boat.depth - y,
     };
 }
 
 function down(y: number, boat: Boat): Boat {
     return {
         horizontal: boat.horizontal,
-        depth: boat.depth + y
+        depth: boat.depth + y,
     };
 }
 
@@ -51,16 +51,16 @@ function run(boat: Boat, command: Command): Boat {
 function runAll(commands: Command[]): Boat {
     return commands.reduce(run, {
         horizontal: 0,
-        depth: 0
+        depth: 0,
     });
 }
 
 type Command = {
     command: string;
     amount: number;
-}
+};
 
-function Command(args: { command: string, amount: number }): Command {
+function Command(args: { command: string; amount: number; }): Command {
     return {
         ...args,
     };
@@ -72,7 +72,7 @@ function parseLine(str: string): Command {
     const right: number = globalThis.parseInt(piece[1]);
     return {
         command: left,
-        amount: right
+        amount: right,
     };
 }
 
@@ -80,7 +80,9 @@ function parseLines(lines: string[]): Command[] {
     return lines.map(parseLine);
 }
 
-const exampleMain: void = globalThis.console.log(runAll(parseLines([ "forward 5", "down 5", "forward 8", "up 3", "down 8", "forward 2" ])));
+const exampleMain: void = globalThis.console.log(runAll(parseLines(
+    ["forward 5", "down 5", "forward 8", "up 3", "down 8", "forward 2"]
+)));
 
 const adventInput: Command[] = parseLines(split(toString(fs.readFileSync("input.txt"))));
 

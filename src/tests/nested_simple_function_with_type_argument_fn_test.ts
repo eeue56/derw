@@ -94,29 +94,29 @@ export function testParse() {
             [
                 Function(
                     "isTrue",
-                    FixedType("boolean", [ ]),
+                    FixedType("boolean", []),
                     [
                         FunctionArg(
                             "value",
-                            FixedType("Maybe", [ GenericType("a") ])
+                            FixedType("Maybe", [GenericType("a")])
                         ),
                     ],
                     [
                         Function(
                             "x",
-                            FixedType("boolean", [ ]),
-                            [ FunctionArg("y", GenericType("a")) ],
-                            [ ],
+                            FixedType("boolean", []),
+                            [FunctionArg("y", GenericType("a"))],
+                            [],
                             Value("true")
                         ),
                     ],
                     IfStatement(
                         Value("value"),
                         Value("true"),
-                        [ ],
-                        [ ],
+                        [],
+                        [],
                         Value("false"),
-                        [ ]
+                        []
                     )
                 ),
             ],
@@ -145,29 +145,29 @@ export function testParseMultiLine() {
             [
                 Function(
                     "isTrue",
-                    FixedType("boolean", [ ]),
+                    FixedType("boolean", []),
                     [
                         FunctionArg(
                             "value",
-                            FixedType("Maybe", [ GenericType("a") ])
+                            FixedType("Maybe", [GenericType("a")])
                         ),
                     ],
                     [
                         Function(
                             "x",
-                            FixedType("boolean", [ ]),
-                            [ FunctionArg("y", GenericType("a")) ],
-                            [ ],
+                            FixedType("boolean", []),
+                            [FunctionArg("y", GenericType("a"))],
+                            [],
                             Value("true")
                         ),
                     ],
                     IfStatement(
                         Value("value"),
                         Value("true"),
-                        [ ],
-                        [ ],
+                        [],
+                        [],
                         Value("false"),
-                        [ ]
+                        []
                     )
                 ),
             ],

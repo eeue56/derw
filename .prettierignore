@@ -1,3 +1,4 @@
 build
 .cache
 dist
+examples/advent_of_code/

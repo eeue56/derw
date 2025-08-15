@@ -11,7 +11,7 @@ const adventOfCodePath = "./examples/advent_of_code";
 async function adventOfCodeFiles(): Promise<string[]> {
     const days = await readdir(adventOfCodePath);
 
-    let aocFiles: string[] = [ ];
+    let aocFiles: string[] = [];
 
     for (const day of days) {
         const files = await (

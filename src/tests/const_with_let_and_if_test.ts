@@ -82,26 +82,26 @@ export function testParse() {
             [
                 Const(
                     "name",
-                    FixedType("string", [ ]),
+                    FixedType("string", []),
                     [
                         Const(
                             "rootName",
-                            FixedType("string", [ ]),
-                            [ ],
+                            FixedType("string", []),
+                            [],
                             IfStatement(
                                 Value("true"),
                                 StringValue("noah"),
-                                [ ],
-                                [ ],
+                                [],
+                                [],
                                 StringValue("james"),
-                                [ ]
+                                []
                             )
                         ),
                     ],
                     Value("rootName")
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -114,26 +114,26 @@ export function testParseMultiLine() {
             [
                 Const(
                     "name",
-                    FixedType("string", [ ]),
+                    FixedType("string", []),
                     [
                         Const(
                             "rootName",
-                            FixedType("string", [ ]),
-                            [ ],
+                            FixedType("string", []),
+                            [],
                             IfStatement(
                                 Value("true"),
                                 StringValue("noah"),
-                                [ ],
-                                [ ],
+                                [],
+                                [],
                                 StringValue("james"),
-                                [ ]
+                                []
                             )
                         ),
                     ],
                     Value("rootName")
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

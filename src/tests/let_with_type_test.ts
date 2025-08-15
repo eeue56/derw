@@ -87,20 +87,20 @@ export function testParse() {
             [
                 Function(
                     "isIncrease",
-                    FixedType("number", [ ]),
-                    [ FunctionArg("x", FixedType("number", [ ])) ],
+                    FixedType("number", []),
+                    [FunctionArg("x", FixedType("number", []))],
                     [
                         Const(
                             "typeOfSomething",
-                            FixedType("number", [ ]),
-                            [ ],
+                            FixedType("number", []),
+                            [],
                             Addition(Value("x"), Value("x"))
                         ),
                     ],
                     Value("typeOfSomething")
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -113,20 +113,20 @@ export function testParseMultiLine() {
             [
                 Function(
                     "isIncrease",
-                    FixedType("number", [ ]),
-                    [ FunctionArg("x", FixedType("number", [ ])) ],
+                    FixedType("number", []),
+                    [FunctionArg("x", FixedType("number", []))],
                     [
                         Const(
                             "typeOfSomething",
-                            FixedType("number", [ ]),
-                            [ ],
+                            FixedType("number", []),
+                            [],
                             Addition(Value("x"), Value("x"))
                         ),
                     ],
                     Value("typeOfSomething")
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

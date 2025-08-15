@@ -77,7 +77,7 @@ function capture(tokens: Token[]): string[] {
             if (tokens.length >= 1) {
                 const [ _0, ...rest ] = tokens;
                 if (_0.kind === "Speech") {
-                    return [ ];
+                    return [];
                 }
             }
         }
@@ -91,7 +91,7 @@ function capture(tokens: Token[]): string[] {
             }
         }
         default: {
-            return [ ];
+            return [];
         }
     }
 }
@@ -124,7 +124,7 @@ function capture(tokens) {
             if (tokens.length >= 1) {
                 const [ _0, ...rest ] = tokens;
                 if (_0.kind === "Speech") {
-                    return [ ];
+                    return [];
                 }
             }
         }
@@ -138,7 +138,7 @@ function capture(tokens) {
             }
         }
         default: {
-            return [ ];
+            return [];
         }
     }
 }
@@ -161,7 +161,7 @@ export function testBlockKind() {
 
     assert.deepStrictEqual(
         blocks.map((block) => blockKind(block.lines.join("\n"))),
-        [ Ok("Function") ]
+        [Ok("Function")]
     );
 }
 
@@ -170,7 +170,7 @@ export function testBlockKindMultiLine() {
 
     assert.deepStrictEqual(
         blocks.map((block) => blockKind(block.lines.join("\n"))),
-        [ Ok("Function") ]
+        [Ok("Function")]
     );
 }
 
@@ -182,14 +182,14 @@ export function testParse() {
             [
                 Function(
                     "capture",
-                    FixedType("List", [ FixedType("string", [ ]) ]),
+                    FixedType("List", [FixedType("string", [])]),
                     [
                         FunctionArg(
                             "tokens",
-                            FixedType("List", [ FixedType("Token", [ ]) ])
+                            FixedType("List", [FixedType("Token", [])])
                         ),
                     ],
-                    [ ],
+                    [],
                     CaseStatement(Value("tokens"), [
                         Branch(
                             ListDestructure([
@@ -199,34 +199,32 @@ export function testParse() {
                                 Value("rest"),
                             ]),
                             ListPrepend(
-                                FunctionCall("charsToString", [
-                                    Value("chars"),
-                                ]),
-                                FunctionCall("capture", [ Value("rest") ])
+                                FunctionCall("charsToString", [Value("chars")]),
+                                FunctionCall("capture", [Value("rest")])
                             ),
-                            [ ]
+                            []
                         ),
                         Branch(
                             ListDestructure([
                                 Destructure("Speech", ""),
                                 Value("rest"),
                             ]),
-                            ListValue([ ]),
-                            [ ]
+                            ListValue([]),
+                            []
                         ),
                         Branch(
                             ListDestructure([
                                 Destructure("Char", "{ char }"),
                                 Value("rest"),
                             ]),
-                            FunctionCall("capture", [ Value("rest") ]),
-                            [ ]
+                            FunctionCall("capture", [Value("rest")]),
+                            []
                         ),
-                        Branch(Default(), ListValue([ ]), [ ]),
+                        Branch(Default(), ListValue([]), []),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -239,14 +237,14 @@ export function testParseMultiLine() {
             [
                 Function(
                     "capture",
-                    FixedType("List", [ FixedType("string", [ ]) ]),
+                    FixedType("List", [FixedType("string", [])]),
                     [
                         FunctionArg(
                             "tokens",
-                            FixedType("List", [ FixedType("Token", [ ]) ])
+                            FixedType("List", [FixedType("Token", [])])
                         ),
                     ],
-                    [ ],
+                    [],
                     CaseStatement(Value("tokens"), [
                         Branch(
                             ListDestructure([
@@ -256,34 +254,32 @@ export function testParseMultiLine() {
                                 Value("rest"),
                             ]),
                             ListPrepend(
-                                FunctionCall("charsToString", [
-                                    Value("chars"),
-                                ]),
-                                FunctionCall("capture", [ Value("rest") ])
+                                FunctionCall("charsToString", [Value("chars")]),
+                                FunctionCall("capture", [Value("rest")])
                             ),
-                            [ ]
+                            []
                         ),
                         Branch(
                             ListDestructure([
                                 Destructure("Speech", ""),
                                 Value("rest"),
                             ]),
-                            ListValue([ ]),
-                            [ ]
+                            ListValue([]),
+                            []
                         ),
                         Branch(
                             ListDestructure([
                                 Destructure("Char", "{ char }"),
                                 Value("rest"),
                             ]),
-                            FunctionCall("capture", [ Value("rest") ]),
-                            [ ]
+                            FunctionCall("capture", [Value("rest")]),
+                            []
                         ),
-                        Branch(Default(), ListValue([ ]), [ ]),
+                        Branch(Default(), ListValue([]), []),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

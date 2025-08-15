@@ -124,29 +124,29 @@ export function testParse() {
         Module(
             "main",
             [
-                UnionType(FixedType("HamtNode", [ GenericType("a") ]), [
+                UnionType(FixedType("HamtNode", [GenericType("a")]), [
                     Tag("Subtree", [
-                        TagArg("tree", FixedType("Tree", [ GenericType("a") ])),
+                        TagArg("tree", FixedType("Tree", [GenericType("a")])),
                     ]),
                     Tag("Leaf", [
                         TagArg(
                             "children",
-                            FixedType("List", [ GenericType("a") ])
+                            FixedType("List", [GenericType("a")])
                         ),
                     ]),
                 ]),
-                UnionType(FixedType("Tree", [ GenericType("a") ]), [
+                UnionType(FixedType("Tree", [GenericType("a")]), [
                     Tag("TreeNode", [
                         TagArg(
                             "elements",
                             FixedType("List", [
-                                FixedType("HamtNode", [ GenericType("a") ]),
+                                FixedType("HamtNode", [GenericType("a")]),
                             ])
                         ),
                     ]),
                 ]),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -157,29 +157,29 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
-                UnionType(FixedType("HamtNode", [ GenericType("a") ]), [
+                UnionType(FixedType("HamtNode", [GenericType("a")]), [
                     Tag("Subtree", [
-                        TagArg("tree", FixedType("Tree", [ GenericType("a") ])),
+                        TagArg("tree", FixedType("Tree", [GenericType("a")])),
                     ]),
                     Tag("Leaf", [
                         TagArg(
                             "children",
-                            FixedType("List", [ GenericType("a") ])
+                            FixedType("List", [GenericType("a")])
                         ),
                     ]),
                 ]),
-                UnionType(FixedType("Tree", [ GenericType("a") ]), [
+                UnionType(FixedType("Tree", [GenericType("a")]), [
                     Tag("TreeNode", [
                         TagArg(
                             "elements",
                             FixedType("List", [
-                                FixedType("HamtNode", [ GenericType("a") ]),
+                                FixedType("HamtNode", [GenericType("a")]),
                             ])
                         ),
                     ]),
                 ]),
             ],
-            [ ]
+            []
         )
     );
 }

@@ -77,19 +77,19 @@ export function testParse() {
         Module(
             "main",
             [
-                UnionType(FixedType("View", [ GenericType("msg") ]), [
+                UnionType(FixedType("View", [GenericType("msg")]), [
                     Tag("Statement", [
                         TagArg(
                             "onInput",
                             FunctionType([
-                                FixedType("string", [ ]),
+                                FixedType("string", []),
                                 GenericType("msg"),
                             ])
                         ),
                     ]),
                 ]),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -100,19 +100,19 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
-                UnionType(FixedType("View", [ GenericType("msg") ]), [
+                UnionType(FixedType("View", [GenericType("msg")]), [
                     Tag("Statement", [
                         TagArg(
                             "onInput",
                             FunctionType([
-                                FixedType("string", [ ]),
+                                FixedType("string", []),
                                 GenericType("msg"),
                             ])
                         ),
                     ]),
                 ]),
             ],
-            [ ]
+            []
         )
     );
 }

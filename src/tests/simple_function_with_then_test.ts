@@ -70,21 +70,21 @@ export function testParse() {
             [
                 Function(
                     "doSomething",
-                    FixedType("boolean", [ ]),
+                    FixedType("boolean", []),
                     [
                         FunctionArg(
                             "send",
-                            FunctionType([ GenericType("a"), GenericType("a") ])
+                            FunctionType([GenericType("a"), GenericType("a")])
                         ),
                     ],
-                    [ ],
+                    [],
                     ModuleReference(
-                        [ "promise" ],
-                        FunctionCall("then", [ Value("send") ])
+                        ["promise"],
+                        FunctionCall("then", [Value("send")])
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -97,21 +97,21 @@ export function testParseMultiLine() {
             [
                 Function(
                     "doSomething",
-                    FixedType("boolean", [ ]),
+                    FixedType("boolean", []),
                     [
                         FunctionArg(
                             "send",
-                            FunctionType([ GenericType("a"), GenericType("a") ])
+                            FunctionType([GenericType("a"), GenericType("a")])
                         ),
                     ],
-                    [ ],
+                    [],
                     ModuleReference(
-                        [ "promise" ],
-                        FunctionCall("then", [ Value("send") ])
+                        ["promise"],
+                        FunctionCall("then", [Value("send")])
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

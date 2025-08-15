@@ -152,37 +152,28 @@ export function testParse() {
             [
                 Function(
                     "reducer",
-                    FixedType("boolean", [ ]),
+                    FixedType("boolean", []),
                     [
-                        FunctionArg("index", FixedType("number", [ ])),
-                        FunctionArg("line", FixedType("string", [ ])),
+                        FunctionArg("index", FixedType("number", [])),
+                        FunctionArg("line", FixedType("string", [])),
                     ],
-                    [ ],
+                    [],
                     IfStatement(
                         Equality(
                             ModuleReference(
-                                [ "line" ],
-                                FunctionCall("charAt", [ Value("index") ])
+                                ["line"],
+                                FunctionCall("charAt", [Value("index")])
                             ),
                             StringValue("0")
                         ),
                         Value("true"),
-                        [
-                            Const(
-                                "x",
-                                FixedType("number", [ ]),
-                                [ ],
-                                Value("5")
-                            ),
-                        ],
+                        [Const("x", FixedType("number", []), [], Value("5"))],
                         [
                             ElseIfStatement(
                                 Equality(
                                     ModuleReference(
-                                        [ "line" ],
-                                        FunctionCall("charAt", [
-                                            Value("index"),
-                                        ])
+                                        ["line"],
+                                        FunctionCall("charAt", [Value("index")])
                                     ),
                                     StringValue("1")
                                 ),
@@ -190,8 +181,8 @@ export function testParse() {
                                 [
                                     Const(
                                         "x",
-                                        FixedType("number", [ ]),
-                                        [ ],
+                                        FixedType("number", []),
+                                        [],
                                         Value("6")
                                     ),
                                 ]
@@ -199,10 +190,8 @@ export function testParse() {
                             ElseIfStatement(
                                 Equality(
                                     ModuleReference(
-                                        [ "line" ],
-                                        FunctionCall("charAt", [
-                                            Value("index"),
-                                        ])
+                                        ["line"],
+                                        FunctionCall("charAt", [Value("index")])
                                     ),
                                     StringValue("2")
                                 ),
@@ -210,26 +199,19 @@ export function testParse() {
                                 [
                                     Const(
                                         "x",
-                                        FixedType("number", [ ]),
-                                        [ ],
+                                        FixedType("number", []),
+                                        [],
                                         Value("7")
                                     ),
                                 ]
                             ),
                         ],
                         Value("false"),
-                        [
-                            Const(
-                                "x",
-                                FixedType("number", [ ]),
-                                [ ],
-                                Value("8")
-                            ),
-                        ]
+                        [Const("x", FixedType("number", []), [], Value("8"))]
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -242,37 +224,28 @@ export function testParseMultiLine() {
             [
                 Function(
                     "reducer",
-                    FixedType("boolean", [ ]),
+                    FixedType("boolean", []),
                     [
-                        FunctionArg("index", FixedType("number", [ ])),
-                        FunctionArg("line", FixedType("string", [ ])),
+                        FunctionArg("index", FixedType("number", [])),
+                        FunctionArg("line", FixedType("string", [])),
                     ],
-                    [ ],
+                    [],
                     IfStatement(
                         Equality(
                             ModuleReference(
-                                [ "line" ],
-                                FunctionCall("charAt", [ Value("index") ])
+                                ["line"],
+                                FunctionCall("charAt", [Value("index")])
                             ),
                             StringValue("0")
                         ),
                         Value("true"),
-                        [
-                            Const(
-                                "x",
-                                FixedType("number", [ ]),
-                                [ ],
-                                Value("5")
-                            ),
-                        ],
+                        [Const("x", FixedType("number", []), [], Value("5"))],
                         [
                             ElseIfStatement(
                                 Equality(
                                     ModuleReference(
-                                        [ "line" ],
-                                        FunctionCall("charAt", [
-                                            Value("index"),
-                                        ])
+                                        ["line"],
+                                        FunctionCall("charAt", [Value("index")])
                                     ),
                                     StringValue("1")
                                 ),
@@ -280,8 +253,8 @@ export function testParseMultiLine() {
                                 [
                                     Const(
                                         "x",
-                                        FixedType("number", [ ]),
-                                        [ ],
+                                        FixedType("number", []),
+                                        [],
                                         Value("6")
                                     ),
                                 ]
@@ -289,10 +262,8 @@ export function testParseMultiLine() {
                             ElseIfStatement(
                                 Equality(
                                     ModuleReference(
-                                        [ "line" ],
-                                        FunctionCall("charAt", [
-                                            Value("index"),
-                                        ])
+                                        ["line"],
+                                        FunctionCall("charAt", [Value("index")])
                                     ),
                                     StringValue("2")
                                 ),
@@ -300,26 +271,19 @@ export function testParseMultiLine() {
                                 [
                                     Const(
                                         "x",
-                                        FixedType("number", [ ]),
-                                        [ ],
+                                        FixedType("number", []),
+                                        [],
                                         Value("7")
                                     ),
                                 ]
                             ),
                         ],
                         Value("false"),
-                        [
-                            Const(
-                                "x",
-                                FixedType("number", [ ]),
-                                [ ],
-                                Value("8")
-                            ),
-                        ]
+                        [Const("x", FixedType("number", []), [], Value("8"))]
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

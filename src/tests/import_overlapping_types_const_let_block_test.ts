@@ -70,14 +70,14 @@ const something = (function() {
 
 export function testIntoBlocks() {
     assert.deepStrictEqual(intoBlocks(oneLine), [
-        UnparsedBlock("ImportBlock", 0, [ oneLine.split("\n")[0] ]),
+        UnparsedBlock("ImportBlock", 0, [oneLine.split("\n")[0]]),
         UnparsedBlock("ConstBlock", 2, oneLine.split("\n").slice(2)),
     ]);
 }
 
 export function testIntoBlocksMultiLine() {
     assert.deepStrictEqual(intoBlocks(multiLine), [
-        UnparsedBlock("ImportBlock", 0, [ multiLine.split("\n")[0] ]),
+        UnparsedBlock("ImportBlock", 0, [multiLine.split("\n")[0]]),
         UnparsedBlock("ConstBlock", 2, multiLine.split("\n").slice(2)),
     ]);
 }
@@ -106,18 +106,18 @@ export function testParse() {
                     ImportModule(
                         `"./Maybe"`,
                         Just("Maybe"),
-                        [ "Maybe", "Just", "Nothing" ],
+                        ["Maybe", "Just", "Nothing"],
                         "Relative"
                     ),
                 ]),
                 Const(
                     "something",
-                    FixedType("Maybe", [ FixedType("string", [ ]) ]),
+                    FixedType("Maybe", [FixedType("string", [])]),
                     [
                         Const(
                             "result",
-                            FixedType("Maybe", [ FixedType("string", [ ]) ]),
-                            [ ],
+                            FixedType("Maybe", [FixedType("string", [])]),
+                            [],
                             Constructor(
                                 "Just",
                                 ObjectLiteral(null, [
@@ -129,7 +129,7 @@ export function testParse() {
                     Value("result")
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -144,18 +144,18 @@ export function testParseMultiLine() {
                     ImportModule(
                         `"./Maybe"`,
                         Just("Maybe"),
-                        [ "Maybe", "Just", "Nothing" ],
+                        ["Maybe", "Just", "Nothing"],
                         "Relative"
                     ),
                 ]),
                 Const(
                     "something",
-                    FixedType("Maybe", [ FixedType("string", [ ]) ]),
+                    FixedType("Maybe", [FixedType("string", [])]),
                     [
                         Const(
                             "result",
-                            FixedType("Maybe", [ FixedType("string", [ ]) ]),
-                            [ ],
+                            FixedType("Maybe", [FixedType("string", [])]),
+                            [],
                             Constructor(
                                 "Just",
                                 ObjectLiteral(null, [
@@ -167,7 +167,7 @@ export function testParseMultiLine() {
                     Value("result")
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

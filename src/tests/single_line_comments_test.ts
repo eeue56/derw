@@ -85,13 +85,13 @@ export function testParse() {
                 Comment("turn anything into a string"),
                 Function(
                     "toString",
-                    FixedType("string", [ ]),
-                    [ FunctionArg("buffer", GenericType("any")) ],
-                    [ ],
-                    ModuleReference([ "buffer" ], FunctionCall("toString", [ ]))
+                    FixedType("string", []),
+                    [FunctionArg("buffer", GenericType("any"))],
+                    [],
+                    ModuleReference(["buffer"], FunctionCall("toString", []))
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -105,13 +105,13 @@ export function testParseMultiLine() {
                 Comment("turn anything into a string"),
                 Function(
                     "toString",
-                    FixedType("string", [ ]),
-                    [ FunctionArg("buffer", GenericType("any")) ],
-                    [ ],
-                    ModuleReference([ "buffer" ], FunctionCall("toString", [ ]))
+                    FixedType("string", []),
+                    [FunctionArg("buffer", GenericType("any"))],
+                    [],
+                    ModuleReference(["buffer"], FunctionCall("toString", []))
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

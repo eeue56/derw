@@ -29,11 +29,11 @@ If you want to write a website, both backend and frontend, Derw is a perfect cho
 
 ## Batteries built-in
 
--   A testing framework (all of Derw's compiler tests use this library!)
--   Performant web framework with server side rendering and hydration
--   Bundling built into the CLI
--   Write better code by leveraging a type system that guides your code.
--   Integrate with your existing code bases through interop with JavaScript and TypeScript.
+- A testing framework (all of Derw's compiler tests use this library!)
+- Performant web framework with server side rendering and hydration
+- Bundling built into the CLI
+- Write better code by leveraging a type system that guides your code.
+- Integrate with your existing code bases through interop with JavaScript and TypeScript.
 
 ## Getting Started
 

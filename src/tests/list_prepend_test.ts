@@ -63,12 +63,12 @@ export function testParse() {
             [
                 Const(
                     "helloWorld",
-                    FixedType("List", [ FixedType("number", [ ]) ]),
-                    [ ],
+                    FixedType("List", [FixedType("number", [])]),
+                    [],
                     ListPrepend(Value("1"), ListRange(Value("2"), Value("5")))
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -81,12 +81,12 @@ export function testParseMultiLine() {
             [
                 Const(
                     "helloWorld",
-                    FixedType("List", [ FixedType("number", [ ]) ]),
-                    [ ],
+                    FixedType("List", [FixedType("number", [])]),
+                    [],
                     ListPrepend(Value("1"), ListRange(Value("2"), Value("5")))
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

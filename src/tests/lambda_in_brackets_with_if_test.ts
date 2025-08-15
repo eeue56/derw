@@ -42,9 +42,9 @@ function filterMap<a, b>(fn: (arg0: a) => Maybe<b>, xs: a[]): b[] {
         if (true) {
             return filterMapHelp(fn, y, ys);
         } else {
-            return [ ];
+            return [];
         }
-    }, [ ], xs);
+    }, [], xs);
 }
 `.trim();
 
@@ -54,9 +54,9 @@ function filterMap(fn, xs) {
         if (true) {
             return filterMapHelp(fn, y, ys);
         } else {
-            return [ ];
+            return [];
         }
-    }, [ ], xs);
+    }, [], xs);
 }
 `.trim();
 
@@ -88,24 +88,24 @@ export function testParse() {
             [
                 Function(
                     "filterMap",
-                    FixedType("List", [ GenericType("b") ]),
+                    FixedType("List", [GenericType("b")]),
                     [
                         FunctionArg(
                             "fn",
                             FunctionType([
                                 GenericType("a"),
-                                FixedType("Maybe", [ GenericType("b") ]),
+                                FixedType("Maybe", [GenericType("b")]),
                             ])
                         ),
                         FunctionArg(
                             "xs",
-                            FixedType("List", [ GenericType("a") ])
+                            FixedType("List", [GenericType("a")])
                         ),
                     ],
-                    [ ],
+                    [],
                     FunctionCall("foldl", [
                         Lambda(
-                            [ "y", "ys" ],
+                            ["y", "ys"],
                             IfStatement(
                                 Value("true"),
                                 FunctionCall("filterMapHelp", [
@@ -113,18 +113,18 @@ export function testParse() {
                                     Value("y"),
                                     Value("ys"),
                                 ]),
-                                [ ],
-                                [ ],
-                                ListValue([ ]),
-                                [ ]
+                                [],
+                                [],
+                                ListValue([]),
+                                []
                             )
                         ),
-                        ListValue([ ]),
+                        ListValue([]),
                         Value("xs"),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -137,24 +137,24 @@ export function testParseMultiLine() {
             [
                 Function(
                     "filterMap",
-                    FixedType("List", [ GenericType("b") ]),
+                    FixedType("List", [GenericType("b")]),
                     [
                         FunctionArg(
                             "fn",
                             FunctionType([
                                 GenericType("a"),
-                                FixedType("Maybe", [ GenericType("b") ]),
+                                FixedType("Maybe", [GenericType("b")]),
                             ])
                         ),
                         FunctionArg(
                             "xs",
-                            FixedType("List", [ GenericType("a") ])
+                            FixedType("List", [GenericType("a")])
                         ),
                     ],
-                    [ ],
+                    [],
                     FunctionCall("foldl", [
                         Lambda(
-                            [ "y", "ys" ],
+                            ["y", "ys"],
                             IfStatement(
                                 Value("true"),
                                 FunctionCall("filterMapHelp", [
@@ -162,18 +162,18 @@ export function testParseMultiLine() {
                                     Value("y"),
                                     Value("ys"),
                                 ]),
-                                [ ],
-                                [ ],
-                                ListValue([ ]),
-                                [ ]
+                                [],
+                                [],
+                                ListValue([]),
+                                []
                             )
                         ),
-                        ListValue([ ]),
+                        ListValue([]),
                         Value("xs"),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

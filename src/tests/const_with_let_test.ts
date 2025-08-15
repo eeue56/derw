@@ -79,19 +79,19 @@ export function testParse() {
             [
                 Const(
                     "name",
-                    FixedType("string", [ ]),
+                    FixedType("string", []),
                     [
                         Const(
                             "rootName",
-                            FixedType("string", [ ]),
-                            [ ],
+                            FixedType("string", []),
+                            [],
                             StringValue("noah")
                         ),
                     ],
                     Value("rootName")
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -104,19 +104,19 @@ export function testParseMultiLine() {
             [
                 Const(
                     "name",
-                    FixedType("string", [ ]),
+                    FixedType("string", []),
                     [
                         Const(
                             "rootName",
-                            FixedType("string", [ ]),
-                            [ ],
+                            FixedType("string", []),
+                            [],
                             StringValue("noah")
                         ),
                     ],
                     Value("rootName")
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

@@ -68,7 +68,7 @@ export function testParse() {
                 Const(
                     "x",
                     GenericType("any"),
-                    [ ],
+                    [],
                     ObjectLiteral(null, [
                         Field(
                             "age",
@@ -85,7 +85,7 @@ export function testParse() {
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -99,7 +99,7 @@ export function testParseMultiLine() {
                 Const(
                     "x",
                     GenericType("any"),
-                    [ ],
+                    [],
                     ObjectLiteral(null, [
                         Field(
                             "age",
@@ -116,7 +116,7 @@ export function testParseMultiLine() {
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

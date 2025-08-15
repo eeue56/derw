@@ -49,7 +49,7 @@ function filterMapHelp<a, b>(fn: (arg0: a) => Maybe<b>, a: a, xs: b[]): b[] {
     switch (_res97517640.kind) {
         case "Just": {
             const { value } = _res97517640;
-            return append(xs, [ value ]);
+            return append(xs, [value]);
         }
         case "Nothing": {
             return xs;
@@ -64,7 +64,7 @@ function filterMapHelp(fn, a, xs) {
     switch (_res97517640.kind) {
         case "Just": {
             const { value } = _res97517640;
-            return append(xs, [ value ]);
+            return append(xs, [value]);
         }
         case "Nothing": {
             return xs;
@@ -90,7 +90,7 @@ export function testBlockKind() {
 
     assert.deepStrictEqual(
         blocks.map((block) => blockKind(block.lines.join("\n"))),
-        [ Ok("Function") ]
+        [Ok("Function")]
     );
 }
 
@@ -99,7 +99,7 @@ export function testBlockKindMultiLine() {
 
     assert.deepStrictEqual(
         blocks.map((block) => blockKind(block.lines.join("\n"))),
-        [ Ok("Function") ]
+        [Ok("Function")]
     );
 }
 
@@ -111,36 +111,36 @@ export function testParse() {
             [
                 Function(
                     "filterMapHelp",
-                    FixedType("List", [ GenericType("b") ]),
+                    FixedType("List", [GenericType("b")]),
                     [
                         FunctionArg(
                             "fn",
                             FunctionType([
                                 GenericType("a"),
-                                FixedType("Maybe", [ GenericType("b") ]),
+                                FixedType("Maybe", [GenericType("b")]),
                             ])
                         ),
                         FunctionArg("a", GenericType("a")),
                         FunctionArg(
                             "xs",
-                            FixedType("List", [ GenericType("b") ])
+                            FixedType("List", [GenericType("b")])
                         ),
                     ],
-                    [ ],
-                    CaseStatement(FunctionCall("fn", [ Value("a") ]), [
+                    [],
+                    CaseStatement(FunctionCall("fn", [Value("a")]), [
                         Branch(
                             Destructure("Just", "{ value }"),
                             FunctionCall("append", [
                                 Value("xs"),
-                                ListValue([ Value("value") ]),
+                                ListValue([Value("value")]),
                             ]),
-                            [ ]
+                            []
                         ),
-                        Branch(Destructure("Nothing", ""), Value("xs"), [ ]),
+                        Branch(Destructure("Nothing", ""), Value("xs"), []),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -153,36 +153,36 @@ export function testParseMultiLine() {
             [
                 Function(
                     "filterMapHelp",
-                    FixedType("List", [ GenericType("b") ]),
+                    FixedType("List", [GenericType("b")]),
                     [
                         FunctionArg(
                             "fn",
                             FunctionType([
                                 GenericType("a"),
-                                FixedType("Maybe", [ GenericType("b") ]),
+                                FixedType("Maybe", [GenericType("b")]),
                             ])
                         ),
                         FunctionArg("a", GenericType("a")),
                         FunctionArg(
                             "xs",
-                            FixedType("List", [ GenericType("b") ])
+                            FixedType("List", [GenericType("b")])
                         ),
                     ],
-                    [ ],
-                    CaseStatement(FunctionCall("fn", [ Value("a") ]), [
+                    [],
+                    CaseStatement(FunctionCall("fn", [Value("a")]), [
                         Branch(
                             Destructure("Just", "{ value }"),
                             FunctionCall("append", [
                                 Value("xs"),
-                                ListValue([ Value("value") ]),
+                                ListValue([Value("value")]),
                             ]),
-                            [ ]
+                            []
                         ),
-                        Branch(Destructure("Nothing", ""), Value("xs"), [ ]),
+                        Branch(Destructure("Nothing", ""), Value("xs"), []),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

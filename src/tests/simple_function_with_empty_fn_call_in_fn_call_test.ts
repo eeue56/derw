@@ -79,20 +79,20 @@ export function testParse() {
             [
                 Function(
                     "isTrue",
-                    FixedType("boolean", [ ]),
-                    [ FunctionArg("value", FixedType("boolean", [ ])) ],
-                    [ ],
+                    FixedType("boolean", []),
+                    [FunctionArg("value", FixedType("boolean", []))],
+                    [],
                     IfStatement(
                         Value("value"),
-                        FunctionCall("fn", [ FunctionCall("empty", [ ]) ]),
-                        [ ],
-                        [ ],
-                        FunctionCall("fn", [ FunctionCall("string", [ ]) ]),
-                        [ ]
+                        FunctionCall("fn", [FunctionCall("empty", [])]),
+                        [],
+                        [],
+                        FunctionCall("fn", [FunctionCall("string", [])]),
+                        []
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -105,20 +105,20 @@ export function testParseMultiLine() {
             [
                 Function(
                     "isTrue",
-                    FixedType("boolean", [ ]),
-                    [ FunctionArg("value", FixedType("boolean", [ ])) ],
-                    [ ],
+                    FixedType("boolean", []),
+                    [FunctionArg("value", FixedType("boolean", []))],
+                    [],
                     IfStatement(
                         Value("value"),
-                        FunctionCall("fn", [ FunctionCall("empty", [ ]) ]),
-                        [ ],
-                        [ ],
-                        FunctionCall("fn", [ FunctionCall("string", [ ]) ]),
-                        [ ]
+                        FunctionCall("fn", [FunctionCall("empty", [])]),
+                        [],
+                        [],
+                        FunctionCall("fn", [FunctionCall("string", [])]),
+                        []
                     )
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

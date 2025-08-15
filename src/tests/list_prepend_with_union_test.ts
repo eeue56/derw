@@ -31,11 +31,11 @@ helloWorld =
 `.trim();
 
 const expectedOutput = `
-const helloWorld: Maybe<number>[] = [ Just({ value: 1 }), ...[ ] ];
+const helloWorld: Maybe<number>[] = [ Just({ value: 1 }), ...[] ];
 `.trim();
 
 const expectedOutputJS = `
-const helloWorld = [ Just({ value: 1 }), ...[ ] ];
+const helloWorld = [ Just({ value: 1 }), ...[] ];
 `.trim();
 
 export function testIntoBlocks() {
@@ -67,15 +67,15 @@ export function testParse() {
                 Const(
                     "helloWorld",
                     FixedType("List", [
-                        FixedType("Maybe", [ FixedType("number", [ ]) ]),
+                        FixedType("Maybe", [FixedType("number", [])]),
                     ]),
-                    [ ],
+                    [],
                     ListPrepend(
                         Constructor(
                             "Just",
-                            ObjectLiteral(null, [ Field("value", Value("1")) ])
+                            ObjectLiteral(null, [Field("value", Value("1"))])
                         ),
-                        ListValue([ ])
+                        ListValue([])
                     )
                 ),
             ],
@@ -100,15 +100,15 @@ export function testParseMultiLine() {
                 Const(
                     "helloWorld",
                     FixedType("List", [
-                        FixedType("Maybe", [ FixedType("number", [ ]) ]),
+                        FixedType("Maybe", [FixedType("number", [])]),
                     ]),
-                    [ ],
+                    [],
                     ListPrepend(
                         Constructor(
                             "Just",
-                            ObjectLiteral(null, [ Field("value", Value("1")) ])
+                            ObjectLiteral(null, [Field("value", Value("1"))])
                         ),
-                        ListValue([ ])
+                        ListValue([])
                     )
                 ),
             ],

@@ -53,9 +53,9 @@ type Person = {
     name: string;
     age: number;
     people: string[];
-}
+};
 
-function Person(args: { name: string, age: number, people: string[] }): Person {
+function Person(args: { name: string; age: number; people: string[]; }): Person {
     return {
         ...args,
     };
@@ -64,7 +64,7 @@ function Person(args: { name: string, age: number, people: string[] }): Person {
 const person: Person = {
     name: "hello",
     age: 28,
-    people: [ ]
+    people: [],
 };
 `.trim();
 
@@ -78,7 +78,7 @@ function Person(args) {
 const person = {
     name: "hello",
     age: 28,
-    people: [ ]
+    people: [],
 };
 `.trim();
 
@@ -116,26 +116,26 @@ export function testParse() {
         Module(
             "main",
             [
-                TypeAlias(FixedType("Person", [ ]), [
-                    Property("name", FixedType("string", [ ])),
-                    Property("age", FixedType("number", [ ])),
+                TypeAlias(FixedType("Person", []), [
+                    Property("name", FixedType("string", [])),
+                    Property("age", FixedType("number", [])),
                     Property(
                         "people",
-                        FixedType("List", [ FixedType("string", [ ]) ])
+                        FixedType("List", [FixedType("string", [])])
                     ),
                 ]),
                 Const(
                     "person",
-                    FixedType("Person", [ ]),
-                    [ ],
+                    FixedType("Person", []),
+                    [],
                     ObjectLiteral(null, [
                         Field("name", StringValue("hello")),
                         Field("age", Value("28")),
-                        Field("people", ListValue([ ])),
+                        Field("people", ListValue([])),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -146,26 +146,26 @@ export function testParseMultiLine() {
         Module(
             "main",
             [
-                TypeAlias(FixedType("Person", [ ]), [
-                    Property("name", FixedType("string", [ ])),
-                    Property("age", FixedType("number", [ ])),
+                TypeAlias(FixedType("Person", []), [
+                    Property("name", FixedType("string", [])),
+                    Property("age", FixedType("number", [])),
                     Property(
                         "people",
-                        FixedType("List", [ FixedType("string", [ ]) ])
+                        FixedType("List", [FixedType("string", [])])
                     ),
                 ]),
                 Const(
                     "person",
-                    FixedType("Person", [ ]),
-                    [ ],
+                    FixedType("Person", []),
+                    [],
                     ObjectLiteral(null, [
                         Field("name", StringValue("hello")),
                         Field("age", Value("28")),
-                        Field("people", ListValue([ ])),
+                        Field("people", ListValue([])),
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

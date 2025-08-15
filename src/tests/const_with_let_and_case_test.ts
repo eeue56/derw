@@ -113,28 +113,25 @@ export function testParse() {
             [
                 Const(
                     "name",
-                    FixedType("string", [ ]),
+                    FixedType("string", []),
                     [
                         Const(
                             "rootName",
-                            FixedType("string", [ ]),
-                            [ ],
+                            FixedType("string", []),
+                            [],
                             CaseStatement(
-                                Constructor(
-                                    "Nothing",
-                                    ObjectLiteral(null, [ ])
-                                ),
+                                Constructor("Nothing", ObjectLiteral(null, [])),
                                 [
                                     Branch(
                                         Destructure("Just", "{ value }"),
                                         Value("value"),
-                                        [ ]
+                                        []
                                     ),
 
                                     Branch(
                                         Destructure("Nothing", ""),
                                         StringValue(""),
-                                        [ ]
+                                        []
                                     ),
                                 ]
                             )
@@ -143,7 +140,7 @@ export function testParse() {
                     Value("rootName")
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -156,28 +153,25 @@ export function testParseMultiLine() {
             [
                 Const(
                     "name",
-                    FixedType("string", [ ]),
+                    FixedType("string", []),
                     [
                         Const(
                             "rootName",
-                            FixedType("string", [ ]),
-                            [ ],
+                            FixedType("string", []),
+                            [],
                             CaseStatement(
-                                Constructor(
-                                    "Nothing",
-                                    ObjectLiteral(null, [ ])
-                                ),
+                                Constructor("Nothing", ObjectLiteral(null, [])),
                                 [
                                     Branch(
                                         Destructure("Just", "{ value }"),
                                         Value("value"),
-                                        [ ]
+                                        []
                                     ),
 
                                     Branch(
                                         Destructure("Nothing", ""),
                                         StringValue(""),
-                                        [ ]
+                                        []
                                     ),
                                 ]
                             )
@@ -186,7 +180,7 @@ export function testParseMultiLine() {
                     Value("rootName")
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

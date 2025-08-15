@@ -86,18 +86,18 @@ export function testParse() {
                     "fetch",
                     GenericType("any"),
                     [
-                        FunctionArg("url", FixedType("string", [ ])),
+                        FunctionArg("url", FixedType("string", [])),
                         FunctionArg("options", GenericType("any")),
                     ],
-                    [ ],
+                    [],
                     Value("response"),
                     DoBlock([
                         Const(
                             "response",
-                            FixedType("Response", [ ]),
-                            [ ],
+                            FixedType("Response", []),
+                            [],
                             ModuleReference(
-                                [ "globalThis" ],
+                                ["globalThis"],
                                 FunctionCall("fetch", [
                                     Value("url"),
                                     Value("options"),
@@ -107,7 +107,7 @@ export function testParse() {
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -122,18 +122,18 @@ export function testParseMultiLine() {
                     "fetch",
                     GenericType("any"),
                     [
-                        FunctionArg("url", FixedType("string", [ ])),
+                        FunctionArg("url", FixedType("string", [])),
                         FunctionArg("options", GenericType("any")),
                     ],
-                    [ ],
+                    [],
                     Value("response"),
                     DoBlock([
                         Const(
                             "response",
-                            FixedType("Response", [ ]),
-                            [ ],
+                            FixedType("Response", []),
+                            [],
                             ModuleReference(
-                                [ "globalThis" ],
+                                ["globalThis"],
                                 FunctionCall("fetch", [
                                     Value("url"),
                                     Value("options"),
@@ -143,7 +143,7 @@ export function testParseMultiLine() {
                     ])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }

@@ -23,7 +23,7 @@ function countHelper(count, x) {
             b: count.b,
             c: count.c,
             value: x,
-            count: count.count
+            count: count.count,
         };
     } else {
         if (count.b === 9999) {
@@ -32,7 +32,7 @@ function countHelper(count, x) {
                 b: x,
                 c: count.c,
                 value: x,
-                count: count.count
+                count: count.count,
             };
         } else {
             if (count.c === 9999) {
@@ -41,7 +41,7 @@ function countHelper(count, x) {
                     b: x,
                     c: x,
                     value: x,
-                    count: count.count
+                    count: count.count,
                 };
             } else {
                 if (isIncrease(sumCurrent, sumNext)) {
@@ -50,7 +50,7 @@ function countHelper(count, x) {
                         b: count.c,
                         c: x,
                         value: x,
-                        count: count.count + 1
+                        count: count.count + 1,
                     };
                 } else {
                     return {
@@ -58,7 +58,7 @@ function countHelper(count, x) {
                         b: count.c,
                         c: x,
                         value: x,
-                        count: count.count
+                        count: count.count,
                     };
                 };
             };
@@ -76,7 +76,7 @@ function countIncreases(xs) {
         b: 9999,
         c: 9999,
         value: 9999,
-        count: 0
+        count: 0,
     }));
 }
 
@@ -98,6 +98,8 @@ function toString(buffer) {
     return buffer.toString();
 }
 
-const exampleMain = console.log(countIncreases([ 199, 200, 208, 210, 200, 207, 240, 269, 260, 263 ]));
+const exampleMain = console.log(countIncreases(
+    [199, 200, 208, 210, 200, 207, 240, 269, 260, 263]
+));
 
 const main = globalThis.console.log(countIncreases(adventInput));

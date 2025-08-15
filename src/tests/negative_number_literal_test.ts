@@ -52,8 +52,8 @@ export function testParse() {
         parse(oneLine),
         Module(
             "main",
-            [ Const("helloWorld", FixedType("number", [ ]), [ ], Value("-1")) ],
-            [ ]
+            [Const("helloWorld", FixedType("number", []), [], Value("-1"))],
+            []
         )
     );
 }
@@ -63,8 +63,8 @@ export function testParseMultiLine() {
         parse(multiLine),
         Module(
             "main",
-            [ Const("helloWorld", FixedType("number", [ ]), [ ], Value("-1")) ],
-            [ ]
+            [Const("helloWorld", FixedType("number", []), [], Value("-1"))],
+            []
         )
     );
 }

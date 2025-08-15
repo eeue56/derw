@@ -29,11 +29,11 @@ helloWorld =
 `.trim();
 
 const expectedOutput = `
-const helloWorld: string[] = [ toString(1) ];
+const helloWorld: string[] = [toString(1)];
 `.trim();
 
 const expectedOutputJS = `
-const helloWorld = [ toString(1) ];
+const helloWorld = [toString(1)];
 `.trim();
 
 export function testIntoBlocks() {
@@ -64,12 +64,12 @@ export function testParse() {
             [
                 Const(
                     "helloWorld",
-                    FixedType("List", [ FixedType("string", [ ]) ]),
-                    [ ],
-                    ListValue([ RightPipe(Value("toString"), Value("1")) ])
+                    FixedType("List", [FixedType("string", [])]),
+                    [],
+                    ListValue([RightPipe(Value("toString"), Value("1"))])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
@@ -82,12 +82,12 @@ export function testParseMultiLine() {
             [
                 Const(
                     "helloWorld",
-                    FixedType("List", [ FixedType("string", [ ]) ]),
-                    [ ],
-                    ListValue([ RightPipe(Value("toString"), Value("1")) ])
+                    FixedType("List", [FixedType("string", [])]),
+                    [],
+                    ListValue([RightPipe(Value("toString"), Value("1"))])
                 ),
             ],
-            [ ]
+            []
         )
     );
 }
